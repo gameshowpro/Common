@@ -256,3 +256,5 @@ paket-files/
 *.zip
 *.bak
 *.json
+*.dll
+*.xml
