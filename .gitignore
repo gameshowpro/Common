@@ -259,3 +259,12 @@ paket-files/
 *.dll
 *.xml
 /Match Game/Ventuz/Scenes.revisions
+*.vpa
+*.vzr
+*.auto
+*.bak3
+/TTTT/Ventuz Podiums/Movies/P-GAMEPLAY_NUMBER_03-WINNER.mov
+/TTTT/Ventuz Podiums/Movies/P-GAMEPLAY_NUMBER_02-WINNER.mov
+/TTTT/Ventuz Podiums/Movies/P-GAMEPLAY_NUMBER_01-WINNER.mov
+/TTTT/Ventuz Screens/Movies/08_TTTT_SCOREBOARD_01_h264.mov
+/TTTT/desktop.ini
