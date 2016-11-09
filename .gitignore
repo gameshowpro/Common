@@ -255,7 +255,6 @@ paket-files/
 *.xlsx
 *.zip
 *.bak
-*.json
 *.dll
 *.xml
 /Match Game/Ventuz/Scenes.revisions
