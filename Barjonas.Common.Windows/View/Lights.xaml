@@ -1,0 +1,73 @@
+﻿<ResourceDictionary x:Class="Barjonas.Common.View.Lights"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:conv="clr-namespace:Barjonas.Common.Converters"
+             xmlns:lights="clr-namespace:Barjonas.Common.Model.Lights"
+             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             mc:Ignorable="d" >
+    <conv:ToOneBased x:Key="ToOneBased"/>
+    <DataTemplate DataType="{x:Type lights:StatePresetChannel}">
+        <DockPanel>
+            <Rectangle DockPanel.Dock="Left" Width="10" Margin="0 10 -8 10">
+                <Rectangle.Fill>
+                    <SolidColorBrush Color="{Binding FixtureChannelType.Primary, FallbackValue=White}" />
+                </Rectangle.Fill>
+            </Rectangle>
+            <TextBox Text="{Binding Level}" Width="50" TextAlignment="Center" VerticalAlignment="Center" Margin="10"/>
+        </DockPanel>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type lights:StateLevels}">
+        <StackPanel>
+            <TextBlock Text="{Binding Key}"/>
+            <ItemsControl ItemsSource="{Binding Levels}" Margin="10 0 0 0">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type lights:StatePresetGroup}">
+        <StackPanel>
+            <TextBlock Text="{Binding Name}" />
+            <ItemsControl ItemsSource="{Binding StatesLevels}" Margin="10 0 0 0"/>
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type lights:Universe}">
+        <DockPanel>
+            <Rectangle Height="10" DockPanel.Dock="Top"/>
+            <controls:NumericUpDown Value="{Binding Settings.UniverseIndex}" Minimum="1" Maximum="32767" HasDecimals="False" controls:TextBoxHelper.Watermark="Universe" Margin="{StaticResource ControlSmallMargin}" DockPanel.Dock="Top" FontSize="22" HorizontalAlignment="Left"/>
+            <ItemsControl ItemsSource="{Binding Channels}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="16" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </DockPanel>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type lights:UniverseChannel}">
+        <Viewbox>
+            <Border BorderBrush="DarkGray" BorderThickness="1" Background="#01000000">
+                <Border.ToolTip>
+                    <TextBlock Text="{Binding MasterChannel.Parent.DisplayName, FallbackValue=Unassigned}" Background="Black" Padding="3">
+                        <TextBlock.Foreground>
+                            <SolidColorBrush Color="{Binding MasterChannel.FixtureChannelType.Primary, FallbackValue=White}" />
+                        </TextBlock.Foreground>
+                    </TextBlock>
+                </Border.ToolTip>
+                <UniformGrid Columns="1" Margin="2" Height="30" Width="30">
+                    <TextBlock Margin="2" Text="{Binding Index, Converter={StaticResource ToOneBased}}" HorizontalAlignment="Center" Style="{StaticResource SmallPrint}" VerticalAlignment="Center">
+                        <TextBlock.Foreground>
+                            <SolidColorBrush Color="{Binding MasterChannel.FixtureChannelType.Primary, FallbackValue=Black}" />
+                        </TextBlock.Foreground>
+                    </TextBlock>
+                    <TextBox Text="{Binding Level}" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10" BorderThickness="0" />
+                </UniformGrid>
+            </Border>
+        </Viewbox>
+    </DataTemplate>
+</ResourceDictionary>

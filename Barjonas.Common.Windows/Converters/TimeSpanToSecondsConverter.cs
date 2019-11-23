@@ -1,0 +1,48 @@
+﻿// (C) Barjonas LLC 2018
+
+using System;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Data;
+
+namespace Barjonas.Common.Converters
+{
+    public class TimeSpanToSecondsConverter : IValueConverter
+    {
+        public bool IntCeiling { get; set; }
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is TimeSpan)
+            {
+                if (IntCeiling)
+                {
+                    return (int)Math.Ceiling(((TimeSpan)value).TotalSeconds);
+                }
+                else
+                {
+                    return ((TimeSpan)value).TotalSeconds;
+                }
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (typeof(double).IsAssignableFrom(value?.GetType()))
+            {
+                return TimeSpan.FromSeconds((double)value);
+            }
+            else if (double.TryParse(value?.ToString(), out var valDouble))
+            {
+                return TimeSpan.FromSeconds(valDouble);
+            }
+            else
+            {
+                return DependencyProperty.UnsetValue;
+            }
+        }
+    }
+}
