@@ -7,7 +7,7 @@
     <ProjectGuid>{F0A796D8-0E66-4A0C-B88D-188A43843950}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Barjonas.Common.Windows</RootNamespace>
+    <RootNamespace>Barjonas.Common</RootNamespace>
     <AssemblyName>Barjonas.Common.Windows</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -120,6 +120,7 @@
     <Compile Include="ViewModel\RelayCommandSimple.cs" />
     <Compile Include="ViewModel\VmBase.cs" />
     <Compile Include="View\ComboboxValueHoldDecorator.cs" />
+    <Compile Include="View\ScrollViewerCustomizeBehavior.cs" />
     <Compile Include="View\UniformGridColsFirst.cs" />
     <Compile Include="Wpf\AppBase.cs" />
     <Compile Include="Wpf\WpfUtils.cs" />
