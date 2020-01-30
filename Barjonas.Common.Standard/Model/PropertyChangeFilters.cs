@@ -1,5 +1,6 @@
 ﻿// (C) Barjonas LLC 2018
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -64,7 +65,7 @@ namespace Barjonas.Common.Model
                     {
                         collectionSenders.Add(condition._senderCollection);
                         condition._senderCollection.CollectionChanged += SenderCollection_CollectionChanged;
-                        if (!string.IsNullOrWhiteSpace(condition._property) && condition._senderCollection is IItemPropertyChanged ipc)
+                        if (condition._senderCollection is IItemPropertyChanged ipc)
                         {
                             ipc.ItemPropertyChanged += Ipc_ItemPropertyChanged;
                         }
@@ -152,5 +153,7 @@ namespace Barjonas.Common.Model
             }
             _filters.Clear();
         }
+
+        public bool Any() => _filters.Any();
     }
 }
