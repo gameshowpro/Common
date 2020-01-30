@@ -18,7 +18,7 @@ namespace Barjonas.Common.Model
 
         public event EventHandler OnTriggered;
 
-        public IncomingTrigger(IncomingTriggerSetting setting)
+        protected IncomingTrigger(IncomingTriggerSetting setting)
         {
             _lastTrigger.Start();
             Setting = setting;
@@ -55,6 +55,7 @@ namespace Barjonas.Common.Model
             if (!Setting.DebounceInterval.HasValue || _lastTrigger.Elapsed > Setting.DebounceInterval.Value)
             {
                 _lastTrigger.Restart();
+                LastTriggerDateTime = DateTime.UtcNow;
                 OnTriggered?.Invoke(this, new EventArgs());
             }
         }
@@ -108,6 +109,13 @@ namespace Barjonas.Common.Model
         {
             get { return _isTest; }
             set { SetProperty(ref _isTest, value); }
+        }
+
+        private DateTime _lastTriggerDateTime = DateTime.MinValue;
+        public DateTime LastTriggerDateTime
+        {
+            get { return _lastTriggerDateTime; }
+            protected set { SetProperty(ref _lastTriggerDateTime, value); }
         }
 
         public RelayCommand<bool?> SimulateTriggerCommand { get; private set; }

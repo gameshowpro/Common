@@ -17,6 +17,11 @@
     <conv:ToOneBased x:Key="ToOneBased"/>
     <BooleanToVisibilityConverter  x:Key="BooleanToVisibilityConverter"/>
     <DataTemplate x:Key="Trigger">
+        <DataTemplate.Resources>
+            <Storyboard x:Key="TriggerIndicatorSB" >
+                <DoubleAnimation Storyboard.TargetName="TriggerIndicator" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5" />
+            </Storyboard>
+        </DataTemplate.Resources>
         <Grid ToolTip="Double right click to enable/disable" Margin="5">
             <Grid Visibility="{Binding IsDown, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.Background>
@@ -40,6 +45,15 @@
             </Grid>
             <Grid Visibility="{Binding TriggerWhenDownAllowed, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <iconPacks:PackIconModern Kind="Stop" Width="15" Height="15" HorizontalAlignment="Center" Visibility="{Binding TriggerWhenDown, Converter={StaticResource MatchToBooleanConverter}, ConverterParameter={conv:Bool False}}"/>
+            </Grid>
+            <Grid>
+                <iconPacks:PackIconModern Opacity="0" Kind="Lightning" Name="TriggerIndicator" Width="15" Height="15" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Yellow" Tag="{Binding LastTriggerDateTime, NotifyOnTargetUpdated=True}">
+                    <iconPacks:PackIconModern.Triggers>
+                        <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                            <BeginStoryboard Storyboard="{StaticResource TriggerIndicatorSB}" />
+                        </EventTrigger>
+                    </iconPacks:PackIconModern.Triggers>
+                </iconPacks:PackIconModern>
             </Grid>
             <Grid.InputBindings>
                 <MouseBinding MouseAction="RightDoubleClick" Command="{Binding ToggleTriggerWhenDownCommand}" />
