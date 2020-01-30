@@ -48,10 +48,6 @@ namespace Barjonas.Common.Model.Lights
             }
             set
             {
-                if (_levels != null)
-                {
-                    throw new InvalidOperationException($"Once {nameof(Levels)} is set, it is immutable.");
-                }
                 _levels = value;
             }
         }
