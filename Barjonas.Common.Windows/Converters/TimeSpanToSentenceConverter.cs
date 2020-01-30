@@ -32,7 +32,7 @@ namespace Barjonas.Common.Converters
             {
                 throw new NotImplementedException();
             }
-            if (values[0] is DateTime start && values[1] is DateTime end)
+            if (values[0] is DateTime start && values[1] is DateTime end && start > DateTime.MinValue)
             {
                 return Convert(end.ToUniversalTime() - start.ToUniversalTime(), targetType, parameter, culture);
             }
