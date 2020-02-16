@@ -765,5 +765,64 @@ namespace Barjonas.Common
             double scaled = minOut + (double)(input - minIn) / (maxIn - minIn) * (maxOut - minOut);
             return scaled.KeepInRange(Math.Min(minOut, maxOut), Math.Max(minOut, maxOut));
         }
+
+        private static readonly string[] s_unitsMap = new[] { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen" };
+        private static readonly string[] s_tensMap = new[] { "zero", "ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety" };
+
+        public static string ToWords(this int number)
+        {
+            if (number == 0)
+            {
+                return "zero";
+            }
+
+            if (number < 0)
+            {
+                return "minus " + ToWords(Math.Abs(number));
+            }
+
+            string words = "";
+
+            if ((number / 1000000) > 0)
+            {
+                words += ToWords(number / 1000000) + " million ";
+                number %= 1000000;
+            }
+
+            if ((number / 1000) > 0)
+            {
+                words += ToWords(number / 1000) + " thousand ";
+                number %= 1000;
+            }
+
+            if ((number / 100) > 0)
+            {
+                words += ToWords(number / 100) + " hundred ";
+                number %= 100;
+            }
+
+            if (number > 0)
+            {
+                if (words != "")
+                {
+                    words += "and ";
+                }
+
+                if (number < 20)
+                {
+                    words += s_unitsMap[number];
+                }
+                else
+                {
+                    words += s_tensMap[number / 10];
+                    if ((number % 10) > 0)
+                    {
+                        words += "-" + s_unitsMap[number % 10];
+                    }
+                }
+            }
+
+            return words;
+        }
     }
 }
