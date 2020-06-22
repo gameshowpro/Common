@@ -24,7 +24,7 @@
         <Setter Property="Width" Value="20"/>
         <Setter Property="Height" Value="20"/>
     </Style>
-    <Style TargetType="Button" BasedOn="{StaticResource MetroCircleButtonStyle}" x:Key="CircleButton">
+    <Style TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Circle}" x:Key="CircleButton">
         <Setter Property="Margin" Value="{StaticResource ControlMargin}"/>
         <Setter Property="Width" Value="50"/>
         <Setter Property="Height" Value="50"/>
@@ -40,7 +40,7 @@
             </Trigger>
         </Style.Triggers>
     </Style>
-    <Style TargetType="ToggleButton" BasedOn="{StaticResource MetroCircleToggleButtonStyle}" x:Key="CircleToggle">
+    <Style TargetType="ToggleButton" BasedOn="{StaticResource MahApps.Styles.ToggleButton.Circle}" x:Key="CircleToggle">
         <Setter Property="Margin" Value="{StaticResource ControlMargin}"/>
         <Setter Property="Width" Value="50"/>
         <Setter Property="Height" Value="50"/>
@@ -60,10 +60,66 @@
                        BasedOn="{StaticResource {x:Type controls:DropDownButton}}"
                        TargetType="controls:DropDownButton">
         <Setter Property="ArrowVisibility" Value="Collapsed" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:DropDownButton}">
+                    <Border x:Name="PART_Border"
+                            Background="Transparent"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding controls:ControlsHelper.CornerRadius}"
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                            UseLayoutRounding="True">
+                        <controls:ClipBorder x:Name="PART_ClipBorder"
+                                             CornerRadius="{TemplateBinding controls:ControlsHelper.CornerRadius}"
+                                             SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+                            <Button x:Name="PART_Button"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    FocusVisualStyle="{TemplateBinding FocusVisualStyle}"
+                                    Foreground="{TemplateBinding Foreground}"
+                                    RenderOptions.ClearTypeHint="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(RenderOptions.ClearTypeHint), Mode=OneWay}"
+                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                    Style="{TemplateBinding ButtonStyle}">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"
+                                                          Content="{TemplateBinding Icon}"
+                                                          ContentTemplate="{TemplateBinding IconTemplate}"
+                                                          Focusable="False"
+                                                          RecognizesAccessKey="True"
+                                                          UseLayoutRounding="False" />
+                                <Button.ContextMenu>
+                                    <ContextMenu x:Name="PART_Menu"
+                                                 MinWidth="{TemplateBinding ActualWidth}"
+                                                 DisplayMemberPath="{TemplateBinding DisplayMemberPath}"
+                                                 IsOpen="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                 ItemContainerStyle="{TemplateBinding ItemContainerStyle}"
+                                                 ItemContainerStyleSelector="{TemplateBinding ItemContainerStyleSelector}"
+                                                 ItemStringFormat="{TemplateBinding ItemStringFormat}"
+                                                 ItemTemplate="{TemplateBinding ItemTemplate}"
+                                                 ItemTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                                 ItemsPanel="{TemplateBinding ItemsPanel}"
+                                                 ItemsSource="{TemplateBinding ItemsSource}"
+                                                 Placement="Bottom"
+                                                 StaysOpen="False"
+                                                 Style="{TemplateBinding MenuStyle}"
+                                                 UseLayoutRounding="False" />
+                                </Button.ContextMenu>
+                            </Button>
+                        </controls:ClipBorder>
+                    </Border>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="ButtonStyle" Value="{DynamicResource MahApps.Metro.Styles.MetroCircleButtonStyle}" />
-        <Setter Property="Height" Value="48" />
-        <Setter Property="Width" Value="48" />
+        <Setter Property="ButtonStyle" Value="{DynamicResource MahApps.Styles.Button.Circle}" />
+        <Setter Property="Height" Value="50" />
+        <Setter Property="Width" Value="50" />
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Foreground" Value="#ff9933" />

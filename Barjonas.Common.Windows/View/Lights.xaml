@@ -39,7 +39,7 @@
     <DataTemplate DataType="{x:Type lights:Universe}">
         <DockPanel>
             <Rectangle Height="10" DockPanel.Dock="Top"/>
-            <controls:NumericUpDown Value="{Binding Settings.UniverseIndex}" Minimum="1" Maximum="32767" HasDecimals="False" controls:TextBoxHelper.Watermark="Universe" Margin="{StaticResource ControlSmallMargin}" DockPanel.Dock="Top" FontSize="22" HorizontalAlignment="Left"/>
+            <controls:NumericUpDown Value="{Binding Settings.UniverseIndex}" Minimum="1" Maximum="32767" NumericInputMode="Numbers" controls:TextBoxHelper.Watermark="Universe" Margin="{StaticResource ControlSmallMargin}" DockPanel.Dock="Top" FontSize="22" HorizontalAlignment="Left"/>
             <ItemsControl ItemsSource="{Binding Channels}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>

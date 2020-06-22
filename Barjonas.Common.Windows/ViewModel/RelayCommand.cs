@@ -13,7 +13,7 @@ namespace Barjonas.Common.ViewModel
     {
         #region Fields
 
-        private readonly Action<T> _execute = null;
+        protected readonly Action<T> _execute = null;
         private readonly Predicate<T> _canExecute = null;
 
         #endregion
@@ -63,7 +63,7 @@ namespace Barjonas.Common.ViewModel
         ///<returns>
         ///true if this command can be executed; otherwise, false.
         ///</returns>
-        public bool CanExecute(object parameter)
+        public virtual bool CanExecute(object parameter)
         {
             return _canExecuteBool;
         }
@@ -81,7 +81,7 @@ namespace Barjonas.Common.ViewModel
         ///Defines the method to be called when the command is invoked.
         ///</summary>
         ///<param name="parameter">Data used by the command. If the command does not require data to be passed, this object can be set to <see langword="null" />.</param>
-        public void Execute(object parameter)
+        public virtual void Execute(object parameter)
         {
             _execute((T)parameter);
         }

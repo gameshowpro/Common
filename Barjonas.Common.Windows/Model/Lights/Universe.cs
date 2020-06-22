@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Barjonas.Common.Model.Lights
 {
@@ -132,6 +133,13 @@ namespace Barjonas.Common.Model.Lights
                 }
                 _channels[channel].LevelChanged();
             }
+        }
+
+        public byte[] GetData(int start, int length)
+        {
+            var newArray = new byte[length];
+            Buffer.BlockCopy(Data, start, newArray, 0, length);
+            return newArray;
         }
     }
 }

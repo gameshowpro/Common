@@ -69,7 +69,7 @@
             </StackPanel>
             <DataGrid ItemsSource="{Binding Triggers}" AutoGenerateColumns="False">
                 <DataGrid.Resources>
-                    <Style TargetType="Button" BasedOn="{StaticResource MetroFlatButton}">
+                    <Style TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Flat}">
                         <Setter Property="Height" Value="20"/>
                         <Setter Property="Margin" Value="1 0"/>
                         <Setter Property="Padding" Value="0"/>
@@ -97,7 +97,7 @@
                     <DataGridTemplateColumn Header="ID">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <controls:NumericUpDown Value="{Binding Setting.Id, Converter={StaticResource ToOneBased}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="1" Maximum="256" HasDecimals="False"/>
+                                <controls:NumericUpDown Value="{Binding Setting.Id, Converter={StaticResource ToOneBased}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="1" Maximum="256" NumericInputMode="Numbers"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

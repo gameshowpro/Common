@@ -42,7 +42,7 @@ namespace Barjonas.Common.Converters
                     return this;
                 }
 
-                BindingOperations.SetBinding(targetObject, EnumToObjectArray.s_sourceEnumBindingSinkProperty, SourceEnum);
+               BindingOperations.SetBinding(targetObject, EnumToObjectArray.s_sourceEnumBindingSinkProperty, SourceEnum);
                 typeToUse = targetObject.GetValue(s_sourceEnumBindingSinkProperty).GetType();
                 if (typeToUse.BaseType != typeof(Enum))
                 {
