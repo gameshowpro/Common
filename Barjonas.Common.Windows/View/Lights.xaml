@@ -21,13 +21,18 @@
     <DataTemplate DataType="{x:Type lights:StateLevels}">
         <StackPanel>
             <TextBlock Text="{Binding Key}"/>
-            <ItemsControl ItemsSource="{Binding Levels}" Margin="10 0 0 0">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+            <DockPanel>
+                <ItemsControl ItemsSource="{Binding Levels}" Margin="10 0 0 0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                <controls:NumericUpDown Value="{Binding FlashOnDuration}" Interval="0.1" StringFormat="0.0#" Minimum="0" Maximum="5" NumericInputMode="Decimal" controls:TextBoxHelper.Watermark="On (s)" DockPanel.Dock="Left" />
+                <controls:NumericUpDown Value="{Binding FlashOffDuration}" Interval="0.1" StringFormat="0.0#" Minimum="0" Maximum="5" NumericInputMode="Decimal" controls:TextBoxHelper.Watermark="Off (s)" DockPanel.Dock="Left" />
+                <controls:NumericUpDown Value="{Binding FlashCount}" NumericInputMode="Numbers" Minimum="0" Maximum="99" controls:TextBoxHelper.Watermark="Count" DockPanel.Dock="Left" />
+            </DockPanel>
         </StackPanel>
     </DataTemplate>
     <DataTemplate DataType="{x:Type lights:StatePresetGroup}">

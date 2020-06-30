@@ -118,16 +118,20 @@ namespace Barjonas.Common.Model.Lights
 
         public void ApplyStatePreset(StateLevels stateLevels, bool flashNow = true)
         {
-            if (_currentState != null)
+            bool changed = _currentState != stateLevels;
+            if (changed)
             {
-                _currentState.Flash -= CurrentState_Flash;
+                if (_currentState != null)
+                {
+                    _currentState.Flash -= CurrentState_Flash;
+                }
+                _currentState = stateLevels;
+                if (_currentState != null)
+                {
+                    _currentState.Flash += CurrentState_Flash;
+                }
             }
-            _currentState = stateLevels;
-            if (_currentState != null)
-            {
-                _currentState.Flash += CurrentState_Flash;
-            }
-            if (stateLevels?.FlashOnDuration > 0 && stateLevels?.FlashOffDuration > 0)
+            if (changed && stateLevels?.FlashOnDuration > 0 && stateLevels?.FlashOffDuration > 0)
             {
                 if (flashNow)
                 {

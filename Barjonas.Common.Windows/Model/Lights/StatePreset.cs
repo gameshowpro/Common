@@ -85,21 +85,37 @@ namespace Barjonas.Common.Model.Lights
             set { SetProperty(ref _flashOffDuration, value); }
         }
 
+        private int _flashCount = 0;
+        [JsonProperty, DefaultValue(0)]
+        public int FlashCount
+        {
+            get { return _flashCount; }
+            set { SetProperty(ref _flashCount, value); }
+        }
+
         private readonly Timer _flashTimer;
 
         private void DoFlash()
         {
             _flashIsOn = !_flashIsOn;
+            if (_flashIsOn)
+            {
+                _flashCounter++;
+            }
             Flash?.Invoke(this, _flashIsOn ? Levels : FlashLevels);
-            _flashTimer.Change(TimeSpan.FromSeconds(_flashIsOn ? _flashOnDuration : _flashOffDuration), Timeout.InfiniteTimeSpan);
+            if (_flashCount <= 0 || _flashCounter < _flashCount)
+            {
+                _flashTimer.Change(TimeSpan.FromSeconds(_flashIsOn ? _flashOnDuration : _flashOffDuration), Timeout.InfiniteTimeSpan);
+            }
         }
 
         private bool _flashIsOn;
-
+        private int _flashCounter;
         public void ResetFlash(bool enable)
         {
             if (enable)
             {
+                _flashCounter = 0;
                 _flashIsOn = false;
                 DoFlash();
             }
