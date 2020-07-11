@@ -1,6 +1,7 @@
 ﻿// (C) Barjonas LLC 2018
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Threading;
 using Newtonsoft.Json;
@@ -69,6 +70,20 @@ namespace Barjonas.Common.Model
                 {
                     NotifyPropertyChanged(memberName);
                 }
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Set a property which is backed by an item from an array. If it has changed, and throw event as appropriate.  Return boolean indicated whether any change was made.
+        /// </summary>
+        protected bool SetProperty<F>(IList<F> fieldList, int fieldIndex, F value, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "")
+        {
+            F field = fieldList[fieldIndex];
+            if (SetProperty(ref field, value, memberName))
+            {
+                fieldList[fieldIndex] = field;
                 return true;
             }
             return false;
