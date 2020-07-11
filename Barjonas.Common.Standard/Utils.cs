@@ -254,6 +254,29 @@ namespace Barjonas.Common
         }
 
         /// <summary>
+        /// Keeps a timespan within the given bounds, clipping it if it falls outside.
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="input">The number to be kept in bounds.</param>
+        ///  <param name="floor">The lowest acceptable value.</param>
+        ///  <param name="ceiling">The highest acceptable value.</param>
+        public static TimeSpan KeepInRange(this TimeSpan input, TimeSpan? floor = null, TimeSpan? ceiling = null)
+        {
+            if (ceiling.HasValue && input > ceiling.Value)
+            {
+                return ceiling.Value;
+            }
+
+            if (floor.HasValue && input < floor.Value)
+            {
+                return floor.Value;
+            }
+
+            return input;
+        }
+
+        /// <summary>
         /// Convert an integer to a string representing the corresponding ordinal, e.g. 1st, 2nd, 3rd etc.
         /// </summary>
         /// <param name="value">The value to be converted.</param>
