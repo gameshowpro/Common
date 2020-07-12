@@ -11,6 +11,7 @@
     <conv:MatchToBooleanConverter x:Key="MatchToBooleanConverter"/>
     <conv:MatchToBooleanConverter x:Key="NoMatchToBooleanConverter" Invert="true"/>
     <conv:MatchToBooleanConverter x:Key="MatchToBooleanConverterWithCollapse" FalseVisibility="Collapsed" />
+    <conv:MatchToBooleanConverter x:Key="NoMatchToBooleanConverterWithCollapse" FalseVisibility="Collapsed" Invert="true"/>
     <Thickness x:Key="ControlMargin">10</Thickness>
     <Thickness x:Key="ControlSmallMargin">5</Thickness>
     <SolidColorBrush x:Key="ControlGroupBackground" Color="#22000000" />
