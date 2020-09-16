@@ -31,6 +31,7 @@ namespace Barjonas.Common
                 if (wnd is MahApps.Metro.Controls.MetroWindow mw)
                 {
                     mw.ShowTitleBar = false;
+                    mw.ShowCloseButton = false;
                 }
                 else
                 {
