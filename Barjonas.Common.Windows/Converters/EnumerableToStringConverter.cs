@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace Barjonas.Common.Converters
@@ -21,6 +22,7 @@ namespace Barjonas.Common.Converters
         private static readonly (string,int)[] s_joinTypes = new (string, int)[] { (", ", 2), ("", 0), ("\n", 2), ("\n\u2022", 1) };
         public StringConverterJoinType JoinType { get; set; } = StringConverterJoinType.Comma;
         public bool IncludeEmptyItems { get; set; } = false;
+        public int IntUiOffset { get; set; } = 1;
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -57,7 +59,29 @@ namespace Barjonas.Common.Converters
                 foreach (int i in ints)
                 {
                     sb.Append(seperator);
-                    sb.Append(i + 1);
+                    sb.Append(i + IntUiOffset);
+                }
+            }
+            else if (value is IEnumerable<IEnumerable<int>> intList)
+            {
+                sb = new StringBuilder();
+                bool first;
+                foreach (IEnumerable<int> intItems in intList)
+                {
+                    first = true;
+                    sb.Append(seperator);
+                    foreach (int i in intItems)
+                    {
+                        if (first)
+                        {
+                            first = false;
+                        }
+                        else
+                        {
+                            sb.Append(",");
+                        }
+                        sb.Append(i + IntUiOffset);
+                    }
                 }
             }
             if (sb != null)
@@ -76,6 +100,23 @@ namespace Barjonas.Common.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
+            //todo: support all the cases supported in the other direction
+            if (value is string valstr)
+            {
+                string[] parts = valstr.Split(',');
+                if (targetType.IsAssignableFrom(typeof(List<string>)))
+                {
+                    return parts.ToList();
+                }
+                else if (targetType.IsAssignableFrom(typeof(List<int>)))
+                {
+                    return parts.Select(s => { int.TryParse(s.Trim(), out int i); return i - IntUiOffset; }).ToList();
+                }
+                else if (targetType.IsAssignableFrom(typeof(List<bool>)))
+                {
+                    return parts.Select(s => { bool.TryParse(s.Trim(), out bool b); return b; }).ToList();
+                }
+            }
             return Binding.DoNothing;
         }
     }
