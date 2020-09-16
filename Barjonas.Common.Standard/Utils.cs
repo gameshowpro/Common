@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
+using System.Text;
 using System.Windows;
 using Barjonas.Common.Model;
 using Newtonsoft.Json;
@@ -284,22 +285,13 @@ namespace Barjonas.Common
         public static string ToOrdinal(this int value, bool fromZeroBased = false)
         {
             string oneBased = ((value) + (fromZeroBased ? 1 : 0)).ToString();
-            string suffix;
-            switch (oneBased.Last())
+            string suffix = (oneBased.Last()) switch
             {
-                case '1':
-                    suffix = "st";
-                    break;
-                case '2':
-                    suffix = "nd";
-                    break;
-                case '3':
-                    suffix = "rd";
-                    break;
-                default:
-                    suffix = "th";
-                    break;
-            }
+                '1' => "st",
+                '2' => "nd",
+                '3' => "rd",
+                _ => "th",
+            };
             return oneBased + suffix;
         }
 
@@ -397,9 +389,12 @@ namespace Barjonas.Common
             }
         }
 
+        private static readonly HashSet<char> s_spacesAndTabs = new HashSet<char>() { ' ', '\u00A0', '\t' } ;
+        public static bool IsSpaceOrTab(this char value) => s_spacesAndTabs.Contains(value);
+
         /// <summary>
-        /// Analyse the input to establish whether is is already upper-case. By default, 50% lower case characters are allowed before whole string . If it is upper case, pass back untouched.
-        /// For very short 
+        /// Analyse the input to establish whether is is already upper-case. By default, 50% lower case characters are allowed before whole string is upper cased. If it is upper case, pass back untouched.
+        /// In this way, input can be block caps with occasional lower-case characters (as in McCCLEAN) or all proper case, with the result being block caps with occasinal user-defined lower case characters.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
@@ -443,7 +438,7 @@ namespace Barjonas.Common
             {
                 return "never";
             }
-            string getPart(double n, string s) => n > 0 ? PluralIfRequired(n, s) : null;
+            static string getPart(double n, string s) => n > 0 ? PluralIfRequired(n, s) : null;
             TimeSpan timeVal = timespan.Value;
             string[] dayParts = new[] { getPart(timeVal.Days, "day"), getPart(timeVal.Hours, "hour"), getPart(timeVal.Minutes, "minute") }
                 .Where(s => s != null)
@@ -451,15 +446,12 @@ namespace Barjonas.Common
 
             int numberOfParts = dayParts.Length;
 
-            switch (numberOfParts)
+            return numberOfParts switch
             {
-                case 0:
-                    return "a few seconds";
-                case 1:
-                    return dayParts[0];
-                default:
-                    return string.Join(", ", dayParts, 0, numberOfParts - 1) + " and " + dayParts[numberOfParts - 1];
-            }                                       
+                0 => "a few seconds",
+                1 => dayParts[0],
+                _ => string.Join(", ", dayParts, 0, numberOfParts - 1) + " and " + dayParts[numberOfParts - 1],
+            };
         }
 
         /// <summary>
@@ -475,6 +467,23 @@ namespace Barjonas.Common
         }
 
         /// <summary>
+        /// Enure the given generic list is sized within the specified range, creating it if it doesn't exist.
+        /// </summary>
+        /// <typeparam name="T">The type of the generic list.</typeparam>
+        /// <param name="list">The list to be checked.</param>
+        /// <param name="minCount">The minimum number of entries required.</param>
+        /// <param name="maxCount">The maximum number of entries allowed.</param>
+        /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
+        public static void EnsureAndCreateListCount<T>(ref IList<T> list, int minCount, int maxCount, Func<int, T> factory)
+        {
+            if (list == null)
+            {
+                list = new List<T>();
+            }
+            EnsureListCount(list, minCount, maxCount, factory);
+        }
+
+        /// <summary>
         /// Enure the given generic list is sized within the specified range.
         /// </summary>
         /// <typeparam name="T">The type of the generic list.</typeparam>
@@ -482,13 +491,12 @@ namespace Barjonas.Common
         /// <param name="minCount">The minimum number of entries required.</param>
         /// <param name="maxCount">The maximum number of entries allowed.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(ref IList<T> list, int minCount, int maxCount, Func<int, T> factory)
+        public static void EnsureListCount<T>(IList<T> list, int minCount, int maxCount, Func<int, T> factory)
         {
             if (list == null)
             {
-                list = new List<T>();
+                throw new ArgumentNullException();
             }
-
             while (!list.Count.IsInRange(minCount, maxCount, true))
             {
                 if (list.Count > minCount)
@@ -507,11 +515,11 @@ namespace Barjonas.Common
         /// </summary>
         /// <typeparam name="T">The type of the generic list.</typeparam>
         /// <param name="list">The list to be checked.</param>
-        /// <param name="count">The number of entries required.</param>
+        /// <param name="minCount">The minimum number of entries required.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(ref IList<T> list, int count, Func<int, T> factory)
+        public static void EnsureListCount<T>(IList<T> list, int minCount, Func<int, T> factory)
         {
-            EnsureListCount(ref list, count, int.MaxValue, factory);
+            EnsureListCount(list, minCount, int.MaxValue, factory);
         }
 
         /// <summary>
@@ -519,13 +527,42 @@ namespace Barjonas.Common
         /// </summary>
         /// <typeparam name="T">The type of the generic list.</typeparam>
         /// <param name="list">The list to be checked.</param>
-        /// <param name="count">The number of entries required.</param>
+        /// <param name="minCount">The minimum number of entries required.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(ref List<T> list, int count, Func<int, T> factory)
+        public static void EnsureOrCreateListCount<T>(ref List<T> list, int minCount, Func<int, T> factory)
+        {
+            if (list == null)
+            {
+                list = new List<T>();
+            }
+            EnsureListCount(list, minCount, factory);
+        }
+
+        /// <summary>
+        /// Enure the given generic list contains the specified number of entries.
+        /// </summary>
+        /// <typeparam name="T">The type of the generic list.</typeparam>
+        /// <param name="list">The list to be checked.</param>
+        /// <param name="minCount">The minimum number of entries required.</param>
+        /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
+        public static void EnsureListCount<T>(List<T> list, int minCount, Func<int, T> factory)
         {
             IList<T> ilist = list;
-            EnsureListCount(ref ilist, count, int.MaxValue, factory);
-            list = (List<T>)ilist;
+            EnsureListCount(ilist, minCount, int.MaxValue, factory);
+        }
+
+
+        /// <summary>
+        /// Enure the given generic list contains the specified number of entries.
+        /// </summary>
+        /// <typeparam name="T">The type of the generic list.</typeparam>
+        /// <param name="list">The list to be checked.</param>
+        /// <param name="count">The number of entries required.</param>
+        /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
+        public static void EnsureListCount<T>(ObservableCollection<T> list, int minCount, int maxCount, Func<int, T> factory)
+        {
+            IList<T> ilist = list;
+            EnsureListCount(ilist, minCount, maxCount, factory);
         }
 
         /// <summary>
@@ -535,14 +572,13 @@ namespace Barjonas.Common
         /// <param name="list">The list to be checked.</param>
         /// <param name="count">The number of entries required.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(ref ObservableCollection<T> list, int minCount, int maxCount, Func<int, T> factory)
+        public static void EnsureOrCreateListCount<T>(ref ObservableCollection<T> list, int minCount, int maxCount, Func<int, T> factory)
         {
             if (list == null)
             {
                 list = new ObservableCollection<T>();
             }
-            IList<T> ilist = list;
-            EnsureListCount(ref ilist, minCount, maxCount, factory);
+            EnsureListCount(list, minCount, maxCount, factory);
         }
 
         /// <summary>
@@ -552,14 +588,26 @@ namespace Barjonas.Common
         /// <param name="list">The list to be checked.</param>
         /// <param name="count">The number of entries required.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(ref ObservableCollectionEx<T> list, int minCount, int maxCount, Func<int, T> factory) where T : INotifyPropertyChanged
+        public static void EnsureListCount<T>(ObservableCollectionEx<T> list, int minCount, int maxCount, Func<int, T> factory) where T : INotifyPropertyChanged
+        {
+            IList<T> ilist = list;
+            EnsureListCount(ilist, minCount, maxCount, factory);
+        }
+
+        /// <summary>
+        /// Enure the given generic list contains the specified number of entries.
+        /// </summary>
+        /// <typeparam name="T">The type of the generic list.</typeparam>
+        /// <param name="list">The list to be checked.</param>
+        /// <param name="count">The number of entries required.</param>
+        /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
+        public static void EnsureOrCreateListCount<T>(ref ObservableCollectionEx<T> list, int minCount, int maxCount, Func<int, T> factory) where T : INotifyPropertyChanged
         {
             if (list == null)
             {
                 list = new ObservableCollectionEx<T>();
             }
-            IList<T> ilist = list;
-            EnsureListCount(ref ilist, minCount, maxCount, factory);
+            EnsureListCount(list, minCount, maxCount, factory);
         }
 
         /// <summary>
@@ -570,11 +618,27 @@ namespace Barjonas.Common
         /// <param name="minCount">The minimum number of entries required.</param>
         /// <param name="maxCount">The maximum number of entries allowed.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(ref List<T> list, int minCount, int maxCount, Func<int, T> factory)
+        public static void EnsureOrCreateListCount<T>(ref List<T> list, int minCount, int maxCount, Func<int, T> factory)
+        {
+            if (list == null)
+            {
+                list = new List<T>();
+            }
+            EnsureListCount(list, minCount, maxCount, factory);
+        }
+
+        /// <summary>
+        /// Enure the given generic list is sized within the specified range.
+        /// </summary>
+        /// <typeparam name="T">The type of the generic list.</typeparam>
+        /// <param name="list">The list to be checked.</param>
+        /// <param name="minCount">The minimum number of entries required.</param>
+        /// <param name="maxCount">The maximum number of entries allowed.</param>
+        /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
+        public static void EnsureListCount<T>(List<T> list, int minCount, int maxCount, Func<int, T> factory)
         {
             IList<T> ilist = list;
-            EnsureListCount(ref ilist, minCount, maxCount, factory);
-            list = (List<T>)ilist;
+            EnsureListCount(ilist, minCount, maxCount, factory);
         }
 
         /// <summary>
@@ -585,14 +649,28 @@ namespace Barjonas.Common
         /// <param name="minCount">The minimum number of entries required.</param>
         /// <param name="maxCount">The maximum number of entries allowed.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(ref BindingList<T> list, int minCount, int maxCount, Func<int, T> factory)
+        public static void EnsureOrCreateListCount<T>(ref BindingList<T> list, int minCount, int maxCount, Func<int, T> factory)
         {
             if (list == null)
             {
                 list = new BindingList<T>();
             }
             IList<T> ilist = list;
-            EnsureListCount(ref ilist, minCount, maxCount, factory);
+            EnsureListCount(ilist, minCount, maxCount, factory);
+        }
+
+        /// <summary>
+        /// Enure the given binding list is sized within the specified range.
+        /// </summary>
+        /// <typeparam name="T">The type of the generic list.</typeparam>
+        /// <param name="list">The list to be checked.</param>
+        /// <param name="minCount">The minimum number of entries required.</param>
+        /// <param name="maxCount">The maximum number of entries allowed.</param>
+        /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
+        public static void EnsureListCount<T>(BindingList<T> list, int minCount, int maxCount, Func<int, T> factory)
+        {
+            IList<T> ilist = list;
+            EnsureListCount(ilist, minCount, maxCount, factory);
         }
 
         /// <summary>
@@ -620,13 +698,47 @@ namespace Barjonas.Common
             {
                 list.RemoveAt(item.Index);
                 list.Insert(item.Index + vector, item);
-                Utils.SetIndices(list);
+                SetIndices(list);
             }
         }
 
         public static void Nudge<T>(this T item, int vector) where T : IIndexed, IListChild<T>
         {
             Nudge(item.Parent, item, vector);
+        }
+
+        /// <summary>
+        /// A custom version of <see cref="Enumerable.ElementAtOrDefault"/> for value types which will return null if the index is out of range.
+        /// </summary>
+        /// <typeparam name="T">The non-nullable value type</typeparam>
+        public static T? ElementAtOrNull<T>(this IEnumerable<T> source, int index) where T : struct
+        {
+            if (source is null)
+            {
+                return null;
+            }
+            else if (source is IReadOnlyList<T> list)
+            {
+                if (index.IsInRange(0, list.Count - 1))
+                {
+                    return list[index];
+                }
+            }
+            else if (source is IReadOnlyCollection<T> col)
+            {
+                if(index.IsInRange(0, col.Count - 1))
+                {
+                    return col.ElementAt(index);
+                }
+            }
+            else
+            {
+                if (index.IsInRange(0, source.Count() - 1))
+                {
+                    return source.ElementAt(index);
+                }
+            }
+            return null;
         }
 
 
@@ -653,8 +765,11 @@ namespace Barjonas.Common
         /// </summary>
         /// <typeparam name="T">A reference type which has a default constructor.</typeparam>
         /// <param name="path">Path to the JSON file.</param>
+        /// <param name="isNew">If an object is created (due to file not existing or being invalid) this will be set to true.</param>
+        /// <param name="logger">If supplied, this will be used to log useful log messages about the depersistance operation.</param>
+        /// <param name="rethrowDeserializationExceptions">If true, any deserialization exception will be rethrown. Otherwise exceptions will be logged and a new object will be returned.</param>
         /// <returns></returns>
-        public static T Depersist<T>(string path, out bool isNew, Logger logger = null) where T : class, new()
+        public static T Depersist<T>(string path, out bool isNew, Logger logger = null, bool rethrowDeserializationExceptions = false) where T : class, new()
         {
             var ser = new JsonSerializer()
             {
@@ -664,16 +779,18 @@ namespace Barjonas.Common
             T obj = null;
             if (File.Exists(path))
             {
-                using (var sr = new StreamReader(path))
-                using (JsonReader reader = new JsonTextReader(sr))
+                using var sr = new StreamReader(path);
+                using JsonReader reader = new JsonTextReader(sr);
+                try
                 {
-                    try
+                    obj = ser.Deserialize<T>(reader);
+                }
+                catch (Exception ex)
+                {
+                    logger?.Error(ex, "Exception while deserializing {0}", path);
+                    if (rethrowDeserializationExceptions)
                     {
-                        obj = ser.Deserialize<T>(reader);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger?.Error(ex, "Exception while deserializing {0}", path);
+                        throw new Exception($"Exception while deserializing {path}", ex);
                     }
                 }
             }
@@ -716,11 +833,9 @@ namespace Barjonas.Common
                 TypeNameHandling = TypeNameHandling.Auto,
                 TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
             };
-            using (var sw = new StreamWriter(path))
-            using (JsonWriter writer = new JsonTextWriter(sw))
-            {
-                ser.Serialize(writer, obj);
-            }
+            using var sw = new StreamWriter(path);
+            using JsonWriter writer = new JsonTextWriter(sw);
+            ser.Serialize(writer, obj);
         }
 
         /// <summary>
@@ -804,48 +919,48 @@ namespace Barjonas.Common
                 return "minus " + ToWords(Math.Abs(number));
             }
 
-            string words = "";
+            var words = new StringBuilder();
 
             if ((number / 1000000) > 0)
             {
-                words += ToWords(number / 1000000) + " million ";
+                words.Append(ToWords(number / 1000000) + " million ");
                 number %= 1000000;
             }
 
             if ((number / 1000) > 0)
             {
-                words += ToWords(number / 1000) + " thousand ";
+                words.Append(ToWords(number / 1000) + " thousand ");
                 number %= 1000;
             }
 
             if ((number / 100) > 0)
             {
-                words += ToWords(number / 100) + " hundred ";
+                words.Append(ToWords(number / 100) + " hundred ");
                 number %= 100;
             }
 
             if (number > 0)
             {
-                if (words != "")
+                if (words.Length > 0)
                 {
-                    words += "and ";
+                    words.Append("and ");
                 }
 
                 if (number < 20)
                 {
-                    words += s_unitsMap[number];
+                    words.Append(s_unitsMap[number]);
                 }
                 else
                 {
-                    words += s_tensMap[number / 10];
+                    words.Append(s_tensMap[number / 10]);
                     if ((number % 10) > 0)
                     {
-                        words += "-" + s_unitsMap[number % 10];
+                        words.Append("-" + s_unitsMap[number % 10]);
                     }
                 }
             }
 
-            return words;
+            return words.ToString();
         }
     }
 }
