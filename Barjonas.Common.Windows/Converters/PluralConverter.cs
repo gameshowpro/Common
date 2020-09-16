@@ -10,7 +10,7 @@ namespace Barjonas.Common.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return parameter.ToString() + ((int)value == 1 ? "" : "s");
+            return ((int)value).PluralIfRequired(parameter.ToString());
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
