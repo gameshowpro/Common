@@ -1,8 +1,10 @@
 ﻿// (C) Barjonas LLC 2018
 
 using System;
+using System.Collections;
 using System.Windows;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 
 namespace Barjonas.Common.View
 {
@@ -12,8 +14,26 @@ namespace Barjonas.Common.View
     /// </summary>    
     public class UniformGridColsFirst : UniformGrid
     {
+        public static readonly DependencyProperty s_columnsFirstProperty = DependencyProperty.RegisterAttached(
+            "ColumnsFirst", typeof(bool), typeof(UniformGridColsFirst), new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsArrange)
+        );
+
+        public static void SetColumnsFirst(UIElement element, bool value)
+        {
+            element.SetValue(s_columnsFirstProperty, value);
+        }
+
+        public static bool GetColumnsFirst(UIElement element)
+        {
+            return (bool)element.GetValue(s_columnsFirstProperty);
+        }
+
         protected override Size ArrangeOverride(Size arrangeSize)
         {
+            if (!GetColumnsFirst(this))
+            {
+                return base.ArrangeOverride(arrangeSize);
+            }
             if (Columns <= 0 && Rows <= 0)
             {
                 Rows = 2;

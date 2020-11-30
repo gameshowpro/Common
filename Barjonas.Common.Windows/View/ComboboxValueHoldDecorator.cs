@@ -19,18 +19,18 @@ namespace Barjonas.Common.View
     /// </example>
     public static class ComboBoxValueHoldDecorator
     {
-        public static readonly DependencyProperty ItemsSourceProperty = DependencyProperty.RegisterAttached(
+        public static readonly DependencyProperty s_itemsSourceProperty = DependencyProperty.RegisterAttached(
             "ItemsSource", typeof(IEnumerable), typeof(ComboBoxValueHoldDecorator), new PropertyMetadata(null, ItemsSourcePropertyChanged)
         );
 
         public static void SetItemsSource(UIElement element, IEnumerable value)
         {
-            element.SetValue(ItemsSourceProperty, value);
+            element.SetValue(s_itemsSourceProperty, value);
         }
 
         public static IEnumerable GetItemsSource(UIElement element)
         {
-            return (IEnumerable)element.GetValue(ItemsSourceProperty);
+            return (IEnumerable)element.GetValue(s_itemsSourceProperty);
         }
 
         private static void ItemsSourcePropertyChanged(DependencyObject element,

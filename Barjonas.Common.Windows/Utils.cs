@@ -187,7 +187,7 @@ namespace Barjonas.Common
                 {
                     throw new MissingMemberException($"{t} must contain a {nameof(TriggerParameters)} attribute on every member.");
                 }
-                Trigger trigger = factory(settings.GetOrCreate(value.ToString(), attr._defaultId, attr._executeOnFirstInterrupt, TimeSpan.FromSeconds(1)));
+                Trigger trigger = factory(settings.GetOrCreate(value.ToString(), attr._name, attr._defaultId, attr._executeOnFirstInterrupt, TimeSpan.FromSeconds(1)));
                 triggers.Add(trigger);
                 dict.Add(value, trigger);
             }

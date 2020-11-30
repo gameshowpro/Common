@@ -4,11 +4,14 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Markup;
 using NLog;
+using static Barjonas.Common.UtilsWindows;
 
 namespace Barjonas.Common.Wpf
 {
     public abstract class AppBase<App, Sys, MainWindow> : Application, IComponentConnector where App : AppBase<App, Sys, MainWindow>, new() where Sys : IDisposable, new() where MainWindow : Window, new()
     {
+        private static MainWindow s_mainWindow;
+        private static WindowRestoreState s_windowRestoreState;
         private bool _contentLoaded;
         private static Uri s_resourceLocater;
         protected static Logger s_logger = LogManager.GetLogger(typeof(App).ToString());
@@ -18,8 +21,9 @@ namespace Barjonas.Common.Wpf
             Utils.SetWpfCulture();
         }
 
-        protected static void BaseMain(string resourceLocater = "app.xaml", DateTime? buildTime = null)
+        protected static void BaseMain(string resourceLocater = "app.xaml", DateTime? buildTime = null, bool kioskMode = false)
         {
+            s_kioskMode = kioskMode;
             AssemblyName assembly = Assembly.GetEntryAssembly().GetName();
             string process = assembly.Name;
             s_resourceLocater = new Uri($"/{process};component/{resourceLocater}", UriKind.Relative);
@@ -48,10 +52,13 @@ namespace Barjonas.Common.Wpf
         protected override void OnStartup(StartupEventArgs e)
         {
             _sys = new Sys();
-            Window window;
-            window = new MainWindow() { DataContext = _sys };
-            window.Show();
-            window.Closed += MainWindow_Closed;
+            s_mainWindow = new MainWindow() { DataContext = _sys };
+            s_mainWindow.Show();
+            if (s_kioskMode)
+            {
+                UpdateKioskMode();
+            }
+            s_mainWindow.Closed += MainWindow_Closed;
         }
 
         protected virtual void MainWindow_Closed(object sender, EventArgs e)
@@ -80,7 +87,33 @@ namespace Barjonas.Common.Wpf
                 return;
             }
             _contentLoaded = true;
-            Application.LoadComponent(this, s_resourceLocater);
+            LoadComponent(this, s_resourceLocater);
+        }
+
+        private static bool s_kioskMode = false;
+        public static bool KioskMode
+        {
+            get => s_kioskMode;
+            set
+            {
+                if (value != s_kioskMode)
+                {
+                    s_kioskMode = value;
+                    UpdateKioskMode();
+                }
+            }
+        }
+
+        private static void UpdateKioskMode()
+        {
+            if (s_kioskMode)
+            {
+                s_mainWindow.SetAsKiosk(0, ref s_windowRestoreState);
+            }
+            else
+            {
+                s_windowRestoreState?.DoRestore(s_mainWindow);
+            }
         }
     }
 }

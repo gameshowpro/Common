@@ -10,7 +10,7 @@ namespace Barjonas.Common.Model
             return item.Key;
         }
 
-        public IncomingTriggerSetting GetOrCreate(string key, byte defaultId, bool executeOnFirstInterrupt = false, TimeSpan? debounceInterval = null)
+        public IncomingTriggerSetting GetOrCreate(string key, string name, byte defaultId, bool executeOnFirstInterrupt = false, TimeSpan? debounceInterval = null)
         {
             IncomingTriggerSetting trigger;
             if (Contains(key))
@@ -22,6 +22,7 @@ namespace Barjonas.Common.Model
                 trigger = new IncomingTriggerSetting() { Key = key, Id = defaultId };
                 Add(trigger);
             }
+            trigger.Name = name;
             trigger.DebounceInterval = debounceInterval;
             trigger.ExecuteOnFirstInterrupt = executeOnFirstInterrupt;
             trigger._wasTouched = true;

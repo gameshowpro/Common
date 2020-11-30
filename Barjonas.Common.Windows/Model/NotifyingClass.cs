@@ -11,7 +11,7 @@ namespace Barjonas.Common.Model
     [JsonObject(MemberSerialization.OptIn)]
     public class NotifyingClass : INotifyPropertyChanged
     {
-        protected static Dispatcher s_dispatcher = Dispatcher.CurrentDispatcher;
+        protected readonly static Dispatcher s_dispatcher = Dispatcher.CurrentDispatcher;
         private bool _supressEvents = false;
         private bool _isDirty;
         public event PropertyChangedEventHandler PropertyChanged;

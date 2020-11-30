@@ -86,7 +86,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn IsReadOnly="True" Binding="{Binding Setting.Key}" Header="Name" Width="Auto"/>
+                    <DataGridTextColumn IsReadOnly="True" Binding="{Binding Setting.Name}" Header="Name" Width="Auto"/>
                     <DataGridTemplateColumn Header="Down">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

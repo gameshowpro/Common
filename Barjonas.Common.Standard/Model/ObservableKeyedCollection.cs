@@ -163,7 +163,7 @@ namespace Barjonas.Common.Model
             }
         }
 
-        public new bool TryGetValue(TKey key, out TItem value)
+        public bool TryGetValue(TKey key, out TItem value)
         {
             if (key != null && Contains(key))
             {

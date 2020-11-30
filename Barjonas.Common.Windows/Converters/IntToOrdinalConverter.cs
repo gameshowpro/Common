@@ -17,7 +17,7 @@ namespace Barjonas.Common.Converters
                     return string.Empty;
                 }
                 var b = parameter as bool?;
-                return i.ToOrdinal(b == false);
+                return i.ToOrdinal(!(b ?? false));
             }
             else
             {

@@ -39,6 +39,14 @@ namespace Barjonas.Common.Model
             set { SetProperty(ref _id, value); }
         }
 
+        private string _name = "";
+        [JsonProperty, DefaultValue("")]
+        public string Name
+        {
+            get { return _name; }
+            set { SetProperty(ref _name, value); }
+        }
+
         private TimeSpan? _debounceInterval = null;
         [JsonProperty, DefaultValue(null)]
         public TimeSpan? DebounceInterval
