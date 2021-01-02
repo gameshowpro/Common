@@ -57,7 +57,7 @@
       <HintPath>$(SolutionDir)packages\ControlzEx.4.4.0\lib\net462\ControlzEx.dll</HintPath>
     </Reference>
     <Reference Include="MahApps.Metro, Version=2.0.0.0, Culture=neutral, PublicKeyToken=51482d6f650b2b3f, processorArchitecture=MSIL">
-      <HintPath>$(SolutionDir)packages\MahApps.Metro.2.4.0\lib\net47\MahApps.Metro.dll</HintPath>
+      <HintPath>..\..\..\QuinceImaging\OnSiteSystems\packages\MahApps.Metro.2.4.1\lib\net47\MahApps.Metro.dll</HintPath>
     </Reference>
     <Reference Include="MahApps.Metro.IconPacks, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0c0d510f9915137a, processorArchitecture=MSIL">
       <HintPath>$(SolutionDir)packages\MahApps.Metro.IconPacks.4.8.0\lib\net47\MahApps.Metro.IconPacks.dll</HintPath>
@@ -192,6 +192,7 @@
     <Compile Include="Converters\DateTimeToLocalConverter.cs" />
     <Compile Include="Converters\DecimalExtension.cs" />
     <Compile Include="Converters\DoubleExtension.cs" />
+    <Compile Include="Converters\EnumerableStringToObjectsConverter.cs" />
     <Compile Include="Converters\EnumToObject.cs" />
     <Compile Include="Converters\EnumToObjectArray.cs" />
     <Compile Include="Converters\FsToDbfs.cs" />
@@ -234,6 +235,7 @@
     <Compile Include="Utils.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
     <Compile Include="ViewModel\RelayCommandSimple.cs" />
+    <Compile Include="ViewModel\StringItem.cs" />
     <Compile Include="ViewModel\VmBase.cs" />
     <Compile Include="View\ComboboxValueHoldDecorator.cs" />
     <Compile Include="View\ScrollViewerCustomizeBehavior.cs" />
