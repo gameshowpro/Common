@@ -878,7 +878,9 @@ namespace Barjonas.Common
             {
                 FileName = uri.Uri.AbsoluteUri,
                 //Arguments = "\"" + path + "\"",
-                WindowStyle = ProcessWindowStyle.Hidden
+                WindowStyle = ProcessWindowStyle.Hidden,
+                UseShellExecute = true,
+                Verb = "open"
             };
             try
             {
