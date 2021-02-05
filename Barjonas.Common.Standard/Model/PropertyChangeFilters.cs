@@ -37,7 +37,7 @@ namespace Barjonas.Common.Model
     }
 
     /// <summary>
-    /// This will execute a given delegate whenever one specified properties changes on one of the specified object.
+    /// This will execute a given delegate whenever one specified properties changes on one of the specified objects.
     /// </summary>
     public class PropertyChangeFilter
     {
@@ -81,7 +81,7 @@ namespace Barjonas.Common.Model
                 }
                 _conditions.Add(condition);
             }
-            _handler?.Invoke(this, new PropertyChangedEventArgs(""));
+            InvokeAll();
         }
 
         private void Ipc_ItemPropertyChanged(object sender, ItemPropertyChangedEventArgs e)
@@ -110,6 +110,9 @@ namespace Barjonas.Common.Model
                 _handler?.Invoke(sender, e);
             }
         }
+
+        internal void InvokeAll()
+            => _handler?.Invoke(this, new PropertyChangedEventArgs(""));
 
         internal void Release()
         {
@@ -142,7 +145,6 @@ namespace Barjonas.Common.Model
             {
                 _filters.Add(filter);
             }
-
         }
 
         public void ClearFilters()
@@ -152,6 +154,11 @@ namespace Barjonas.Common.Model
                 f.Release();
             }
             _filters.Clear();
+        }
+
+        public void InvokeAll()
+        {
+            _filters.ForEach(f => f.InvokeAll());
         }
 
         public bool Any() => _filters.Any();
