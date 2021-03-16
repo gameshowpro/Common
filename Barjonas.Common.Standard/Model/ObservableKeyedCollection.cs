@@ -70,6 +70,9 @@ namespace Barjonas.Common.Model
             }
         }
 
+        protected virtual void InvokePropertyChanged(string propertyName)
+            => PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+
         /// <summary>
         /// Method to add a new object to the collection, or to replace an existing one if there is 
         /// already an object with the same key in the collection.
