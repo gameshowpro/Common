@@ -12,15 +12,15 @@ namespace Barjonas.Common.Converters
         public bool IntCeiling { get; set; }
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is TimeSpan)
+            if (value is TimeSpan span)
             {
                 if (IntCeiling)
                 {
-                    return (int)Math.Ceiling(((TimeSpan)value).TotalSeconds);
+                    return (int)Math.Ceiling(span.TotalSeconds);
                 }
                 else
                 {
-                    return ((TimeSpan)value).TotalSeconds;
+                    return span.TotalSeconds;
                 }
             }
             else

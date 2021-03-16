@@ -106,7 +106,11 @@ namespace Barjonas.Common.Converters
                 string[] parts = valstr.Split(',');
                 if (targetType.IsAssignableFrom(typeof(List<string>)))
                 {
-                    return parts.ToList();
+#if NETFRAMEWORK
+                    return parts.Select(p => p.FirstOrDefault() == ' ' ? p.Skip(1) : p).ToList();
+#else
+                    return parts.Select(p => p.FirstOrDefault() == ' ' ? p[1..] : p).ToList();
+#endif
                 }
                 else if (targetType.IsAssignableFrom(typeof(List<int>)))
                 {

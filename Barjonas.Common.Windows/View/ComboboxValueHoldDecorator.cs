@@ -44,19 +44,83 @@ namespace Barjonas.Common.View
 
             // Save original binding 
             Binding originalBinding = BindingOperations.GetBinding(target, Selector.SelectedValueProperty);
-
-            BindingOperations.ClearBinding(target, Selector.SelectedValueProperty);
+            int? selectedIndex = null;
+            if (originalBinding == null)
+            {
+                selectedIndex = (int)element.GetValue(Selector.SelectedIndexProperty);
+            }
+            else
+            {
+                BindingOperations.ClearBinding(target, Selector.SelectedValueProperty);
+            }
             try
             {
                 target.ItemsSource = e.NewValue as IEnumerable;
             }
             finally
             {
-                if (originalBinding != null)
+                if (originalBinding == null)
+                {
+                    if (selectedIndex.HasValue)
+                    {
+                        object value = ItemAt(target.ItemsSource, selectedIndex.Value);
+                        if (value != null)
+                        {
+                            element.SetValue(Selector.SelectedIndexProperty, selectedIndex.Value);
+                            element.SetValue(Selector.SelectedValueProperty, value);
+                        }
+                    }
+                }
+                else
                 {
                     BindingOperations.SetBinding(target, Selector.SelectedValueProperty, originalBinding);
                 }
             }
         }
+
+        private static object ItemAt(IEnumerable list, int index)
+        {
+            IEnumerator enumerator = list.GetEnumerator();
+            if (index < 0)
+            {
+                return null;
+            }
+            for (int i = 0; i <= index; i++)
+            {
+                if (!enumerator.MoveNext())
+                {
+                    return null;
+                }
+            }
+            return enumerator.Current;
+        }
+
+        //public static int GetSelectedIndex(UIElement obj)
+        //{
+        //    return (int)obj.GetValue(s_selectedIndexProperty);
+        //}
+
+        //public static void SetSelectedIndex(UIElement obj, int value)
+        //{
+        //    obj.SetValue(s_selectedIndexProperty, value);
+        //}
+
+        //public static readonly DependencyProperty s_selectedIndexProperty =
+        //    DependencyProperty.RegisterAttached("SelectedIndex", typeof(int), typeof(ComboBoxValueHoldDecorator), new PropertyMetadata(-1, SelectedIndexPropertyChanged));
+
+        //private static void SelectedIndexPropertyChanged(DependencyObject element,
+        //        DependencyPropertyChangedEventArgs e)
+        //{
+        //    var target = element as Selector;
+        //    if (element == null)
+        //    {
+        //        return;
+        //    }
+        //    var newValue = (int)e.NewValue;
+        //    if (newValue >= 0)
+        //    {
+        //        target.SelectedIndex = newValue;
+        //    }
+        //}
     }
 }
