@@ -1,6 +1,7 @@
 ﻿// (C) Barjonas LLC 2018
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Threading;
@@ -15,6 +16,7 @@ namespace Barjonas.Common.Model
         private bool _supressEvents = false;
         private bool _isDirty;
         public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual bool CompareEnumerablesByContent { get => false; }
 
         protected void NotifyPropertyChanged(string name)
         {
@@ -54,23 +56,30 @@ namespace Barjonas.Common.Model
         /// </summary>
         protected bool SetProperty<F>(ref F field, F value, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "")
         {
-            if (((field == null) != (value == null)) || ((field != null) && !field.Equals(value)))
+            if (((field == null) != (value == null)) || ((field != null)))
             {
                 if (string.IsNullOrWhiteSpace(memberName))
                 {
                     throw new ArgumentException($"{memberName} cannot be null, empty or whitespace");
                 }
-
-                field = value;
-                if (_supressEvents)
+                if (HasChanged(CompareEnumerablesByContent, field, value))
                 {
-                    _isDirty = true;
+                    field = value;
+                    if (_supressEvents)
+                    {
+                        _isDirty = true;
+                    }
+                    else
+                    {
+                        NotifyPropertyChanged(memberName);
+                    }
+                    return true;
                 }
-                else
+                else if (CompareEnumerablesByContent)
                 {
-                    NotifyPropertyChanged(memberName);
+                    //Could be that enumerable changed, but contents didn't. Do the assignment, but don't raise an event.
+                    field = value;
                 }
-                return true;
             }
             return false;
         }
@@ -87,6 +96,65 @@ namespace Barjonas.Common.Model
                 return true;
             }
             return false;
+        }
+
+        private static bool HasChanged<F>(bool compareEnumerablesByContent, F field, F value)
+        {
+            if (field == null)
+            {
+                return value != null;
+            }
+            else if (value == null)
+            {
+                return true;
+            }
+            if (compareEnumerablesByContent && field is IEnumerable eField && value is IEnumerable eValue)
+            {
+                return !SequenceEqual(eField, eValue);
+            }
+            else
+            {
+                return !field.Equals(value);
+            }
+        }
+
+        public static bool SequenceEqual(IEnumerable first, IEnumerable second)
+        {
+            if (first is ICollection firstCol && second is ICollection secondCol)
+            {
+                if (firstCol.Count != secondCol.Count)
+                {
+                    return false;
+                }
+
+                if (firstCol is IList firstList && secondCol is IList secondList)
+                {
+                    int count = firstCol.Count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        if (!firstList[i].Equals(secondList[i]))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            }
+
+            IEnumerator e1 = first.GetEnumerator();
+            IEnumerator e2 = second.GetEnumerator();
+            {
+                while (e1.MoveNext())
+                {
+                    if (!(e2.MoveNext() && e1.Current.Equals(e2.Current)))
+                    {
+                        return false;
+                    }
+                }
+
+                return !e2.MoveNext();
+            }
         }
     }
 }
