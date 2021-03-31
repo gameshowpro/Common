@@ -12,11 +12,13 @@ namespace Barjonas.Common.Converters
     /// </summary>
     public class GreaterThanToBooleanConverter : IValueConverter, IMultiValueConverter
     {
+        public bool AllowEqual { get; } = false;
+        public Visibility FalseVisibility { get; set; } = Visibility.Hidden;
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (double.TryParse(values[0]?.ToString(), out double a) && double.TryParse(values[1]?.ToString(), out double b))
+            if (values.Length > 1 && double.TryParse(values[0]?.ToString(), out double a) && double.TryParse(values[1]?.ToString(), out double b))
             {
-                return BooleanToType(a > b, targetType);
+                return AllowEqual ? BooleanToType(a >= b, targetType) : BooleanToType(a > b, targetType);
             }
             return BooleanToType(false, targetType);
         }
@@ -27,7 +29,7 @@ namespace Barjonas.Common.Converters
             return BooleanToType((double)value > (double)parameter, targetType);
         }
 
-        private static object BooleanToType(bool value, Type type)
+        private object BooleanToType(bool value, Type type)
         {
             if (type != typeof(Visibility))
             {
@@ -39,7 +41,7 @@ namespace Barjonas.Common.Converters
             }
             else
             {
-                return Visibility.Hidden;
+                return FalseVisibility;
             }
         }
 
