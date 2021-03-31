@@ -12,6 +12,10 @@ namespace Barjonas.Common.Model
 
         public IncomingTriggerSetting GetOrCreate(string key, string name, byte defaultId, bool executeOnFirstInterrupt = false, TimeSpan? debounceInterval = null)
         {
+            if (name == null)
+            {
+                name = key;
+            }
             IncomingTriggerSetting trigger;
             if (Contains(key))
             {
