@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -963,6 +964,34 @@ namespace Barjonas.Common
             }
 
             return words.ToString();
+        }
+
+        /// <summary>
+        /// Get the build data of an assembly which has been built with a SourceRevisionID formatted in a standardized way (see remarks).
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <remarks>Required in project file: <![CDATA[<SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("O"))</SourceRevisionId>]]>
+        /// </remarks>
+        public static DateTime GetBuildDate(this Assembly assembly)
+        {
+            const string BuildVersionMetadataPrefix = "+build";
+
+            AssemblyInformationalVersionAttribute attribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            if (attribute?.InformationalVersion != null)
+            {
+                string value = attribute.InformationalVersion;
+                int index = value.IndexOf(BuildVersionMetadataPrefix);
+                if (index > 0)
+                {
+                    value = value.Substring(index + BuildVersionMetadataPrefix.Length);
+                    if (DateTime.TryParseExact(value, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
+                    {
+                        return result;
+                    }
+                }
+            }
+
+            return default;
         }
     }
 }

@@ -4,6 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Platforms>AnyCPU;x64</Platforms>
     <LangVersion>preview</LangVersion>
+    <Company>Barjonas LLC</Company>
+    <Authors>Hamish Barjonas</Authors>
+    <Copyright>Barjonas LLC 2021</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
