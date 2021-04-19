@@ -46,7 +46,7 @@ namespace Barjonas.Common
                     switch (GetDpiForMonitor(hMonitor, DpiType.Effective, out uint dpiX, out uint dpiY).ToInt32())
                     {
                         case S_OK:
-                            Rect scaled = new Rect()
+                            Rect scaled = new()
                             {
                                 left = (int)(mi.Monitor.left / ((double)dpiX / 96)),
                                 right = (int)(mi.Monitor.right / ((double)dpiX / 96)),

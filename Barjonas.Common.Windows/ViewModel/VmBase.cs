@@ -43,7 +43,7 @@ namespace Barjonas.Common.ViewModel
         public RelayCommand<string> LaunchNLogLogCommand { get; private set; }
         protected virtual void ShowDataDir()
         {
-            ProcessStartInfo info = new ProcessStartInfo
+            ProcessStartInfo info = new()
             {
                 FileName = "explorer.exe",
                 Arguments = _dataDir,

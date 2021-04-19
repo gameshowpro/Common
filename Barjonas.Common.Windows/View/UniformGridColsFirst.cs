@@ -47,7 +47,7 @@ namespace Barjonas.Common.View
                 Columns = (int)Math.Ceiling((double)Children.Count / Rows);
             }
 
-            Rect rect = new Rect(0, 0, arrangeSize.Width / Columns, arrangeSize.Height / Rows);
+            Rect rect = new(0, 0, arrangeSize.Width / Columns, arrangeSize.Height / Rows);
             double height = rect.Height;
             double num = arrangeSize.Height - 1;
             rect.X = rect.X + rect.Width * FirstColumn;

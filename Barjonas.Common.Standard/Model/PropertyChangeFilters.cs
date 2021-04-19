@@ -132,7 +132,7 @@ namespace Barjonas.Common.Model
 
     public class PropertyChangeFilters
     {
-        private readonly List<PropertyChangeFilter> _filters = new List<PropertyChangeFilter>();
+        private readonly List<PropertyChangeFilter> _filters = new();
         public void AddFilter(PropertyChangedEventHandler handler, params PropertyChangeCondition[] conditions)
         {
             AddFilter(handler, (IEnumerable<PropertyChangeCondition>)conditions);

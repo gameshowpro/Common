@@ -27,12 +27,12 @@ namespace Barjonas.Common.Wpf
             AssemblyName assembly = Assembly.GetEntryAssembly().GetName();
             string process = assembly.Name;
             s_resourceLocater = new Uri($"/{process};component/{resourceLocater}", UriKind.Relative);
-            Mutex mutex = new Mutex(false, process);
+            Mutex mutex = new(false, process);
             try
             {
                 if (mutex.WaitOne(0, false))
                 {
-                    App app = new App();
+                    App app = new();
                     s_logger.Info($"Initializing {process}{(buildTime == null ? "" : $", built {buildTime:s}")}");
                     app.InitializeComponent();
                     app.Run();
