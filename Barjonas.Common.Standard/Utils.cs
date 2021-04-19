@@ -332,7 +332,7 @@ namespace Barjonas.Common
             logger?.Debug("Watchdog is waiting {0} for process to end.", defaultedTimeout);
         }
 
-        private static readonly Dictionary<char, char> s_replacements = new Dictionary<char, char>()
+        private static readonly Dictionary<char, char> s_replacements = new()
         {
             { '\u2013', '-' }, //Em-dash
             { '\u2014', '-' }, //two em-dash
@@ -367,7 +367,7 @@ namespace Barjonas.Common
             return new string(chars);
         }
 
-        private static readonly HashSet<char> s_invalidFileNameChars = new HashSet<char>(Path.GetInvalidFileNameChars());
+        private static readonly HashSet<char> s_invalidFileNameChars = new(Path.GetInvalidFileNameChars());
         public static string MakeValidFilename(this string input)
         {
             var chars = input.ToCharArray();
@@ -390,7 +390,7 @@ namespace Barjonas.Common
             }
         }
 
-        private static readonly HashSet<char> s_spacesAndTabs = new HashSet<char>() { ' ', '\u00A0', '\t' } ;
+        private static readonly HashSet<char> s_spacesAndTabs = new() { ' ', '\u00A0', '\t' } ;
         public static bool IsSpaceOrTab(this char value) => s_spacesAndTabs.Contains(value);
 
         /// <summary>
@@ -745,7 +745,7 @@ namespace Barjonas.Common
 
         public static bool RelaunchAsAdministrator()
         {
-            ProcessStartInfo info = new ProcessStartInfo()
+            ProcessStartInfo info = new()
             {
                 FileName = Assembly.GetCallingAssembly().Location,
                 UseShellExecute = true,
@@ -873,9 +873,9 @@ namespace Barjonas.Common
             {
                 return false;
             }
-            UriBuilder uri = new UriBuilder("vscode", "file") { Path = path + ":999999:0" };
+            UriBuilder uri = new("vscode", "file") { Path = path + ":999999:0" };
 
-            ProcessStartInfo info = new ProcessStartInfo()
+            ProcessStartInfo info = new()
             {
                 FileName = uri.Uri.AbsoluteUri,
                 //Arguments = "\"" + path + "\"",

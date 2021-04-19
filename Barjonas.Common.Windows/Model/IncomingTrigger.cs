@@ -8,7 +8,7 @@ namespace Barjonas.Common.Model
 {
     public abstract class IncomingTrigger : NotifyingClass
     {
-        private readonly Stopwatch _lastTrigger = new Stopwatch();
+        private readonly Stopwatch _lastTrigger = new();
 
         public delegate void IsDownChangedEventHandler(IncomingTrigger sender, bool isDown);
         /// <summary>

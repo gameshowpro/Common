@@ -160,7 +160,7 @@ namespace Barjonas.Common
 
             if (identity != null)
             {
-                WindowsPrincipal principal = new WindowsPrincipal(identity);
+                WindowsPrincipal principal = new(identity);
                 return principal.IsInRole(WindowsBuiltInRole.Administrator);
             }
 
