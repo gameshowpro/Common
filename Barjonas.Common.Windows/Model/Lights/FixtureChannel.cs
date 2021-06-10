@@ -41,6 +41,14 @@ namespace Barjonas.Common.Model.Lights
             set { SetProperty(ref _id, value); }
         }
 
+        private int _universeIndex = 0;
+        [JsonProperty, DefaultValue(0)]
+        public int UniverseIndex
+        {
+            get { return _universeIndex; }
+            set { SetProperty(ref _universeIndex, value); }
+        }
+
         private Fixture _parent;
         public Fixture Parent
         {

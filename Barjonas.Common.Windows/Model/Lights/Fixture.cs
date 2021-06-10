@@ -86,8 +86,7 @@ namespace Barjonas.Common.Model.Lights
             {
                 RemoveChannelHandlers(_channels, Channel_PropertyChanged);
                 SetProperty(ref _channels, value);
-                AddChannelHandlers(_channels, Channel_PropertyChanged);
-                UpadateMixedColor();
+                DeserializationComplete(); //Mainly for backwards compatibility. If really deserializing, this should be called explicitly later
             }
         }
 
@@ -151,12 +150,25 @@ namespace Barjonas.Common.Model.Lights
 
         private StateLevels _currentState;
 
-        private static void AddChannelHandlers(IList<FixtureChannel> channels, PropertyChangedEventHandler handler)
+        public void DeserializationComplete()
+        {
+            if (_channels.Any(c => c.FixtureChannelType == null))
+            {
+                //Not ready yet
+                return;
+            }
+            FixChannelIds();
+            UpdateMixedColor();
+            AddChannelHandlers(_channels, Channel_PropertyChanged, this);
+        }
+
+        private static void AddChannelHandlers(IList<FixtureChannel> channels, PropertyChangedEventHandler handler, Fixture fixture)
         {
             if (channels == null)
             { return; }
             foreach (FixtureChannel ch in channels)
             {
+                ch.Parent = fixture;
                 ch.PropertyChanged += handler;
                 ch.FixtureChannelType.PropertyChanged += handler;
             }
@@ -175,10 +187,25 @@ namespace Barjonas.Common.Model.Lights
 
         private void Channel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            UpadateMixedColor();
+            UpdateMixedColor();
         }
 
-        private void UpadateMixedColor()
+        /// <summary>
+        /// Correct any out-of-range channel IDs, updating their universe indices accordingly.
+        /// </summary>
+        private void FixChannelIds()
+        {
+            foreach (FixtureChannel channel in _channels)
+            {
+                if (channel.Id >= 512)
+                {
+                    channel.UniverseIndex += Math.DivRem(channel.Id, 512, out int remainder);
+                    channel.Id = remainder;
+                }
+            }
+        }
+
+        private void UpdateMixedColor()
         {
             Color color = Colors.Black;
             foreach (FixtureChannel ch in _channels)
@@ -195,6 +222,20 @@ namespace Barjonas.Common.Model.Lights
         {
             get { return _mixedColor; }
             private set { SetProperty(ref _mixedColor, value); }
+        }
+
+        /// <summary>
+        /// Update the channel count and types based on a template fixture
+        /// </summary>
+        public void UpdateFromTemplate(Fixture templateFixture)
+        {
+            int count = templateFixture?._channels?.Count ?? 0;
+            Utils.EnsureOrCreateListCount(ref _channels, count, count, i => new FixtureChannel());
+            for (int i = 0; i < count; i++)
+            {
+                _channels[i].FixtureChannelType = templateFixture._channels[i].FixtureChannelType;
+            }
+            StateGroup = templateFixture._stateGroup;
         }
     }
 }
