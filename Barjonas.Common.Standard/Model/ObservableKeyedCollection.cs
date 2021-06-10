@@ -7,11 +7,13 @@ using System.Linq;
 
 namespace Barjonas.Common.Model
 {
-    public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<TKey, TItem>, INotifyCollectionChanged, INotifyPropertyChanged
+    public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<TKey, TItem>, INotifyCollectionChanged, INotifyPropertyChanged where TKey : IComparable
     {
         public event NotifyCollectionChangedEventHandler CollectionChanged;
         public event PropertyChangedEventHandler PropertyChanged;
         int _prevCount = 0;
+
+        protected virtual bool EnforceOrderByKey => false;
 
         protected override void SetItem(int index, TItem item)
         {
@@ -22,6 +24,11 @@ namespace Barjonas.Common.Model
 
         protected override void InsertItem(int index, TItem item)
         {
+            if (EnforceOrderByKey)
+            {
+                TKey key = GetKeyForItem(item);
+                index = Items.TakeWhile(i => GetKeyForItem(i).CompareTo(key) < 0).Count();
+            }
             base.InsertItem(index, item);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
         }
