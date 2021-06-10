@@ -769,8 +769,9 @@ namespace Barjonas.Common
         /// <param name="isNew">If an object is created (due to file not existing or being invalid) this will be set to true.</param>
         /// <param name="logger">If supplied, this will be used to log useful log messages about the depersistance operation.</param>
         /// <param name="rethrowDeserializationExceptions">If true, any deserialization exception will be rethrown. Otherwise exceptions will be logged and a new object will be returned.</param>
+        /// <param name="renameFailedFiles">If true, an file which is found but cannot be deserialized will be renamed before a default object is created.</param>
         /// <returns></returns>
-        public static T Depersist<T>(string path, out bool isNew, Logger logger = null, bool rethrowDeserializationExceptions = false) where T : class, new()
+        public static T Depersist<T>(string path, out bool isNew, Logger logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true) where T : class, new()
         {
             var ser = new JsonSerializer()
             {
@@ -780,19 +781,30 @@ namespace Barjonas.Common
             T obj = null;
             if (File.Exists(path))
             {
+                bool renameBroken = false;
                 using var sr = new StreamReader(path);
-                using JsonReader reader = new JsonTextReader(sr);
-                try
                 {
-                    obj = ser.Deserialize<T>(reader);
-                }
-                catch (Exception ex)
-                {
-                    logger?.Error(ex, "Exception while deserializing {0}", path);
-                    if (rethrowDeserializationExceptions)
+                    using JsonReader reader = new JsonTextReader(sr);
+                    try
                     {
-                        throw new Exception($"Exception while deserializing {path}", ex);
+                        obj = ser.Deserialize<T>(reader);
                     }
+                    catch (Exception ex)
+                    {
+                        logger?.Error(ex, "Exception while deserializing {0}", path);
+                        if (renameFailedFiles)
+                        {
+                            renameBroken = true;
+                        }
+                        if (rethrowDeserializationExceptions)
+                        {
+                            throw new Exception($"Exception while deserializing {path}", ex);
+                        }
+                    }
+                }
+                if (renameBroken)
+                {
+                    RenameBrokenFile(path, logger);
                 }
             }
             if (obj == null)
@@ -807,6 +819,34 @@ namespace Barjonas.Common
                 isNew = false;
             }
             return obj;
+        }
+
+        private static void RenameBrokenFile(string path, Logger logger = null)
+        {
+            int i = 1;
+            string dir = Path.GetDirectoryName(path);
+            string pathNoExt = Path.GetFileNameWithoutExtension(path);
+            string ext = Path.GetExtension(path);
+            while (true)
+            {
+                string newPath = Path.Combine(dir, $"{pathNoExt}.broken.{i}{ext}");
+                if (!File.Exists(newPath))
+                {
+                    try
+                    {
+                        File.Copy(path, newPath);
+                        File.Delete(path);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger?.Error(ex, "Exception while trying to rename broken file at (0)", path);
+                        return;
+                    }
+                    logger?.Info("Renamed broken file to (0)", newPath);
+                    return;
+                }
+                i++;
+            }
         }
 
         /// <summary>
@@ -992,6 +1032,16 @@ namespace Barjonas.Common
             }
 
             return default;
+        }
+
+        public static bool IsMulticast(this System.Net.IPAddress address)
+        {
+            if (address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+            {
+                return address.IsIPv6Multicast;
+            }
+            byte[] bytes = address.GetAddressBytes();
+            return bytes[0] > 223 && bytes[0] < 240;
         }
     }
 }
