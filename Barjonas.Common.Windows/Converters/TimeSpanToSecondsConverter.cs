@@ -23,6 +23,10 @@ namespace Barjonas.Common.Converters
                     return span.TotalSeconds;
                 }
             }
+            else if (value == null)
+            {
+                return null;
+            }
             else
             {
                 throw new ArgumentException();
@@ -31,7 +35,11 @@ namespace Barjonas.Common.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (typeof(double).IsAssignableFrom(value?.GetType()))
+            if (value == null)
+            {
+                return null;
+            }
+            else if (typeof(double).IsAssignableFrom(value?.GetType()))
             {
                 return TimeSpan.FromSeconds((double)value);
             }
