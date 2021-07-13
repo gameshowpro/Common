@@ -54,8 +54,9 @@ namespace Barjonas.Common.Model
         /// <summary>
         /// Set a property, if it has changed, and raise event as appropriate.  Return boolean indicated whether any change was made.
         /// </summary>
-        protected bool SetProperty<F>(ref F field, F value, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "")
+        protected bool SetProperty<F>(ref F field, F value, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "", bool forceEvent = false)
         {
+            bool changed = false;
             if (((field == null) != (value == null)) || ((field != null)))
             {
                 if (string.IsNullOrWhiteSpace(memberName))
@@ -64,16 +65,12 @@ namespace Barjonas.Common.Model
                 }
                 if (HasChanged(CompareEnumerablesByContent, field, value))
                 {
+                    changed = true;
                     field = value;
                     if (_supressEvents)
                     {
                         _isDirty = true;
                     }
-                    else
-                    {
-                        NotifyPropertyChanged(memberName);
-                    }
-                    return true;
                 }
                 else if (CompareEnumerablesByContent)
                 {
@@ -81,7 +78,11 @@ namespace Barjonas.Common.Model
                     field = value;
                 }
             }
-            return false;
+            if (forceEvent || (changed && !_supressEvents))
+            {
+                NotifyPropertyChanged(memberName);
+            }
+            return changed;
         }
 
         /// <summary>
