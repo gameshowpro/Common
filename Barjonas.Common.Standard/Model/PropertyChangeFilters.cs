@@ -46,9 +46,11 @@ namespace Barjonas.Common.Model
         internal readonly bool _isValid;
         internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions)
         {
-            IEnumerable<PropertyChangeCondition> validCons = conditions.Where(c => c._sender != null || c._senderCollection != null);
-            if (!validCons.Any())
+            IEnumerable<PropertyChangeCondition> validCons = conditions?.Where(c => c._sender != null || c._senderCollection != null);
+            if (validCons?.Any() != true)
             {
+                //Invoke handler on construction (like normal), knowing there will never be an event triggering a later invokation
+                InvokeAll();
                 return;
             }
             _isValid = true;
@@ -112,7 +114,7 @@ namespace Barjonas.Common.Model
         }
 
         internal void InvokeAll()
-            => _handler?.Invoke(this, new PropertyChangedEventArgs(""));
+            => _handler?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
 
         internal void Release()
         {
