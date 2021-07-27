@@ -25,6 +25,7 @@
         <Setter Property="Width" Value="20"/>
         <Setter Property="Height" Value="20"/>
     </Style>
+    <SolidColorBrush Color="#ff9933" x:Key="MahApps.Brushes.Accent3"/>
     <Style TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Circle}" x:Key="CircleButton">
         <Setter Property="Margin" Value="{StaticResource ControlMargin}"/>
         <Setter Property="Width" Value="50"/>
