@@ -46,6 +46,7 @@ namespace Barjonas.Common.Model
         internal readonly bool _isValid;
         internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions)
         {
+            _handler = action;
             IEnumerable<PropertyChangeCondition> validCons = conditions?.Where(c => c._sender != null || c._senderCollection != null);
             if (validCons?.Any() != true)
             {
@@ -54,7 +55,6 @@ namespace Barjonas.Common.Model
                 return;
             }
             _isValid = true;
-            _handler = action;
             _conditions = new HashSet<PropertyChangeCondition>();
             var senders = new HashSet<INotifyPropertyChanged>();
             var collectionSenders = new HashSet<INotifyCollectionChanged>();
