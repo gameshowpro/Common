@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -674,6 +675,41 @@ namespace Barjonas.Common
             EnsureListCount(ilist, minCount, maxCount, factory);
         }
 
+
+        /// <summary>
+        /// Enure the given immutable list is sized within the specified range.
+        /// </summary>
+        /// <typeparam name="T">The type of the generic list.</typeparam>
+        /// <param name="list">The immutable list to be checked.</param>
+        /// <param name="minCount">The minimum number of entries required.</param>
+        /// <param name="maxCount">The maximum number of entries allowed.</param>
+        /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
+        public static void EnsureListCount<T>(ref ImmutableList<T> list, int minCount, int maxCount, Func<int, T> factory)
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException();
+            }
+            if (list.Count.IsInRange(minCount, maxCount))
+            {
+                return;
+            }
+            ImmutableList<T>.Builder builder = ImmutableList.CreateBuilder<T>();
+            builder.AddRange(list);
+            while (!builder.Count.IsInRange(minCount, maxCount, true))
+            {
+                if (builder.Count > minCount)
+                {
+                    builder.RemoveAt(builder.Count - 1);
+                }
+                else
+                {
+                    builder.Add(factory(builder.Count));
+                }
+            }
+            list = builder.ToImmutable();
+        }
+
         /// <summary>
         /// Set the indices of all items in the given list.
         /// </summary>
@@ -776,7 +812,8 @@ namespace Barjonas.Common
             var ser = new JsonSerializer()
             {
                 TypeNameHandling = TypeNameHandling.Auto,
-                TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
+                TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
+                DefaultValueHandling = DefaultValueHandling.Populate
             };
             T obj = null;
             if (File.Exists(path))
@@ -865,7 +902,7 @@ namespace Barjonas.Common
         /// <typeparam name="T">The type of object to be persisted.</typeparam>
         /// <param name="path">Path to the JSON file.</param>
         /// <param name="obj">Object to be persisted.</param>
-        public static void Persist<T>(T obj, string path)
+        public static void Persist<T>(T obj, string path, bool enumsAsStrings = false)
         {
             EnsureDirectory(path);
             var ser = new JsonSerializer()
@@ -874,6 +911,10 @@ namespace Barjonas.Common
                 TypeNameHandling = TypeNameHandling.Auto,
                 TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
             };
+            if (enumsAsStrings)
+            {
+                ser.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+            }
             using var sw = new StreamWriter(path);
             using JsonWriter writer = new JsonTextWriter(sw);
             ser.Serialize(writer, obj);
