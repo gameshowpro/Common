@@ -14,6 +14,7 @@ namespace Barjonas.Common.Model.Lights
     /// </summary>
     public class Fixture : NotifyingClass
     {
+        public event EventHandler ChannelIdsChanged;
         private StatePresetGroup _stateGroup;
         public StatePresetGroup StateGroup
         {
@@ -77,6 +78,20 @@ namespace Barjonas.Common.Model.Lights
             set { SetProperty(ref _displayName, value); }
         }
 
+        private int _startId = 0;
+        [JsonProperty, DefaultValue(0)]
+        public int StartId
+        {
+            get => _startId;
+            set
+            {
+                if (SetProperty(ref _startId, value))
+                {
+                    SetChannelsFromStartChannel(_startId, _channels);
+                }
+            }
+        }
+
         private BindingList<FixtureChannel> _channels;
         [JsonProperty, DefaultValue(null)]
         public BindingList<FixtureChannel> Channels
@@ -86,7 +101,29 @@ namespace Barjonas.Common.Model.Lights
             {
                 RemoveChannelHandlers(_channels, Channel_PropertyChanged);
                 SetProperty(ref _channels, value);
+                SetChannelsFromStartChannel(_startId, _channels);
                 DeserializationComplete(); //Mainly for backwards compatibility. If really deserializing, this should be called explicitly later
+            }
+        }
+
+        private void SetChannelsFromStartChannel(int start, IEnumerable<FixtureChannel> channels)
+        {
+            bool changed = false;
+            if (channels != null)
+            {
+                foreach (FixtureChannel channel in channels)
+                {
+                    if (channel.Id != start)
+                    {
+                        channel.Id = start;
+                        changed = true;
+                    }
+                    start++;
+                }
+            }
+            if (changed)
+            {
+                ChannelIdsChanged?.Invoke(this, new EventArgs());
             }
         }
 

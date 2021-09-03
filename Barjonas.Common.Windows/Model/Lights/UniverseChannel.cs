@@ -44,6 +44,11 @@ namespace Barjonas.Common.Model.Lights
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Level)));
         }
 
+        internal void MasterChanged()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MasterChannel)));
+        }
+
         private FixtureChannel _masterChannel;
         /// <summary>
         /// This is a abstract lighting channel bound into a client object model.  If set, the Dmx.Channel class will act as a slave to the master's values.
@@ -60,10 +65,12 @@ namespace Barjonas.Common.Model.Lights
                         _masterChannel.LevelChanged -= MasterChannel_LevelChanged;
                     }
                     _masterChannel = value;
+                    Level = _masterChannel?.Level ?? 0;
                     if (_masterChannel != null)
                     {
                         _masterChannel.LevelChanged += MasterChannel_LevelChanged;
                     }
+                    MasterChanged();
                 }
             }
         }
