@@ -31,7 +31,7 @@ namespace Barjonas.Common.Model.Lights
 
         public byte Level
         {
-            get { return _universe.Data[_index + 1]; }
+            get { return _universe._data[_index + 1]; }
             set
             {
                 //Note that all notifications are triggered by the parent universe.  This is just a view model.

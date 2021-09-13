@@ -25,7 +25,7 @@ namespace Barjonas.Common.Model.Lights
                 {
                     throw new InvalidOperationException($"Once {nameof(StateGroup)} is set, it is immutable.");
                 }
-                _stateGroup = value ?? throw new ArgumentNullException($"{nameof(StateGroup)} cannot be set to null.");
+                _stateGroup = value ?? throw new ArgumentNullException(nameof(StateGroup));
                 State = _stateGroup.StatesLevels.FirstOrDefault();
             }
         }
@@ -43,7 +43,7 @@ namespace Barjonas.Common.Model.Lights
 
                 if (value == null)
                 {
-                    throw new ArgumentNullException($"{nameof(State)} cannot be set to null.");
+                    throw new ArgumentNullException(nameof(State));
                 }
 
                 if (!_stateGroup.StatesLevels.Contains(value))
@@ -189,7 +189,7 @@ namespace Barjonas.Common.Model.Lights
 
         public void DeserializationComplete()
         {
-            if (_channels.Any(c => c.FixtureChannelType == null))
+            if (_channels?.Any(c => c.FixtureChannelType == null) != false)
             {
                 //Not ready yet
                 return;
@@ -272,6 +272,7 @@ namespace Barjonas.Common.Model.Lights
             {
                 _channels[i].FixtureChannelType = templateFixture._channels[i].FixtureChannelType;
             }
+            SetChannelsFromStartChannel(_startId, _channels);
             StateGroup = templateFixture._stateGroup;
         }
     }

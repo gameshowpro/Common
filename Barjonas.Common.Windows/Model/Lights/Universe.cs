@@ -11,7 +11,7 @@ namespace Barjonas.Common.Model.Lights
     /// </summary>
     public class Universe
     {
-        internal byte[] Data;
+        internal byte[] _data;
         private Action<byte[]> _sendUpdate;
         public Action<byte[]> SendUpdate
         {
@@ -22,13 +22,13 @@ namespace Barjonas.Common.Model.Lights
             set
             {
                 _sendUpdate = value;
-                _sendUpdate(Data);
+                _sendUpdate(_data);
             }
         }
         public Universe(UniverseSettings settings, int universeSize, Action<byte[]> sendUpdate)
         {
             _settings = settings;
-            Data = new byte[universeSize + 1]; //First byte is DMX start code
+            _data = new byte[universeSize + 1]; //First byte is DMX start code
             _sendUpdate = sendUpdate;
             _channels = new List<UniverseChannel>();
             for (var i = 1; i <= universeSize; i++)
@@ -67,7 +67,7 @@ namespace Barjonas.Common.Model.Lights
                     if (_sendUpdates & _isDirty)
                     {
                         _isDirty = false;
-                        _sendUpdate?.Invoke(Data);
+                        _sendUpdate?.Invoke(_data);
                     }
                 }
             }
@@ -81,18 +81,18 @@ namespace Barjonas.Common.Model.Lights
         public void SetData(byte[] sourceData, int start)
         {
             var startOneBased = start + 1;  //must account for DMX start code which is at position zero
-            if ((sourceData.Length + startOneBased) > Data.Length || startOneBased < 0)
+            if ((sourceData.Length + startOneBased) > _data.Length || startOneBased < 0)
             {
-                throw new ArgumentOutOfRangeException("Source data goes outside of universe.");
+                throw new ArgumentOutOfRangeException(nameof(sourceData),"Source data goes outside of universe.");
             }
             var oldData = new byte[sourceData.Length];
             //Take copy of old values
-            Array.Copy(Data, startOneBased, oldData, 0, oldData.Length);
+            Array.Copy(_data, startOneBased, oldData, 0, oldData.Length);
             //Apply new values
-            Array.Copy(sourceData, 0, Data, startOneBased, sourceData.Length);
+            Array.Copy(sourceData, 0, _data, startOneBased, sourceData.Length);
             if (_sendUpdates)
             {
-                _sendUpdate?.Invoke(Data);
+                _sendUpdate?.Invoke(_data);
             }
             else
             {
@@ -116,16 +116,16 @@ namespace Barjonas.Common.Model.Lights
         public void SetData(int channel, byte level)
         {
             var channelOneBased = channel + 1;
-            if (!channelOneBased.IsInRange(0, Data.Length, false))
+            if (!channelOneBased.IsInRange(0, _data.Length, false))
             {
                 throw new ArgumentOutOfRangeException(nameof(channel), channel, "Channel is outside universe");
             }
-            if (Data[channelOneBased] != level)
+            if (_data[channelOneBased] != level)
             {
-                Data[channelOneBased] = level;
+                _data[channelOneBased] = level;
                 if (_sendUpdates)
                 {
-                    _sendUpdate?.Invoke(Data);
+                    _sendUpdate?.Invoke(_data);
                 }
                 else
                 {
@@ -138,7 +138,7 @@ namespace Barjonas.Common.Model.Lights
         public byte[] GetData(int start, int length)
         {
             var newArray = new byte[length];
-            Buffer.BlockCopy(Data, start, newArray, 0, length);
+            Buffer.BlockCopy(_data, start, newArray, 0, length);
             return newArray;
         }
     }
