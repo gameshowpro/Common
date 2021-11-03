@@ -7,6 +7,7 @@
     <Company>Barjonas LLC</Company>
     <Authors>Hamish Barjonas</Authors>
     <Copyright>Barjonas LLC 2021</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
