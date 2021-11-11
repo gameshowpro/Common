@@ -170,24 +170,29 @@ namespace Barjonas.Common
         /// <summary>
         /// Build a list of <seealso cref="IncomingTrigger"/> based on an enum type decorated with <seealso cref="TriggerParameters"/>.
         /// </summary>
-        /// <typeparam name="Command">Type of command enum which is decorated with <seealso cref="TriggerParameters"/> </typeparam>
+        /// <typeparam name="TCommand">Type of command enum which is decorated with <seealso cref="TriggerParameters"/> </typeparam>
         /// <typeparam name="T">Type of trigger</typeparam>
         /// <param name="factory">A factory to create triggers.</param>
         /// <param name="dict">A dictionary dictionary of triggers keyed by command, which will be updated</param>
         /// <returns></returns>
-        public static List<Trigger> BuildTriggerList<Command, Trigger>(Func<IncomingTriggerSetting, Trigger> factory, out Dictionary<Command, Trigger> dict, IncomingTriggerSettings settings) where Trigger : IncomingTrigger
+        public static List<TTrigger> BuildTriggerList<TCommand, TTrigger>(
+            Func<IncomingTriggerSetting, TTrigger> factory, 
+            out Dictionary<TCommand, TTrigger> dict,
+            IncomingTriggerSettings settings
+        )
+        where TTrigger : IncomingTrigger
         {
-            var triggers = new List<Trigger>();
-            dict = new Dictionary<Command, Trigger>();
-            Type t = typeof(Command);
-            foreach (Command value in Enum.GetValues(t))
+            var triggers = new List<TTrigger>();
+            dict = new Dictionary<TCommand, TTrigger>();
+            Type t = typeof(TCommand);
+            foreach (TCommand value in Enum.GetValues(t))
             {
                 var attrs = t.GetField(value.ToString()).GetCustomAttributes(typeof(TriggerParameters), false);
                 if (!(attrs.FirstOrDefault() is TriggerParameters attr))
                 {
                     throw new MissingMemberException($"{t} must contain a {nameof(TriggerParameters)} attribute on every member.");
                 }
-                Trigger trigger = factory(settings.GetOrCreate(value.ToString(), attr._name, attr._defaultId, attr._executeOnFirstInterrupt, TimeSpan.FromSeconds(1)));
+                TTrigger trigger = factory(settings.GetOrCreate(value.ToString(), attr.Name, attr.DefaultId, attr.TriggerFilter, TimeSpan.FromSeconds(1)));
                 triggers.Add(trigger);
                 dict.Add(value, trigger);
             }

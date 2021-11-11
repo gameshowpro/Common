@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using Barjonas.Common.Model;
 using Newtonsoft.Json;
@@ -1083,6 +1084,23 @@ namespace Barjonas.Common
             }
             byte[] bytes = address.GetAddressBytes();
             return bytes[0] > 223 && bytes[0] < 240;
+        }
+
+        /// <summary>
+        /// A simple method to allow a task to be fired off from synchronous code which will never be seen again unless an exception needs to be handled.
+        /// </summary>
+        /// <param name="task">The task to be executed.</param>
+        /// <param name="exceptionHandler">A delagate which will handle and exception object in case an exception is raised.</param>
+        public static async void FireAndForgetSafeAsync(this Task task, Action<Exception> exceptionHandler = null)
+        {
+            try
+            {
+                await task;
+            }
+            catch (Exception ex)
+            {
+                exceptionHandler?.Invoke(ex);
+            }
         }
     }
 }

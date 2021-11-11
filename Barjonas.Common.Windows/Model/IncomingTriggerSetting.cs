@@ -8,10 +8,10 @@ namespace Barjonas.Common.Model
 {
     public class IncomingTriggerSetting : NotifyingClass, INotifyDataErrorInfo
     {
-        internal IncomingTriggerSetting() { }
+        protected internal  IncomingTriggerSetting() { }
 
         internal bool _wasTouched;
-        public bool ExecuteOnFirstInterrupt { get; set; }
+        public TriggerFilter TriggerFilter { get; set; }
 
         private string _key = "";
         [JsonProperty, DefaultValue("")]

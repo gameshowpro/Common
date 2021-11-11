@@ -5,14 +5,20 @@ namespace Barjonas.Common.Model
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
     public sealed class TriggerParameters : Attribute
     {
-        public readonly string _name;
-        public readonly byte _defaultId;
-        public readonly bool _executeOnFirstInterrupt;
-        public TriggerParameters(string name, byte defaultId, bool executeOnFirstInterrupt = false)
+        public string Name { get; }
+        public byte DefaultId { get; }
+        public TriggerFilter TriggerFilter { get; }
+        [Obsolete("This overload is for backwards-compatability only. Specify a TriggerFilter instead.")]
+        public TriggerParameters(string name, byte defaultId, bool executeOnFirstInterrupt)
+            : this(name, defaultId, executeOnFirstInterrupt ? TriggerFilter.FirstOnly : TriggerFilter.All)
         {
-            _name = name;
-            _defaultId = defaultId;
-            _executeOnFirstInterrupt = executeOnFirstInterrupt;
+        }
+
+        public TriggerParameters(string name, byte defaultId, TriggerFilter triggerFilter = TriggerFilter.All)
+        {
+            Name = name;
+            DefaultId = defaultId;
+            TriggerFilter = triggerFilter;
         }
     }
 }

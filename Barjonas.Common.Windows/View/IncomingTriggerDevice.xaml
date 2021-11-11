@@ -44,7 +44,7 @@
                 </Rectangle>
             </Grid>
             <Grid Visibility="{Binding TriggerWhenDownAllowed, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <iconPacks:PackIconModern Kind="Stop" Width="15" Height="15" HorizontalAlignment="Center" Visibility="{Binding TriggerWhenDown, Converter={StaticResource MatchToBooleanConverter}, ConverterParameter={conv:Bool False}}"/>
+                <iconPacks:PackIconModern Kind="Stop" Width="15" Height="15" HorizontalAlignment="Center" Visibility="{Binding TriggerWhenDown, Converter={StaticResource MatchToBooleanConverter}, ConverterParameter={conv:Bool False}, Mode=OneWay}"/>
             </Grid>
             <Grid>
                 <iconPacks:PackIconModern Opacity="0" Kind="Lightning" Name="TriggerIndicator" Width="15" Height="15" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Yellow" Tag="{Binding LastTriggerDateTime, NotifyOnTargetUpdated=True}">
@@ -104,7 +104,7 @@
                     <DataGridTemplateColumn Header="Trigger">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox IsChecked="{Binding TriggerWhenDown, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding TriggerWhenDownAllowed, Converter={StaticResource BooleanToVisibilityConverter}}" HorizontalAlignment="Center" />
+                                <CheckBox IsChecked="{Binding TriggerWhenDown, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" Visibility="{Binding TriggerWhenDownAllowed, Converter={StaticResource BooleanToVisibilityConverter}}" HorizontalAlignment="Center" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

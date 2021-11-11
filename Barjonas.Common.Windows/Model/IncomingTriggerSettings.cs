@@ -10,7 +10,12 @@ namespace Barjonas.Common.Model
             return item.Key;
         }
 
+        [Obsolete("This overload is for backwards-compatability only. Specify a TriggerFilter instead.")]
         public IncomingTriggerSetting GetOrCreate(string key, string name, byte defaultId, bool executeOnFirstInterrupt = false, TimeSpan? debounceInterval = null)
+            => GetOrCreate(key, name, defaultId, executeOnFirstInterrupt ? TriggerFilter.FirstOnly : TriggerFilter.All, debounceInterval);
+
+
+        public virtual IncomingTriggerSetting GetOrCreate(string key, string name, byte defaultId, TriggerFilter triggerFilter, TimeSpan? debounceInterval = null)
         {
             if (name == null)
             {
@@ -28,7 +33,7 @@ namespace Barjonas.Common.Model
             }
             trigger.Name = name;
             trigger.DebounceInterval = debounceInterval;
-            trigger.ExecuteOnFirstInterrupt = executeOnFirstInterrupt;
+            trigger.TriggerFilter = triggerFilter;
             trigger._wasTouched = true;
             return trigger;
         }

@@ -78,9 +78,9 @@ namespace Barjonas.Common.Converters
                         }
                         else
                         {
-                            sb.Append(",");
+                            _ = sb.Append(',');
                         }
-                        sb.Append(i + IntUiOffset);
+                        _ = sb.Append(i + IntUiOffset);
                     }
                 }
             }
@@ -114,11 +114,11 @@ namespace Barjonas.Common.Converters
                 }
                 else if (targetType.IsAssignableFrom(typeof(List<int>)))
                 {
-                    return parts.Select(s => { int.TryParse(s.Trim(), out int i); return i - IntUiOffset; }).ToList();
+                    return parts.Select(s => int.TryParse(s.Trim(), out int i) ? i - IntUiOffset : 0).ToList();
                 }
                 else if (targetType.IsAssignableFrom(typeof(List<bool>)))
                 {
-                    return parts.Select(s => { bool.TryParse(s.Trim(), out bool b); return b; }).ToList();
+                    return parts.Select(s => bool.TryParse(s.Trim(), out bool b) && b).ToList();
                 }
             }
             return Binding.DoNothing;

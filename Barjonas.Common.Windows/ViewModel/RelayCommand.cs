@@ -14,7 +14,6 @@ namespace Barjonas.Common.ViewModel
         #region Fields
 
         protected readonly Action<T> _execute = null;
-        private readonly Predicate<T> _canExecute = null;
 
         #endregion
 
@@ -34,11 +33,10 @@ namespace Barjonas.Common.ViewModel
         /// Creates a new command.
         /// </summary>
         /// <param name="execute">The execution logic.</param>
-        /// <param name="canExecute">The execution status logic.</param>
+        /// <param name="canExecute">The execution status logic (currently ignored).</param>
         public RelayCommand(Action<T> execute, Predicate<T> canExecute)
         {
-            _execute = execute ?? throw new ArgumentNullException("execute");
-            _canExecute = canExecute;
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
         }
 
         public void SetCanExecute(bool canExecute)

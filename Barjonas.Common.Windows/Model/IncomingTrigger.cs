@@ -22,22 +22,23 @@ namespace Barjonas.Common.Model
         {
             _lastTrigger.Start();
             Setting = setting;
-            TriggerWhenDown = true;
-            ToggleTriggerWhenDownCommand = new RelayCommandSimple(() => TriggerWhenDown = !TriggerWhenDown);
             SimulateTriggerCommand = new RelayCommand<bool?>((latch) => { if (latch == true) { IsDown = !_isDown; } else { IsDown = true; IsDown = false; } });
         }
 
-        public IncomingTriggerSetting Setting { get; }
+        protected void OnIsDownChanged(bool value)
+            => IsDownChanged?.Invoke(this, value);
+
+        public IncomingTriggerSetting Setting { get; protected set; }
 
         protected bool _isDown;
-        public bool IsDown
+        public virtual bool IsDown
         {
             get { return _isDown; }
             protected set
             {
                 if (SetProperty(ref _isDown, value))
                 {
-                    IsDownChanged?.Invoke(this, value);
+                    OnIsDownChanged(value);
                     if (value && TriggerWhenDown)
                     {
                         Triggered();
@@ -60,26 +61,11 @@ namespace Barjonas.Common.Model
             }
         }
 
-        private bool _triggerWhenDownAllowed = true;
-        /// <summary>
-        /// If false, the user may not set <see cref="TriggerWhenDown"/> because it is disallowed by the subclass.
-        /// </summary>
-        public bool TriggerWhenDownAllowed
-        {
-            get { return _triggerWhenDownAllowed; }
-            protected set { SetProperty(ref _triggerWhenDownAllowed, value); }
-        }
-
         /// <summary>
         /// If true, <see cref="Triggered"/> will only be called whenever <see cref="IsDown"/> changes to true.
         /// Previously known as IsEnabled.
         /// </summary>
-        private bool _triggerWhenDown;
-        public virtual bool TriggerWhenDown
-        {
-            get { return _triggerWhenDown; }
-            set { SetProperty(ref _triggerWhenDown, value); }
-        }
+        public virtual bool TriggerWhenDown => true;
 
         private int _ordinal = -1;
         /// <summary>
