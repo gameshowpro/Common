@@ -494,7 +494,7 @@ namespace Barjonas.Common
         /// <param name="minCount">The minimum number of entries required.</param>
         /// <param name="maxCount">The maximum number of entries allowed.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(IList<T> list, int minCount, int maxCount, Func<int, T> factory)
+        public static void EnsureListCount<T>(this IList<T> list, int minCount, int maxCount, Func<int, T> factory)
         {
             if (list == null)
             {
@@ -520,7 +520,7 @@ namespace Barjonas.Common
         /// <param name="list">The list to be checked.</param>
         /// <param name="minCount">The minimum number of entries required.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(IList<T> list, int minCount, Func<int, T> factory)
+        public static void EnsureListCount<T>(this IList<T> list, int minCount, Func<int, T> factory)
         {
             EnsureListCount(list, minCount, int.MaxValue, factory);
         }
@@ -548,7 +548,7 @@ namespace Barjonas.Common
         /// <param name="list">The list to be checked.</param>
         /// <param name="minCount">The minimum number of entries required.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(List<T> list, int minCount, Func<int, T> factory)
+        public static void EnsureListCount<T>(this List<T> list, int minCount, Func<int, T> factory)
         {
             IList<T> ilist = list;
             EnsureListCount(ilist, minCount, int.MaxValue, factory);
@@ -562,7 +562,7 @@ namespace Barjonas.Common
         /// <param name="list">The list to be checked.</param>
         /// <param name="count">The number of entries required.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(ObservableCollection<T> list, int minCount, int maxCount, Func<int, T> factory)
+        public static void EnsureListCount<T>(this ObservableCollection<T> list, int minCount, int maxCount, Func<int, T> factory)
         {
             IList<T> ilist = list;
             EnsureListCount(ilist, minCount, maxCount, factory);
@@ -591,7 +591,7 @@ namespace Barjonas.Common
         /// <param name="list">The list to be checked.</param>
         /// <param name="count">The number of entries required.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(ObservableCollectionEx<T> list, int minCount, int maxCount, Func<int, T> factory) where T : INotifyPropertyChanged
+        public static void EnsureListCount<T>(this ObservableCollectionEx<T> list, int minCount, int maxCount, Func<int, T> factory) where T : INotifyPropertyChanged
         {
             IList<T> ilist = list;
             EnsureListCount(ilist, minCount, maxCount, factory);
@@ -638,7 +638,7 @@ namespace Barjonas.Common
         /// <param name="minCount">The minimum number of entries required.</param>
         /// <param name="maxCount">The maximum number of entries allowed.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(List<T> list, int minCount, int maxCount, Func<int, T> factory)
+        public static void EnsureListCount<T>(this List<T> list, int minCount, int maxCount, Func<int, T> factory)
         {
             IList<T> ilist = list;
             EnsureListCount(ilist, minCount, maxCount, factory);
@@ -670,7 +670,7 @@ namespace Barjonas.Common
         /// <param name="minCount">The minimum number of entries required.</param>
         /// <param name="maxCount">The maximum number of entries allowed.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(BindingList<T> list, int minCount, int maxCount, Func<int, T> factory)
+        public static void EnsureListCount<T>(this BindingList<T> list, int minCount, int maxCount, Func<int, T> factory)
         {
             IList<T> ilist = list;
             EnsureListCount(ilist, minCount, maxCount, factory);

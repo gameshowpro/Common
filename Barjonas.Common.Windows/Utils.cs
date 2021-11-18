@@ -188,7 +188,7 @@ namespace Barjonas.Common
             foreach (TCommand value in Enum.GetValues(t))
             {
                 var attrs = t.GetField(value.ToString()).GetCustomAttributes(typeof(TriggerParameters), false);
-                if (!(attrs.FirstOrDefault() is TriggerParameters attr))
+                if (attrs.FirstOrDefault() is not TriggerParameters attr)
                 {
                     throw new MissingMemberException($"{t} must contain a {nameof(TriggerParameters)} attribute on every member.");
                 }
@@ -198,5 +198,30 @@ namespace Barjonas.Common
             }
             return triggers;
         }
+
+        /// <summary>
+        /// Try to convert a given string to a Windows Media Color, based on ColorConverter but with potential added functionality in future.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="color"></param>
+        /// <param name="fallback"></param>
+        public static bool TryStringToColor(string input, out System.Windows.Media.Color color, System.Windows.Media.Color? fallback = null)
+        {
+            try
+            {
+                if (System.Windows.Media.ColorConverter.ConvertFromString(input) is System.Windows.Media.Color c)
+                {
+                    color = c;
+                    return true;
+                }
+            }
+            catch (Exception)
+            { }
+            color = fallback ?? System.Windows.Media.Colors.White;
+            return false;
+        }
+
+        public static string ToRgbHexString(this System.Windows.Media.Color color)
+            => $"#{color.R:x2}{color.G:x2}{color.B:x2}";
     }
 }
