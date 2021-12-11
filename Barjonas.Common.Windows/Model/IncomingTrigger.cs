@@ -3,12 +3,14 @@
 using System;
 using System.Diagnostics;
 using Barjonas.Common.ViewModel;
+using NLog;
 
 namespace Barjonas.Common.Model
 {
-    public abstract class IncomingTrigger : NotifyingClass
+    public abstract class IncomingTrigger : NotifyingClass, ITrigger
     {
         private readonly Stopwatch _lastTrigger = new();
+        protected Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
         public delegate void IsDownChangedEventHandler(IncomingTrigger sender, bool isDown);
         /// <summary>
@@ -16,7 +18,7 @@ namespace Barjonas.Common.Model
         /// </summary>
         public event IsDownChangedEventHandler IsDownChanged;
 
-        public event EventHandler OnTriggered;
+        public event EventHandler<TriggerArgs> Triggered;
 
         protected IncomingTrigger(IncomingTriggerSetting setting)
         {
@@ -28,7 +30,7 @@ namespace Barjonas.Common.Model
         protected void OnIsDownChanged(bool value)
             => IsDownChanged?.Invoke(this, value);
 
-        public IncomingTriggerSetting Setting { get; protected set; }
+        public IncomingTriggerSetting Setting { get; }
 
         protected bool _isDown;
         public virtual bool IsDown
@@ -41,7 +43,7 @@ namespace Barjonas.Common.Model
                     OnIsDownChanged(value);
                     if (value && TriggerWhenDown)
                     {
-                        Triggered();
+                        DoTriggered();
                     }
                 }
             }
@@ -49,15 +51,15 @@ namespace Barjonas.Common.Model
 
         /// <summary>
         /// Called by base class whenever this trigger has been triggered, subject to the currently configured conditions.
-        /// The base implementation raised the OnTriggered event, so should be called from subclasses.
+        /// The base implementation raises the Triggered event, so should be called from subclasses.
         /// </summary>
-        protected virtual void Triggered()
+        protected virtual void DoTriggered()
         {
             if (!Setting.DebounceInterval.HasValue || _lastTrigger.Elapsed > Setting.DebounceInterval.Value)
             {
                 _lastTrigger.Restart();
                 LastTriggerDateTime = DateTime.UtcNow;
-                OnTriggered?.Invoke(this, new EventArgs());
+                Triggered?.Invoke(this, new TriggerArgs());
             }
         }
 
