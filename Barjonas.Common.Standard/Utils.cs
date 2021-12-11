@@ -395,22 +395,14 @@ namespace Barjonas.Common
         private static readonly HashSet<char> s_spacesAndTabs = new() { ' ', '\u00A0', '\t' } ;
         public static bool IsSpaceOrTab(this char value) => s_spacesAndTabs.Contains(value);
 
-        /// <summary>
-        /// Analyse the input to establish whether is is already upper-case. By default, 50% lower case characters are allowed before whole string is upper cased. If it is upper case, pass back untouched.
-        /// In this way, input can be block caps with occasional lower-case characters (as in McCCLEAN) or all proper case, with the result being block caps with occasinal user-defined lower case characters.
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static string UpperCaseIfRequired(string input, double allowedLowerPercent = .50)
+        public static string UpperCaseIfRequired(string input, double allowedLowerPercent = .50, bool upperIfUnknown = true)
         {
             if (input == null)
             {
                 return null;
             }
 
-            int lowerCount = input.Count((c) => char.IsLower(c));
-            bool impossible = (1d / input.Length) > allowedLowerPercent;
-            if ((impossible && (lowerCount < 1)) || (((float)lowerCount) / input.Length) > allowedLowerPercent)
+            if (IsUpperCase(input, allowedLowerPercent) ?? upperIfUnknown)
             {
                 return input.ToUpper();
             }
@@ -418,6 +410,44 @@ namespace Barjonas.Common
             {
                 return input;
             }
+        }
+
+        /// <summary>
+        /// If the supplied string is mostly upper case, returns true. If not, returns false. May return null if there is not enough data to determine case.
+        /// </summary>
+        /// <param name="input">The string to check.</param>
+        /// <param name="allowedLowerPercent">The percentage of lower case letters allowed before the string is considered to be upper case.</param>
+        /// <returns></returns>
+        public static bool? IsUpperCase(this string input, double allowedLowerPercent = .50)
+        {
+            if (input == null)
+            {
+                return null;
+            }
+            int upperCount = 0;
+            int lowerCount = 0;
+            foreach (char c in input.ToCharArray())
+            {
+                if (char.IsUpper(c))
+                {
+                    upperCount++;
+                }
+                else if (char.IsLower(c))
+                {
+                    lowerCount++;
+
+                }
+            }
+            if (upperCount == 0)
+            {
+                return false;
+            }
+            else if (Math.Abs(lowerCount - upperCount) < 3)
+            {
+                return null;
+            }
+            int upperLowerCount = upperCount + lowerCount;
+            return (((float)lowerCount) / upperLowerCount) > allowedLowerPercent;
         }
 
         public static string PluralIfRequired(this int number, string singularNoun)
