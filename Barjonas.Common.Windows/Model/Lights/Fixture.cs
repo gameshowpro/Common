@@ -6,76 +6,52 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Media;
 using Newtonsoft.Json;
-
+#nullable enable
 namespace Barjonas.Common.Model.Lights
 {
+
     /// <summary>
     /// Represents a single logical light fixture.  This will contain one or more channels, e.g. different colors.  Each State represents values a fixed set of values for these channels.
     /// </summary>
     public class Fixture : NotifyingClass
     {
-        public event EventHandler ChannelIdsChanged;
-        private StatePresetGroup _stateGroup;
-        public StatePresetGroup StateGroup
+        public Fixture(
+            string key,
+            string displayName,
+            int startId,
+            List<FixtureChannel> channels,
+            StatePresetGroup group)
         {
-            get { return _stateGroup; }
-            set
-            {
-                if (_stateGroup != null)
-                {
-                    throw new InvalidOperationException($"Once {nameof(StateGroup)} is set, it is immutable.");
-                }
-                _stateGroup = value ?? throw new ArgumentNullException(nameof(StateGroup));
-                State = _stateGroup.StatesLevels.FirstOrDefault();
-            }
+            Key = key;
+            DisplayName = displayName;
+            StartId = startId;
+            Channels = channels;
+            StateGroup = group;
+            State = group.StatesLevels.First();
         }
 
-        private StateLevels _state;
-        public StateLevels State
+        public event EventHandler? ChannelIdsChanged;
+        /// <summary>
+        /// The group of states which may be applied to this fixture.
+        /// </summary>
+        public StatePresetGroup? StateGroup { get; internal set; }
+
+        private StateLevels? _state;
+        public StateLevels? State
         {
-            get { return _state; }
-            set
-            {
-                if (_stateGroup == null)
-                {
-                    throw new InvalidOperationException($"Can't set a {nameof(State)} without a {nameof(StateGroup)} already set.");
-                }
-
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(State));
-                }
-
-                if (!_stateGroup.StatesLevels.Contains(value))
-                {
-                    throw new ArgumentException($"Can't set a {nameof(State)} which does not belong to configured {nameof(StateGroup)}.");
-                }
-
-                SetProperty(ref _state, value);
-            }
+            get => _state;
+            private set => SetProperty(ref _state, value);
         }
 
-        private string _key;
         [JsonProperty, DefaultValue(null)]
-        public string Key
-        {
-            get { return _key; }
-            set
-            {
-                if (_key != null)
-                {
-                    throw new InvalidOperationException($"Once {nameof(Key)} is set, it is immutable.");
-                }
-                _key = value;
-            }
-        }
+        public string Key { get; }
 
         private string _displayName;
         [JsonProperty, DefaultValue("Light")]
         public string DisplayName
         {
             get { return _displayName; }
-            set { SetProperty(ref _displayName, value); }
+            set { _ = SetProperty(ref _displayName, value); }
         }
 
         private int _startId = 0;
@@ -92,15 +68,15 @@ namespace Barjonas.Common.Model.Lights
             }
         }
 
-        private BindingList<FixtureChannel> _channels;
-        [JsonProperty, DefaultValue(null)]
-        public BindingList<FixtureChannel> Channels
+        private List<FixtureChannel> _channels;
+        [DefaultValue(null)]
+        public List<FixtureChannel> Channels
         {
             get { return _channels; }
             set
             {
                 RemoveChannelHandlers(_channels, Channel_PropertyChanged);
-                SetProperty(ref _channels, value);
+                _ = SetProperty(ref _channels, value);
                 SetChannelsFromStartChannel(_startId, _channels);
                 DeserializationComplete(); //Mainly for backwards compatibility. If really deserializing, this should be called explicitly later
             }
@@ -129,20 +105,24 @@ namespace Barjonas.Common.Model.Lights
 
         public void ClearAll()
         {
-            ApplyStatePreset((IEnumerable<StatePresetChannel>)null);
+            ApplyStatePreset((IEnumerable<StatePresetChannel>?)null);
         }
 
         public void ReapplyStatePreset()
         {
-            ApplyStatePreset(_currentState?.Levels);
+            ApplyStatePreset(State?.Levels);
         }
 
         public void ApplyStatePreset(string presetKey)
         {
-            ApplyStatePreset(_stateGroup.StatesLevels[presetKey]);
+            if (StateGroup == null)
+            {
+                throw new InvalidOperationException($"Cannot apply preset before {nameof(StateGroup)} is set");
+            }
+            ApplyStatePreset(StateGroup.StatesLevels[presetKey]);
         }
 
-        public void ApplyStatePreset(IEnumerable<StatePresetChannel> preset)
+        private void ApplyStatePreset(IEnumerable<StatePresetChannel>? preset)
         {
             var i = 0;
             foreach (FixtureChannel chan in _channels)
@@ -154,24 +134,39 @@ namespace Barjonas.Common.Model.Lights
 
         public void ApplyStatePreset(StateLevels stateLevels, bool flashNow = true)
         {
-            bool changed = _currentState != stateLevels;
+            if (StateGroup == null)
+            {
+                throw new InvalidOperationException($"Can't set a {nameof(State)} without a {nameof(StateGroup)} already set.");
+            }
+
+            if (stateLevels == null)
+            {
+                throw new ArgumentNullException(nameof(stateLevels));
+            }
+
+            if (!StateGroup.StatesLevels.Contains(stateLevels))
+            {
+                throw new ArgumentException($"Can't set a {nameof(State)} which does not belong to configured {nameof(StateGroup)}.");
+            }
+
+            bool changed = State != stateLevels;
             if (changed)
             {
-                if (_currentState != null)
+                if (State != null)
                 {
-                    _currentState.Flash -= CurrentState_Flash;
+                    State.Flash -= CurrentState_Flash;
                 }
-                _currentState = stateLevels;
-                if (_currentState != null)
+                State = stateLevels;
+                if (State != null)
                 {
-                    _currentState.Flash += CurrentState_Flash;
+                    State.Flash += CurrentState_Flash;
                 }
             }
             if (changed && stateLevels?.FlashOnDuration > 0 && stateLevels?.FlashOffDuration > 0)
             {
                 if (flashNow)
                 {
-                    _currentState?.ResetFlash(true);
+                    State?.ResetFlash(true);
                 }
             }
             else
@@ -180,12 +175,10 @@ namespace Barjonas.Common.Model.Lights
             }
         }
 
-        private void CurrentState_Flash(object sender, IReadOnlyList<StatePresetChannel> e)
+        private void CurrentState_Flash(object? sender, IReadOnlyList<StatePresetChannel> e)
         {
             ApplyStatePreset(e);
         }
-
-        private StateLevels _currentState;
 
         public void DeserializationComplete()
         {
@@ -222,7 +215,7 @@ namespace Barjonas.Common.Model.Lights
             }
         }
 
-        private void Channel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void Channel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             UpdateMixedColor();
         }
@@ -258,22 +251,8 @@ namespace Barjonas.Common.Model.Lights
         public Color MixedColor
         {
             get { return _mixedColor; }
-            private set { SetProperty(ref _mixedColor, value); }
-        }
-
-        /// <summary>
-        /// Update the channel count and types based on a template fixture
-        /// </summary>
-        public void UpdateFromTemplate(Fixture templateFixture)
-        {
-            int count = templateFixture?._channels?.Count ?? 0;
-            Utils.EnsureOrCreateListCount(ref _channels, count, count, i => new FixtureChannel());
-            for (int i = 0; i < count; i++)
-            {
-                _channels[i].FixtureChannelType = templateFixture._channels[i].FixtureChannelType;
-            }
-            SetChannelsFromStartChannel(_startId, _channels);
-            StateGroup = templateFixture._stateGroup;
+            private set { _ = SetProperty(ref _mixedColor, value); }
         }
     }
 }
+#nullable restore
