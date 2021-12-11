@@ -25,14 +25,7 @@ namespace Barjonas.Common.Wpf
 
         protected static void BaseMain(string resourceLocater = "app.xaml", DateTime? buildTime = null, bool kioskMode = false, Func<IEnumerable<Window>> windowsFactory = null)
         {
-            if (windowsFactory == null)
-            {
-                s_windowsFactory = new(() => new List<Window> { new MainWindow() });
-            }
-            else
-            {
-                s_windowsFactory = windowsFactory;
-            }
+            s_windowsFactory = windowsFactory ?? (new(() => new List<Window> { new MainWindow() }));
             s_kioskMode = kioskMode;
             AssemblyName assembly = Assembly.GetEntryAssembly().GetName();
             string process = assembly.Name;
@@ -45,11 +38,11 @@ namespace Barjonas.Common.Wpf
                     App app = new();
                     s_logger.Info($"Initializing {process}{(buildTime == null ? "" : $", built {buildTime:s}")}");
                     app.InitializeComponent();
-                    app.Run();
+                    _ = app.Run();
                 }
                 else
                 {
-                    MessageBox.Show($"Another instance of {process} was already running", "Warning", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    _ = MessageBox.Show($"Another instance of {process} was already running", "Warning", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 }
             }
             finally
@@ -91,11 +84,7 @@ namespace Barjonas.Common.Wpf
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "4.0.0.0")]
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-        void IComponentConnector.Connect(int connectionId, object target)
-        {
-            this._contentLoaded = true;
-        }
+        void IComponentConnector.Connect(int connectionId, object target) => this._contentLoaded = true;
 
         public void InitializeComponent()
         {
