@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace Barjonas.Common.Standard.Model
+namespace Barjonas.Common.Model
 {
     public class Debouncer
     {
