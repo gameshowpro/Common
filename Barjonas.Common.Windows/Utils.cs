@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,7 @@ using System.Security.Principal;
 using System.Windows;
 using Barjonas.Common.Model;
 
+#nullable enable
 namespace Barjonas.Common
 {
     public static partial class UtilsWindows
@@ -150,7 +152,7 @@ namespace Barjonas.Common
         {
             get
             {
-                return WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid);
+                return WindowsIdentity.GetCurrent().Owner?.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid) == true;
             }
         }
 
@@ -176,10 +178,11 @@ namespace Barjonas.Common
         /// <param name="dict">A dictionary dictionary of triggers keyed by command, which will be updated</param>
         /// <returns></returns>
         public static List<TTrigger> BuildTriggerList<TCommand, TTrigger>(
-            Func<IncomingTriggerSetting, TTrigger> factory, 
+            Func<IncomingTriggerSetting, TTrigger> factory,
             out Dictionary<TCommand, TTrigger> dict,
             IncomingTriggerSettings settings
         )
+        where TCommand : notnull
         where TTrigger : IncomingTrigger
         {
             var triggers = new List<TTrigger>();
@@ -187,14 +190,22 @@ namespace Barjonas.Common
             Type t = typeof(TCommand);
             foreach (TCommand value in Enum.GetValues(t))
             {
-                var attrs = t.GetField(value.ToString()).GetCustomAttributes(typeof(TriggerParameters), false);
-                if (attrs.FirstOrDefault() is not TriggerParameters attr)
+                string? valueString = value.ToString();
+                if (valueString == null)
                 {
-                    throw new MissingMemberException($"{t} must contain a {nameof(TriggerParameters)} attribute on every member.");
+                    throw new ArgumentException($"{t} cannot contain a enum value the converts to a null string.");
                 }
-                TTrigger trigger = factory(settings.GetOrCreate(value.ToString(), attr.Name, attr.DefaultId, attr.TriggerFilter, TimeSpan.FromSeconds(1)));
-                triggers.Add(trigger);
-                dict.Add(value, trigger);
+                else
+                {
+                    object[]? attrs = t.GetField(valueString)?.GetCustomAttributes(typeof(TriggerParameters), false);
+                    if (attrs?.FirstOrDefault() is not TriggerParameters attr)
+                    {
+                        throw new MissingMemberException($"{t} must contain a {nameof(TriggerParameters)} attribute on every member.");
+                    }
+                    TTrigger trigger = factory(settings.GetOrCreate(value.ToString(), attr.Name, attr.DefaultId, attr.TriggerFilter, TimeSpan.FromSeconds(1)));
+                    triggers.Add(trigger);
+                    dict.Add(value, trigger);
+                }
             }
             return triggers;
         }
@@ -225,3 +236,4 @@ namespace Barjonas.Common
             => $"#{color.R:x2}{color.G:x2}{color.B:x2}";
     }
 }
+#nullable restore

@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 using NLog;
 using NLog.Targets;
 
+#nullable enable
 namespace Barjonas.Common
 {
     public static partial class Utils
@@ -285,8 +286,12 @@ namespace Barjonas.Common
         /// </summary>
         /// <param name="value">The value to be converted.</param>
         /// <param name="fromZeroBased">If true,0 is 1st otherwise 1 is 1st.</param>
-        public static string ToOrdinal(this int value, bool fromZeroBased = false)
+        public static string ToOrdinal(this int? value, bool fromZeroBased = false)
         {
+            if (!value.HasValue)
+            {
+                return string.Empty;
+            }
             string oneBased = ((value) + (fromZeroBased ? 1 : 0)).ToString();
             string suffix = (oneBased.Last()) switch
             {
@@ -298,21 +303,26 @@ namespace Barjonas.Common
             return oneBased + suffix;
         }
 
+        public static string ToOrdinal(this int value, bool fromZeroBased = false)
+            => ToOrdinal((int?)value, fromZeroBased);
+
         /// <summary>
         /// Extension method which returns the string specified in the Description attribute of an Enum, if any.  Oherwise, name is returned.
         /// </summary>
         /// <param name="value">The enum value.</param>
         /// <returns></returns>
-        public static string Description(this Enum value)
+        public static string Description(this Enum? value)
         {
-            var attrs = value.GetType().GetField(value.ToString())?.GetCustomAttributes(typeof(DescriptionAttribute), false);
-            if (attrs?.Any() == true)
+            if (value != null)
             {
-                return (attrs.First() as DescriptionAttribute).Description;
+                object[]? attrs = value.GetType().GetField(value.ToString())?.GetCustomAttributes(typeof(DescriptionAttribute), false);
+                if (attrs?.Any() == true && attrs.First() is DescriptionAttribute attr)
+                {
+                    return attr.Description;
+                }
             }
-
             //Fallback
-            return value?.ToString().Replace("_", " ");
+            return value?.ToString()?.Replace("_", " ") ?? "null";
         }
 
         public static object UnderlyingValue(this Enum value)
@@ -320,7 +330,7 @@ namespace Barjonas.Common
             return Convert.ChangeType(value, value.GetTypeCode());
         }
 
-        public static void StartProcessTerminateWatchdog(Logger logger = null, TimeSpan? timeout = null)
+        public static void StartProcessTerminateWatchdog(Logger? logger = null, TimeSpan? timeout = null)
         {
             TimeSpan defaultedTimeout = timeout ?? TimeSpan.FromSeconds(2);
             using (var nuker = new System.Threading.Timer(
@@ -395,7 +405,7 @@ namespace Barjonas.Common
         private static readonly HashSet<char> s_spacesAndTabs = new() { ' ', '\u00A0', '\t' } ;
         public static bool IsSpaceOrTab(this char value) => s_spacesAndTabs.Contains(value);
 
-        public static string UpperCaseIfRequired(string input, double allowedLowerPercent = .50, bool upperIfUnknown = true)
+        public static string? UpperCaseIfRequired(string? input, double allowedLowerPercent = .50, bool upperIfUnknown = true)
         {
             if (input == null)
             {
@@ -471,10 +481,11 @@ namespace Barjonas.Common
             {
                 return "never";
             }
-            static string getPart(double n, string s) => n > 0 ? PluralIfRequired(n, s) : null;
+            static string? getPart(double n, string s) => n > 0 ? PluralIfRequired(n, s) : null;
             TimeSpan timeVal = timespan.Value;
             string[] dayParts = new[] { getPart(timeVal.Days, "day"), getPart(timeVal.Hours, "hour"), getPart(timeVal.Minutes, "minute") }
                 .Where(s => s != null)
+                .Select(s => s!)
                 .ToArray();
 
             int numberOfParts = dayParts.Length;
@@ -706,16 +717,29 @@ namespace Barjonas.Common
             EnsureListCount(ilist, minCount, maxCount, factory);
         }
 
+        /// <summary>
+        /// Enure the given immutable list builder is sized within the specified range.
+        /// </summary>
+        /// <typeparam name="T">The type of the immutable list builder.</typeparam>
+        /// <param name="list">The list to be checked.</param>
+        /// <param name="minCount">The minimum number of entries required.</param>
+        /// <param name="maxCount">The maximum number of entries allowed.</param>
+        /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
+        public static void EnsureListCount<T>(this ImmutableList<T>.Builder list, int minCount, int maxCount, Func<int, T> factory)
+        {
+            IList<T> ilist = list;
+            EnsureListCount(ilist, minCount, maxCount, factory);
+        }
 
         /// <summary>
         /// Enure the given immutable list is sized within the specified range.
         /// </summary>
-        /// <typeparam name="T">The type of the generic list.</typeparam>
+        /// <typeparam name="T">The type of the immutable list.</typeparam>
         /// <param name="list">The immutable list to be checked.</param>
         /// <param name="minCount">The minimum number of entries required.</param>
         /// <param name="maxCount">The maximum number of entries allowed.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(ref ImmutableList<T> list, int minCount, int maxCount, Func<int, T> factory)
+        public static void EnsureListCount<T>(this ImmutableList<T> list, int minCount, int maxCount, Func<int, T> factory)
         {
             if (list == null)
             {
@@ -809,6 +833,15 @@ namespace Barjonas.Common
             return null;
         }
 
+        /// <summary>
+        /// Replace any null IEnumerable with an empty Enumerable. Most useful when running a foreach loop on a nullable IEnumerable.
+        /// </summary>
+        /// <typeparam name="T">Item type</typeparam>
+        /// <param name="source">Nullable IEnumerable</param>
+        public static IEnumerable<T> NeverNull<T>(this IEnumerable<T>? source)
+        {
+            return source ?? Enumerable.Empty<T>();
+        }
 
         public static bool RelaunchAsAdministrator()
         {
@@ -838,7 +871,7 @@ namespace Barjonas.Common
         /// <param name="rethrowDeserializationExceptions">If true, any deserialization exception will be rethrown. Otherwise exceptions will be logged and a new object will be returned.</param>
         /// <param name="renameFailedFiles">If true, an file which is found but cannot be deserialized will be renamed before a default object is created.</param>
         /// <returns></returns>
-        public static T Depersist<T>(string path, out bool isNew, Logger logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true) where T : class, new()
+        public static T Depersist<T>(string path, out bool isNew, Logger? logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true) where T : class, new()
         {
             var ser = new JsonSerializer()
             {
@@ -846,7 +879,7 @@ namespace Barjonas.Common
                 TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
                 DefaultValueHandling = DefaultValueHandling.Populate
             };
-            T obj = null;
+            T? obj = null;
             if (File.Exists(path))
             {
                 bool renameBroken = false;
@@ -889,7 +922,7 @@ namespace Barjonas.Common
             return obj;
         }
 
-        private static void RenameBrokenFile(string path, Logger logger = null)
+        private static void RenameBrokenFile(string path, Logger? logger = null)
         {
             int i = 1;
             string dir = Path.GetDirectoryName(path);
@@ -935,6 +968,10 @@ namespace Barjonas.Common
         /// <param name="obj">Object to be persisted.</param>
         public static void Persist<T>(T obj, string path, bool enumsAsStrings = false)
         {
+            if (obj == null)
+            {
+                return;
+            }
             EnsureDirectory(path);
             var ser = new JsonSerializer()
             {
@@ -956,7 +993,7 @@ namespace Barjonas.Common
         /// </summary>
         /// <param name="targetName"></param>
         /// <returns></returns>
-        public static string CurrentNLogLogPath(string targetName = "f")
+        public static string? CurrentNLogLogPath(string targetName = "f")
         {
             Target target = LogManager.Configuration.FindTargetByName(targetName ?? "f");
             switch (target)
@@ -980,7 +1017,7 @@ namespace Barjonas.Common
 
         public static bool LaunchCurrentNLogLog(string target = "f")
         {
-            string path = CurrentNLogLogPath(target);
+            string? path = CurrentNLogLogPath(target);
             if (!File.Exists(path))
             {
                 return false;
@@ -1121,7 +1158,7 @@ namespace Barjonas.Common
         /// </summary>
         /// <param name="task">The task to be executed.</param>
         /// <param name="exceptionHandler">A delagate which will handle and exception object in case an exception is raised.</param>
-        public static async void FireAndForgetSafeAsync(this Task task, Action<Exception> exceptionHandler = null)
+        public static async void FireAndForgetSafeAsync(this Task task, Action<Exception>? exceptionHandler = null)
         {
             try
             {
@@ -1134,3 +1171,4 @@ namespace Barjonas.Common
         }
     }
 }
+#nullable restore
