@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0-windows;net48</TargetFrameworks>
+    <TargetFrameworks>net6.0-windows;net48</TargetFrameworks>
     <UseWpf>true</UseWpf>
     <UseWindowsForms>true</UseWindowsForms>
     <Company>Barjonas LLC</Company>
