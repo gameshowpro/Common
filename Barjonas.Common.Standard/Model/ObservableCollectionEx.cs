@@ -16,6 +16,8 @@ namespace Barjonas.Common.Model
     /// <typeparam name="T"></typeparam>
     public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyChanged where T : INotifyPropertyChanged
     {
+        public static ObservableCollectionEx<T> Empty { get; } = new ObservableCollectionEx<T>();
+
         /// <summary>
         /// Occurs when a property is changed within an item.
         /// </summary>
