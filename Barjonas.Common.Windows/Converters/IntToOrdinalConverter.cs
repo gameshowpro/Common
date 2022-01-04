@@ -10,7 +10,11 @@ namespace Barjonas.Common.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is int i)
+            if (value == null)
+            {
+                return string.Empty;
+            }
+            else if (value is int i)
             {
                 if (i < 0)
                 {

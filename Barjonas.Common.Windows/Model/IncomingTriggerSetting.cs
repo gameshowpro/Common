@@ -47,6 +47,14 @@ namespace Barjonas.Common.Model
             set { SetProperty(ref _name, value); }
         }
 
+        private bool _isEnabled = true;
+        [JsonProperty, DefaultValue(true)]
+        public bool IsEnabled
+        {
+            get { return _isEnabled; }
+            set { SetProperty(ref _isEnabled, value); }
+        }
+
         private TimeSpan? _debounceInterval = null;
         [JsonProperty, DefaultValue(null)]
         public TimeSpan? DebounceInterval

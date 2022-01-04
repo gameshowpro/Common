@@ -25,6 +25,7 @@ namespace Barjonas.Common.Model
             _lastTrigger.Start();
             Setting = setting;
             SimulateTriggerCommand = new RelayCommand<bool?>((latch) => { if (latch == true) { IsDown = !_isDown; } else { IsDown = true; IsDown = false; } });
+            ToggleIsEnabledCommand = new(() => { Setting.IsEnabled = !Setting.IsEnabled; });
         }
 
         protected void OnIsDownChanged(bool value)
@@ -41,7 +42,7 @@ namespace Barjonas.Common.Model
                 if (SetProperty(ref _isDown, value))
                 {
                     OnIsDownChanged(value);
-                    if (value && TriggerWhenDown)
+                    if (value && Setting.IsEnabled && TriggerWhenDown)
                     {
                         DoTriggered();
                     }
@@ -69,21 +70,21 @@ namespace Barjonas.Common.Model
         /// </summary>
         public virtual bool TriggerWhenDown => true;
 
-        private int _ordinal = -1;
+        private int? _ordinal;
         /// <summary>
         /// The ordinal which was specified by the most recent triggerer.
         /// </summary>
-        public int Ordinal
+        public int? Ordinal
         {
             get { return _ordinal; }
             set { SetProperty(ref _ordinal, value); }
         }
 
-        private TimeSpan _time;
+        private TimeSpan? _time;
         /// <summary>
         /// The time which was specified by the most recent triggerer.
         /// </summary>
-        public TimeSpan Time
+        public TimeSpan? Time
         {
             get { return _time; }
             set { SetProperty(ref _time, value); }
@@ -107,6 +108,6 @@ namespace Barjonas.Common.Model
         }
 
         public RelayCommand<bool?> SimulateTriggerCommand { get; private set; }
-        public RelayCommandSimple ToggleTriggerWhenDownCommand { get; private set; }
+        public RelayCommandSimple ToggleIsEnabledCommand { get; private set; }
     }
 }

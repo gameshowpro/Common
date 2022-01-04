@@ -11,6 +11,10 @@ namespace Barjonas.Common.Model
     /// </summary>
     public class IncomingTriggerDevice : NotifyingClass, IRemoteService
     {
+        public IncomingTriggerDevice(string name)
+        {
+            Name = name;
+        }
         private IReadOnlyList<IncomingTrigger> _triggers;
         public IReadOnlyList<IncomingTrigger> Triggers
         {
@@ -37,15 +41,10 @@ namespace Barjonas.Common.Model
             }
         }
         protected ReadOnlyDictionary<int, List<IncomingTrigger>> _triggerDict;
-        public string Name { get; protected set; }
+        public string Name { get; }
 
         public virtual string ServiceName
-        {
-            get
-            {
-                return Name;
-            }
-        }
+            => Name;
 
         private RemoteServiceStates _serviceState;
         public RemoteServiceStates ServiceState
@@ -72,7 +71,12 @@ namespace Barjonas.Common.Model
             set { SetProperty(ref _allowDuplicateTriggerIds, value); }
         }
 
-        public double Progress => 1d;
+        private double _progress = 0;
+        public double Progress
+        {
+            get => _progress;
+            protected set => _ = SetProperty(ref _progress, value);
+        }
 
         private void UpdateTriggerDict()
         {
