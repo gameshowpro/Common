@@ -4,18 +4,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows.Threading;
 using Newtonsoft.Json;
-
+#nullable enable
 namespace Barjonas.Common.Model
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class NotifyingClass : INotifyPropertyChanged
     {
         protected readonly static Dispatcher s_dispatcher = Dispatcher.CurrentDispatcher;
-        private bool _supressEvents = false;
+        private bool _supressEvents;
         private bool _isDirty;
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual bool CompareEnumerablesByContent { get => false; }
 
         protected void NotifyPropertyChanged(string name)
@@ -44,7 +45,7 @@ namespace Barjonas.Common.Model
                     if (_supressEvents && _isDirty)
                     {
                         //Something changed while events were supressed
-                        PropertyChanged(this, new PropertyChangedEventArgs(""));
+                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
                         _isDirty = false;
                     }
                 }
@@ -54,10 +55,14 @@ namespace Barjonas.Common.Model
         /// <summary>
         /// Set a property, if it has changed, and raise event as appropriate.  Return boolean indicated whether any change was made.
         /// </summary>
-        protected bool SetProperty<F>(ref F field, F value, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "", bool forceEvent = false)
+        protected bool SetProperty<TField>(
+#if !NETFRAMEWORK
+            [NotNullWhen(true)]
+#endif
+        ref TField field, TField value, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "", bool forceEvent = false)
         {
             bool changed = false;
-            if (((field == null) != (value == null)) || ((field != null)))
+            if ((field == null != (value == null)) || (field != null))
             {
                 if (string.IsNullOrWhiteSpace(memberName))
                 {
@@ -133,7 +138,7 @@ namespace Barjonas.Common.Model
                     int count = firstCol.Count;
                     for (int i = 0; i < count; i++)
                     {
-                        if (!firstList[i].Equals(secondList[i]))
+                        if (firstList[i]?.Equals(secondList[i]) != true)
                         {
                             return false;
                         }
@@ -159,3 +164,4 @@ namespace Barjonas.Common.Model
         }
     }
 }
+#nullable restore
