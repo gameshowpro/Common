@@ -23,11 +23,12 @@ namespace Barjonas.Common.Model.Lights
             StatePresetGroup group)
         {
             Key = key;
-            DisplayName = displayName;
-            StartId = startId;
-            Channels = channels;
+            _displayName = displayName;
+            _startId = startId;
+            _channels = channels;
             StateGroup = group;
             State = group.StatesLevels.First();
+            SetChannelsFromStartChannel(_startId, _channels);
         }
 
         public event EventHandler? ChannelIdsChanged;

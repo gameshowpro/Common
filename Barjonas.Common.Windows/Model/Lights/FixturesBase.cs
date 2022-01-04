@@ -13,7 +13,7 @@ namespace Barjonas.Common.Model.Lights
         where TSub : FixturesBase<TSub>, new()
     {
         protected Logger Logger { get; } = LogManager.GetCurrentClassLogger();
-        protected static void Persist(TSub lights, IList<StatePresetGroup> presetGroup, string lightsPath, string presetsPath)
+        protected static void Persist(TSub lights, IList<StatePresetGroup>? presetGroup, string lightsPath, string presetsPath)
         {
             Utils.Persist(lights.Select(FixtureSettings.FromFixture), lightsPath, true);
             Utils.Persist(presetGroup, presetsPath, true);
