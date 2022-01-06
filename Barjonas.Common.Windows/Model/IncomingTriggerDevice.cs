@@ -43,21 +43,11 @@ namespace Barjonas.Common.Model
         protected ReadOnlyDictionary<int, List<IncomingTrigger>> _triggerDict;
         public string Name { get; }
 
-        public virtual string ServiceName
-            => Name;
-
-        private RemoteServiceStates _serviceState;
-        public RemoteServiceStates ServiceState
+        private ServiceState _serviceState;
+        public ServiceState ServiceState
         {
             get { return _serviceState; }
             protected set { SetProperty(ref _serviceState, value); }
-        }
-
-        private string _stateDetail;
-        public string StateDetail
-        {
-            get { return _stateDetail; }
-            protected set { SetProperty(ref _stateDetail, value); }
         }
 
         private bool _allowDuplicateTriggerIds = false;

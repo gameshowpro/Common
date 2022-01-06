@@ -16,9 +16,6 @@ namespace Barjonas.Common.Model
         /// <summary>
         /// Provides a way to express progress to the user in addition to the <see cref="ServiceState"/>.
         /// </summary>
-        double Progress { get; }
-        string ServiceName { get; }
-        string StateDetail { get; }
-        RemoteServiceStates ServiceState { get; }
+        ServiceState ServiceState { get; }
     }
 }

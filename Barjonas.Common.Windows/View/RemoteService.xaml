@@ -7,14 +7,35 @@
              xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:conv="clr-namespace:Barjonas.Common.Converters"
              mc:Ignorable="d" >
+
+    <DataTemplate x:Key="ServiceStateMax">
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top">
+                <ContentControl Content="{Binding}" DockPanel.Dock="Left" />
+                <DockPanel DockPanel.Dock="Left">
+                    <TextBlock Text="{Binding Name}" FontWeight="Bold" DockPanel.Dock="Top"/>
+                    <TextBlock Text="{Binding Detail}" DockPanel.Dock="Top" />
+                </DockPanel>
+            </DockPanel>
+            <ItemsControl ItemsSource="{Binding Children}" ItemTemplate="{DynamicResource ServiceStateMax}" DockPanel.Dock="Top" Margin="{StaticResource ControlSmallMargin}" />
+        </DockPanel>
+    </DataTemplate>
     <DataTemplate x:Key="ServiceStatus">
+        <!--Only intended for compatbility with old projects specifying this template key for IRemoteService instances. Better to specify DataType="commodel:ServiceState" directly -->
+        <ContentControl Content="{Binding ServiceState}">
+            <ContentControl.ToolTip>
+                <ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                    <DockPanel DockPanel.Dock="Left" DataContext="{Binding ServiceState}">
+                        <TextBlock Text="{Binding Name}" Style="{StaticResource Header}"  DockPanel.Dock="Top" />
+                        <TextBlock Text="{Binding Detail}" DockPanel.Dock="Top" />
+                        <ItemsControl ItemsSource="{Binding Children}" ItemTemplate="{StaticResource ServiceStateMax}" DockPanel.Dock="Top" />
+                    </DockPanel>
+                </ToolTip>
+            </ContentControl.ToolTip>
+        </ContentControl>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type commodel:ServiceState}">
         <Grid>
-            <Grid.ToolTip>
-                <StackPanel>
-                    <TextBlock Text="{Binding ServiceName}" FontWeight="Bold"/>
-                    <TextBlock Text="{Binding StateDetail}" />
-                </StackPanel>
-            </Grid.ToolTip>
             <Ellipse Width="20" Height="20">
                 <Ellipse.Fill>
                     <RadialGradientBrush >
@@ -34,7 +55,7 @@
                             </Setter.Value>
                         </Setter>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding ServiceState, Converter={StaticResource MatchToBooleanConverter}, ConverterParameter={x:Static commodel:RemoteServiceStates.Disconnected}}" Value="{conv:Bool False}">
+                            <DataTrigger Binding="{Binding AggregateState, Converter={StaticResource MatchToBooleanConverter}, ConverterParameter={x:Static commodel:RemoteServiceStates.Disconnected}}" Value="{conv:Bool False}">
                                 <DataTrigger.EnterActions>
                                     <BeginStoryboard x:Name="Warning">
                                         <Storyboard>
@@ -82,7 +103,7 @@
                             </Setter.Value>
                         </Setter>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding ServiceState}" Value="{x:Static commodel:RemoteServiceStates.Connected}">
+                            <DataTrigger Binding="{Binding AggregateState}" Value="{x:Static commodel:RemoteServiceStates.Connected}">
                                 <DataTrigger.EnterActions>
                                     <BeginStoryboard x:Name="Connected">
                                         <Storyboard>
@@ -121,7 +142,7 @@
                     </RadialGradientBrush>
                 </Ellipse.Fill>
             </Ellipse>
-            <controls:ProgressRing IsActive="{Binding Progress, Converter={StaticResource MatchToBooleanConverter}, ConverterParameter={conv:Double 0}}" IsHitTestVisible="False" Width="20" Height="20" Foreground="White"/>
+            <controls:ProgressRing IsActive="{Binding Progress, Converter={StaticResource MatchToBooleanConverter}, ConverterParameter={x:Null}}" IsHitTestVisible="False" Width="20" Height="20" Foreground="White"/>
         </Grid>
     </DataTemplate>
 </ResourceDictionary>
