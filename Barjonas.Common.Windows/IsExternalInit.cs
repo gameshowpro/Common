@@ -2,7 +2,7 @@
 #if NETFRAMEWORK
 namespace System.Runtime.CompilerServices
 {
-    internal class IsExternalInit { }
+    public class IsExternalInit { }
 }
 #endif
 #pragma warning restore IDE0130

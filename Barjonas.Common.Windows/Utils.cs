@@ -1,6 +1,7 @@
 ﻿// (C) Barjonas LLC 2019
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -179,14 +180,14 @@ namespace Barjonas.Common
         /// <returns></returns>
         public static List<TTrigger> BuildTriggerList<TCommand, TTrigger>(
             Func<IncomingTriggerSetting, TTrigger> factory,
-            out Dictionary<TCommand, TTrigger> dict,
+            out ImmutableDictionary<TCommand, TTrigger> dict,
             IncomingTriggerSettings settings
         )
         where TCommand : notnull
         where TTrigger : IncomingTrigger
         {
             var triggers = new List<TTrigger>();
-            dict = new Dictionary<TCommand, TTrigger>();
+            ImmutableDictionary<TCommand, TTrigger>.Builder dictBuilder = ImmutableDictionary.CreateBuilder<TCommand, TTrigger>();
             Type t = typeof(TCommand);
             foreach (TCommand value in Enum.GetValues(t))
             {
@@ -204,9 +205,10 @@ namespace Barjonas.Common
                     }
                     TTrigger trigger = factory(settings.GetOrCreate(value.ToString(), attr.Name, attr.DefaultId, attr.TriggerFilter, TimeSpan.FromSeconds(1)));
                     triggers.Add(trigger);
-                    dict.Add(value, trigger);
+                    dictBuilder.Add(value, trigger);
                 }
             }
+            dict = dictBuilder.ToImmutable();
             return triggers;
         }
 

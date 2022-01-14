@@ -17,7 +17,7 @@
                     <TextBlock Text="{Binding Detail}" DockPanel.Dock="Top" />
                 </DockPanel>
             </DockPanel>
-            <ItemsControl ItemsSource="{Binding Children}" ItemTemplate="{DynamicResource ServiceStateMax}" DockPanel.Dock="Top" Margin="{StaticResource ControlSmallMargin}" />
+            <ItemsControl ItemsSource="{Binding Children.Values}" ItemTemplate="{DynamicResource ServiceStateMax}" DockPanel.Dock="Top" Margin="{StaticResource ControlSmallMargin}" />
         </DockPanel>
     </DataTemplate>
     <DataTemplate x:Key="ServiceStatus">
@@ -28,7 +28,7 @@
                     <DockPanel DockPanel.Dock="Left" DataContext="{Binding ServiceState}">
                         <TextBlock Text="{Binding Name}" Style="{StaticResource Header}"  DockPanel.Dock="Top" />
                         <TextBlock Text="{Binding Detail}" DockPanel.Dock="Top" />
-                        <ItemsControl ItemsSource="{Binding Children}" ItemTemplate="{StaticResource ServiceStateMax}" DockPanel.Dock="Top" />
+                        <ItemsControl ItemsSource="{Binding Children.Values}" ItemTemplate="{StaticResource ServiceStateMax}" DockPanel.Dock="Top" />
                     </DockPanel>
                 </ToolTip>
             </ContentControl.ToolTip>

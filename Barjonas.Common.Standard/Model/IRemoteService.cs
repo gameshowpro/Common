@@ -11,7 +11,7 @@ namespace Barjonas.Common.Model
         Connected
     }
 
-    public interface IRemoteService : INotifyPropertyChanged
+    public interface IRemoteService
     {
         /// <summary>
         /// Provides a way to express progress to the user in addition to the <see cref="ServiceState"/>.

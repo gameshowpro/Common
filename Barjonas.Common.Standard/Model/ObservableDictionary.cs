@@ -3,18 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-
+#nullable enable
 namespace Barjonas.Common.Model
 {
     public class ObservableDictionary<TKey, TValue> : ICollection<KeyValuePair<TKey, TValue>>, IDictionary<TKey, TValue>, IDictionary, INotifyCollectionChanged, INotifyPropertyChanged
+        where TValue : notnull
     {
         private readonly IDictionary<TKey, TValue> _dictionary;
 
         /// <summary>Event raised when the collection changes.</summary>
-        public event NotifyCollectionChangedEventHandler CollectionChanged = (sender, args) => { };
+        public event NotifyCollectionChangedEventHandler? CollectionChanged = (sender, args) => { };
 
         /// <summary>Event raised when a property on the collection changes.</summary>
-        public event PropertyChangedEventHandler PropertyChanged = (sender, args) => { };
+        public event PropertyChangedEventHandler? PropertyChanged = (sender, args) => { };
+
+        /// <summary>
+        /// Occurs when a property is changed within an item.
+        /// </summary>
+        public event EventHandler<PropertyChangedEventArgs>? ItemPropertyChanged;
 
         /// <summary>
         /// Initializes an instance of the class.
@@ -28,30 +34,57 @@ namespace Barjonas.Common.Model
         /// Initializes an instance of the class using another dictionary as 
         /// the key/value store.
         /// </summary>
-        public ObservableDictionary(IDictionary<TKey, TValue> dictionary) => _dictionary = dictionary;
+        public ObservableDictionary(IDictionary<TKey, TValue> dictionary)
+        {
+            _dictionary = dictionary;
+            foreach (TValue value in _dictionary.Values)
+            {
+                AttachItemChangeHandler(value);
+            }
+        }
+
+        private void AttachItemChangeHandler(TValue item)
+        {
+            if (item is INotifyPropertyChanged pc)
+            {
+                pc.PropertyChanged += BubbleItemPropertyChanged;
+            }
+        }
+
+        private void DetatchItemChangeHandler(TValue item)
+        {
+            if (item is INotifyPropertyChanged pc)
+            {
+                pc.PropertyChanged -= BubbleItemPropertyChanged;
+            }
+        }
+
+        private void BubbleItemPropertyChanged(object? sender, PropertyChangedEventArgs args)
+            => ItemPropertyChanged?.Invoke(sender, args);
 
         private void AddWithNotification(KeyValuePair<TKey, TValue> item) => AddWithNotification(item.Key, item.Value);
 
         private void AddWithNotification(TKey key, TValue value)
         {
             _dictionary.Add(key, value);
-
-            CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add,
+            AttachItemChangeHandler(value);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add,
                 new KeyValuePair<TKey, TValue>(key, value)));
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Count)));
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Keys)));
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Values)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
         }
 
         private bool RemoveWithNotification(TKey key)
         {
             if (_dictionary.TryGetValue(key, out TValue value) && _dictionary.Remove(key))
             {
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove,
+                DetatchItemChangeHandler(value);
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove,
                     new KeyValuePair<TKey, TValue>(key, value)));
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(Count)));
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(Keys)));
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(Values)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
 
                 return true;
             }
@@ -63,12 +96,13 @@ namespace Barjonas.Common.Model
         {
             if (_dictionary.TryGetValue(key, out TValue existing))
             {
+                DetatchItemChangeHandler(existing);
                 _dictionary[key] = value;
-
-                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
+                AttachItemChangeHandler(value);
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
                     new KeyValuePair<TKey, TValue>(key, value),
                     new KeyValuePair<TKey, TValue>(key, existing)));
-                PropertyChanged(this, new PropertyChangedEventArgs("Values"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Values"));
             }
             else
             {
@@ -79,7 +113,7 @@ namespace Barjonas.Common.Model
         /// <summary>
         /// Allows derived classes to raise custom property changed events.
         /// </summary>
-        protected void RaisePropertyChanged(PropertyChangedEventArgs args) => PropertyChanged(this, args);
+        protected void RaisePropertyChanged(PropertyChangedEventArgs args) => PropertyChanged?.Invoke(this, args);
 
         #region IDictionary<TKey,TValue> Members
 
@@ -195,10 +229,10 @@ namespace Barjonas.Common.Model
         {
             _dictionary.Clear();
 
-            CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Count)));
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Keys)));
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Values)));
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
         }
 
         public IDictionaryEnumerator GetEnumerator() => (IDictionaryEnumerator)_dictionary.GetEnumerator();
@@ -220,3 +254,4 @@ namespace Barjonas.Common.Model
         #endregion
     }
 }
+#nullable disable
