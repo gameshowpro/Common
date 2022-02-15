@@ -766,6 +766,32 @@ namespace Barjonas.Common
         }
 
         /// <summary>
+        /// Return a copy of the given string with characters added to or removed from the end until it matches the given target length.
+        /// </summary>
+        /// <param name="original">The input string of uncertain length.</param>
+        /// <param name="targetLength">The required length of the returned string.</param>
+        /// <param name="padding">The character to add, if required.</param>
+        /// <returns></returns>
+        public static string EnsureStringLength(string original, int targetLength, char padding)
+        {
+            int diff =  targetLength - original.Length;
+            if (diff == 0)
+            {
+                return original;
+            }
+            else if (diff < 0)
+            {
+                return original.Remove(0 - diff);
+            }
+            else
+            {
+                StringBuilder sb = new(original);
+                sb.Append(padding, diff);
+                return sb.ToString();
+            }
+        }
+
+        /// <summary>
         /// Set the indices of all items in the given list.
         /// </summary>
         /// <typeparam name="T">The type of the generic list.</typeparam>
