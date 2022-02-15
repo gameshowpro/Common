@@ -10,7 +10,7 @@ namespace Barjonas.Common.Model
             return item.Key;
         }
 
-        [Obsolete("This overload is for backwards-compatability only. Specify a TriggerFilter instead.")]
+        [Obsolete("This overload is for backwards-compatability only. Specify a TriggerFilter instead of executeOnFirstInterrupt.")]
         public IncomingTriggerSetting GetOrCreate(string key, string name, byte defaultId, bool executeOnFirstInterrupt = false, TimeSpan? debounceInterval = null)
             => GetOrCreate(key, name, defaultId, executeOnFirstInterrupt ? TriggerFilter.FirstOnly : TriggerFilter.All, debounceInterval);
 

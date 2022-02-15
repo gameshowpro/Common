@@ -30,18 +30,18 @@ namespace Barjonas.Common.Model
             internal void Unsubscribe()
                 => Item1.Triggered -= Trigger_OnTriggeredWithoutDispatcher;
 
-            private void Trigger_OnTriggeredWithoutDispatcher(object? sender, EventArgs e)
-                => Item2.Execute(_commandParameter);
+            private void Trigger_OnTriggeredWithoutDispatcher(object? sender, TriggerArgs e)
+                => Item2.Execute(e.Data);
 
-            private void Trigger_OnTriggeredWithDispatcher(object? sender, EventArgs e)
+            private void Trigger_OnTriggeredWithDispatcher(object? sender, TriggerArgs e)
             {
                 if (_dispatcher!.CheckAccess())
                 {
-                    Item2.Execute(_commandParameter);
+                    Item2.Execute(e.Data);
                 }
                 else
                 {
-                    _ = _dispatcher!.BeginInvoke(_executeDelegate, _commandParameter);
+                    _ = _dispatcher!.BeginInvoke(_executeDelegate, e.Data);
                 }
             }
         }

@@ -181,7 +181,8 @@ namespace Barjonas.Common
         public static List<TTrigger> BuildTriggerList<TCommand, TTrigger>(
             Func<IncomingTriggerSetting, TTrigger> factory,
             out ImmutableDictionary<TCommand, TTrigger> dict,
-            IncomingTriggerSettings settings
+            IncomingTriggerSettings settings,
+            bool removeUntouchedSettings
         )
         where TCommand : notnull
         where TTrigger : IncomingTrigger
@@ -209,6 +210,10 @@ namespace Barjonas.Common
                 }
             }
             dict = dictBuilder.ToImmutable();
+            if (removeUntouchedSettings)
+            {
+                settings.RemoveUntouched();
+            }
             return triggers;
         }
 

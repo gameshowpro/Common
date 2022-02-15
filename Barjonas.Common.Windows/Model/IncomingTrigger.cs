@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics;
 using Barjonas.Common.ViewModel;
 using NLog;
-
+#nullable enable
 namespace Barjonas.Common.Model
 {
     public abstract class IncomingTrigger : NotifyingClass, ITrigger
@@ -16,9 +16,9 @@ namespace Barjonas.Common.Model
         /// <summary>
         /// Event raised after PropertyChanged for change to IsDown state, saving the consumer the overhead of checking the property name and value.
         /// </summary>
-        public event IsDownChangedEventHandler IsDownChanged;
+        public event IsDownChangedEventHandler? IsDownChanged;
 
-        public event EventHandler<TriggerArgs> Triggered;
+        public event EventHandler<TriggerArgs>? Triggered;
 
         protected IncomingTrigger(IncomingTriggerSetting setting)
         {
@@ -50,6 +50,8 @@ namespace Barjonas.Common.Model
             }
         }
 
+        public object? TriggerData { get; set; }
+
         /// <summary>
         /// Called by base class whenever this trigger has been triggered, subject to the currently configured conditions.
         /// The base implementation raises the Triggered event, so should be called from subclasses.
@@ -60,7 +62,7 @@ namespace Barjonas.Common.Model
             {
                 _lastTrigger.Restart();
                 LastTriggerDateTime = DateTime.UtcNow;
-                Triggered?.Invoke(this, new TriggerArgs());
+                Triggered?.Invoke(this, new TriggerArgs(TriggerData));
             }
         }
 
@@ -111,3 +113,4 @@ namespace Barjonas.Common.Model
         public RelayCommandSimple ToggleIsEnabledCommand { get; private set; }
     }
 }
+#nullable restore

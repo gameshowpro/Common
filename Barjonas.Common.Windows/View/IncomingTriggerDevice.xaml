@@ -104,6 +104,7 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Header="Time" IsReadOnly="True" Binding="{Binding Time}" MinWidth="102" />
+                    <DataGridTextColumn Header="#" IsReadOnly="True" Binding="{Binding Ordinal, Converter={StaticResource IntToOrdinalConverter}}" />
                     <DataGridTextColumn Header="Filter" IsReadOnly="True" Binding="{Binding Setting.TriggerFilter, Converter={StaticResource EnumToDescriptionConverter}}" />
                     <DataGridTemplateColumn Header="Enabled">
                         <DataGridTemplateColumn.CellTemplate>
