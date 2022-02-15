@@ -9,6 +9,7 @@
     <Copyright>Barjonas LLC 2021</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <RootNamespace>Barjonas.Common</RootNamespace>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
