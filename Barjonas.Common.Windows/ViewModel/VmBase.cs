@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows.Threading;
 using Barjonas.Common.Model;
 using NLog;
-
+#nullable enable
 namespace Barjonas.Common.ViewModel
 {
     public abstract class VmBase : NotifyingClass
     {
         protected static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
         private readonly string _dataDir;
-        public VmBase(string dataDir, Action persistAll, DateTime? buildDate = null)
+        public VmBase(string dataDir, Action persistAll, DateTime? buildDate = null, string? versionString = null)
         {
             BuildDate = buildDate ?? DateTime.MinValue;
+            VersionString = versionString ?? Assembly.GetCallingAssembly().GetName().Version?.ToString() ?? "Unknown";
             _dataDir = dataDir;
             _todUpdater = new DispatcherTimer(TimeSpan.FromSeconds(0.5), DispatcherPriority.SystemIdle, new EventHandler((o, e) =>
             {
@@ -38,6 +40,7 @@ namespace Barjonas.Common.ViewModel
         private readonly DispatcherTimer _todayUpdater;
         public DateTime Today => DateTime.Now;
         public DateTime BuildDate { get; }
+        public string VersionString { get; }
         public RelayCommandSimple PersistAllCommand { get; private set; }
         public RelayCommandSimple ShowDataDirCommand { get; private set; }
         public RelayCommand<string> LaunchNLogLogCommand { get; private set; }
@@ -59,3 +62,4 @@ namespace Barjonas.Common.ViewModel
         }
     }
 }
+#nullable restore
