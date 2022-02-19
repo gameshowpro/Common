@@ -17,6 +17,7 @@
     <conv:ToOneBased x:Key="ToOneBased"/>
     <conv:EnumToDescriptionConverter x:Key="EnumToDescriptionConverter"/>
     <BooleanToVisibilityConverter  x:Key="BooleanToVisibilityConverter"/>
+    <conv:IntToOrdinalConverter x:Key="IntToOrdinalConverter"/>
     <DataTemplate x:Key="Trigger">
         <DataTemplate.Resources>
             <Storyboard x:Key="TriggerIndicatorSB" >

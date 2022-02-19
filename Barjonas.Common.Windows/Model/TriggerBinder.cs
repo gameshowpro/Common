@@ -31,13 +31,13 @@ namespace Barjonas.Common.Model
                 => Item1.Triggered -= Trigger_OnTriggeredWithoutDispatcher;
 
             private void Trigger_OnTriggeredWithoutDispatcher(object? sender, TriggerArgs e)
-                => Item2.Execute(e.Data);
+                => Item2.Execute(_commandParameter ?? e.Data);
 
             private void Trigger_OnTriggeredWithDispatcher(object? sender, TriggerArgs e)
             {
                 if (_dispatcher!.CheckAccess())
                 {
-                    Item2.Execute(e.Data);
+                    Item2.Execute(_commandParameter ?? e.Data);
                 }
                 else
                 {
@@ -53,11 +53,21 @@ namespace Barjonas.Common.Model
             _dispatcher = useDispatcher ? Dispatcher.CurrentDispatcher : null;
         }
 
-        public bool TryAdd(ITrigger trigger, ICommand command, object? commandParameter)
-            => TryAdd(new TriggerPair(trigger, command, commandParameter, _dispatcher));
-
-        public bool TryAdd(ITrigger trigger, params ICommand[] commands)
+        public bool TryAdd(ITrigger? trigger, ICommand command, object? commandParameter)
         {
+            if (trigger == null)
+            {
+                return false;
+            }
+            return TryAdd(new TriggerPair(trigger, command, commandParameter, _dispatcher));
+        }
+
+        public bool TryAdd(ITrigger? trigger, params ICommand[] commands)
+        {
+            if (trigger == null)
+            {
+                return false;
+            }
             bool result = false;
             foreach (ICommand command in commands)
             {
@@ -66,12 +76,15 @@ namespace Barjonas.Common.Model
             return result;
         }
 
-        public bool TryAdd(ICommand command, params ITrigger[] triggers)
+        public bool TryAdd(ICommand command, object? parameter, params ITrigger?[] triggers)
         {
             bool result = false;
-            foreach (ITrigger trigger in triggers)
+            foreach (ITrigger? trigger in triggers)
             {
-                result = TryAdd(new TriggerPair(trigger, command, null, _dispatcher)) || result;
+                if (trigger != null)
+                {
+                    result = TryAdd(new TriggerPair(trigger, command, parameter, _dispatcher)) || result;
+                }
             }
             return result;
         }
