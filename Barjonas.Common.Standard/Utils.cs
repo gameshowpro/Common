@@ -739,7 +739,7 @@ namespace Barjonas.Common
         /// <param name="minCount">The minimum number of entries required.</param>
         /// <param name="maxCount">The maximum number of entries allowed.</param>
         /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
-        public static void EnsureListCount<T>(this ImmutableList<T> list, int minCount, int maxCount, Func<int, T> factory)
+        public static ImmutableList<T> EnsureListCount<T>(this ImmutableList<T> list, int minCount, int maxCount, Func<int, T> factory)
         {
             if (list == null)
             {
@@ -747,7 +747,7 @@ namespace Barjonas.Common
             }
             if (list.Count.IsInRange(minCount, maxCount))
             {
-                return;
+                return list;
             }
             ImmutableList<T>.Builder builder = ImmutableList.CreateBuilder<T>();
             builder.AddRange(list);
@@ -762,7 +762,26 @@ namespace Barjonas.Common
                     builder.Add(factory(builder.Count));
                 }
             }
-            list = builder.ToImmutable();
+            return builder.ToImmutable();
+        }
+
+        public static ImmutableList<T> ImmutableListEnsureCountAndIndices<T>(this IEnumerable<T>? list, int minCount, int maxCount, Func<int, T> factory)
+        where T : IIndexed
+        {
+            ImmutableList<T> built = ImmutableListEnsureCount(list, minCount, maxCount, factory);
+            built.SetIndices();
+            return built;
+        }
+
+        public static ImmutableList<T> ImmutableListEnsureCount<T>(this IEnumerable<T>? list, int minCount, int maxCount, Func<int, T> factory)
+        {
+            ImmutableList<T>.Builder builder = ImmutableList.CreateBuilder<T>();
+            if (list != null)
+            {
+                builder.AddRange(list);
+            }
+            builder.EnsureListCount(minCount, maxCount, factory);
+            return builder.ToImmutable();
         }
 
         /// <summary>
