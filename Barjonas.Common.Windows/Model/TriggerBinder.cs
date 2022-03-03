@@ -28,7 +28,7 @@ namespace Barjonas.Common.Model
                 => Item1.Triggered += _dispatcher == null ? Trigger_OnTriggeredWithoutDispatcher : Trigger_OnTriggeredWithDispatcher;
 
             internal void Unsubscribe()
-                => Item1.Triggered -= Trigger_OnTriggeredWithoutDispatcher;
+                => Item1.Triggered -= _dispatcher == null ? Trigger_OnTriggeredWithoutDispatcher : Trigger_OnTriggeredWithDispatcher;
 
             private void Trigger_OnTriggeredWithoutDispatcher(object? sender, TriggerArgs e)
                 => Item2.Execute(_commandParameter ?? e.Data);
