@@ -241,6 +241,15 @@ namespace Barjonas.Common
 
         public static string ToRgbHexString(this System.Windows.Media.Color color)
             => $"#{color.R:x2}{color.G:x2}{color.B:x2}";
+
+#if !NETFRAMEWORK
+        public static T[] ArrayRepeat<T>(T value, int count)
+        {
+            T[] array = new T[count];
+            Array.Fill(array, value);
+            return array;
+        }
+#endif
     }
 }
 #nullable restore
