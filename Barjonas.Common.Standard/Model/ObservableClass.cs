@@ -11,13 +11,16 @@ namespace Barjonas.Common.Model
     [JsonObject(MemberSerialization.OptIn)]
     public class ObservableClass : INotifyPropertyChanged
     {
-        private bool _supressEvents;
-        private bool _isDirty;
+        protected bool _supressEvents;
+        protected bool _isDirty;
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual bool CompareEnumerablesByContent { get => false; }
 
         protected virtual void NotifyPropertyChanged(string name)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            => NotifyPropertyChanged(new PropertyChangedEventArgs(name));
+
+        protected virtual void NotifyPropertyChanged(PropertyChangedEventArgs args)
+            => PropertyChanged?.Invoke(this, args);
 
         public bool SupressEvents
         {
@@ -41,8 +44,8 @@ namespace Barjonas.Common.Model
         /// <summary>
         /// Set a property, if it has changed, and raise event as appropriate.  Return boolean indicated whether any change was made.
         /// </summary>
-        protected bool SetProperty<TField>(
-        ref TField field, TField value, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "", bool forceEvent = false)
+        protected virtual bool SetProperty<TField>(
+            ref TField field, TField value, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "", bool forceEvent = false)
         {
             bool changed = false;
             if ((field == null != (value == null)) || (field != null))
@@ -87,7 +90,7 @@ namespace Barjonas.Common.Model
             return false;
         }
 
-        private static bool HasChanged<F>(bool compareEnumerablesByContent, F field, F value)
+        protected static bool HasChanged<F>(bool compareEnumerablesByContent, F field, F value)
         {
             if (field == null)
             {
