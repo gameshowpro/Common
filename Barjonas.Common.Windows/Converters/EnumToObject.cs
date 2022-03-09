@@ -10,7 +10,7 @@ namespace Barjonas.Common.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(value is Enum))
+            if (value is not Enum)
             {
                 throw new ArgumentException("Value must be an enum");
             }
