@@ -41,6 +41,15 @@ namespace Barjonas.Common.Converters
                     sb.Append(b ? "1" : "0");
                 }
             }
+            else if (value is IEnumerable<bool?> bools)
+            {
+                sb = new StringBuilder();
+                foreach (bool? b in bools)
+                {
+                    sb.Append(seperator);
+                    sb.Append(b.HasValue ? (b ? "1" : "0")  : "?");
+                }
+            }
             else if (value is IEnumerable<string> strings)
             {
                 sb = new StringBuilder();
@@ -53,6 +62,15 @@ namespace Barjonas.Common.Converters
                     }
                 }
             }
+            else if (value is IEnumerable<int?> ints)
+            {
+                sb = new StringBuilder();
+                foreach (int? i in ints)
+                {
+                    sb.Append(seperator);
+                    sb.Append(i.HasValue ? i.Value + IntUiOffset : "?");
+                }
+            }
             else if(value is IEnumerable<int> ints)
             {
                 sb = new StringBuilder();
@@ -60,6 +78,15 @@ namespace Barjonas.Common.Converters
                 {
                     sb.Append(seperator);
                     sb.Append(i + IntUiOffset);
+                }
+            }
+            else if (value is IEnumerable<uint?> uints)
+            {
+                sb = new StringBuilder();
+                foreach (uint? i in uints)
+                {
+                    sb.Append(seperator);
+                    sb.Append(i.HasValue ? i.Value + IntUiOffset : "?");
                 }
             }
             else if (value is IEnumerable<IEnumerable<int>> intList)
@@ -115,6 +142,11 @@ namespace Barjonas.Common.Converters
                 else if (targetType.IsAssignableFrom(typeof(List<int>)))
                 {
                     return parts.Select(s => int.TryParse(s.Trim(), out int i) ? i - IntUiOffset : 0).ToList();
+                }
+                else if (targetType.IsAssignableFrom(typeof(List<uint?>)))
+                {
+                    List<uint?> result = parts.Select<string, uint?> (s => uint.TryParse(s.Trim(), out uint i) ? i - (uint)IntUiOffset : null).ToList();
+                    return result?.ToList();
                 }
                 else if (targetType.IsAssignableFrom(typeof(List<bool>)))
                 {
