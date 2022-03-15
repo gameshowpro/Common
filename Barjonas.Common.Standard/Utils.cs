@@ -1,6 +1,7 @@
 ﻿// (C) Barjonas LLC 2018
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
@@ -25,6 +26,29 @@ namespace Barjonas.Common
 {
     public static partial class Utils
     {
+        //
+        // Summary:
+        //     Returns the first element of an IList, or a default value if the sequence contains
+        //     no elements.
+        //     Better for an indexable collection than the IEnumerable version.
+        //
+        // Parameters:
+        //   source:
+        //     The System.IList to return the first element of.
+        //
+        // Type parameters:
+        //   TSource:
+        //     The type of the elements of source.
+        //
+        // Returns:
+        //     default(TSource) if source is empty; otherwise, the first element in source.
+        //
+        // Exceptions:
+        //   T:System.ArgumentNullException:
+        //     source is null.
+        public static TSource? FirstOrDefault<TSource>(this IReadOnlyList<TSource>? source)
+            => source == null || source.Count == 0 ? default : source[0];
+
         /// <summary>
         /// Returns a boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
         /// </summary>
