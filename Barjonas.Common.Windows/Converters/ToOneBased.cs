@@ -10,6 +10,10 @@ namespace Barjonas.Common.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value == null)
+            {
+                return null;
+            }
             if (value.GetType() == typeof(byte))
             {
                 return (byte)value + 1;
@@ -19,6 +23,10 @@ namespace Barjonas.Common.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value == null)
+            {
+                return null;
+            }
             if (int.TryParse(value?.ToString(), out int intval))
             {
                 return intval - 1;
