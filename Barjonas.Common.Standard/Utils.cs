@@ -931,7 +931,7 @@ namespace Barjonas.Common
         }
 
         /// <summary>
-        /// Load any type from a JSON file. On failure, create a new one.
+        /// Load any Type from a JSON file. On failure, create a new one.
         /// </summary>
         /// <typeparam name="T">A reference type which has a default constructor.</typeparam>
         /// <param name="path">Path to the JSON file.</param>
