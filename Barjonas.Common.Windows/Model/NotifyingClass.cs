@@ -10,17 +10,23 @@ namespace Barjonas.Common.Model;
 [JsonObject(MemberSerialization.OptIn)]
 public class NotifyingClass : ObservableClass
 {
-    protected readonly static Dispatcher s_dispatcher = Dispatcher.CurrentDispatcher;
+    protected readonly Dispatcher _dispatcher = Dispatcher.CurrentDispatcher;
+    protected readonly Action<string> NotifyPropertyChangedAction;
+
+    public NotifyingClass()
+    {
+        NotifyPropertyChangedAction = new Action<string>(base.NotifyPropertyChanged);
+    }
 
     protected override void NotifyPropertyChanged(string name)
     {
-        if (s_dispatcher.CheckAccess())
+        if (_dispatcher.CheckAccess())
         {
             base.NotifyPropertyChanged(name);
         }
         else
         {
-            s_dispatcher.BeginInvoke(new Action<string>((s) => base.NotifyPropertyChanged(s)), name);
+            _dispatcher.BeginInvoke(NotifyPropertyChangedAction, DispatcherPriority.DataBind, name);
         }
     }
    
