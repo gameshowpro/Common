@@ -29,6 +29,7 @@ namespace Barjonas.Common.Model
         )
         {
             DataDirectory = Path.Combine(Environment.GetFolderPath(rootFolder), organization, project);
+            DataDirectoryUri = new(DataDirectory + @"\", UriKind.Absolute);
             EnsureDataDirectory();
             _fileNames = fileNames
                 .ToImmutableDictionary(
@@ -41,6 +42,7 @@ namespace Barjonas.Common.Model
         /// The absolute path the the data directory.
         /// </summary>
         public string DataDirectory { get; }
+        public Uri DataDirectoryUri { get; }
 
         public void EnsureDataDirectory()
             => Directory.CreateDirectory(DataDirectory);
