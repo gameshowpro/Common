@@ -162,15 +162,16 @@ public class PropertyChangeFilter
 
     internal void Release()
     {
-        foreach (PropertyChangeCondition condition in _collectionSenders)
+        foreach (INotifyPropertyChanged item in _itemSenders)
         {
-            if (condition.Sender is not null)
+            item.PropertyChanged -= Sender_PropertyChanged;
+        }
+        foreach (INotifyCollectionChanged collection in _collectionSenders)
+        {
+            collection.CollectionChanged -= SenderCollection_CollectionChanged;
+            if (collection is IItemPropertyChanged ipc)
             {
-                condition.Sender.PropertyChanged -= Sender_PropertyChanged;
-            }
-            else if (condition.SenderCollection is not null)
-            {
-                condition.SenderCollection.CollectionChanged -= SenderCollection_CollectionChanged;
+                ipc.ItemPropertyChanged += Ipc_ItemPropertyChanged;
             }
         }
     }
