@@ -28,12 +28,16 @@ namespace Barjonas.Common.Model
             }
             else
             {
-                trigger = new IncomingTriggerSetting() { Key = key, Id = defaultId };
+                trigger = new IncomingTriggerSetting() 
+                { 
+                    Key = key, 
+                    Id = defaultId, 
+                    Name = name, 
+                    DebounceInterval = debounceInterval
+                };
                 Add(trigger);
             }
-            trigger.Name = name;
-            trigger.DebounceInterval = debounceInterval;
-            trigger.TriggerFilter = triggerFilter;
+            trigger.TriggerFilter = triggerFilter; //not user-configurable for now
             trigger._wasTouched = true;
             return trigger;
         }

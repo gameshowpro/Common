@@ -184,7 +184,7 @@ namespace Barjonas.Common
             IncomingTriggerSettings settings,
             bool removeUntouchedSettings
         )
-        where TCommand : notnull
+        where TCommand : notnull, Enum
         where TTrigger : IncomingTrigger
         {
             var triggers = new List<TTrigger>();
