@@ -1,168 +1,209 @@
-﻿// (C) Barjonas LLC 2018
+﻿// (C) Barjonas LLC 2022
 
-using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 
-namespace Barjonas.Common.Model
+#nullable enable
+
+namespace Barjonas.Common.Model;
+
+public record PropertyChangeCondition
 {
-    public struct PropertyChangeCondition
+    internal INotifyPropertyChanged? Sender { get; }
+    internal INotifyCollectionChanged? SenderCollection { get; }
+    internal string? Property { get; }
+    internal bool IsInvalid { get; }
+
+    /// <summary>
+    /// A condition dependent on <seealso cref="INotifyPropertyChanged.PropertyChanged"/> property changing on a sender with the given property name.
+    /// </summary>
+    /// <param name="sender">The sender to monitor for the change. If null, this condition will be ignored.</param>
+    /// <param name="property">The name of the property which must change.</param>
+    public PropertyChangeCondition(INotifyPropertyChanged? sender, string property)
     {
-        internal readonly INotifyPropertyChanged _sender;
-        internal readonly INotifyCollectionChanged _senderCollection;
-        internal readonly string _property;
-
-        public PropertyChangeCondition(INotifyPropertyChanged sender, string property)
-        {
-            _sender = sender;
-            _property = property;
-            _senderCollection = null;
-        }
-
-        public PropertyChangeCondition(INotifyCollectionChanged sender)
-        {
-            _sender = null;
-            _property = null;
-            _senderCollection = sender;
-        }
-
-        public PropertyChangeCondition(INotifyCollectionChanged sender, string property)
-        {
-            _sender = null;
-            _property = property;
-            _senderCollection = sender;
-        }
+        Sender = sender;
+        Property = property;
+        SenderCollection = null;
+        IsInvalid = sender is null;
     }
 
     /// <summary>
-    /// This will execute a given delegate whenever one specified properties changes on one of the specified objects.
+    /// A condition dependent on any <seealso cref="INotifyCollectionChanged.CollectionChanged"/> events.
     /// </summary>
-    public class PropertyChangeFilter
+    /// <param name="sender">The sender to monitor for the change. If null, this condition will be ignored.</param>
+    public PropertyChangeCondition(INotifyCollectionChanged? sender)
     {
-        private readonly PropertyChangedEventHandler _handler;
-        private readonly HashSet<PropertyChangeCondition> _conditions;
-        internal readonly bool _isValid;
-        internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions)
+        Sender = null;
+        Property = null;
+        SenderCollection = sender;
+        IsInvalid = sender is null;
+    }
+
+    /// <summary>
+    /// A condition dependent on any <seealso cref="INotifyCollectionChanged.CollectionChanged"/> events or <seealso cref="IItemPropertyChanged.ItemPropertyChanged"/> events with the given property name.</summary>
+    /// <param name="sender">The sender to monitor for the change. If null, this condition will be ignored.</param>
+    /// <param name="property">The name of the property which must change.</param>
+    public PropertyChangeCondition(INotifyCollectionChanged? sender, string property)
+    {
+        Sender = null;
+        Property = property;
+        SenderCollection = sender;
+        IsInvalid = sender is null;
+        if (sender is not IItemPropertyChanged)
         {
-            _handler = action;
-            IEnumerable<PropertyChangeCondition> validCons = conditions?.Where(c => c._sender != null || c._senderCollection != null);
-            if (validCons?.Any() != true)
-            {
-                //Invoke handler on construction (like normal), knowing there will never be an event triggering a later invokation
-                InvokeAll();
-                return;
-            }
-            _isValid = true;
-            _conditions = new HashSet<PropertyChangeCondition>();
-            var senders = new HashSet<INotifyPropertyChanged>();
-            var collectionSenders = new HashSet<INotifyCollectionChanged>();
-            foreach (PropertyChangeCondition condition in validCons)
+            throw new InvalidEnumArgumentException($"To used this overload, {nameof(sender)} must implement IItemPropertyChanged");
+        }
+    }
+}
+
+/// <summary>
+/// This will execute a given delegate whenever one specified properties changes on one of the specified objects.
+/// </summary>
+public class PropertyChangeFilter
+{
+    private readonly PropertyChangedEventHandler _handler;
+    private readonly ImmutableList<INotifyPropertyChanged> _itemSenders; //Cannot use hashset because HashCodes are mutable
+    private readonly ImmutableList<ImmutableHashSet<string>> _notifyItemConditions;
+    private readonly ImmutableList<INotifyCollectionChanged> _collectionSenders;
+    private readonly ImmutableList<ImmutableHashSet<string?>> _notifyCollectionConditions;
+    internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions)
+    {
+        _handler = action;
+        ImmutableList<INotifyCollectionChanged>.Builder collectionSendersBuilder = ImmutableList.CreateBuilder<INotifyCollectionChanged>();
+        List<HashSet<string?>> notifyCollectionConditions = new();
+        ImmutableList<INotifyPropertyChanged>.Builder itemSendersBuilder = ImmutableList.CreateBuilder<INotifyPropertyChanged>();
+        List<HashSet<string>> notifyItemConditions = new();
+        foreach (PropertyChangeCondition condition in conditions)
+        {
+            if (!condition.IsInvalid)
             {
                 //ensure only one even registration per sender, even if we are monitoring multiple properties
-                if (condition._sender == null)
+                if (condition.Sender is null)
                 {
-                    if (!collectionSenders.Contains(condition._senderCollection))
+                    if (condition.SenderCollection is not null)
                     {
-                        collectionSenders.Add(condition._senderCollection);
-                        condition._senderCollection.CollectionChanged += SenderCollection_CollectionChanged;
-                        if (condition._senderCollection is IItemPropertyChanged ipc)
+                        int senderIndex = collectionSendersBuilder.IndexOf(condition.SenderCollection);
+                        if (senderIndex < 0)
+                        {
+                            senderIndex = collectionSendersBuilder.Count;
+                            collectionSendersBuilder.Add(condition.SenderCollection);
+                            notifyCollectionConditions.Add(new());
+                            condition.SenderCollection.CollectionChanged += SenderCollection_CollectionChanged;
+                        }
+                        if (condition.Property is not null && condition.SenderCollection is IItemPropertyChanged ipc)
                         {
                             ipc.ItemPropertyChanged += Ipc_ItemPropertyChanged;
                         }
+                        notifyCollectionConditions[senderIndex].Add(condition.Property);
                     }
                 }
-                else
+                else if (condition.Property is not null)
                 {
-                    if (!senders.Contains(condition._sender))
+                    int senderIndex = itemSendersBuilder.IndexOf(condition.Sender);
+                    if (senderIndex < 0)
                     {
-                        senders.Add(condition._sender);
-                        condition._sender.PropertyChanged += Sender_PropertyChanged;
+                        senderIndex = itemSendersBuilder.Count;
+                        itemSendersBuilder.Add(condition.Sender);
+                        notifyItemConditions.Add(new());
+                        condition.Sender.PropertyChanged += Sender_PropertyChanged;
                     }
+                    notifyItemConditions[senderIndex].Add(condition.Property);
                 }
-                _conditions.Add(condition);
             }
-            InvokeAll();
         }
+        _itemSenders = itemSendersBuilder.ToImmutable();
+        _notifyItemConditions = notifyItemConditions.Select(c => c.ToImmutableHashSet()).ToImmutableList();
+        _collectionSenders = collectionSendersBuilder.ToImmutable();
+        _notifyCollectionConditions = notifyCollectionConditions.Select(c => c.ToImmutableHashSet()).ToImmutableList();
+        InvokeAll();
+    }
 
-        private void Ipc_ItemPropertyChanged(object sender, ItemPropertyChangedEventArgs e)
+    private void Ipc_ItemPropertyChanged(object sender, ItemPropertyChangedEventArgs e)
+    {
+        if (sender is INotifyCollectionChanged collectionSender)
         {
-            var condition = new PropertyChangeCondition(sender as INotifyCollectionChanged, e.PropertyName);
-            if (_conditions.Contains(condition))
+            int senderIndex = _collectionSenders.IndexOf(collectionSender);
+            if (senderIndex >= 0 && _notifyCollectionConditions[senderIndex].Contains(e.PropertyName))
             {
                 _handler?.Invoke(sender, new PropertyChangedEventArgs(e.PropertyName.ToString()));
             }
         }
+    }
 
-        private void SenderCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private void SenderCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (sender is INotifyCollectionChanged collectionSender)
         {
-            var condition = new PropertyChangeCondition(sender as INotifyCollectionChanged);
-            if (_conditions.Contains(condition))
+            int senderIndex = _collectionSenders.IndexOf(collectionSender);
+            if (senderIndex >= 0 && _notifyCollectionConditions[senderIndex].Contains(null))
             {
                 _handler?.Invoke(sender, new PropertyChangedEventArgs(e.Action.ToString()));
             }
         }
+    }
 
-        private void Sender_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void Sender_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (sender is INotifyPropertyChanged itemSender)
         {
-            var condition = new PropertyChangeCondition(sender as INotifyPropertyChanged, e.PropertyName);
-            if (_conditions.Contains(condition))
+            int senderIndex = _itemSenders.IndexOf(itemSender);
+            if (senderIndex >= 0 && _notifyItemConditions[senderIndex].Contains(e.PropertyName))
             {
                 _handler?.Invoke(sender, e);
             }
         }
-
-        internal void InvokeAll()
-            => _handler?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
-
-        internal void Release()
-        {
-            foreach (PropertyChangeCondition condition in _conditions ?? Enumerable.Empty<PropertyChangeCondition>())
-            {
-                if (condition._sender == null)
-                {
-                    condition._senderCollection.CollectionChanged -= SenderCollection_CollectionChanged;
-                }
-                else
-                {
-                    condition._sender.PropertyChanged -= Sender_PropertyChanged;
-                }
-            }
-        }
     }
 
-    public class PropertyChangeFilters
+    internal void InvokeAll()
+        => _handler?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
+
+    internal void Release()
     {
-        private readonly List<PropertyChangeFilter> _filters = new();
-        public void AddFilter(PropertyChangedEventHandler handler, params PropertyChangeCondition[] conditions)
+        foreach (PropertyChangeCondition condition in _collectionSenders)
         {
-            AddFilter(handler, (IEnumerable<PropertyChangeCondition>)conditions);
-        }
-
-        public void AddFilter(PropertyChangedEventHandler handler, IEnumerable<PropertyChangeCondition> conditions)
-        {
-            var filter = new PropertyChangeFilter(handler, conditions);
-            if (filter._isValid)
+            if (condition.Sender is not null)
             {
-                _filters.Add(filter);
+                condition.Sender.PropertyChanged -= Sender_PropertyChanged;
+            }
+            else if (condition.SenderCollection is not null)
+            {
+                condition.SenderCollection.CollectionChanged -= SenderCollection_CollectionChanged;
             }
         }
-
-        public void ClearFilters()
-        {
-            foreach (PropertyChangeFilter f in _filters)
-            {
-                f.Release();
-            }
-            _filters.Clear();
-        }
-
-        public void InvokeAll()
-        {
-            _filters.ForEach(f => f.InvokeAll());
-        }
-
-        public bool Any() => _filters.Any();
     }
 }
+
+public class PropertyChangeFilters
+{
+    private readonly List<PropertyChangeFilter> _filters = new();
+    public void AddFilter(PropertyChangedEventHandler handler, params PropertyChangeCondition[] conditions)
+    {
+        AddFilter(handler, (IEnumerable<PropertyChangeCondition>)conditions);
+    }
+
+    public void AddFilter(PropertyChangedEventHandler handler, IEnumerable<PropertyChangeCondition> conditions)
+    {
+        var filter = new PropertyChangeFilter(handler, conditions);
+        _filters.Add(filter);
+    }
+
+    public void ClearFilters()
+    {
+        foreach (PropertyChangeFilter f in _filters)
+        {
+            f.Release();
+        }
+        _filters.Clear();
+    }
+
+    public void InvokeAll()
+    {
+        _filters.ForEach(f => f.InvokeAll());
+    }
+
+    public bool Any() => _filters.Any();
+}
+#nullable restore
