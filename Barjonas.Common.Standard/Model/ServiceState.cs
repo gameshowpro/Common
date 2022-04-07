@@ -43,6 +43,31 @@ namespace Barjonas.Common.Model
             => CreateUnknown(name, name);
 
         /// <summary>
+        /// Create service state with manual values that will not be automatically aggregated. Default JSON constructor.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="name"></param>
+        /// <param name="aggregateState"></param>
+        /// <param name="detail"></param>
+        /// <param name="progress"></param>
+        /// <param name="children"></param>
+        [JsonConstructor]
+        public ServiceState(string key, string? name, RemoteServiceStates? aggregateState, string? detail, double? progress, IDictionary<string, ServiceState>? children) :
+            this
+            (
+                key,
+                name ?? key,
+                children == null ? new ObservableDictionary<string, ServiceState>() : new ObservableDictionary<string, ServiceState>(children),
+                aggregateState ?? RemoteServiceStates.Disconnected,
+                detail,
+                progress,
+                null,
+                null,
+                null)
+        {
+        }
+
+        /// <summary>
         /// The base-level constructor. By this point, if any aggregators are null, we presume that no automatic aggregation is required.
         /// </summary>
         /// <param name="key"></param>
@@ -117,31 +142,6 @@ namespace Barjonas.Common.Model
             {
                 Progress = _progressAggregator.Invoke(this);
             }
-        }
-
-        /// <summary>
-        /// Create service state with manual values that will not be automatically aggregated. Default JSON constructor.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="name"></param>
-        /// <param name="aggregateState"></param>
-        /// <param name="detail"></param>
-        /// <param name="progress"></param>
-        /// <param name="children"></param>
-        [JsonConstructor]
-        public ServiceState(string key, string name, RemoteServiceStates aggregateState, string? detail, double? progress, IDictionary<string, ServiceState>? children) : 
-            this
-            (
-                key, 
-                name,
-                children == null ? new ObservableDictionary<string, ServiceState>() : new ObservableDictionary<string, ServiceState>(children), 
-                aggregateState, 
-                detail, 
-                progress, 
-                null, 
-                null, 
-                null)
-        {          
         }
 
         /// <summary>
