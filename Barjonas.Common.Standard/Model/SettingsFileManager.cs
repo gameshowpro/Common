@@ -67,9 +67,14 @@ namespace Barjonas.Common.Model
         /// Persist an object to a file path which was keyed by its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
         /// </summary>
         /// <typeparam name="T">The type of the object being persisted</typeparam>
-        /// <param name="obj">The object being persisted</param>
-        public void Persist<T>(T obj) where T : class, new()
-            => Utils.Persist(obj, GetPath(typeof(T)));
+        /// <param name="obj">The object being persisted. If null, there will be no exception and no operation.</param>
+        public void Persist<T>(T? obj) where T : class, new()
+        {
+            if (obj is not null)
+            {
+                Utils.Persist(obj, GetPath(typeof(T)));
+            }
+        }
     }
 }
 #nullable restore
