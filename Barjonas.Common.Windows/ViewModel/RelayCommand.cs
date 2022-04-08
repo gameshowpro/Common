@@ -2,7 +2,7 @@
 
 using System;
 using System.Windows.Input;
-
+#nullable enable
 namespace Barjonas.Common.ViewModel
 {
     /// <summary>
@@ -13,7 +13,7 @@ namespace Barjonas.Common.ViewModel
     {
         #region Fields
 
-        protected readonly Action<T> _execute = null;
+        protected readonly Action<T?> _execute;
 
         #endregion
 
@@ -24,7 +24,7 @@ namespace Barjonas.Common.ViewModel
         /// </summary>
         /// <param name="execute">Delegate to execute when Execute is called on the command.  This can be null to just hook up a CanExecute delegate.</param>
         /// <remarks><seealso cref="CanExecute"/> will always return true.</remarks>
-        public RelayCommand(Action<T> execute)
+        public RelayCommand(Action<T?> execute)
             : this(execute, null)
         {
         }
@@ -34,9 +34,9 @@ namespace Barjonas.Common.ViewModel
         /// </summary>
         /// <param name="execute">The execution logic.</param>
         /// <param name="canExecute">The execution status logic (currently ignored).</param>
-        public RelayCommand(Action<T> execute, Predicate<T> canExecute)
+        public RelayCommand(Action<T?> execute, Predicate<T?>? canExecute)
         {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _execute = execute;
         }
 
         public void SetCanExecute(bool canExecute)
@@ -61,7 +61,7 @@ namespace Barjonas.Common.ViewModel
         ///<returns>
         ///true if this command can be executed; otherwise, false.
         ///</returns>
-        public virtual bool CanExecute(object parameter)
+        public virtual bool CanExecute(object? parameter)
         {
             return _canExecuteBool;
         }
@@ -69,21 +69,22 @@ namespace Barjonas.Common.ViewModel
         ///<summary>
         ///Occurs when changes occur that affect whether or not the command should execute.
         ///</summary>
-        public event EventHandler CanExecuteChanged;
+        public event EventHandler? CanExecuteChanged;
         //{
         //    add { CommandManager.RequerySuggested += value; }
         //    remove { CommandManager.RequerySuggested -= value; }
         //}
 
         ///<summary>
-        ///Defines the method to be called when the command is invoked.
+        ///Executes the delegate defined when this command was created.
         ///</summary>
         ///<param name="parameter">Data used by the command. If the command does not require data to be passed, this object can be set to <see langword="null" />.</param>
-        public virtual void Execute(object parameter)
+        public virtual void Execute(object? parameter)
         {
-            _execute((T)parameter);
+            _execute?.Invoke((T?)parameter);
         }
 
         #endregion
     }
 }
+#nullable restore
