@@ -23,17 +23,11 @@ namespace Barjonas.Common.Converters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool rawResult;
-            switch (parameter)
+            var rawResult = parameter switch
             {
-                case Type t:
-                    rawResult = t.IsAssignableFrom(value?.GetType());
-                    break;
-                default:
-                    rawResult = (value == null && parameter == null) || value?.Equals(parameter) == true;
-                    break;
-
-            }
+                Type t => t.IsAssignableFrom(value?.GetType()),
+                _ => (value == null && parameter == null) || value?.Equals(parameter) == true,
+            };
             return BooleanToType(rawResult, targetType);
         }
 
