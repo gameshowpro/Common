@@ -41,7 +41,7 @@ namespace Barjonas.Common.Model
                 }
                 else
                 {
-                    _ = _dispatcher!.BeginInvoke(_executeDelegate, e.Data);
+                    _ = _dispatcher!.BeginInvoke(_executeDelegate, _commandParameter ?? e.Data);
                 }
             }
         }
