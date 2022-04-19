@@ -1184,6 +1184,207 @@ namespace Barjonas.Common
             return words.ToString();
         }
 
+        public static string? EnumerableToDelimitedString(object? value, string delimiter, int? trimLength = null, int offset = 0, bool includeEmptyItems = false, char nullNumberPlaceholder = '?', string nullStringPlaceholder = "NullPlaceholder")
+        {
+            if (value == null)
+            {
+                return null;
+            }
+            StringBuilder sb = new();
+            if (value is IEnumerable<bool> bools)
+            {
+                foreach (bool b in bools)
+                {
+                    sb.Append(delimiter);
+                    sb.Append(b ? "1" : "0");
+                }
+            }
+            else if (value is IEnumerable<bool?> nbools)
+            {
+                foreach (bool? b in nbools)
+                {
+                    sb.Append(delimiter);
+                    sb.Append(b.HasValue ? (b.Value ? "1" : "0") : nullNumberPlaceholder);
+                }
+            }
+            else if (value is IEnumerable<string> strings)
+            {
+                foreach (string s in strings)
+                {
+                    if (includeEmptyItems || !string.IsNullOrWhiteSpace(s))
+                    {
+                        sb.Append(delimiter);
+                        sb.Append(s);
+                    }
+                }
+            }
+            else if (value is IEnumerable<string?> nstrings)
+            {
+                foreach (string? s in nstrings)
+                {
+                    if (includeEmptyItems || !string.IsNullOrWhiteSpace(s))
+                    {
+                        sb.Append(delimiter);
+                        sb.Append(s ?? nullStringPlaceholder);
+                    }
+                }
+            }
+            else if (value is IEnumerable<int> ints)
+            {
+                foreach (int i in ints)
+                {
+                    sb.Append(delimiter);
+                    sb.Append(i + offset);
+                }
+            }
+            else if (value is IEnumerable<int?> nints)
+            {
+                foreach (int? i in nints)
+                {
+                    sb.Append(delimiter);
+                    sb.Append(i.HasValue ? i.Value + offset : nullNumberPlaceholder);
+                }
+            }
+            else if (value is IEnumerable<long> longs)
+            {
+                foreach (long i in longs)
+                {
+                    sb.Append(delimiter);
+                    sb.Append(i + offset);
+                }
+            }
+            else if (value is IEnumerable<long?> nlongs)
+            {
+                foreach (long? i in nlongs)
+                {
+                    sb.Append(delimiter);
+                    sb.Append(i.HasValue ? i.Value + offset : nullNumberPlaceholder);
+                }
+            }
+            else if (value is IEnumerable<uint> uints)
+            {
+                foreach (uint i in uints)
+                {
+                    sb.Append(delimiter);
+                    sb.Append(i + (uint)offset);
+                }
+            }
+            else if (value is IEnumerable<uint?> nuints)
+            {
+                foreach (uint? i in nuints)
+                {
+                    sb.Append(delimiter);
+                    sb.Append(i.HasValue ? i.Value + offset : nullNumberPlaceholder);
+                }
+            }
+            else if (value is IEnumerable<ulong> ulongs)
+            {
+                foreach (ulong i in ulongs)
+                {
+                    sb.Append(delimiter);
+                    sb.Append(i + (ulong)offset);
+                }
+            }
+            else if (value is IEnumerable<ulong?> nulongs)
+            {
+                foreach (ulong? i in nulongs)
+                {
+                    sb.Append(delimiter);
+                    sb.Append(i.HasValue ? i.Value + (ulong)offset : nullNumberPlaceholder);
+                }
+            }
+            else if (value is IEnumerable<IEnumerable<int>> intList)
+            {
+                bool first;
+                foreach (IEnumerable<int> intItems in intList)
+                {
+                    first = true;
+                    sb.Append(delimiter);
+                    foreach (int i in intItems)
+                    {
+                        if (first)
+                        {
+                            first = false;
+                        }
+                        else
+                        {
+                            _ = sb.Append(',');
+                        }
+                        _ = sb.Append(i + offset);
+                    }
+                }
+            }
+            else
+            {
+                return null;
+            }
+            if (trimLength.HasValue && trimLength.Value > 0 && sb.Length > trimLength)
+            {
+                return sb.ToString(trimLength.Value, sb.Length - trimLength.Value);
+            }
+            else if (sb.Length <= delimiter.Length)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return sb.ToString(delimiter.Length, sb.Length - delimiter.Length);
+            }
+        }
+
+        public static IEnumerable<T>? DelimitedStringToNonNullableType<T>(string delimited, string delimiter, int offset = 0, string nullStringPlaceholder = "?", bool exceptionOnFailure = false)
+            where T : struct
+        {
+            IEnumerable<T?>? result = DelimitedStringToNullableType<T>(delimited, delimiter, offset, nullStringPlaceholder);
+            if (exceptionOnFailure && result?.Any(t => t is null) == true)
+            {
+                throw new Exception("String parsing failed");
+            }
+            return result?.Where(t => t != null).Select(t => t!.Value);
+        }
+
+        public static IEnumerable<T?>? DelimitedStringToNullableType<T>(string delimited, string delimiter, int offset = 0, string nullStringPlaceholder = "?")
+            where T : struct
+        {
+            if (string.IsNullOrWhiteSpace(delimited))
+            {
+                return null;
+            }
+            string[] parts = delimited.Split(new string[] { delimiter }, StringSplitOptions.None);
+            Type targetType = typeof(T);
+            //Todo: special handling for strings, because they won't main it through constraint
+            if (Nullable.GetUnderlyingType(targetType) == typeof(string))
+            {
+                return (IEnumerable<T?>)parts.Select(p => p.FirstOrDefault() == ' ' ? p.Skip(1) : p).Select(p => (string)p == nullStringPlaceholder ? null : p);
+            }
+            else if (targetType.IsAssignableFrom(typeof(int)))
+            {
+                IEnumerable<int?> result = parts.Select<string, int?>(s => int.TryParse(s.Trim(), out int i) ? i - (int)offset : null);
+                return (IEnumerable<T?>)result;
+            }
+            else if (targetType.IsAssignableFrom(typeof(uint)))
+            {
+                IEnumerable<uint?>result = parts.Select<string, uint?>(s => uint.TryParse(s.Trim(), out uint i) ? i - (uint)offset : null);
+                return (IEnumerable<T?>)result;
+            }
+            else if (targetType.IsAssignableFrom(typeof(long)))
+            {
+                IEnumerable<long?> result = parts.Select<string, long?>(s => long.TryParse(s.Trim(), out long i) ? i - offset : null);
+                return (IEnumerable<T?>)result;
+            }
+            else if (targetType.IsAssignableFrom(typeof(ulong)))
+            {
+                IEnumerable<ulong?> result = parts.Select<string, ulong?>(s => ulong.TryParse(s.Trim(), out ulong i) ? i - (ulong)offset : null).ToList();
+                return (IEnumerable<T?>)result;
+            }
+            else if (targetType.IsAssignableFrom(typeof(bool)))
+            {
+                IEnumerable<bool?> result = parts.Select<string, bool?>(s => bool.TryParse(s.Trim(), out bool i) ? i : null);
+                return (IEnumerable<T?>)result;
+            }
+            return null;
+        }
+
         /// <summary>
         /// Get the build data of an assembly which has been built with a SourceRevisionID formatted in a standardized way (see remarks).
         /// </summary>

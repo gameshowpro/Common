@@ -28,215 +28,122 @@ public class EnumerableToStringConverter : IValueConverter
 
     public object? Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
     {
+        
         if (value == null)
         {
             return null;
         }
-        (string seperator, int trimLength) = s_joinTypes[(int)JoinType];
-        StringBuilder sb = new();
+        (string separator, int trimLength) = s_joinTypes[(int)JoinType];
         if (value is IEnumerable<bool> bools)
         {
-            foreach (bool b in bools)
-            {
-                sb.Append(seperator);
-                sb.Append(b ? "1" : "0");
-            }
+            return Utils.EnumerableToDelimitedString(bools, separator, trimLength, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<bool?> nbools)
         {
-            foreach (bool? b in nbools)
-            {
-                sb.Append(seperator);
-                sb.Append(b.HasValue ? (b.Value ? "1" : "0")  : NullNumberPlaceholder);
-            }
+            return Utils.EnumerableToDelimitedString(nbools, separator, trimLength, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<string> strings)
         {
-            foreach (string s in strings)
-            {
-                if (IncludeEmptyItems || !string.IsNullOrWhiteSpace(s))
-                {
-                    sb.Append(seperator);
-                    sb.Append(s);
-                }
-            }
+            return Utils.EnumerableToDelimitedString(strings, separator, trimLength, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<string?> nstrings)
         {
-            foreach (string? s in nstrings)
-            {
-                if (IncludeEmptyItems || !string.IsNullOrWhiteSpace(s))
-                {
-                    sb.Append(seperator);
-                    sb.Append(s ?? NullStringPlaceholder);
-                }
-            }
+            return Utils.EnumerableToDelimitedString(nstrings, separator, trimLength, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<int> ints)
         {
-            foreach (int i in ints)
-            {
-                sb.Append(seperator);
-                sb.Append(i + IntUiOffset);
-            }
+            return Utils.EnumerableToDelimitedString(ints, separator, trimLength, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<int?> nints)
         {
-            foreach (int? i in nints)
-            {
-                sb.Append(seperator);
-                sb.Append(i.HasValue ? i.Value + IntUiOffset : NullNumberPlaceholder);
-            }
+            return Utils.EnumerableToDelimitedString(nints, separator, trimLength, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<long> longs)
         {
-            foreach (long i in longs)
-            {
-                sb.Append(seperator);
-                sb.Append(i + IntUiOffset);
-            }
+            return Utils.EnumerableToDelimitedString(longs, separator, trimLength, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<long?> nlongs)
         {
-            foreach (long? i in nlongs)
-            {
-                sb.Append(seperator);
-                sb.Append(i.HasValue ? i.Value + IntUiOffset : NullNumberPlaceholder);
-            }
+            return Utils.EnumerableToDelimitedString(nlongs, separator, trimLength, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<uint> uints)
         {
-            foreach (uint i in uints)
-            {
-                sb.Append(seperator);
-                sb.Append(i + (uint)IntUiOffset);
-            }
+            return Utils.EnumerableToDelimitedString(uints, separator, trimLength, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<uint?> nuints)
         {
-            foreach (uint? i in nuints)
-            {
-                sb.Append(seperator);
-                sb.Append(i.HasValue ? i.Value + IntUiOffset : NullNumberPlaceholder);
-            }
+            return Utils.EnumerableToDelimitedString(nuints, separator, trimLength, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<ulong> ulongs)
         {
-            foreach (ulong i in ulongs)
-            {
-                sb.Append(seperator);
-                sb.Append(i + (ulong)IntUiOffset);
-            }
+            return Utils.EnumerableToDelimitedString(ulongs, separator, trimLength, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<ulong?> nulongs)
         {
-            foreach (ulong? i in nulongs)
-            {
-                sb.Append(seperator);
-                sb.Append(i.HasValue ? i.Value + (ulong)IntUiOffset : NullNumberPlaceholder);
-            }
+            return Utils.EnumerableToDelimitedString(nulongs, separator, trimLength, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<IEnumerable<int>> intList)
         {
-            bool first;
-            foreach (IEnumerable<int> intItems in intList)
-            {
-                first = true;
-                sb.Append(seperator);
-                foreach (int i in intItems)
-                {
-                    if (first)
-                    {
-                        first = false;
-                    }
-                    else
-                    {
-                        _ = sb.Append(',');
-                    }
-                    _ = sb.Append(i + IntUiOffset);
-                }
-            }
+            return Utils.EnumerableToDelimitedString(intList, separator, trimLength, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else
         {
             return Binding.DoNothing;
         }
-        if (trimLength > 0 && sb.Length > trimLength)
-        {
-            return sb.ToString(trimLength, sb.Length - trimLength);
-        }
-        else
-        {
-            return sb.ToString();
-        }
     }
 
     public object? ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
     {
-        //todo: support all the cases supported in the other direction
+        (string seperator, int _) = s_joinTypes[(int)JoinType];
         if (value is string valstr)
         {
-            string[] parts = valstr.Split(',');
-            if (targetType.IsAssignableFrom(typeof(List<string?>)))
+            if (targetType.IsAssignableFrom(typeof(IEnumerable<string?>)))
             {
-#if NETFRAMEWORK
-                return parts.Select(p => p.FirstOrDefault() == ' ' ? p.Skip(1) : p).Select(p => (string)p == NullStringPlaceholder ? null : p).ToList();
-#else
-                return parts.Select(p => p.FirstOrDefault() == ' ' ? p[1..] : p).Select(p => p == NullStringPlaceholder ? null : p).ToList();
-#endif
+                //return Utils.DelimitedStringToNullableType<string>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? Binding.DoNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(List<string>)))
+            else if (targetType.IsAssignableFrom(typeof(IEnumerable<string>)))
             {
-#if NETFRAMEWORK
-                return parts.Select(p => p.FirstOrDefault() == ' ' ? p.Skip(1) : p).ToList();
-#else
-                return parts.Select(p => p.FirstOrDefault() == ' ' ? p[1..] : p).ToList();
-#endif
+                //return Utils.DelimitedStringToNonNullableType<string>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? Binding.DoNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(List<int>)))
+            else if (targetType.IsAssignableFrom(typeof(IEnumerable<int>)))
             {
-                return parts.Select(s => int.TryParse(s.Trim(), out int i) ? i - IntUiOffset : 0).ToList();
+                return Utils.DelimitedStringToNonNullableType<int>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? Binding.DoNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(List<int?>)))
+            else if (targetType.IsAssignableFrom(typeof(IEnumerable<int?>)))
             {
-                List<int?> result = parts.Select<string, int?>(s => int.TryParse(s.Trim(), out int i) ? i - (int)IntUiOffset : null).ToList();
-                return result?.ToList();
+                return Utils.DelimitedStringToNullableType<int>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? Binding.DoNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(List<uint>)))
+            else if (targetType.IsAssignableFrom(typeof(IEnumerable<uint>)))
             {
-                return parts.Select(s => uint.TryParse(s.Trim(), out uint i) ? i - IntUiOffset : 0).ToList();
+                return Utils.DelimitedStringToNonNullableType<uint>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? Binding.DoNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(List<uint?>)))
+            else if (targetType.IsAssignableFrom(typeof(IEnumerable<uint?>)))
             {
-                List<uint?> result = parts.Select<string, uint?>(s => uint.TryParse(s.Trim(), out uint i) ? i - (uint)IntUiOffset : null).ToList();
-                return result?.ToList();
+                return Utils.DelimitedStringToNullableType<uint>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? Binding.DoNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(List<long>)))
+            else if (targetType.IsAssignableFrom(typeof(IEnumerable<long>)))
             {
-                return parts.Select(s => long.TryParse(s.Trim(), out long i) ? i - IntUiOffset : 0).ToList();
+                return Utils.DelimitedStringToNonNullableType<long>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? Binding.DoNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(List<long?>)))
+            else if (targetType.IsAssignableFrom(typeof(IEnumerable<long?>)))
             {
-                List<long?> result = parts.Select<string, long?>(s => long.TryParse(s.Trim(), out long i) ? i - (long)IntUiOffset : null).ToList();
-                return result?.ToList();
+                return Utils.DelimitedStringToNullableType<long>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? Binding.DoNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(List<ulong>)))
+            else if (targetType.IsAssignableFrom(typeof(IEnumerable<ulong>)))
             {
-                return parts.Select(s => ulong.TryParse(s.Trim(), out ulong i) ? i - (ulong)IntUiOffset : 0).ToList();
+                return Utils.DelimitedStringToNonNullableType<ulong>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? Binding.DoNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(List<ulong?>)))
+            else if (targetType.IsAssignableFrom(typeof(IEnumerable<ulong?>)))
             {
-                List<ulong?> result = parts.Select<string, ulong?>(s => ulong.TryParse(s.Trim(), out ulong i) ? i - (ulong)IntUiOffset : null).ToList();
-                return result?.ToList();
+                return Utils.DelimitedStringToNullableType<long>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? Binding.DoNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(List<bool>)))
+            else if (targetType.IsAssignableFrom(typeof(IEnumerable<bool>)))
             {
-                return parts.Select(s => bool.TryParse(s.Trim(), out bool b) && b).ToList();
+                return Utils.DelimitedStringToNonNullableType<bool>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? Binding.DoNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(List<bool?>)))
+            else if (targetType.IsAssignableFrom(typeof(IEnumerable<bool?>)))
             {
-                List<bool?> result = parts.Select<string, bool?>(s => bool.TryParse(s.Trim(), out bool i) ? i : null).ToList();
-                return result?.ToList();
+                return Utils.DelimitedStringToNullableType<bool>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? Binding.DoNothing;
             }
         }
         return Binding.DoNothing;
