@@ -121,19 +121,19 @@ public class PropertyChangeFilter
         InvokeAll();
     }
 
-    private void Ipc_ItemPropertyChanged(object sender, ItemPropertyChangedEventArgs e)
+    private void Ipc_ItemPropertyChanged(object? sender, ItemPropertyChangedEventArgs e)
     {
         if (sender is INotifyCollectionChanged collectionSender)
         {
             int senderIndex = _collectionSenders.IndexOf(collectionSender);
             if (senderIndex >= 0 && _notifyCollectionConditions[senderIndex].Contains(e.PropertyName))
             {
-                _handler?.Invoke(sender, new PropertyChangedEventArgs(e.PropertyName.ToString()));
+                _handler?.Invoke(sender, new PropertyChangedEventArgs(e.PropertyName));
             }
         }
     }
 
-    private void SenderCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private void SenderCollection_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (sender is INotifyCollectionChanged collectionSender)
         {
@@ -145,12 +145,12 @@ public class PropertyChangeFilter
         }
     }
 
-    private void Sender_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void Sender_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (sender is INotifyPropertyChanged itemSender)
         {
             int senderIndex = _itemSenders.IndexOf(itemSender);
-            if (senderIndex >= 0 && _notifyItemConditions[senderIndex].Contains(e.PropertyName))
+            if (senderIndex >= 0 && e.PropertyName is not null && _notifyItemConditions[senderIndex].Contains(e.PropertyName))
             {
                 _handler?.Invoke(sender, e);
             }

@@ -316,7 +316,7 @@ namespace Barjonas.Common
             {
                 return string.Empty;
             }
-            string oneBased = ((value) + (fromZeroBased ? 1 : 0)).ToString();
+            string oneBased = ((value.Value) + (fromZeroBased ? 1 : 0)).ToString();
             string suffix = (oneBased.Last()) switch
             {
                 '1' => "st",

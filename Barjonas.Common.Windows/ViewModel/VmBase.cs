@@ -24,7 +24,7 @@ namespace Barjonas.Common.ViewModel
             }), Dispatcher.CurrentDispatcher);
             _todayUpdater = new DispatcherTimer(TimeSpan.FromMinutes(1), DispatcherPriority.SystemIdle, new EventHandler((o, e) => NotifyPropertyChanged(nameof(Today))), Dispatcher.CurrentDispatcher);
             ShowDataDirCommand = new RelayCommandSimple(() => ShowDataDir());
-            LaunchNLogLogCommand = new RelayCommand<string>((string targetKey) => Utils.LaunchCurrentNLogLog(targetKey));
+            LaunchNLogLogCommand = new RelayCommand<string>((string? targetKey) => { if (targetKey is not null) { Utils.LaunchCurrentNLogLog(targetKey); } });
             PersistAllCommand = new RelayCommandSimple(persistAll);
         }
 
