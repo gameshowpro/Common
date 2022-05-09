@@ -1184,7 +1184,7 @@ namespace Barjonas.Common
             return words.ToString();
         }
 
-        public static string? EnumerableToDelimitedString(object? value, string delimiter, int? trimLength = null, int offset = 0, bool includeEmptyItems = false, char nullNumberPlaceholder = '?', string nullStringPlaceholder = "NullPlaceholder")
+        public static string? EnumerableToDelimitedString(object? value, string delimiter, int offset = 0, bool includeEmptyItems = false, string nullNumberPlaceholder = "", string nullStringPlaceholder = "NullPlaceholder")
         {
             if (value == null)
             {
@@ -1318,11 +1318,7 @@ namespace Barjonas.Common
             {
                 return null;
             }
-            if (trimLength.HasValue && trimLength.Value > 0 && sb.Length > trimLength)
-            {
-                return sb.ToString(trimLength.Value, sb.Length - trimLength.Value);
-            }
-            else if (sb.Length <= delimiter.Length)
+            if (sb.Length <= delimiter.Length)
             {
                 return string.Empty;
             }
