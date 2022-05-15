@@ -13,6 +13,7 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <RootNamespace>Barjonas.Common</RootNamespace>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net48|AnyCPU'">
