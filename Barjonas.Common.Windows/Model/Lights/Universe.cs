@@ -12,8 +12,8 @@ namespace Barjonas.Common.Model.Lights
     public class Universe
     {
         internal byte[] _data;
-        private Action<byte[]> _sendUpdate;
-        public Action<byte[]> SendUpdate
+        private Action<byte[]>? _sendUpdate;
+        public Action<byte[]>? SendUpdate
         {
             get
             {
@@ -22,10 +22,10 @@ namespace Barjonas.Common.Model.Lights
             set
             {
                 _sendUpdate = value;
-                _sendUpdate(_data);
+                _sendUpdate?.Invoke(_data);
             }
         }
-        public Universe(UniverseSettings settings, int universeSize, Action<byte[]> sendUpdate)
+        public Universe(UniverseSettings settings, int universeSize, Action<byte[]>? sendUpdate)
         {
             _settings = settings;
             _data = new byte[universeSize + 1]; //First byte is DMX start code

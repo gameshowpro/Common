@@ -7,6 +7,7 @@ using System.ComponentModel;
 namespace Barjonas.Common.Model
 {
     public class ObservableDictionary<TKey, TValue> : ICollection<KeyValuePair<TKey, TValue>>, IDictionary<TKey, TValue>, IDictionary, INotifyCollectionChanged, INotifyPropertyChanged
+        where TKey : notnull
         where TValue : notnull
     {
         private readonly IDictionary<TKey, TValue> _dictionary;
@@ -77,7 +78,7 @@ namespace Barjonas.Common.Model
 
         private bool RemoveWithNotification(TKey key)
         {
-            if (_dictionary.TryGetValue(key, out TValue value) && _dictionary.Remove(key))
+            if (_dictionary.TryGetValue(key, out TValue? value) && _dictionary.Remove(key))
             {
                 DetatchItemChangeHandler(value);
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove,
@@ -94,7 +95,7 @@ namespace Barjonas.Common.Model
 
         private void UpdateWithNotification(TKey key, TValue value)
         {
-            if (_dictionary.TryGetValue(key, out TValue existing))
+            if (_dictionary.TryGetValue(key, out TValue? existing))
             {
                 DetatchItemChangeHandler(existing);
                 _dictionary[key] = value;
