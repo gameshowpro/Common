@@ -6,10 +6,5 @@ using System.Threading.Tasks;
 
 namespace Barjonas.Common.ViewModel
 {
-    public class StringItem
-    {
-        internal StringItem(string value) => Value = value;
-
-        public string Value { get; }
-    }
+    public record StringItem(string Value);
 }
