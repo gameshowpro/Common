@@ -12,24 +12,12 @@ namespace Barjonas.Common.Model.Lights
     public class Universe
     {
         internal byte[] _data;
-        private Action<byte[]>? _sendUpdate;
-        public Action<byte[]>? SendUpdate
-        {
-            get
-            {
-                return _sendUpdate;
-            }
-            set
-            {
-                _sendUpdate = value;
-                _sendUpdate?.Invoke(_data);
-            }
-        }
-        public Universe(UniverseSettings settings, int universeSize, Action<byte[]>? sendUpdate)
+        public event Action<byte[]>? SendUpdate;
+
+        public Universe(UniverseSettings settings, int universeSize)
         {
             _settings = settings;
             _data = new byte[universeSize + 1]; //First byte is DMX start code
-            _sendUpdate = sendUpdate;
             _channels = new List<UniverseChannel>();
             for (var i = 1; i <= universeSize; i++)
             {
@@ -67,7 +55,7 @@ namespace Barjonas.Common.Model.Lights
                     if (_sendUpdates & _isDirty)
                     {
                         _isDirty = false;
-                        _sendUpdate?.Invoke(_data);
+                        SendUpdate?.Invoke(_data);
                     }
                 }
             }
@@ -92,7 +80,7 @@ namespace Barjonas.Common.Model.Lights
             Array.Copy(sourceData, 0, _data, startOneBased, sourceData.Length);
             if (_sendUpdates)
             {
-                _sendUpdate?.Invoke(_data);
+                SendUpdate?.Invoke(_data);
             }
             else
             {
@@ -125,7 +113,7 @@ namespace Barjonas.Common.Model.Lights
                 _data[channelOneBased] = level;
                 if (_sendUpdates)
                 {
-                    _sendUpdate?.Invoke(_data);
+                    SendUpdate?.Invoke(_data);
                 }
                 else
                 {
