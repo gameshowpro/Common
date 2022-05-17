@@ -34,11 +34,7 @@ namespace Barjonas.Common.Model.Lights
         private void Create(StatePresetGroups depersistedGroups, List<FixtureSettings> depersistedSettings)
         {
             IEnumerable<StatePresetGroup> defaultPresetGroups = BuildPresetGroups();
-            if (_presetGroups == null)
-            {
-                _presetGroups = new StatePresetGroups();
-            }
-
+            _presetGroups = depersistedGroups;
             SyncPresetGroups(ref _presetGroups, defaultPresetGroups);
             _presetGroups.AddChannelTypes();
             bool startIdsAreInvalid = this.Count(f => f.StartId == 0) > 1;
