@@ -15,6 +15,8 @@ namespace Barjonas.Common.Model.Lights
     /// </summary>
     public class Fixture : NotifyingClass
     {
+        public event Action? FlashStarting;
+        public event Action? FlashEnded;
         public Fixture(
             string key,
             string displayName,
@@ -178,7 +180,9 @@ namespace Barjonas.Common.Model.Lights
 
         private void CurrentState_Flash(object? sender, IReadOnlyList<StatePresetChannel> e)
         {
+            FlashStarting?.Invoke();
             ApplyStatePreset(e);
+            FlashEnded?.Invoke();
         }
 
         public void DeserializationComplete()
