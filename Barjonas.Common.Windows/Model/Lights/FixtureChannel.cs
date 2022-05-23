@@ -11,7 +11,7 @@ namespace Barjonas.Common.Model.Lights
     /// </summary>
     public class FixtureChannel : NotifyingClass
     {
-        internal event EventHandler<byte> LevelChanged;
+        internal event EventHandler<byte>? LevelChanged;
         private FixtureChannelType _fixtureChannelType;
         public FixtureChannelType FixtureChannelType
         {

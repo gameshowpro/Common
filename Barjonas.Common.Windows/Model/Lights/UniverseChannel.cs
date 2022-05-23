@@ -75,7 +75,7 @@ namespace Barjonas.Common.Model.Lights
             }
         }
 
-        private void MasterChannel_LevelChanged(object sender, byte e)
+        private void MasterChannel_LevelChanged(object? sender, byte e)
         {
             Level = e;
         }
