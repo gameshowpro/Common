@@ -406,8 +406,8 @@ namespace Barjonas.Common
         private static readonly HashSet<char> s_invalidFileNameChars = new(Path.GetInvalidFileNameChars());
         public static string MakeValidFilename(this string input)
         {
-            var chars = input.ToCharArray();
-            var changed = false;
+            char[]? chars = input.ToCharArray();
+            bool changed = false;
             for (var i = 0; i < chars.Length; i++)
             {
                 if (s_invalidFileNameChars.Contains(chars[i]))
@@ -418,7 +418,7 @@ namespace Barjonas.Common
             }
             if (changed)
             {
-                return chars.ToString();
+                return chars?.ToString() ?? string.Empty;
             }
             else
             {
@@ -994,12 +994,12 @@ namespace Barjonas.Common
         private static void RenameBrokenFile(string path, Logger? logger = null)
         {
             int i = 1;
-            string dir = Path.GetDirectoryName(path);
+            string? dir = Path.GetDirectoryName(path);
             string pathNoExt = Path.GetFileNameWithoutExtension(path);
             string ext = Path.GetExtension(path);
             while (true)
             {
-                string newPath = Path.Combine(dir, $"{pathNoExt}.broken.{i}{ext}");
+                string newPath = Path.Combine(dir ?? "", $"{pathNoExt}.broken.{i}{ext}");
                 if (!File.Exists(newPath))
                 {
                     try
@@ -1025,8 +1025,11 @@ namespace Barjonas.Common
         /// <param name="path">A path to a directory, or a file in a directory.</param>
         public static void EnsureDirectory(string path)
         {
-            string dir = Path.GetDirectoryName(path);
-            Directory.CreateDirectory(dir);
+            string? dir = Path.GetDirectoryName(path);
+            if (dir is not null)
+            {
+                Directory.CreateDirectory(dir);
+            }
         }
 
         /// <summary>
@@ -1328,6 +1331,28 @@ namespace Barjonas.Common
             }
         }
 
+        public static IEnumerable<string>? DelimitedStringToNonNullableString(string delimited, string delimiter, string nullStringPlaceholder = "?", bool exceptionOnFailure = false)
+        {
+            IEnumerable<string?>? result = DelimitedStringToNullableString(delimited, delimiter, nullStringPlaceholder);
+            if (exceptionOnFailure && result?.Any(t => t is null) == true)
+            {
+                throw new Exception("String parsing failed");
+            }
+            return result?.Select(t => t ?? nullStringPlaceholder);
+        }
+
+
+        public static IEnumerable<string?>? DelimitedStringToNullableString(string delimited, string delimiter, string? nullStringPlaceholder = "?", bool exceptionOnFailure = false)
+        {
+            if (string.IsNullOrWhiteSpace(delimited))
+            {
+                return null;
+            }
+            string[] parts = delimited.Split(new string[] { delimiter }, StringSplitOptions.None);
+            return parts.Select(p => p.Length > 1 && p.FirstOrDefault() == ' ' ? p.TrimStart() : p.ToString()).Select(p => string.IsNullOrEmpty(p) || p == nullStringPlaceholder ? null : p.ToString());
+        }
+
+
         public static IEnumerable<T>? DelimitedStringToNonNullableType<T>(string delimited, string delimiter, int offset = 0, string nullStringPlaceholder = "?", bool exceptionOnFailure = false)
             where T : struct
         {
@@ -1349,11 +1374,7 @@ namespace Barjonas.Common
             string[] parts = delimited.Split(new string[] { delimiter }, StringSplitOptions.None);
             Type targetType = typeof(T);
             //Todo: special handling for strings, because they won't main it through constraint
-            if (Nullable.GetUnderlyingType(targetType) == typeof(string))
-            {
-                return (IEnumerable<T?>)parts.Select(p => p.FirstOrDefault() == ' ' ? p.Skip(1) : p).Select(p => (string)p == nullStringPlaceholder ? null : p);
-            }
-            else if (targetType.IsAssignableFrom(typeof(int)))
+            if (targetType.IsAssignableFrom(typeof(int)))
             {
                 IEnumerable<int?> result = parts.Select<string, int?>(s => int.TryParse(s.Trim(), out int i) ? i - (int)offset : null);
                 return (IEnumerable<T?>)result;
@@ -1391,7 +1412,7 @@ namespace Barjonas.Common
         {
             const string BuildVersionMetadataPrefix = "+build";
 
-            AssemblyInformationalVersionAttribute attribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            AssemblyInformationalVersionAttribute? attribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
             if (attribute?.InformationalVersion != null)
             {
                 string value = attribute.InformationalVersion;

@@ -1,6 +1,7 @@
 ﻿// (C) Barjonas LLC 2022
 using System;
 using System.Collections.Generic;
+using System.Linq;
 #nullable enable
 namespace Barjonas.Common.BaseConverters;
 
@@ -9,13 +10,14 @@ public enum StringConverterJoinType
     Comma,
     Simple,
     Newline,
-    Bullet
+    Bullet,
+    Tilda
 }
 public abstract class EnumerableToStringConverter : ICommonValueConverter
 {
     private const string NullStringPlaceholder = "NullPlaceholder";
     private const string NullNumberPlaceholder = "";
-    private static readonly string[] s_joinTypes = new string[] { ", ", "", "\n", "\n\u2022" };
+    private static readonly string[] s_joinTypes = new string[] { ", ", "", "\n", "\n\u2022", "~" };
     public StringConverterJoinType JoinType { get; set; } = StringConverterJoinType.Comma;
     public bool IncludeEmptyItems { get; set; } = false;
     public int IntUiOffset { get; set; } = 1;
@@ -94,6 +96,8 @@ public abstract class EnumerableToStringConverter : ICommonValueConverter
 
     public object? ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
     {
+        //To do - find a more graceful way to strongly-type all the most common implementations of IEnumerable<T>, including List, Array, ImmutableList, HashSet
+        //Probably use TargetType to break out collection type and item type... make IEnumerable of correct item type, then convert to correct collection type at end using linq.
         string seperator = s_joinTypes[(int)JoinType];
         if (value is string valstr)
         {
@@ -105,9 +109,21 @@ public abstract class EnumerableToStringConverter : ICommonValueConverter
             {
                 //return Utils.DelimitedStringToNonNullableType<string>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
             }
+            else if (targetType.IsAssignableFrom(typeof(IEnumerable<string>)))
+            {
+                return Utils.DelimitedStringToNonNullableString(valstr, seperator, NullStringPlaceholder) ?? _doNothing;
+            }
+            else if (targetType.IsAssignableFrom(typeof(string[])))
+            {
+                return Utils.DelimitedStringToNonNullableString(valstr, seperator, NullStringPlaceholder)?.ToArray() ?? _doNothing;
+            }
             else if (targetType.IsAssignableFrom(typeof(IEnumerable<int>)))
             {
                 return Utils.DelimitedStringToNonNullableType<int>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
+            }
+            else if (targetType.IsAssignableFrom(typeof(int[])))
+            {
+                return Utils.DelimitedStringToNonNullableType<int>(valstr, seperator, IntUiOffset, NullStringPlaceholder)?.ToArray() ?? _doNothing;
             }
             else if (targetType.IsAssignableFrom(typeof(IEnumerable<int?>)))
             {
