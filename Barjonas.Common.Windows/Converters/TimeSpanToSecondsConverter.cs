@@ -10,7 +10,7 @@ namespace Barjonas.Common.Converters
     public class TimeSpanToSecondsConverter : IValueConverter
     {
         public bool IntCeiling { get; set; }
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is TimeSpan span)
             {
@@ -33,7 +33,7 @@ namespace Barjonas.Common.Converters
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
             {

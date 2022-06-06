@@ -9,7 +9,6 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using Microsoft.Xaml.Behaviors;
-using static Barjonas.Common.Wpf.Utils;
 
 namespace Barjonas.Common.View;
 

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 #nullable enable
 namespace Barjonas.Common.Model
 {
@@ -65,15 +66,18 @@ namespace Barjonas.Common.Model
 
         private void AddWithNotification(KeyValuePair<TKey, TValue> item) => AddWithNotification(item.Key, item.Value);
 
-        private void AddWithNotification(TKey key, TValue value)
+        private void AddWithNotification(TKey key, TValue? value)
         {
-            _dictionary.Add(key, value);
-            AttachItemChangeHandler(value);
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add,
-                new KeyValuePair<TKey, TValue>(key, value)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
+            if (value is not null)
+            {
+                _dictionary.Add(key, value);
+                AttachItemChangeHandler(value);
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add,
+                    new KeyValuePair<TKey, TValue>(key, value)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
+            }
         }
 
         private bool RemoveWithNotification(TKey key)
@@ -93,16 +97,19 @@ namespace Barjonas.Common.Model
             return false;
         }
 
-        private void UpdateWithNotification(TKey key, TValue value)
+        private void UpdateWithNotification(TKey key, TValue? value)
         {
             if (_dictionary.TryGetValue(key, out TValue? existing))
             {
                 DetatchItemChangeHandler(existing);
-                _dictionary[key] = value;
-                AttachItemChangeHandler(value);
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
-                    new KeyValuePair<TKey, TValue>(key, value),
-                    new KeyValuePair<TKey, TValue>(key, existing)));
+                if (value is not null)
+                {
+                    _dictionary[key] = value;
+                    AttachItemChangeHandler(value);
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
+                        new KeyValuePair<TKey, TValue>(key, value),
+                        new KeyValuePair<TKey, TValue>(key, existing)));
+                }
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Values"));
             }
             else
@@ -157,7 +164,7 @@ namespace Barjonas.Common.Model
         /// <returns>
         /// true if the object that implements <see cref="T:System.Collections.Generic.IDictionary`2" /> contains an element with the specified key; otherwise, false.
         /// </returns>
-        public bool TryGetValue(TKey key, out TValue value) => _dictionary.TryGetValue(key, out value);
+        public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) => _dictionary.TryGetValue(key, out value);
 
         /// <summary>
         /// Gets an <see cref="T:System.Collections.Generic.ICollection`1" /> containing the values in the <see cref="T:System.Collections.Generic.IDictionary`2" />.
@@ -206,10 +213,10 @@ namespace Barjonas.Common.Model
 
         public bool IsSynchronized => ((ICollection)_dictionary).IsSynchronized;
 
-        public object this[object key]
+        public object? this[object key]
         {
             get => _dictionary[(TKey)key];
-            set => UpdateWithNotification((TKey)key, (TValue)value);
+            set => UpdateWithNotification((TKey)key, (TValue?)value);
         }
 
         bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item) => RemoveWithNotification(item.Key);
@@ -224,7 +231,7 @@ namespace Barjonas.Common.Model
 
         public bool Contains(object key) => ContainsKey((TKey)key);
 
-        public void Add(object key, object value) => AddWithNotification((TKey)key, (TValue)value);
+        public void Add(object key, object? value) => AddWithNotification((TKey)key, (TValue?)value);
 
         public void Clear()
         {

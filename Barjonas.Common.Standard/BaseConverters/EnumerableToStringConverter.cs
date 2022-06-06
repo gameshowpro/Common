@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Immutable;
+using Barjonas.Common.Model;
+using System.Collections.ObjectModel;
 #nullable enable
 namespace Barjonas.Common.BaseConverters;
 
@@ -15,8 +18,8 @@ public enum StringConverterJoinType
 }
 public abstract class EnumerableToStringConverter : ICommonValueConverter
 {
-    private const string NullStringPlaceholder = "NullPlaceholder";
-    private const string NullNumberPlaceholder = "";
+    public string NullStringPlaceholder { get; set; } = "NullPlaceholder";
+    public string NullNumberPlaceholder { get; set; } = "";
     private static readonly string[] s_joinTypes = new string[] { ", ", "", "\n", "\n\u2022", "~" };
     public StringConverterJoinType JoinType { get; set; } = StringConverterJoinType.Comma;
     public bool IncludeEmptyItems { get; set; } = false;
@@ -96,73 +99,116 @@ public abstract class EnumerableToStringConverter : ICommonValueConverter
 
     public object? ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
     {
+        Type? itemType = null;
+        if (targetType.IsGenericType)
+        {
+            if (targetType.GenericTypeArguments.Length == 1)
+            {
+                itemType = targetType.GenericTypeArguments[0];
+            }
+        }
+        else if(targetType.IsArray)
+        {
+            itemType = targetType.GetElementType();
+        }
+        if (itemType is null)
+        {
+            return _doNothing;
+        }
+        Type? underlyingNullableItemType = Nullable.GetUnderlyingType(itemType);
         //To do - find a more graceful way to strongly-type all the most common implementations of IEnumerable<T>, including List, Array, ImmutableList, HashSet
         //Probably use TargetType to break out collection type and item type... make IEnumerable of correct item type, then convert to correct collection type at end using linq.
         string seperator = s_joinTypes[(int)JoinType];
         if (value is string valstr)
         {
-            if (targetType.IsAssignableFrom(typeof(IEnumerable<string?>)))
+            if (underlyingNullableItemType == null)
             {
-                //return Utils.DelimitedStringToNullableType<string>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
+                if (itemType == typeof(string))
+                {
+                    return ToEnumerableImplementation(Utils.DelimitedStringToNonNullableString(valstr, seperator, NullStringPlaceholder), targetType) ?? _doNothing;
+                }
+                else if (itemType == typeof(int))
+                {
+                    return ToEnumerableImplementation(Utils.DelimitedStringToNonNullableType<int>(valstr, seperator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                }
+                else if (itemType == typeof(uint))
+                {
+                    return ToEnumerableImplementation(Utils.DelimitedStringToNonNullableType<uint>(valstr, seperator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                }
+                else if (itemType == typeof(long))
+                {
+                    return ToEnumerableImplementation(Utils.DelimitedStringToNonNullableType<long>(valstr, seperator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                }
+                else if (itemType == typeof(ulong))
+                {
+                    return ToEnumerableImplementation(Utils.DelimitedStringToNonNullableType<ulong>(valstr, seperator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                }
+                else if (itemType == typeof(bool))
+                {
+                    return ToEnumerableImplementation(Utils.DelimitedStringToNonNullableType<bool>(valstr, seperator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                }
             }
-            else if (targetType.IsAssignableFrom(typeof(IEnumerable<string>)))
+            else if (underlyingNullableItemType == typeof(string))
             {
-                //return Utils.DelimitedStringToNonNullableType<string>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
+                return ToEnumerableImplementation(Utils.DelimitedStringToNullableString(valstr, seperator, NullStringPlaceholder), targetType) ?? _doNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(IEnumerable<string>)))
+            
+            else if (underlyingNullableItemType == typeof(int))
             {
-                return Utils.DelimitedStringToNonNullableString(valstr, seperator, NullStringPlaceholder) ?? _doNothing;
+                return ToEnumerableImplementation(Utils.DelimitedStringToNullableType<int>(valstr, seperator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(string[])))
+            
+            else if (underlyingNullableItemType == typeof(uint))
             {
-                return Utils.DelimitedStringToNonNullableString(valstr, seperator, NullStringPlaceholder)?.ToArray() ?? _doNothing;
+                return ToEnumerableImplementation(Utils.DelimitedStringToNullableType<uint>(valstr, seperator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(IEnumerable<int>)))
+            
+            else if (underlyingNullableItemType == typeof(long))
             {
-                return Utils.DelimitedStringToNonNullableType<int>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
+                return ToEnumerableImplementation(Utils.DelimitedStringToNullableType<long>(valstr, seperator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(int[])))
+            
+            else if (underlyingNullableItemType == typeof(ulong))
             {
-                return Utils.DelimitedStringToNonNullableType<int>(valstr, seperator, IntUiOffset, NullStringPlaceholder)?.ToArray() ?? _doNothing;
+                return ToEnumerableImplementation(Utils.DelimitedStringToNullableType<ulong>(valstr, seperator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
             }
-            else if (targetType.IsAssignableFrom(typeof(IEnumerable<int?>)))
+            
+            else if (underlyingNullableItemType == typeof(bool))
             {
-                return Utils.DelimitedStringToNullableType<int>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
-            }
-            else if (targetType.IsAssignableFrom(typeof(IEnumerable<uint>)))
-            {
-                return Utils.DelimitedStringToNonNullableType<uint>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
-            }
-            else if (targetType.IsAssignableFrom(typeof(IEnumerable<uint?>)))
-            {
-                return Utils.DelimitedStringToNullableType<uint>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
-            }
-            else if (targetType.IsAssignableFrom(typeof(IEnumerable<long>)))
-            {
-                return Utils.DelimitedStringToNonNullableType<long>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
-            }
-            else if (targetType.IsAssignableFrom(typeof(IEnumerable<long?>)))
-            {
-                return Utils.DelimitedStringToNullableType<long>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
-            }
-            else if (targetType.IsAssignableFrom(typeof(IEnumerable<ulong>)))
-            {
-                return Utils.DelimitedStringToNonNullableType<ulong>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
-            }
-            else if (targetType.IsAssignableFrom(typeof(IEnumerable<ulong?>)))
-            {
-                return Utils.DelimitedStringToNullableType<ulong>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
-            }
-            else if (targetType.IsAssignableFrom(typeof(IEnumerable<bool>)))
-            {
-                return Utils.DelimitedStringToNonNullableType<bool>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
-            }
-            else if (targetType.IsAssignableFrom(typeof(IEnumerable<bool?>)))
-            {
-                return Utils.DelimitedStringToNullableType<bool>(valstr, seperator, IntUiOffset, NullStringPlaceholder) ?? _doNothing;
+                return ToEnumerableImplementation(Utils.DelimitedStringToNullableType<bool>(valstr, seperator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
             }
         }
         return _doNothing;
     }
+
+    private static object? ToEnumerableImplementation<T>(IEnumerable<T>? source, Type targetType)
+    {
+        if (targetType.IsArray)
+        {
+            return source?.ToArray();
+        }
+        else if (targetType.IsAssignableFrom(typeof(ImmutableList<T>)))
+        {
+            return source?.ToImmutableList();
+        }
+        else if (targetType.IsAssignableFrom(typeof(ImmutableHashSet<T>)))
+        {
+            return source?.ToImmutableHashSet();
+        }
+        else if (targetType.IsAssignableFrom(typeof(ObservableCollection<T>)))
+        {
+            return source is null ? null : new ObservableCollection<T>(source.ToList());
+        }
+        else if (targetType.IsAssignableFrom(typeof(List<T>)))
+        {
+            return source?.ToList();
+        }
+        else if (targetType.IsAssignableFrom(typeof(HashSet<T>)))
+        {
+            return source?.ToHashSet();
+        }
+        return source;
+    }
+       
 }
 #nullable restore

@@ -11,9 +11,9 @@ namespace Barjonas.Common.Converters
 {
     public class EnumToObjectArray : MarkupExtension, IValueConverter
     {
-        public BindingBase SourceEnum { get; set; }
+        public BindingBase? SourceEnum { get; set; }
 
-        private readonly Type _type;
+        private readonly Type? _type;
 
         public EnumToObjectArray()
         {
@@ -24,7 +24,7 @@ namespace Barjonas.Common.Converters
             _type = type;
         }
 
-        public override object ProvideValue(IServiceProvider serviceProvider)
+        public override object? ProvideValue(IServiceProvider serviceProvider)
         {
             Type typeToUse;
             if (_type == null)
@@ -57,7 +57,7 @@ namespace Barjonas.Common.Converters
             return TypeToList(typeToUse);
         }
 
-        private static object TypeToList(Type type)
+        private static object? TypeToList(Type type)
         {
             if (type == null)
             {
@@ -68,12 +68,12 @@ namespace Barjonas.Common.Converters
                             .Select(e => new { Value = e, Name = e.ToString(), DisplayName = e.Description(), Underlying = e.UnderlyingValue() });
         }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return TypeToList((Type)value);
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

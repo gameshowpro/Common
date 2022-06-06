@@ -85,8 +85,10 @@ namespace Barjonas.Common.View
                 int childrenCount = VisualTreeHelper.GetChildrenCount(grid);
                 for (int i = 0; i < childrenCount; i++)
                 {
-                    var child = VisualTreeHelper.GetChild(grid, i) as FrameworkElement;
-                    UpdateChildBinding(child, property, path);
+                    if (VisualTreeHelper.GetChild(grid, i) is FrameworkElement child)
+                    {
+                        UpdateChildBinding(child, property, path);
+                    }
                 }
             }
         }

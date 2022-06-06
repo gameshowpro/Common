@@ -80,9 +80,9 @@ namespace Barjonas.Common.Model
 
         public bool HasErrors { get { return !IdIsValid; } }
 
-        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+        public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
 
-        public IEnumerable GetErrors(string propertyName)
+        public IEnumerable GetErrors(string? propertyName)
         {
             if (!_idIsValid && propertyName == nameof(Id))
             {

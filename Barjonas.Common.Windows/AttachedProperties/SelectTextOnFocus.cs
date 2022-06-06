@@ -18,9 +18,8 @@ namespace Barjonas.Common.AttachedProperties
 
         private static void ActivePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is TextBox)
+            if (d is TextBox textBox)
             {
-                TextBox textBox = d as TextBox;
                 if ((e.NewValue as bool?).GetValueOrDefault(false))
                 {
                     textBox.GotKeyboardFocus += OnKeyboardFocusSelectText;
@@ -36,7 +35,7 @@ namespace Barjonas.Common.AttachedProperties
 
         private static void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            DependencyObject dependencyObject = GetParentFromVisualTree(e.OriginalSource);
+            DependencyObject? dependencyObject = GetParentFromVisualTree(e.OriginalSource);
 
             if (dependencyObject == null)
             {
@@ -51,9 +50,9 @@ namespace Barjonas.Common.AttachedProperties
             }
         }
 
-        private static DependencyObject GetParentFromVisualTree(object source)
+        private static DependencyObject? GetParentFromVisualTree(object source)
         {
-            DependencyObject parent = source as UIElement;
+            DependencyObject? parent = source as UIElement;
             while (parent != null && !(parent is TextBox))
             {
                 parent = VisualTreeHelper.GetParent(parent);

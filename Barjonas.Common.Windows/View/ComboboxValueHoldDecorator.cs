@@ -36,8 +36,7 @@ namespace Barjonas.Common.View
         private static void ItemsSourcePropertyChanged(DependencyObject element,
                         DependencyPropertyChangedEventArgs e)
         {
-            var target = element as Selector;
-            if (element == null)
+            if (element is not Selector target)
             {
                 return;
             }
@@ -63,7 +62,7 @@ namespace Barjonas.Common.View
                 {
                     if (selectedIndex.HasValue)
                     {
-                        object value = ItemAt(target.ItemsSource, selectedIndex.Value);
+                        object? value = ItemAt(target.ItemsSource, selectedIndex.Value);
                         if (value != null)
                         {
                             element.SetValue(Selector.SelectedIndexProperty, selectedIndex.Value);
@@ -78,8 +77,9 @@ namespace Barjonas.Common.View
             }
         }
 
-        private static object ItemAt(IEnumerable list, int index)
+        private static object? ItemAt(IEnumerable? list, int index)
         {
+            if (list == null) return null;
             IEnumerator enumerator = list.GetEnumerator();
             if (index < 0)
             {

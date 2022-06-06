@@ -564,7 +564,7 @@ namespace Barjonas.Common.Model
             HashSet<string> remainingKeys = new(Children.Keys);
             foreach(ServiceState child in children)
             {
-                if (Children.TryGetValue(child.Key, out ServiceState existingChild))
+                if (Children.TryGetValue(child.Key, out ServiceState? existingChild))
                 {
                     existingChild.UpdateFrom(child);
                     remainingKeys.Remove(child.Key);

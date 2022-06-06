@@ -47,7 +47,7 @@ namespace Barjonas.Common.Model
             ApplySettings();
         }
 
-        private void Window_Closing(object sender, CancelEventArgs e)
+        private void Window_Closing(object? sender, CancelEventArgs e)
         {
             e.Cancel = true;
             CurrentSettings.IsVisible = false;
@@ -56,7 +56,7 @@ namespace Barjonas.Common.Model
         public Window Window { get; }
         public Settings CurrentSettings { get; }
 
-        private void _settings_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void _settings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {

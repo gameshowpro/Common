@@ -6,7 +6,7 @@ namespace Barjonas.Common.Model.Lights
 {
     public class UniverseChannel : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private readonly Universe _universe;
 
         /// <summary>
@@ -49,11 +49,11 @@ namespace Barjonas.Common.Model.Lights
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MasterChannel)));
         }
 
-        private FixtureChannel _masterChannel;
+        private FixtureChannel? _masterChannel;
         /// <summary>
         /// This is a abstract lighting channel bound into a client object model.  If set, the Dmx.Channel class will act as a slave to the master's values.
         /// </summary>
-        public FixtureChannel MasterChannel
+        public FixtureChannel? MasterChannel
         {
             get { return _masterChannel; }
             set

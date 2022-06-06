@@ -40,7 +40,7 @@ namespace Barjonas.Common.Wpf
           where T : DependencyObject
         {
             //get parent item
-            DependencyObject parentObject = GetParentObject(child);
+            DependencyObject? parentObject = GetParentObject(child);
 
             //we've reached the end of the tree
             if (parentObject == null)

@@ -172,16 +172,5 @@ namespace Barjonas.Common.Model
                 return n;
             }
         }
-
-        public bool TryGetValue(TKey key, out TItem value)
-        {
-            if (key != null && Contains(key))
-            {
-                value = this[key];
-                return true;
-            }
-            value = default;
-            return false;
-        }
     }
 }

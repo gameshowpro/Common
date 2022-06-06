@@ -13,7 +13,7 @@ namespace Barjonas.Common.Model.Lights
     /// </summary>
     public class StateLevels : NotifyingClass
     {
-        internal event EventHandler<IReadOnlyList<StatePresetChannel>> Flash;
+        internal event EventHandler<IReadOnlyList<StatePresetChannel>>? Flash;
 
         public StateLevels()
         {

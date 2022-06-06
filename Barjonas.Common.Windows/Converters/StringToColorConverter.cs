@@ -11,9 +11,9 @@ namespace Barjonas.Common.Windows.Converters
 {
     public class StringToColorConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            Color fallback;
+            Color? fallback = null;
             switch (parameter)
             {
                 case null:
@@ -23,18 +23,27 @@ namespace Barjonas.Common.Windows.Converters
                     fallback = c;
                     break;
                 default:
-                    UtilsWindows.TryStringToColor(parameter.ToString(), out fallback, null);
+                    string? p = parameter?.ToString();
+                    if (p is not null)
+                    {
+                        UtilsWindows.TryStringToColor(p, out fallback, null);
+                    }
                     break;
             }
             if (value == null)
             {
                 return fallback;
             }
-            _ = UtilsWindows.TryStringToColor(value.ToString(), out Color result, fallback);
-            return result;
+            string? v = value?.ToString();
+            if (v is not null)
+            {
+                _ = UtilsWindows.TryStringToColor(v, out Color? result, fallback);
+                return result;
+            }
+            return null;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

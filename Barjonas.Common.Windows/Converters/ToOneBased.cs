@@ -8,7 +8,7 @@ namespace Barjonas.Common.Converters
 {
     public class ToOneBased : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
             {
@@ -21,7 +21,7 @@ namespace Barjonas.Common.Converters
             return (int)value + 1;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
             {
