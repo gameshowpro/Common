@@ -24,9 +24,9 @@ namespace Barjonas.Common
         /// </summary>
         /// <param name="wnd">The Window to size.</param>
         /// <param name="index">The index of the target screen, where zero is always the primary.</param>
-        public static void SetAsKiosk(this Window wnd, int index, ref WindowRestoreState prevState)
+        public static void SetAsKiosk(this Window wnd, int index, ref WindowRestoreState? prevState)
         {
-            WindowRestoreState restoreTo = prevState;
+            WindowRestoreState? restoreTo = prevState;
             prevState = new WindowRestoreState(wnd);
             if (index > -1 && SizeWindowToScreen(wnd, index))
             {
@@ -176,7 +176,7 @@ namespace Barjonas.Common
         /// <typeparam name="TCommand">Type of command enum which is decorated with <seealso cref="TriggerParameters"/> </typeparam>
         /// <typeparam name="T">Type of trigger</typeparam>
         /// <param name="factory">A factory to create triggers.</param>
-        /// <param name="dict">A dictionary dictionary of triggers keyed by command, which will be updated</param>
+        /// <param name="dict">A dictionary of triggers keyed by command, which will be updated</param>
         /// <returns></returns>
         public static List<TTrigger> BuildTriggerList<TCommand, TTrigger>(
             Func<IncomingTriggerSetting, TTrigger> factory,
@@ -218,12 +218,40 @@ namespace Barjonas.Common
         }
 
         /// <summary>
+        /// Build a list of <seealso cref="IncomingTrigger"/> based on a count only. No custom property values will be applied.
+        /// </summary>
+        /// <typeparam name="T">Type of trigger</typeparam>
+        /// <param name="factory">A factory to create triggers.</param>
+        /// <param name="dict">A dictionary dictionary of triggers keyed by command, which will be updated</param>
+        /// <returns></returns>
+        public static List<TTrigger> BuildTriggerList<TTrigger>(
+            Func<IncomingTriggerSetting, TTrigger> factory,
+            byte count,
+            IncomingTriggerSettings settings,
+            bool removeUntouchedSettings
+        )
+        where TTrigger : IncomingTrigger
+        {
+            var triggers = new List<TTrigger>();
+            for (byte index = 0; index < count; index++)
+            {
+                TTrigger trigger = factory(settings.GetOrCreate(index.ToString(), $"Trigger {index}", index, TriggerFilter.All, TimeSpan.FromSeconds(1)));
+                triggers.Add(trigger);
+            }
+            if (removeUntouchedSettings)
+            {
+                settings.RemoveUntouched();
+            }
+            return triggers;
+        }
+
+        /// <summary>
         /// Try to convert a given string to a Windows Media Color, based on ColorConverter but with potential added functionality in future.
         /// </summary>
         /// <param name="input"></param>
         /// <param name="color"></param>
         /// <param name="fallback"></param>
-        public static bool TryStringToColor(string input, out System.Windows.Media.Color color, System.Windows.Media.Color? fallback = null)
+        public static bool TryStringToColor(string input, [NotNull] out System.Windows.Media.Color? color, System.Windows.Media.Color? fallback = null)
         {
             try
             {
