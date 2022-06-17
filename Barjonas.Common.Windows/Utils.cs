@@ -250,8 +250,7 @@ namespace Barjonas.Common
         /// </summary>
         /// <param name="input"></param>
         /// <param name="color"></param>
-        /// <param name="fallback"></param>
-        public static bool TryStringToColor(string input, [NotNull] out System.Windows.Media.Color? color, System.Windows.Media.Color? fallback = null)
+        public static bool TryStringToColor(string input, [NotNullWhen(true)] out System.Windows.Media.Color? color)
         {
             try
             {
@@ -263,7 +262,7 @@ namespace Barjonas.Common
             }
             catch (Exception)
             { }
-            color = fallback ?? System.Windows.Media.Colors.White;
+            color = null;
             return false;
         }
 
