@@ -14,8 +14,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MessagePack.Annotations" Version="2.4.23-alpha" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NLog" Version="4.7.15" />
+    <PackageReference Include="NLog" Version="5.0.1" />
   </ItemGroup>
 
 </Project>
