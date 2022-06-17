@@ -24,11 +24,11 @@ namespace Barjonas.Common.Model
             }
             ServiceState = serviceState;
         }
-        public ImmutableList<IncomingTrigger> Triggers { get; init; }
+        public ImmutableList<IncomingTrigger> Triggers { get; }
         protected ImmutableDictionary<int, ImmutableList<IncomingTrigger>> _triggerDict;
         public string Name { get; }
 
-        public ServiceState ServiceState { get; init; }
+        public ServiceState ServiceState { get; }
 
         private bool _allowDuplicateTriggerIds = false;
         /// <summary>
