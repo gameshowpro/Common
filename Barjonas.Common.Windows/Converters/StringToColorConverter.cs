@@ -26,7 +26,10 @@ namespace Barjonas.Common.Windows.Converters
                     string? p = parameter?.ToString();
                     if (p is not null)
                     {
-                        UtilsWindows.TryStringToColor(p, out fallback, null);
+                        if (!UtilsWindows.TryStringToColor(p, out fallback))
+                        {
+                            fallback = Colors.White;
+                        }
                     }
                     break;
             }
@@ -37,8 +40,11 @@ namespace Barjonas.Common.Windows.Converters
             string? v = value?.ToString();
             if (v is not null)
             {
-                _ = UtilsWindows.TryStringToColor(v, out Color? result, fallback);
-                return result;
+                if (UtilsWindows.TryStringToColor(v, out Color? result))
+                {
+                    return result;
+                }
+                return fallback;
             }
             return null;
         }
