@@ -4,8 +4,12 @@ using System.Collections.Immutable;
 using System.IO;
 using NLog;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 #nullable enable
 namespace Barjonas.Common.Model;
+
+public record SettingsFileSpecification (object Key, string FileName, bool IsWithinLayoutSubfolder);
 
 /// <summary>
 /// A standardized way to store and retreive a set of settings file names against consistent keys.
@@ -14,7 +18,7 @@ namespace Barjonas.Common.Model;
 public class SettingsFileManager
 {
     private static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
-    private readonly ImmutableDictionary<object, string> _fileNames;
+    private readonly ImmutableDictionary<object, SettingsFileSpecification> _fileNames;
 
     /// <summary>
     /// Construct a <see cref="SettingsFileManager"/> with the given data directory and keyed list of files.
@@ -26,9 +30,11 @@ public class SettingsFileManager
     public SettingsFileManager(
         Environment.SpecialFolder rootFolder,
         string? organization,
-        string? project,
-        Dictionary<object, string> fileNames
-    ) : this(rootFolder, rootFolder, organization, project, fileNames) { }
+        string? project, 
+        params SettingsFileSpecification[] fileSpecifications
+    ) 
+    : this(rootFolder, rootFolder, organization, project, fileSpecifications) 
+    { }
 
     /// <summary>
     /// Construct a <see cref="SettingsFileManager"/> with the given data directory and keyed list of files.
@@ -43,7 +49,7 @@ public class SettingsFileManager
         Environment.SpecialFolder legacyFolder,
         string? organization,
         string? project,
-        Dictionary<object, string> fileNames
+        params SettingsFileSpecification[] fileSpecifications
     )
     {
         DataDirectory = GetDirectory(rootFolder, organization, project);
@@ -54,13 +60,13 @@ public class SettingsFileManager
         }
         DataDirectoryUri = new(DataDirectory + @"\", UriKind.Absolute);
         EnsureDataDirectory();
-        _fileNames = fileNames
+        _fileNames = fileSpecifications
             .ToImmutableDictionary(
-                (kv) => kv.Key, 
-                (kv) => Path.Combine(DataDirectory, kv.Value)
+                (fs) => fs.Key,
+                (fs) => fs
             );
 
-        string GetDirectory(Environment.SpecialFolder folder, string? organization, string? project)
+        static string GetDirectory(Environment.SpecialFolder folder, string? organization, string? project)
         {
             string rootPath = Environment.GetFolderPath(folder);
             if (organization == null || project == null)
@@ -132,6 +138,7 @@ public class SettingsFileManager
     /// The absolute path the the data directory.
     /// </summary>
     public string DataDirectory { get; }
+    public Func<string?>? LayoutSubdirectoryGetter { get; set; }
     public Uri DataDirectoryUri { get; }
 
     public void EnsureDataDirectory()
@@ -141,8 +148,44 @@ public class SettingsFileManager
     /// Get the abosolute path associated with the given key, which is most commonly a <see cref="Type"/>.
     /// </summary>
     /// <param name="key">The key associated with the path, which is most commonly a <see cref="Type"/></param>
-    public string GetPath(object key)
-        => _fileNames[key];
+    public string? GetPath(object key)
+    {
+        if (TryGetPath(key, out string? path))
+        {
+            return path;
+        }
+        return null;
+    }
+
+
+    /// <summary>
+    /// Try to get the abosolute path associated with the given key, which is most commonly a <see cref="Type"/>.
+    /// </summary>
+    /// <param name="key">The key associated with the path, which is most commonly a <see cref="Type"/></param>
+    public bool TryGetPath(object key, [NotNullWhen(true)] out string? path)
+    {
+        if (_fileNames.TryGetValue(key, out SettingsFileSpecification? settingsFile))
+        {
+            if (settingsFile.IsWithinLayoutSubfolder)
+            {
+                string? layoutSubdirectory = LayoutSubdirectoryGetter?.Invoke();
+                if (string.IsNullOrWhiteSpace(layoutSubdirectory))
+                {
+                    path = null;
+                    return false;
+                }
+                path = Path.Combine(DataDirectory, layoutSubdirectory, settingsFile.FileName);
+                return true;
+            }
+            else
+            {
+                path = Path.Combine(DataDirectory, settingsFile.FileName);
+                return true;
+            }
+        }
+        path = null;
+        return false;
+    }
 
     /// <summary>
     /// Deperist an object from file path which was keyed by its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
