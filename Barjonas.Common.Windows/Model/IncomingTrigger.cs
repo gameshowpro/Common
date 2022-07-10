@@ -24,7 +24,7 @@ namespace Barjonas.Common.Model
         {
             _lastTrigger.Start();
             Setting = setting;
-            SimulateTriggerCommand = new RelayCommand<bool?>((latch) => { if (latch == true) { IsDown = !_isDown; } else { IsDown = true; IsDown = false; } });
+            SimulateTriggerCommand = new RelayCommand<bool?>((latch) => { if (latch == true) { IsDown = !_isDown; } else { DoTriggered(); } });
             ToggleIsEnabledCommand = new(() => { Setting.IsEnabled = !Setting.IsEnabled; });
         }
 
