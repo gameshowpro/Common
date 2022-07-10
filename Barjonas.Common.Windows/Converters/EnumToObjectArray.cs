@@ -29,24 +29,18 @@ namespace Barjonas.Common.Converters
             Type typeToUse;
             if (_type == null)
             {
-                DependencyObject targetObject;
-                DependencyProperty targetProperty;
-
-                if (serviceProvider.GetService(typeof(IProvideValueTarget)) is IProvideValueTarget target && target.TargetObject is DependencyObject && target.TargetProperty is DependencyProperty)
+                if (serviceProvider.GetService(typeof(IProvideValueTarget)) is IProvideValueTarget target && target.TargetObject is DependencyObject targetObject && target.TargetProperty is DependencyProperty targetProperty)
                 {
-                    targetObject = (DependencyObject)target.TargetObject;
-                    targetProperty = (DependencyProperty)target.TargetProperty;
+                    BindingOperations.SetBinding(targetObject, s_sourceEnumBindingSinkProperty, SourceEnum);
+                    typeToUse = targetObject.GetValue(s_sourceEnumBindingSinkProperty).GetType();
+                    if (typeToUse.BaseType != typeof(Enum))
+                    {
+                        return null;
+                    }
                 }
                 else
                 {
                     return this;
-                }
-
-               BindingOperations.SetBinding(targetObject, EnumToObjectArray.s_sourceEnumBindingSinkProperty, SourceEnum);
-                typeToUse = targetObject.GetValue(s_sourceEnumBindingSinkProperty).GetType();
-                if (typeToUse.BaseType != typeof(Enum))
-                {
-                    return null;
                 }
             }
             else
