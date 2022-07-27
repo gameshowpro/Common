@@ -14,7 +14,7 @@ namespace Barjonas.Common.Model
     public class IncomingTriggerProxy<TKey> : NotifyingClass, ITrigger
         where TKey : notnull
     {
-        private ImmutableDictionary<TKey, IncomingTrigger> _options;
+        private readonly ImmutableDictionary<TKey, IncomingTrigger> _options;
         public event EventHandler<TriggerArgs>? Triggered;
         public IncomingTriggerProxy(ImmutableDictionary<TKey, IncomingTrigger> options)
         {
@@ -48,14 +48,19 @@ namespace Barjonas.Common.Model
                 {
                     if (previous is not null)
                     {
-                        previous.Triggered -= Triggered;
+                        previous.Triggered -= RelayTrigger;
                     }
                     if (_source is not null)
                     {
-                        _source.Triggered += Triggered;
+                        _source.Triggered += RelayTrigger;
                     }
                 }
             }
+        }
+
+        private void RelayTrigger(object? sender, TriggerArgs args)
+        {
+            Triggered?.Invoke(sender, args);
         }
     }
 }
