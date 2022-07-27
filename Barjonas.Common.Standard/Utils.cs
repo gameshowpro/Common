@@ -484,14 +484,14 @@ namespace Barjonas.Common
             return (((float)lowerCount) / upperLowerCount) > allowedLowerPercent;
         }
 
-        public static string PluralIfRequired(this int number, string singularNoun)
+        public static string PluralIfRequired(this int number, string singularNoun, string pluralSuffix = "s")
         {
-            return $"{number} {singularNoun}{(number == 1 ? "" : "s")}";
+            return $"{number} {singularNoun}{(number == 1 ? "" : pluralSuffix)}";
         }
 
-        public static string PluralIfRequired(this double number, string singularNoun)
+        public static string PluralIfRequired(this double number, string singularNoun, string pluralSuffix = "s")
         {
-            return $"{number} {singularNoun}{(number == 1d ? "" : "s")}";
+            return $"{number} {singularNoun}{(number == 1d ? "" : pluralSuffix)}";
         }
 
         public static string ToSentence(this TimeSpan timespan)
@@ -1371,7 +1371,7 @@ namespace Barjonas.Common
             {
                 return null;
             }
-            string[] parts = delimited.Split(new string[] { delimiter }, StringSplitOptions.None);
+            string[] parts = delimited.Split(new string[] { delimiter.Trim() }, StringSplitOptions.None);
             Type targetType = typeof(T);
             //Todo: special handling for strings, because they won't main it through constraint
             if (targetType.IsAssignableFrom(typeof(int)))
@@ -1454,6 +1454,70 @@ namespace Barjonas.Common
             catch (Exception ex)
             {
                 exceptionHandler?.Invoke(ex);
+            }
+        }
+
+        /// <summary>
+        /// Return a shuffled sequence of numbers, ensuring the first in the sequence does not equal the given number.
+        /// </summary>
+        /// <param name="start">The lowest number in the sequence.</param>
+        /// <param name="count">The length of the sequence.</param>
+        /// <param name="rnd">The random number generator to use.</param>
+        /// <param name="disallowedStart">A number which will not be allowed in the first position.</param>
+        public static int[] ShuffledNumbers(int start, int count, Random rnd, int disallowedStart)
+        {
+            var shuffle = ShuffledNumbers(start, count, rnd);
+            if (shuffle[0] == disallowedStart)
+            {
+                int swap = rnd.Next(1, count);
+                shuffle[0] = shuffle[swap];
+                shuffle[swap] = disallowedStart;
+            }
+            return shuffle;
+        }
+
+        /// <summary>
+        /// Return a shuffled sequence of numbers.
+        /// </summary>
+        /// <param name="start">The lowest number in the sequence.</param>
+        /// <param name="count">The length of the sequence.</param>
+        /// <param name="rnd">The random number generator to use.</param>
+        public static int[] ShuffledNumbers(int start, int count, Random rnd)
+        {
+            int[] indices = Enumerable.Range(0, count).ToArray();
+            for (int remaining = count; remaining > 0; --remaining)
+            {
+                int k = rnd.Next(remaining);
+                int tmp = indices[remaining - 1];
+                indices[remaining - 1] = indices[k];
+                indices[k] = tmp;
+            }
+            if (start != 0)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    indices[i] += start;
+                }
+            }
+            return indices;
+        }
+
+        /// <summary>
+        /// Return a random number excluding one value. Excecution time should be consistent.
+        /// </summary>
+        /// <param name="minimum">Inclusive lower bound.</param>
+        /// <param name="maximumExclusive">The exclusive upper bound.</param>
+        /// <param name="excluding">The integer to exclude.</param>
+        public static int RandomExcluding(int minimum, int maximumExclusive, int excluding, Random rnd)
+        {
+            int r = rnd.Next(minimum, maximumExclusive - 1);
+            if (r >= excluding)
+            {
+                return r + 1;
+            }
+            else
+            {
+                return r;
             }
         }
     }
