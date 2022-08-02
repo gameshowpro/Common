@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using MessagePack;
+using MessagePack.Formatters;
+using Newtonsoft.Json.Linq;
 #nullable enable
 namespace Barjonas.Common.Model;
 
@@ -17,7 +19,7 @@ namespace Barjonas.Common.Model;
 /// Subclasses may extend ServiceState to add a list of sub-services to give a more detailed report of the current state, e.g. Sounds are OK, GPI card not found.
 /// </remarks>
 /// <param name="Progress">Any progress associated with the state. If finished, value should be 1. If not started, value should be 0. If indeterminate, value should be null. This is represented by a constant spinner.</param>
-[MessagePackObject]
+[MessagePackObject, MessagePackFormatter(typeof(MsgPackResolver))]
 public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 {
     public delegate void SetAllDelegate(RemoteServiceStates aggregateState, string? detail, double? progress = 0);
@@ -381,8 +383,21 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     [Key(1)]
     public string Name { get; }
 
-    [Key(5)]
-    public ObservableDictionary<string, ServiceState> Children { get; }
+    [IgnoreMember]
+    private RemoteServiceStates _aggregateState;
+    [Key(2)]
+    public RemoteServiceStates AggregateState
+    {
+        get => _aggregateState;
+        set
+        {
+            if (_aggregateState != value)
+            {
+                _aggregateState = value;
+                PropertyChanged?.Invoke(this, new(nameof(AggregateState)));
+            }
+        }
+    }
 
     [IgnoreMember]
     private string? _detail;
@@ -396,22 +411,6 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             {
                 _detail = value;
                 PropertyChanged?.Invoke(this, new(nameof(Detail)));
-            }
-        }
-    }
-
-    [IgnoreMember]
-    private RemoteServiceStates _aggregateState;
-    [Key(2)]
-    public RemoteServiceStates AggregateState
-    {
-        get => _aggregateState;
-        set
-        {
-            if (_aggregateState != value)
-            {
-                _aggregateState = value;
-                PropertyChanged?.Invoke(this, new(nameof(AggregateState)));
             }
         }
     }
@@ -431,6 +430,9 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             }
         }
     }
+
+    [Key(5)]
+    public ObservableDictionary<string, ServiceState> Children { get; }
 
     public void SetAll(RemoteServiceStates aggregateState, string? detail = "", double? progress = 0)
     {
@@ -601,6 +603,70 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         Progress = other.Progress;
         UpdateChildren(other.Children.Values);
         AllUpdated?.Invoke(this, new ());
+    }
+    public class MsgPackResolver : IMessagePackFormatter<ServiceState>
+    {
+        private const int CurrentFieldCount = 6;
+        public ServiceState Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
+        {
+            int fieldcount = reader.ReadArrayHeader();
+            if (fieldcount < CurrentFieldCount)
+            {
+                throw new MessagePackSerializationException($"Expected at least {CurrentFieldCount} fields. Only found {fieldcount}");
+            }
+            string name = reader.ReadString();
+            string key = reader.IsNil ? name : reader.ReadString();
+            RemoteServiceStates state = (RemoteServiceStates)reader.ReadByte();
+            string? detail = reader.IsNil ? null : reader.ReadString();
+            double? progress = reader.IsNil ? null : reader.ReadDouble();
+            ObservableDictionary<string, ServiceState> children = new();
+            int childCount = reader.ReadArrayHeader();
+            for (int i = 0; i < childCount; i++)
+            {
+                ServiceState child = Deserialize(ref reader, options);
+                children.Add(child.Key, child);
+            }
+            return new ServiceState(name, key, state, detail, progress, children);
+        }
+
+        public void Serialize(ref MessagePackWriter writer, ServiceState value, MessagePackSerializerOptions options)
+        {
+            writer.WriteArrayHeader(CurrentFieldCount);
+            writer.Write(value.Name);
+            WriteNullOrString(ref writer, value.Key);
+            writer.WriteUInt8((byte)value.AggregateState);
+            WriteNullOrString(ref writer, value.Detail);
+            WriteNullOrDouble(ref writer, value.Progress);
+            writer.WriteArrayHeader(value.Children.Count);
+            foreach (ServiceState child in value.Children.Values)
+            {
+                Serialize(ref writer, child, options);
+            }
+        }
+
+        private static void WriteNullOrString(ref MessagePackWriter writer, string? value)
+        {
+            if (value is null)
+            {
+                writer.WriteNil();
+            }
+            else
+            {
+                writer.Write(value);
+            }
+        }
+
+        private static void WriteNullOrDouble(ref MessagePackWriter writer, double? value)
+        {
+            if (value.HasValue)
+            {
+                writer.Write(value.Value);
+            }
+            else
+            {
+                writer.WriteNil();
+            }
+        }
     }
 }
 #nullable restore
