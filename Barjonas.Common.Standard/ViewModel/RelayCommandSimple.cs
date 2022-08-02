@@ -25,7 +25,7 @@ namespace Barjonas.Common.ViewModel
         /// <remarks><seealso cref="CanExecute"/> will always return true.</remarks>
         public RelayCommandSimple(Action execute)
         {
-            _execute = execute ?? throw new ArgumentNullException("execute");
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
         }
 
         public void SetCanExecute(bool canExecute)

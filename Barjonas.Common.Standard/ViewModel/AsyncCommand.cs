@@ -3,21 +3,20 @@
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
-
+#nullable enable
 namespace Barjonas.Common.ViewModel
 {
     /// <summary>
     /// An ICommand implementation with one parameter and customizable CanExecute functionality for executing an async function.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class AsyncCommand<T> : IAsyncCommand<T>
+    public class AsyncCommand<T> : IAsyncCommand<T> where T : notnull
     {
         #region Fields
         private bool _isExecuting;
         private readonly Func<T, Task> _execute;
-        private readonly Func<T, bool> _canExecute;
-        private readonly Action<Exception> _errorHandler;
-
+        private readonly Func<T, bool>? _canExecute;
+        private readonly Action<Exception>? _errorHandler;
         #endregion
 
         #region Constructors
@@ -28,8 +27,8 @@ namespace Barjonas.Common.ViewModel
         /// <param name="canExecute">The execution status logic.</param>
         public AsyncCommand(
             Func<T, Task> execute,
-            Func<T, bool> canExecute = null,
-            Action<Exception> errorHandler = null
+            Func<T, bool>? canExecute = null,
+            Action<Exception>? errorHandler = null
         )
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
@@ -52,7 +51,7 @@ namespace Barjonas.Common.ViewModel
         ///<summary>
         ///Occurs when changes occur that affect whether or not the command should execute.
         ///</summary>
-        public event EventHandler CanExecuteChanged;
+        public event EventHandler? CanExecuteChanged;
         //{
         //    add { CommandManager.RequerySuggested += value; }
         //    remove { CommandManager.RequerySuggested -= value; }
@@ -84,11 +83,17 @@ namespace Barjonas.Common.ViewModel
         #endregion
 
         #region ICommand
-        bool ICommand.CanExecute(object parameter)
-            => CanExecute((T)parameter);
+        bool ICommand.CanExecute(object? parameter)
+            => parameter is null || CanExecute((T)parameter);
 
-        void ICommand.Execute(object parameter)
-            => ExecuteAsync((T)parameter).FireAndForgetSafeAsync(_errorHandler);
+        void ICommand.Execute(object? parameter)
+        {
+            if (parameter != null)
+            {
+                ExecuteAsync((T)parameter).FireAndForgetSafeAsync(_errorHandler);
+            }
+        }
         #endregion
     }
 }
+#nullable restore
