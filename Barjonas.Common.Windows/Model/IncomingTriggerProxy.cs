@@ -21,6 +21,7 @@ namespace Barjonas.Common.Model
             _options = options;
         }
 
+        private bool _firstSetIsDone = false; //If TKey is an enum, the source key will already be set to default, but the source will not be set
         private TKey? _currentSourceKey;
         [DisallowNull]
         public TKey? CurrentSourceKey
@@ -28,9 +29,10 @@ namespace Barjonas.Common.Model
             get => _currentSourceKey;
             set
             {
-                if (SetProperty(ref _currentSourceKey, value) && _options.TryGetValue(value, out IncomingTrigger? newSource))
+                if ((SetProperty(ref _currentSourceKey, value) || !_firstSetIsDone) && _options.TryGetValue(value, out IncomingTrigger? newSource))
                 {
                     Source = newSource;
+                    _firstSetIsDone = true;
                 }
             }
         }
