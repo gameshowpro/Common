@@ -96,6 +96,20 @@ namespace Barjonas.Common.Model
             }
         }
 
+        /// <summary> 
+        /// Adds the elements of the specified collection to the end of the ObservableCollectionEx. 
+        /// </summary> 
+        public void AddRange(IEnumerable<T> collection)
+        {
+            if (collection == null)
+                throw new ArgumentNullException(nameof(collection));
+
+            foreach (T i in collection)
+            {
+                Items.Add(i);
+            }
+        }
+
         private void ChildPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             T typedSender = (T)sender;

@@ -7,6 +7,7 @@ namespace Barjonas.Common.Model
     {
         public string Name { get; }
         public byte DefaultId { get; }
+        public TimeSpan DebounceInterval { get; }
         public TriggerFilter TriggerFilter { get; }
         [Obsolete("This overload is for backwards-compatability only. Specify a TriggerFilter instead.")]
         public TriggerParameters(string name, byte defaultId, bool executeOnFirstInterrupt)
@@ -14,11 +15,12 @@ namespace Barjonas.Common.Model
         {
         }
 
-        public TriggerParameters(string name, byte defaultId, TriggerFilter triggerFilter = TriggerFilter.All)
+        public TriggerParameters(string name, byte defaultId, TriggerFilter triggerFilter = TriggerFilter.All, int debounceIntervalMs = 1000)
         {
             Name = name;
             DefaultId = defaultId;
             TriggerFilter = triggerFilter;
+            DebounceInterval = TimeSpan.FromMilliseconds(debounceIntervalMs);
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Barjonas.Common.ViewModel;
 
 namespace Barjonas.Common.Model
 {
@@ -14,11 +15,12 @@ namespace Barjonas.Common.Model
     public class IncomingTriggerProxy<TKey> : NotifyingClass, ITrigger
         where TKey : notnull
     {
-        private readonly ImmutableDictionary<TKey, IncomingTrigger> _options;
+        public ImmutableDictionary<TKey, IncomingTrigger> Options { get; }
         public event EventHandler<TriggerArgs>? Triggered;
         public IncomingTriggerProxy(ImmutableDictionary<TKey, IncomingTrigger> options)
         {
-            _options = options;
+            Options = options;
+            SimulateTriggerCommand = new((toggle) => Triggered?.Invoke(this, new(toggle)));
         }
 
         private bool _firstSetIsDone = false; //If TKey is an enum, the source key will already be set to default, but the source will not be set
@@ -29,7 +31,7 @@ namespace Barjonas.Common.Model
             get => _currentSourceKey;
             set
             {
-                if ((SetProperty(ref _currentSourceKey, value) || !_firstSetIsDone) && _options.TryGetValue(value, out IncomingTrigger? newSource))
+                if (SetProperty(ref _currentSourceKey, value) && Options.TryGetValue(value, out IncomingTrigger? newSource))
                 {
                     Source = newSource;
                     _firstSetIsDone = true;
@@ -38,7 +40,7 @@ namespace Barjonas.Common.Model
         }
 
         public bool TryGetOption(TKey key, out IncomingTrigger? option)
-            => _options.TryGetValue(key, out option);
+            => Options.TryGetValue(key, out option);
 
         private IncomingTrigger? _source;
         public IncomingTrigger? Source
@@ -64,5 +66,7 @@ namespace Barjonas.Common.Model
         {
             Triggered?.Invoke(sender, args);
         }
+
+        public RelayCommand<bool?> SimulateTriggerCommand { get; private set; }
     }
 }
