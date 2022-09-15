@@ -31,6 +31,18 @@ namespace Barjonas.Common.Model
             }
         }
 
+        private bool _triggerEdge = true;
+        /// <summary>
+        /// The direction of the edge which should cause a trigger. 
+        /// If true, trigger on rising edge, otherwise trigger on falling edge.
+        /// </summary>
+        [JsonProperty]
+        public bool TriggerEdge
+        {
+            get => _triggerEdge;
+            set => _ = SetProperty(ref _triggerEdge, value);
+        }
+
         private int _id = -1;
         [JsonProperty, DefaultValue(-1)]
         public int Id

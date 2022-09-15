@@ -33,7 +33,8 @@ namespace Barjonas.Common.Model
                     Key = key, 
                     Id = defaultId, 
                     Name = name, 
-                    DebounceInterval = debounceInterval
+                    DebounceInterval = debounceInterval,
+                    TriggerEdge = true
                 };
                 Add(trigger);
             }
