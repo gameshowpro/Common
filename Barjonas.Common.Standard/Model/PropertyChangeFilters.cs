@@ -185,10 +185,13 @@ public class PropertyChangeFilters
         AddFilter(handler, (IEnumerable<PropertyChangeCondition>)conditions);
     }
 
-    public void AddFilter(PropertyChangedEventHandler handler, IEnumerable<PropertyChangeCondition> conditions)
+    public void AddFilter(PropertyChangedEventHandler handler, IEnumerable<PropertyChangeCondition>? conditions)
     {
-        var filter = new PropertyChangeFilter(handler, conditions);
-        _filters.Add(filter);
+        if (conditions != null)
+        {
+            var filter = new PropertyChangeFilter(handler, conditions);
+            _filters.Add(filter);
+        }
     }
 
     public void ClearFilters()
