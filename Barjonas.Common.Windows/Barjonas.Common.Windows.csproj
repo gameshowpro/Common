@@ -9,7 +9,7 @@
     <Authors>Hamish Barjonas</Authors>
     <Copyright>Barjonas LLC 2022</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>preview</LangVersion>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <RootNamespace>Barjonas.Common</RootNamespace>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
