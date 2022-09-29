@@ -903,13 +903,22 @@ namespace Barjonas.Common
         }
 
         /// <summary>
-        /// Replace any null IEnumerable with an empty Enumerable. Most useful when running a foreach loop on a nullable IEnumerable.
+        /// Replace any null IEnumerable<typeparamref name="T"/> with an empty Enumerable. Most useful when running a foreach loop on a nullable IEnumerable.
         /// </summary>
         /// <typeparam name="T">Item type</typeparam>
         /// <param name="source">Nullable IEnumerable</param>
         public static IEnumerable<T> NeverNull<T>(this IEnumerable<T>? source)
         {
             return source ?? Enumerable.Empty<T>();
+        }
+
+        /// <summary>
+        /// Replace any null non-generic IEnumerable with an empty Enumerable. Most useful when running a foreach loop on a nullable IEnumerable.
+        /// </summary>
+        /// <param name="source">Nullable IEnumerable</param>
+        public static IEnumerable NeverNull(this IEnumerable? source)
+        {
+            return source ?? Enumerable.Empty<object>();
         }
 
         public static bool RelaunchAsAdministrator()
