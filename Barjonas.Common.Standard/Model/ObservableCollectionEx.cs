@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-
+#nullable enable
 namespace Barjonas.Common.Model
 {
     public interface IItemPropertyChanged
     {
-        event EventHandler<ItemPropertyChangedEventArgs> ItemPropertyChanged;
+        event EventHandler<ItemPropertyChangedEventArgs>? ItemPropertyChanged;
     }
     /// <summary>
     /// Subclass of ObservableCollection which implements all all IObservableCollection events fully.
@@ -16,12 +16,25 @@ namespace Barjonas.Common.Model
     /// <typeparam name="T"></typeparam>
     public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyChanged where T : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Raise once for each batch of changes, independently of INotifyCollectionChanged, which has many complex issues in implementation making it unrelible.
+        /// </summary>
+        public event EventHandler? BatchChange;
+        private bool _batchChangeSupressed = false;
+        protected void OnBatchChange()
+        {
+            if (!_batchChangeSupressed)
+            {
+                BatchChange?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
         public static ObservableCollectionEx<T> Empty { get; } = new ObservableCollectionEx<T>();
 
         /// <summary>
         /// Occurs when a property is changed within an item.
         /// </summary>
-        public event EventHandler<ItemPropertyChangedEventArgs> ItemPropertyChanged;
+        public event EventHandler<ItemPropertyChangedEventArgs>? ItemPropertyChanged;
 
         public ObservableCollectionEx() : base()
         { }
@@ -41,7 +54,7 @@ namespace Barjonas.Common.Model
             if (e.Action == NotifyCollectionChangedAction.Remove ||
                 e.Action == NotifyCollectionChangedAction.Replace)
             {
-                foreach (T item in e.OldItems)
+                foreach (T item in e.OldItems.NeverNull())
                 {
                     item.PropertyChanged -= ChildPropertyChanged;
                 }
@@ -50,7 +63,7 @@ namespace Barjonas.Common.Model
             if (e.Action == NotifyCollectionChangedAction.Add ||
                 e.Action == NotifyCollectionChangedAction.Replace)
             {
-                foreach (T item in e.NewItems)
+                foreach (T item in e.NewItems.NeverNull())
                 {
                     if (item != null)
                     {
@@ -58,7 +71,7 @@ namespace Barjonas.Common.Model
                     }
                 }
             }
-
+            OnBatchChange();
             base.OnCollectionChanged(e);
         }
 
@@ -97,21 +110,48 @@ namespace Barjonas.Common.Model
         }
 
         /// <summary> 
-        /// Adds the elements of the specified collection to the end of the ObservableCollectionEx. 
+        /// Adds the elements of the specified collection to the end of the ObservableCollectionEx.
         /// </summary> 
         public void AddRange(IEnumerable<T> collection)
-        {
-            if (collection == null)
-                throw new ArgumentNullException(nameof(collection));
+            =>  AddRange(collection, false);
 
+        /// <summary> 
+        /// Adds the elements of the specified collection to the end of the ObservableCollectionEx.
+        /// </summary> 
+        public void AddRange(IEnumerable<T> collection, bool clearFirst)
+        {
+            _batchChangeSupressed = true;
+            if (collection == null)
+            {
+                throw new ArgumentNullException(nameof(collection));
+            }
+            bool changed = false;
+            if (Count > 0 && clearFirst)
+            {
+                Clear();
+                changed = true;
+            }
+            int index = Count;
             foreach (T i in collection)
             {
-                Items.Add(i);
+                //although this fires a lot of events, it's the best way to reliably be observed, apparently :-(
+                InsertItem(index, i);
+                changed = true;
+                index++;
+            }
+            _batchChangeSupressed = false;
+            if (changed)
+            {
+                OnBatchChange();
             }
         }
 
-        private void ChildPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void ChildPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
+            if (sender is null)
+            {
+                throw new ArgumentNullException(nameof(sender));
+            }
             T typedSender = (T)sender;
             int i = Items.IndexOf(typedSender);
 
@@ -142,7 +182,7 @@ namespace Barjonas.Common.Model
         /// </summary>
         /// <param name="index">The index in the collection of changed item.</param>
         /// <param name="name">The name of the property that changed.</param>
-        public ItemPropertyChangedEventArgs(int index, string name) : base(name)
+        public ItemPropertyChangedEventArgs(int index, string? name) : base(name)
         {
             CollectionIndex = index;
         }
@@ -156,3 +196,4 @@ namespace Barjonas.Common.Model
         { }
     }
 }
+#nullable restore
