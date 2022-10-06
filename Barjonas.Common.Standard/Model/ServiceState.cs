@@ -453,6 +453,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             changes.Add(nameof(Progress));
         }
         changes.ForEach(s => PropertyChanged?.Invoke(this, new(s)));
+        AllUpdated?.Invoke(this, new());
     }
 
     public static RemoteServiceStates GetAggregateState(ServiceState state)

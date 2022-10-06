@@ -113,7 +113,10 @@
                     <DataGridTemplateColumn Header="Enabled">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox IsChecked="{Binding Setting.IsEnabled, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" />
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <controls:ToggleSwitch IsOn="{Binding Setting.TriggerEdge, UpdateSourceTrigger=PropertyChanged}" OnContent="Rising" OffContent="Falling" ToolTip="Trigger on edge" />
+                                    <CheckBox IsChecked="{Binding Setting.IsEnabled, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

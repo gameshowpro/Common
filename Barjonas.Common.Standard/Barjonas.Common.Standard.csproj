@@ -12,7 +12,24 @@
     <RootNamespace>Barjonas.Common</RootNamespace>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
-
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Globalization" />
+    <Using Include="System.Collections" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Collections.ObjectModel" />
+    <Using Include="System.Collections.Immutable" />
+    <Using Include="System.Collections.Specialized" />
+    <Using Include="System.ComponentModel" />
+    <Using Include="System.Diagnostics.CodeAnalysis" />
+    <Using Include="System.Linq" />
+    <Using Include="System.IO" />
+    <Using Include="System.Text" />
+    <Using Include="System.Windows" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="Newtonsoft.Json" />
+  </ItemGroup>
   <ItemGroup>
     <None Remove="MessagePackAnalyzer.json" />
   </ItemGroup>
