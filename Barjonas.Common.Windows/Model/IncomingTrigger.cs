@@ -42,7 +42,7 @@ namespace Barjonas.Common.Model
                 if (SetProperty(ref _isDown, value))
                 {
                     OnIsDownChanged(value);
-                    if (value && Setting.IsEnabled && TriggerWhenDown)
+                    if (value == Setting.TriggerEdge && Setting.IsEnabled && TriggerWhenDown)
                     {
                         DoTriggered();
                     }
