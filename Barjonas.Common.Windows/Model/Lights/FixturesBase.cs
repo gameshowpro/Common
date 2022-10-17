@@ -148,8 +148,8 @@ namespace Barjonas.Common.Model.Lights
             }
         }
 
-        protected static List<FixtureChannel> ChannelsFromPreset(StatePresetGroup presetGroup)
-            => new(Enumerable.Range(0, presetGroup.ChannelColors.Count).Select(
+        protected static List<FixtureChannel> ChannelsFromPreset(StatePresetGroup? presetGroup)
+            => presetGroup is null ? new() : new (Enumerable.Range(0, presetGroup.ChannelColors.Count).Select(
                 i =>
                 new FixtureChannel()
                 {
