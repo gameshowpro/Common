@@ -31,7 +31,7 @@ namespace Barjonas.Common.Model
             get => _currentSourceKey;
             set
             {
-                if (SetProperty(ref _currentSourceKey, value) && Options.TryGetValue(value, out IncomingTrigger? newSource))
+                if ((SetProperty(ref _currentSourceKey, value) || !_firstSetIsDone) && Options.TryGetValue(value, out IncomingTrigger? newSource))
                 {
                     Source = newSource;
                     _firstSetIsDone = true;
