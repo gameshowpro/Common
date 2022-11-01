@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Security.Principal;
 using System.Windows;
 using Barjonas.Common.Model;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 #nullable enable
 namespace Barjonas.Common
@@ -171,6 +172,34 @@ namespace Barjonas.Common
         }
 
         /// <summary>
+        ///  Build a multiple list of <seealso cref="IncomingTrigger"/> based on an enum type decorated with <seealso cref="TriggerParameters"/>.
+        ///  Each list represents an instance of a particular trigger device.
+        /// </summary>
+        /// <typeparam name="TCommand">Type of command enum which is decorated with <seealso cref="TriggerParameters"/> </typeparam>
+        /// <typeparam name="T">Type of trigger</typeparam>
+        /// <param name="factory">A factory to create triggers.</param>
+        /// <param name="dictList">A list of dictionaries each representing one instance with triggers keyed by command, which will be updated</param>
+        /// <param name="settings">A list of depersisted settings, each representing one instance</param>
+        /// <param name="removeUntouchedSettings"></param>
+        /// <returns></returns>
+        public static ImmutableList<ImmutableDictionary<TCommand, TTrigger>> BuildTriggerListPerDevice<TCommand, TTrigger>(
+            Func<IncomingTriggerSetting, TTrigger> factory,
+            IEnumerable<IncomingTriggerSettings> settings,
+            bool removeUntouchedSettings
+        )
+        where TCommand : notnull, Enum
+        where TTrigger : IncomingTrigger
+        {
+            ImmutableList<ImmutableDictionary<TCommand, TTrigger>>.Builder dictList = ImmutableList.CreateBuilder<ImmutableDictionary<TCommand, TTrigger>>();
+            foreach (IncomingTriggerSettings s in settings)
+            {
+                _ = BuildTriggerList(factory, out ImmutableDictionary<TCommand, TTrigger> dict, s, removeUntouchedSettings);
+                dictList.Add(dict);
+            }
+            return dictList.ToImmutable();
+        }
+
+        /// <summary>
         /// Build a list of <seealso cref="IncomingTrigger"/> based on an enum type decorated with <seealso cref="TriggerParameters"/>.
         /// </summary>
         /// <typeparam name="TCommand">Type of command enum which is decorated with <seealso cref="TriggerParameters"/> </typeparam>
@@ -268,6 +297,48 @@ namespace Barjonas.Common
 
         public static string ToRgbHexString(this System.Windows.Media.Color color)
             => $"#{color.R:x2}{color.G:x2}{color.B:x2}";
+
+
+        public static string? FileFromDialog(Uri basePath, string? startPath, string filters, string prompt)
+        {
+            string absStartPath = startPath.MakePathAbsolute(basePath);
+            string? absStartDir = Path.GetDirectoryName(absStartPath);
+            string initDir, defaultFilename;
+            if (startPath != null && Directory.Exists(absStartDir))
+            {
+                initDir = absStartDir;
+                defaultFilename = Path.GetFileName(absStartPath);
+            }
+            else
+            {
+                initDir = basePath.LocalPath;
+                defaultFilename = "";
+            }
+            using (var dlg = new CommonOpenFileDialog()
+            {
+                Title = prompt,
+                IsFolderPicker = false,
+                AddToMostRecentlyUsedList = true,
+                ShowPlacesList = true,
+                DefaultFileName = defaultFilename,
+                InitialDirectory = initDir,
+
+            })
+            {
+                string[] filter = filters.Split('|');
+                dlg.Filters.Add(new CommonFileDialogFilter(filter[0], filter[1]));
+                CommonFileDialogResult result = dlg.ShowDialog();
+                if (result == CommonFileDialogResult.Ok)
+                {
+                    return dlg.FileName;
+                }
+            }
+            return startPath;
+        }
+
+        public static string MakePathAbsolute(this string? relativePath, Uri basePath) =>
+           (relativePath == null ? basePath : new Uri(basePath, relativePath)).LocalPath;
+
 
 #if !NETFRAMEWORK
         public static T[] ArrayRepeat<T>(T value, int count)
