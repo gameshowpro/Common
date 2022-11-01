@@ -188,9 +188,26 @@ public class SettingsFileManager
     }
 
     /// <summary>
+    /// Deperist an object from file path which keyed by somethign other than its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
+    /// </summary>
+    /// <param name="key">The key which was associated with this object's file.</param>
+    /// <typeparam name="T">The type of the object being depersisted.</typeparam>
+    public T Depersist<T>(object key) where T : class, new()
+        => Utils.Depersist<T>(GetPath(key), out _);
+
+    /// <summary>
+    /// Deperist an object from file path which keyed by somethign other than its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
+    /// </summary>
+    /// <param name="key">The key which was associated with this object's file.</param>
+    /// <typeparam name="T">The type of the object being depersisted.</typeparam>
+    /// <param name="isNew">If an object is created (due to file not existing or being invalid) this will be set to true.</param>
+    public T Depersist<T>(object key, out bool isNew) where T : class, new()
+        => Utils.Depersist<T>(GetPath(key), out isNew);
+
+    /// <summary>
     /// Deperist an object from file path which was keyed by its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
     /// </summary>
-    /// <typeparam name="T">The type of the object being depersisted</typeparam>
+    /// <typeparam name="T">The type of the object being depersisted.</typeparam>
     /// <param name="isNew">If an object is created (due to file not existing or being invalid) this will be set to true.</param>
     public T Depersist<T>(out bool isNew) where T : class, new()
         => Utils.Depersist<T>(GetPath(typeof(T)), out isNew);
