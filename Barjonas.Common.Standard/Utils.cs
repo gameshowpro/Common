@@ -1,23 +1,8 @@
 ﻿// (C) Barjonas LLC 2018
-
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
-using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+using System.Runtime.CompilerServices;
 using Barjonas.Common.Model;
-using Newtonsoft.Json;
 using NLog;
 using NLog.Targets;
 
@@ -26,6 +11,71 @@ namespace Barjonas.Common
 {
     public static partial class Utils
     {
+        /// <summary>
+        /// Produces a sequence of tuples with elements from the two specified sequences. 
+        /// If one sequence contains more elements than the other, its missing elements will be filled with the specified value.
+        /// </summary>
+        /// <typeparam name="TFirst">The type of the elements of the first input sequence.</typeparam>
+        /// <typeparam name="TSecond">The type of the elements of the second input sequence.</typeparam>
+        /// <param name="first">The first sequence to merge.</param>
+        /// <param name="firstFiller">The filler value to use if the first sequence runs out of elements first.</param>
+        /// <param name="second">The second sequence to merge.</param>
+        /// <param name="secondFiller">The filler value to use if the second sequence runs out of elements first.</param>
+        /// <returns>A sequence of tuples with elements taken from the first add second sequence, in that order.</returns>
+        public static IEnumerable<(TFirst First, TSecond Second)> ZipWithFill<TFirst, TSecond>(
+            this IEnumerable<TFirst> first,
+            TFirst firstFiller,
+            IEnumerable<TSecond> second,
+            TSecond secondFiller
+        )
+            => ZipWithFill(first, firstFiller, second, secondFiller, (TFirst e1, TSecond e2) => (e1, e2));
+
+        /// <summary>
+        /// Produces a sequence of results merged elements from the two specified sequences. 
+        /// If one sequence contains more elements than the other, its missing elements will be filled with the specified value.
+        /// </summary>
+        /// <typeparam name="TFirst">The type of the elements of the first input sequence.</typeparam>
+        /// <typeparam name="TSecond">The type of the elements of the second input sequence.</typeparam>
+        /// <param name="first">The first sequence to merge.</param>
+        /// <param name="firstFiller">The filler value to use if the first sequence runs out of elements first.</param>
+        /// <param name="second">The second sequence to merge.</param>
+        /// <param name="secondFiller">The filler value to use if the second sequence runs out of elements first.</param>
+        /// <param name="resultSelector">The function used to merge each pair of elements together.</param>
+        /// <returns>A sequence of tuples with elements taken from the first add second sequence, in that order.</returns>
+        public static IEnumerable<TResult> ZipWithFill<TFirst, TSecond, TResult>(
+            this IEnumerable<TFirst> first,
+            TFirst firstFiller,
+            IEnumerable<TSecond> second,
+            TSecond secondFiller,
+            Func<TFirst, TSecond, TResult> resultSelector
+        )
+        {
+            first.Zip(second, resultSelector);
+            using IEnumerator<TFirst> e1 = first.GetEnumerator();
+            using IEnumerator<TSecond> e2 = second.GetEnumerator();
+            while (e1.MoveNext())
+            {
+                yield return resultSelector(e1.Current, e2.MoveNext() ? e2.Current : secondFiller);
+
+            }
+            while (e2.MoveNext())
+            {
+                yield return resultSelector(e1.MoveNext() ? e1.Current : firstFiller, e2.Current);
+
+            }
+        }
+
+        // Adds the elements of the given collection to the end of this list unless they are null. If
+        // required, the capacity of the list is increased to twice the previous
+        // capacity or the new size, whichever is larger.
+        public static void AddRange<T>(this List<T> list, IEnumerable<T>? collection)
+        {
+            if (collection is not null)
+            {
+                list.AddRange(collection);
+            }
+        }
+
         //
         // Summary:
         //     Returns the first element of an IList, or a default value if the sequence contains
