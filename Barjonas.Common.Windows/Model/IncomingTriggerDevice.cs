@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Collections.ObjectModel;
 #nullable enable
 namespace Barjonas.Common.Model
 {
@@ -25,6 +24,9 @@ namespace Barjonas.Common.Model
             ServiceState = serviceState;
         }
         public ImmutableList<IncomingTrigger> Triggers { get; }
+        /// <summary>
+        /// A dictionary containing a list of all IncomingTrigger objects mapped to each trigger ID.
+        /// </summary>
         protected ImmutableDictionary<int, ImmutableList<IncomingTrigger>> _triggerDict;
         public string Name { get; }
 
@@ -51,7 +53,8 @@ namespace Barjonas.Common.Model
         [MemberNotNull(nameof(_triggerDict))]
         private void UpdateTriggerDict()
         {
-            Dictionary<int, List<IncomingTrigger>> newTriggerDict = new();
+            //Not using ImmutableDictionary.Builder because we have to transform the list at the end anyway
+            Dictionary<int, ImmutableList<IncomingTrigger>.Builder> newTriggerDict = new();
 
             foreach (IncomingTrigger trigger in Triggers)
             {
@@ -65,11 +68,13 @@ namespace Barjonas.Common.Model
                 }
                 else
                 {
-                    newTriggerDict.Add(trigger.Setting.Id, new List<IncomingTrigger>() { trigger });
+                    ImmutableList<IncomingTrigger>.Builder newList = ImmutableList.CreateBuilder<IncomingTrigger>();
+                    newList.Add(trigger);
+                    newTriggerDict.Add(trigger.Setting.Id, newList);
                     trigger.Setting.IdIsValid = true;
                 }
             }
-            _triggerDict = newTriggerDict.ToImmutableDictionary((pair) => pair.Key, (pair) => pair.Value.ToImmutableList());
+            _triggerDict = newTriggerDict.ToImmutableDictionary((pair) => pair.Key, (pair) => pair.Value.ToImmutable());
             AfterUpdateTriggerDict();
         }
 
