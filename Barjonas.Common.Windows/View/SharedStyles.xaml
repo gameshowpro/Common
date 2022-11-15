@@ -18,6 +18,10 @@
     <Style TargetType="{x:Type Expander}" BasedOn="{StaticResource {x:Type Expander}}">
         <Setter Property="controls:ControlsHelper.ContentCharacterCasing" Value="Normal"/>
     </Style>
+    <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource {x:Type CheckBox}}">
+        <Setter Property="controls:CheckBoxHelper.CheckGlyphForegroundChecked" Value="White"/>
+        <Setter Property="controls:CheckBoxHelper.CheckGlyphForegroundCheckedMouseOver" Value="{StaticResource MahApps.Brushes.Accent3}"/>
+    </Style>
     <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
         <Setter Property="controls:TextBoxHelper.SelectAllOnFocus" Value="True"/>
         <Setter Property="controls:TextBoxHelper.UseFloatingWatermark" Value="True"/>

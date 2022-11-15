@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Barjonas.Common.ViewModel;
 using NLog;
 #nullable enable
@@ -64,6 +65,16 @@ namespace Barjonas.Common.Model
                 LastTriggerDateTime = DateTime.UtcNow;
                 Triggered?.Invoke(this, new TriggerArgs(TriggerData));
             }
+        }
+
+        /// <summary>
+        /// Called by base class whenever this trigger has been triggered. No additional filtering is perfomed in the base class.
+        /// </summary>
+        protected virtual void RelayTriggered(object? source, TriggerArgs args)
+        {
+            _lastTrigger.Restart();
+            LastTriggerDateTime = DateTime.UtcNow;
+            Triggered?.Invoke(source, args);
         }
 
         /// <summary>

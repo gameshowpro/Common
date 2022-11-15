@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using Barjonas.Common.ViewModel;
 
 namespace Barjonas.Common.Model;
 
@@ -19,8 +20,13 @@ public class TriggerComposite : ITrigger
         {
             trigger.Triggered += RelayTrigger;
         }
+
+        SimulateTriggerCommand = new((toggle) => Triggered?.Invoke(this, new(toggle)));
     }
 
     private void RelayTrigger(object? sender, TriggerArgs args)
         => Triggered?.Invoke(sender, args);
+
+
+    public RelayCommand<bool?> SimulateTriggerCommand { get; private set; }
 }

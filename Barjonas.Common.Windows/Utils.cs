@@ -171,6 +171,14 @@ namespace Barjonas.Common
             return false;
         }
 
+        public static ImmutableDictionary<TTriggerKey, IncomingTriggerComposite> ComposeDevicesIntoTriggerDictionary<TTriggerKey>(
+            IEnumerable<IncomingTriggerDeviceBase<TTriggerKey>> devices)
+                where TTriggerKey : struct, Enum
+            => Enum.GetValues<TTriggerKey>().ToImmutableDictionary(
+                    t => t, 
+                    t => new IncomingTriggerComposite(devices.Select(d => d.TriggersBase[t]), t.ToString(), GetTriggerParameters(t.GetType().GetField(t.ToString()))?.Name ?? "No name")
+                );
+
         /// <summary>
         ///  Build a multiple list of <seealso cref="IncomingTrigger"/> based on an enum type decorated with <seealso cref="TriggerParameters"/>.
         ///  Each list represents an instance of a particular trigger device.
@@ -224,12 +232,12 @@ namespace Barjonas.Common
                 string? valueString = value.ToString();
                 if (valueString == null)
                 {
-                    throw new ArgumentException($"{t} cannot contain a enum value the converts to a null string.");
+                    throw new ArgumentException($"{t} cannot contain a enum value that converts to a null string.");
                 }
                 else
                 {
-                    object[]? attrs = t.GetField(valueString)?.GetCustomAttributes(typeof(TriggerParameters), false);
-                    if (attrs?.FirstOrDefault() is not TriggerParameters attr)
+                    TriggerParameters? attr = GetTriggerParameters(t.GetField(valueString));
+                    if (attr is null)
                     {
                         throw new MissingMemberException($"{t} must contain a {nameof(TriggerParameters)} attribute on every member.");
                     }
@@ -244,6 +252,16 @@ namespace Barjonas.Common
                 settings.RemoveUntouched();
             }
             return triggers;
+        }
+
+        private static TriggerParameters? GetTriggerParameters(MemberInfo? enumMemberInfo)
+        {
+            object[]? attrs = enumMemberInfo?.GetCustomAttributes(typeof(TriggerParameters), false);
+            if (attrs?.FirstOrDefault() is not TriggerParameters attr)
+            {
+                return null;
+            }
+            return attr;
         }
 
         /// <summary>

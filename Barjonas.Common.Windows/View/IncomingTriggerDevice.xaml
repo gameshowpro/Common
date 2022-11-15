@@ -4,7 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:conv="clr-namespace:Barjonas.Common.Converters"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:commodel="clr-namespace:Barjonas.Common.Model"
+             xmlns:vm="clr-namespace:Barjonas.Common.ViewModel"
+             xmlns:view="clr-namespace:Barjonas.Common.View"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              mc:Ignorable="d" >
@@ -18,6 +21,7 @@
     <conv:EnumToDescriptionConverter x:Key="EnumToDescriptionConverter"/>
     <BooleanToVisibilityConverter  x:Key="BooleanToVisibilityConverter"/>
     <conv:IntToOrdinalConverter x:Key="IntToOrdinalConverter"/>
+    <vm:IncomingTriggerDeviceHeaderTemplateSelector x:Key="IncomingTriggerDeviceHeaderTemplateSelector"/>
     <DataTemplate x:Key="Trigger">
         <DataTemplate.Resources>
             <Storyboard x:Key="TriggerIndicatorSB" >
@@ -62,18 +66,23 @@
             </Grid.InputBindings>
         </Grid>
     </DataTemplate>
-    <DataTemplate DataType="{x:Type commodel:IncomingTrigger}">
-        
-    </DataTemplate>
-    <DataTemplate DataType="{x:Type commodel:IncomingTriggerDevice}" x:Key="IncomingTriggerDevice">
+    <DataTemplate x:Key="IncomingTriggerDevice">
         <StackPanel Background="{StaticResource ControlGroupBackground}" Margin="{StaticResource ControlSmallMargin}">
+            <StackPanel.Resources>
+                <CollectionViewSource x:Key="IncomingTriggerFilter" Source="{Binding Triggers.Values}">
+                    <i:Interaction.Behaviors>
+                        <view:IncomingTriggersFilterBehavior ShowAll="{Binding IsOn, ElementName=ShowAllFilter}"  />
+                    </i:Interaction.Behaviors>
+                </CollectionViewSource>
+            </StackPanel.Resources>
             <StackPanel Orientation="Horizontal" Margin="{StaticResource ControlSmallMargin}">
                 <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ServiceStatus}" VerticalAlignment="Center" />
                 <TextBlock Style="{StaticResource Heading}" Text="{Binding Name, Mode=OneWay}" VerticalAlignment="Center" Margin="{StaticResource ControlSmallMargin}"/>
                 <ItemsControl ItemsSource="{Binding ServiceState.Children.Values}" ItemTemplate="{StaticResource ServiceStateMax}" VerticalAlignment="Center" />
-                <ContentControl Content="{Binding}" />
+                <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource IncomingTriggerDeviceHeaderTemplateSelector}" />
             </StackPanel>
-            <DataGrid ItemsSource="{Binding Triggers}" AutoGenerateColumns="False">
+            <controls:ToggleSwitch OnContent="Showing all triggers" OffContent="Showing enabled triggers only" x:Name="ShowAllFilter"/>
+            <DataGrid ItemsSource="{Binding Source={StaticResource IncomingTriggerFilter}}" AutoGenerateColumns="False" HorizontalAlignment="Left">
                 <DataGrid.Resources>
                     <Style TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Flat}">
                         <Setter Property="Height" Value="20"/>
@@ -110,13 +119,17 @@
                     <DataGridTextColumn Header="Time" IsReadOnly="True" Binding="{Binding Time}" MinWidth="102" />
                     <DataGridTextColumn Header="#" IsReadOnly="True" Binding="{Binding Ordinal, Converter={StaticResource IntToOrdinalConverter}}" />
                     <DataGridTextColumn Header="Filter" IsReadOnly="True" Binding="{Binding Setting.TriggerFilter, Converter={StaticResource EnumToDescriptionConverter}}" />
+                    <DataGridTemplateColumn Header="Edge" Width="110">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <controls:ToggleSwitch IsOn="{Binding Setting.TriggerEdge, UpdateSourceTrigger=PropertyChanged}" OnContent="Rising" OffContent="Falling" ToolTip="Trigger on edge" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Enabled">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <controls:ToggleSwitch IsOn="{Binding Setting.TriggerEdge, UpdateSourceTrigger=PropertyChanged}" OnContent="Rising" OffContent="Falling" ToolTip="Trigger on edge" />
-                                    <CheckBox IsChecked="{Binding Setting.IsEnabled, UpdateSourceTrigger=PropertyChanged}" />
-                                </StackPanel>
+                                <CheckBox IsChecked="{Binding Setting.IsEnabled, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

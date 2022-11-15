@@ -33,8 +33,6 @@ namespace Barjonas.Common.View
             }
         }
 
-
-
         public bool AlsoClear
         {
             get { return (bool)GetValue(s_alsoClearProperty); }
@@ -43,7 +41,7 @@ namespace Barjonas.Common.View
 
         // Using a DependencyProperty as the backing store for AlsoClear.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty s_alsoClearProperty =
-            DependencyProperty.Register("AlsoClear", typeof(bool), typeof(FocusOnDataContextChangedBehavior), new PropertyMetadata(false));
+            DependencyProperty.Register(nameof(AlsoClear), typeof(bool), typeof(FocusOnDataContextChangedBehavior), new PropertyMetadata(false));
 
     }
 }
