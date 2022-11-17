@@ -11,7 +11,7 @@ namespace Barjonas.Common.Model;
 /// <summary>
 /// A base for <see cref="IncomingTriggerDevice{TTriggerKey, TTrigger}"/> which is common to all <see cref="IncomingTrigger"/> subclasses.
 /// </summary>
-public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, IRemoteService
+public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, IIncomingTriggerDeviceBase
     where TTriggerKey : notnull, Enum
 {
 
@@ -31,4 +31,9 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
     /// A dictionary containing a list of all triggers belonging to this object, keyed by <see cref="TTriggerKey"/>, widely typed as <see cref="IncomingTrigger"/>.
     /// </summary>
     public abstract ImmutableDictionary<TTriggerKey, IncomingTrigger> TriggersBase { get; }
+}
+
+public interface IIncomingTriggerDeviceBase : IRemoteService
+{
+    string Name { get; }
 }

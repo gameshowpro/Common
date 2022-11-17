@@ -82,9 +82,8 @@ namespace Barjonas.Common.Model
             { return _idIsValid; }
             set
             {
-                if (_idIsValid != value)
+                if (SetProperty(ref _idIsValid, value))
                 {
-                    _idIsValid = value;
                     ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(Id)));
                 }
             }

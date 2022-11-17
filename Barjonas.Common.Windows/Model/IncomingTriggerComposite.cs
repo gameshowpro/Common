@@ -4,36 +4,68 @@ using System.Collections.Immutable;
 using System.Data;
 using System.Drawing.Text;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using Barjonas.Common.ViewModel;
-
+#nullable enable
 namespace Barjonas.Common.Model;
 
 public class IncomingTriggerComposite : IncomingTrigger
 {
-    private readonly ImmutableList<IncomingTrigger> _sourceTriggers;
-    public IncomingTriggerComposite(IEnumerable<IncomingTrigger> sourceTriggers, string key, string name)
+    public IncomingTriggerComposite(IEnumerable<IncomingTrigger> children, string key, string name)
         : base(new IncomingTriggerSetting()
         {
             Name = name,
             Key = key,
-            IsEnabled = false //Prevent base class from raising its own trigger events
-        })
+            IsEnabled = true //Default to enabled, could be disabled per-session by user, but not persisted
+        }, null)
     {
-        _sourceTriggers = sourceTriggers.ToImmutableList();
-        foreach (IncomingTrigger trigger in sourceTriggers)
+        Children = children.ToImmutableList();
+        foreach (IncomingTrigger child in children)
         {
-            trigger.Triggered += RelayTriggered;
-            trigger.IsDownChanged += (s, e) => UpdateIsDown();
+            child.Triggered += RelayTriggered;
+            child.IsDownChanged += (s, e) => UpdateIsDown();
+            child.Setting.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(IncomingTriggerSetting.IsEnabled))
+                {
+                    EnabledChildren = CalculateEnabledChildren;
+                }
+            };
         }
+        _enabledChildren = CalculateEnabledChildren;
         UpdateIsDown();
     }
 
+    protected override void DoTriggered()
+    {
+        //No operation. Don't want base class to raise any trigger events from its own logic
+    }
+
+    protected override void RelayTriggered(object? source, TriggerArgs args)
+    {
+        if (Setting.IsEnabled)
+        {
+            base.RelayTriggered(source, args);
+        }
+    }
 
     private void UpdateIsDown()
     {
-        IsDown = _sourceTriggers.Any(t => t.IsDown == t.Setting.TriggerEdge);
+        IsDown = Children.Any(t => t.IsDown == t.Setting.TriggerEdge);
     }
 
+    private ImmutableList<IncomingTrigger> CalculateEnabledChildren 
+        => Children.Where(c => c.Setting.IsEnabled).ToImmutableList();
+
+    public ImmutableList<IncomingTrigger> Children { get; }
+
+    private ImmutableList<IncomingTrigger> _enabledChildren;
+    public ImmutableList<IncomingTrigger> EnabledChildren
+    {
+        get { return _enabledChildren; }
+        set { SetProperty(ref _enabledChildren, value); }
+    }
 }
+#nullable restore

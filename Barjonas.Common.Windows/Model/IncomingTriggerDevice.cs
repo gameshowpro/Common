@@ -3,7 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Windows;
 using static Barjonas.Common.Model.KioskWindowHandler;
 #nullable enable
@@ -19,6 +21,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger> : IncomingTri
     where TTriggerKey : notnull, Enum
     where TTrigger : IncomingTrigger
 {
+    private readonly PropertyChangeFilters _propertyChangeFilters = new();
     /// <summary>
     /// Base constructor.
     /// </summary>
@@ -29,7 +32,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger> : IncomingTri
     /// <exception cref="MissingMemberException"></exception>
     public IncomingTriggerDevice(
         string name,
-        IncomingTriggerSettings? triggerSettings, 
+        IncomingTriggerDeviceSettingsBase settings,
         ServiceState serviceState
     )
     : base
@@ -38,8 +41,9 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger> : IncomingTri
         serviceState
     )
     {
+        BaseSettings = settings;
         ImmutableDictionary<TTriggerKey, TTrigger>.Builder dictBuilder = ImmutableDictionary.CreateBuilder<TTriggerKey, TTrigger>();
-        if (triggerSettings != null)
+        if (settings.TriggerSettings != null)
         {
             Type t = typeof(TTriggerKey);
             foreach (TTriggerKey value in Enum.GetValues(t))
@@ -56,21 +60,30 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger> : IncomingTri
                     {
                         throw new MissingMemberException($"{t} must contain a {nameof(TriggerParameters)} attribute on every member.");
                     }
-                    TTrigger trigger = TriggerFactory(triggerSettings.GetOrCreate(value.ToString(), attr.Name, attr.DefaultId, attr.TriggerFilter, attr.DebounceInterval));
+                    TTrigger trigger = TriggerFactory(settings.TriggerSettings.GetOrCreate(value.ToString(), attr.Name, attr.DefaultId, attr.TriggerFilter, attr.DebounceInterval));
                     dictBuilder.Add(value, trigger);
                 }
             }
         }
         Triggers = dictBuilder.ToImmutable();
-        triggerSettings?.RemoveUntouched();
+        settings.TriggerSettings?.RemoveUntouched();
         TriggersBase = Triggers.ToImmutableDictionary(kvp => kvp.Key, kvp => (IncomingTrigger)kvp.Value);
 
-        UpdateTriggerDict();
-        foreach (TTrigger trigger in Triggers.Values)
-        {
-            trigger.Setting.PropertyChanged += (s, e) => UpdateTriggerDict();
-        }
+        _propertyChangeFilters.AddFilter((s, e) => UpdateTriggerDict(), Triggers.Values.SelectMany(
+            t => 
+            new PropertyChangeCondition[] { 
+                new (t.Setting, nameof(IncomingTriggerSetting.Id)), 
+                new (t.Setting, nameof(IncomingTriggerSetting.IsEnabled)) 
+            })
+            .Union(new PropertyChangeCondition(BaseSettings, nameof(IncomingTriggerDeviceSettingsBase.AllowDuplicateTriggerIds)))
+        );
+        _triggerDict ??= ImmutableDictionary<int, ImmutableList<TTrigger>>.Empty;
     }
+
+    /// <summary>
+    /// A reference to the device settings object generalized to the base type. The subclass may define a more specific reference.
+    /// </summary>
+    public IncomingTriggerDeviceSettingsBase BaseSettings { get; }
 
     protected abstract TTrigger TriggerFactory(IncomingTriggerSetting triggerSetting);
 
@@ -88,17 +101,6 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger> : IncomingTri
     /// </summary>
     protected ImmutableDictionary<int, ImmutableList<TTrigger>> _triggerDict;
 
-    private bool _allowDuplicateTriggerIds = false;
-    /// <summary>
-    /// By default, triggers must have unique IDs. If this property is true, multiple triggers may share an ID,
-    /// so that they will all be triggered when a remote trigger is received with that ID.
-    /// </summary>
-    public bool AllowDuplicateTriggerIds
-    {
-        get { return _allowDuplicateTriggerIds; }
-        set { SetProperty(ref _allowDuplicateTriggerIds, value); }
-    }
-
     private double _progress = 0;
     public double Progress
     {
@@ -111,22 +113,29 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger> : IncomingTri
     {
         //Not using ImmutableDictionary.Builder because we have to transform the list at the end anyway
         Dictionary<int, ImmutableList<TTrigger>.Builder> newTriggerDict = new();
-
+        bool allowDuplicateTriggerIds = BaseSettings.AllowDuplicateTriggerIds;
         foreach (TTrigger trigger in Triggers.Values)
         {
-            if (newTriggerDict.ContainsKey(trigger.Setting.Id))
+            if (trigger.Setting.IsEnabled)
             {
-                trigger.Setting.IdIsValid = _allowDuplicateTriggerIds;
-                if (_allowDuplicateTriggerIds)
+                if (newTriggerDict.ContainsKey(trigger.Setting.Id))
                 {
-                    newTriggerDict[trigger.Setting.Id].Add(trigger);
+                    trigger.Setting.IdIsValid = allowDuplicateTriggerIds;
+                    if (allowDuplicateTriggerIds)
+                    {
+                        newTriggerDict[trigger.Setting.Id].Add(trigger);
+                    }
+                }
+                else
+                {
+                    ImmutableList<TTrigger>.Builder newList = ImmutableList.CreateBuilder<TTrigger>();
+                    newList.Add(trigger);
+                    newTriggerDict.Add(trigger.Setting.Id, newList);
+                    trigger.Setting.IdIsValid = true;
                 }
             }
             else
             {
-                ImmutableList<TTrigger>.Builder newList = ImmutableList.CreateBuilder<TTrigger>();
-                newList.Add(trigger);
-                newTriggerDict.Add(trigger.Setting.Id, newList);
                 trigger.Setting.IdIsValid = true;
             }
         }

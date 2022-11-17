@@ -21,13 +21,16 @@ namespace Barjonas.Common.Model
 
         public event EventHandler<TriggerArgs>? Triggered;
 
-        protected IncomingTrigger(IncomingTriggerSetting setting)
+        protected IncomingTrigger(IncomingTriggerSetting setting, IIncomingTriggerDeviceBase? parentDevice)
         {
+            ParentDevice = parentDevice;
             _lastTrigger.Start();
             Setting = setting;
             SimulateTriggerCommand = new RelayCommand<bool?>((latch) => { if (latch == true) { IsDown = !_isDown; } else { DoTriggered(); } });
             ToggleIsEnabledCommand = new(() => { Setting.IsEnabled = !Setting.IsEnabled; });
         }
+
+        public IIncomingTriggerDeviceBase? ParentDevice { get; }
 
         protected void OnIsDownChanged(bool value)
             => IsDownChanged?.Invoke(this, value);
@@ -43,7 +46,7 @@ namespace Barjonas.Common.Model
                 if (SetProperty(ref _isDown, value))
                 {
                     OnIsDownChanged(value);
-                    if (value == Setting.TriggerEdge && Setting.IsEnabled && TriggerWhenDown)
+                    if (value == Setting.TriggerEdge)
                     {
                         DoTriggered();
                     }
@@ -59,11 +62,9 @@ namespace Barjonas.Common.Model
         /// </summary>
         protected virtual void DoTriggered()
         {
-            if (!Setting.DebounceInterval.HasValue || _lastTrigger.Elapsed > Setting.DebounceInterval.Value)
+            if (TriggerWhenDown && Setting.IsEnabled && (!Setting.DebounceInterval.HasValue || _lastTrigger.Elapsed > Setting.DebounceInterval.Value))
             {
-                _lastTrigger.Restart();
-                LastTriggerDateTime = DateTime.UtcNow;
-                Triggered?.Invoke(this, new TriggerArgs(TriggerData));
+                RelayTriggered(this, new TriggerArgs(TriggerData));
             }
         }
 

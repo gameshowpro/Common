@@ -22,6 +22,106 @@
     <BooleanToVisibilityConverter  x:Key="BooleanToVisibilityConverter"/>
     <conv:IntToOrdinalConverter x:Key="IntToOrdinalConverter"/>
     <vm:IncomingTriggerDeviceHeaderTemplateSelector x:Key="IncomingTriggerDeviceHeaderTemplateSelector"/>
+    <DataTemplate DataType="{x:Type commodel:IncomingTriggerComposite}" x:Key="{x:Type commodel:IncomingTriggerComposite}">
+        <Expander ClipToBounds="True">
+            <Expander.Header>
+                <Grid ToolTip="Double right click to enable/disable" Margin="5" Background="Yellow">
+                    <Grid.Resources>
+                        <Storyboard x:Key="TriggerIndicatorSB" >
+                            <DoubleAnimation Storyboard.TargetName="TriggerIndicator" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5" />
+                        </Storyboard>
+                    </Grid.Resources>
+                    <Grid Visibility="{Binding IsDown, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid.Background>
+                            <RadialGradientBrush>
+                                <GradientStop Color="#ff0000ff"/>
+                                <GradientStop Color="#ff000055" Offset="1"/>
+                            </RadialGradientBrush>
+                        </Grid.Background>
+                        <iconPacks:PackIconMaterial Kind="ArrowTopRightBoldOutline" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" />
+                    </Grid>
+                    <Grid Background="#ff000033" Visibility="{Binding IsDown, Converter={StaticResource MatchToBooleanConverter}, ConverterParameter={conv:Bool False}}">
+                        <iconPacks:PackIconMaterial Kind="ArrowBottomRightBoldOutline" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" />
+                    </Grid>
+                    <Canvas Width="40" Height="40" ClipToBounds="True" Visibility="{Binding Setting.IsEnabled, Converter={StaticResource MatchToBooleanConverter},ConverterParameter={conv:Bool False}}">
+                        <Line X1="-5" X2="45" Y1="-5" Y2="45" StrokeThickness="2" Stroke="White" Opacity="0.5" />
+                        <Line X1="45" X2="-5" Y1="-5" Y2="45" StrokeThickness="2" Stroke="White" Opacity="0.5" />
+                    </Canvas>
+                    <Grid VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <iconPacks:PackIconModern Kind="Lightning" Foreground="#44444444" Tag="{Binding LastTriggerDateTime, NotifyOnTargetUpdated=True}"/>
+
+                        <iconPacks:PackIconModern Opacity="0" Kind="Lightning" Name="TriggerIndicator"  Foreground="Yellow" Tag="{Binding LastTriggerDateTime, NotifyOnTargetUpdated=True}">
+                            <iconPacks:PackIconModern.Triggers>
+                                <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                                    <BeginStoryboard Storyboard="{StaticResource TriggerIndicatorSB}" />
+                                </EventTrigger>
+                            </iconPacks:PackIconModern.Triggers>
+                        </iconPacks:PackIconModern>
+                    </Grid>
+                    <Grid.InputBindings>
+                        <MouseBinding MouseAction="RightDoubleClick" Command="{Binding ToggleIsEnabledCommand}" />
+                    </Grid.InputBindings>
+                </Grid>
+            </Expander.Header>
+            <ItemsControl ItemsSource="{Binding EnabledChildren}" ItemsPanel="{StaticResource UniformGridOneColumn}" Margin="0 0 0 -16">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel Margin="3">
+                            <TextBlock Text="{Binding ParentDevice.Name}" DockPanel.Dock="Top" FontWeight="Light"/>
+                            <DockPanel DockPanel.Dock="Top">
+                                <TextBlock Text="{Binding Setting.Id, Converter={StaticResource ToOneBased}}" DockPanel.Dock="Left" Padding="5 0" Margin="0 0 5 0"/>
+                                <iconPacks:PackIconMaterial Kind="ArrowBottomRightBoldOutline" Background="#01000000" ToolTip="Trigger on falling edge" Visibility="{Binding Setting.TriggerEdge, Converter={StaticResource MatchToBooleanConverterWithCollapse}, ConverterParameter={conv:Bool false}}" />
+                                <iconPacks:PackIconMaterial Kind="ArrowTopRightBoldOutline" ToolTip="Trigger on rising edge" Visibility="{Binding Setting.TriggerEdge, Converter={StaticResource MatchToBooleanConverterWithCollapse}, ConverterParameter={conv:Bool true}}"/>
+                            </DockPanel>
+                            <Grid ToolTip="Double right click to enable/disable" DockPanel.Dock="Top">
+                                <Grid.Resources>
+                                    <Storyboard x:Key="TriggerIndicatorSB" >
+                                        <DoubleAnimation Storyboard.TargetName="TriggerIndicator" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5" />
+                                    </Storyboard>
+                                </Grid.Resources>
+                                <Grid Visibility="{Binding IsDown, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Grid.Background>
+                                        <RadialGradientBrush>
+                                            <GradientStop Color="#ffaa00ff"/>
+                                            <GradientStop Color="#ff220055" Offset="1"/>
+                                        </RadialGradientBrush>
+                                    </Grid.Background>
+                                    <Rectangle Fill="White">
+                                        <Rectangle.OpacityMask>
+                                            <VisualBrush Stretch="Uniform" Visual="{DynamicResource SwitchClosed}" />
+                                        </Rectangle.OpacityMask>
+                                    </Rectangle>
+                                </Grid>
+                                <Grid Background="#ff220055" Visibility="{Binding IsDown, Converter={StaticResource MatchToBooleanConverter}, ConverterParameter={conv:Bool False}}">
+                                    <Rectangle Fill="White">
+                                        <Rectangle.OpacityMask>
+                                            <VisualBrush Stretch="Uniform" Visual="{DynamicResource SwitchOpen}" />
+                                        </Rectangle.OpacityMask>
+                                    </Rectangle>
+                                </Grid>
+                                <Grid Visibility="{Binding Setting.IsEnabled, Converter={StaticResource MatchToBooleanConverter},ConverterParameter={conv:Bool False}}">
+                                    <iconPacks:PackIconModern Kind="Stop" Width="15" Height="15" HorizontalAlignment="Center" />
+                                </Grid>
+                                <Grid>
+                                    <iconPacks:PackIconModern Opacity="0" Kind="Lightning" Name="TriggerIndicator" Width="15" Height="15" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Yellow" Tag="{Binding LastTriggerDateTime, NotifyOnTargetUpdated=True}">
+                                        <iconPacks:PackIconModern.Triggers>
+                                            <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                                                <BeginStoryboard Storyboard="{StaticResource TriggerIndicatorSB}" />
+                                            </EventTrigger>
+                                        </iconPacks:PackIconModern.Triggers>
+                                    </iconPacks:PackIconModern>
+                                </Grid>
+                                <Grid.InputBindings>
+                                    <MouseBinding MouseAction="RightDoubleClick" Command="{Binding ToggleIsEnabledCommand}" />
+                                </Grid.InputBindings>
+                            </Grid>
+                            <Separator Margin="7" />
+                        </DockPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Expander>
+    </DataTemplate>
     <DataTemplate x:Key="Trigger">
         <DataTemplate.Resources>
             <Storyboard x:Key="TriggerIndicatorSB" >
@@ -81,7 +181,8 @@
                 <ItemsControl ItemsSource="{Binding ServiceState.Children.Values}" ItemTemplate="{StaticResource ServiceStateMax}" VerticalAlignment="Center" />
                 <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource IncomingTriggerDeviceHeaderTemplateSelector}" />
             </StackPanel>
-            <controls:ToggleSwitch OnContent="Showing all triggers" OffContent="Showing enabled triggers only" x:Name="ShowAllFilter"/>
+            <controls:ToggleSwitch OnContent="Showing all triggers" OffContent="Showing enabled triggers only" x:Name="ShowAllFilter" DockPanel.Dock="Left"/>
+            <controls:ToggleSwitch OnContent="Duplicates allowed" OffContent="Duplicates not allowed" IsOn="{Binding BaseSettings.AllowDuplicateTriggerIds}"/>
             <DataGrid ItemsSource="{Binding Source={StaticResource IncomingTriggerFilter}}" AutoGenerateColumns="False" HorizontalAlignment="Left">
                 <DataGrid.Resources>
                     <Style TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Flat}">
@@ -102,14 +203,14 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Binding="{Binding Setting.Name}" Header="Name" Width="Auto"/>
-                    <DataGridTemplateColumn Header="Down">
+                    <DataGridTemplateColumn Header="State">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource Trigger}" Width="50" Height="20"/>
+                                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource Trigger}" Width="50" Height="20" Visibility="{Binding Setting.IdIsValid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="ID">
+                    <DataGridTemplateColumn Header="ID" IsReadOnly="True">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <controls:NumericUpDown Value="{Binding Setting.Id, Converter={StaticResource ToOneBased}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="1" Maximum="256" NumericInputMode="Numbers"/>
@@ -119,14 +220,14 @@
                     <DataGridTextColumn Header="Time" IsReadOnly="True" Binding="{Binding Time}" MinWidth="102" />
                     <DataGridTextColumn Header="#" IsReadOnly="True" Binding="{Binding Ordinal, Converter={StaticResource IntToOrdinalConverter}}" />
                     <DataGridTextColumn Header="Filter" IsReadOnly="True" Binding="{Binding Setting.TriggerFilter, Converter={StaticResource EnumToDescriptionConverter}}" />
-                    <DataGridTemplateColumn Header="Edge" Width="110">
+                    <DataGridTemplateColumn Header="Edge" Width="110" IsReadOnly="True">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <controls:ToggleSwitch IsOn="{Binding Setting.TriggerEdge, UpdateSourceTrigger=PropertyChanged}" OnContent="Rising" OffContent="Falling" ToolTip="Trigger on edge" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Enabled">
+                    <DataGridTemplateColumn Header="Enabled" IsReadOnly="True">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding Setting.IsEnabled, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" />
