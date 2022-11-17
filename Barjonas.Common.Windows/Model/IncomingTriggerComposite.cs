@@ -33,6 +33,21 @@ public class IncomingTriggerComposite : IncomingTrigger
                     EnabledChildren = CalculateEnabledChildren;
                 }
             };
+            child.PropertyChanged += (s, e) =>
+            {
+                switch (e.PropertyName)
+                {
+                    case nameof(Ordinal):
+                    case nameof(Time):
+                        IncomingTrigger? c = s as IncomingTrigger;
+                        if (c is not null)
+                        {
+                            Ordinal = c.Ordinal;
+                            Time = c.Time;
+                        }
+                        break;
+                }
+            };
         }
         _enabledChildren = CalculateEnabledChildren;
         UpdateIsDown();
