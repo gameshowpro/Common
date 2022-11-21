@@ -1,10 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System;
-using System.ComponentModel;
-using System.Windows.Threading;
-using Newtonsoft.Json;
-#nullable enable
 namespace Barjonas.Common.Model;
 
 [JsonObject(MemberSerialization.OptIn)]
@@ -31,4 +26,3 @@ public class NotifyingClass : ObservableClass
     }
    
 }
-#nullable restore

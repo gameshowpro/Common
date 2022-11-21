@@ -1,12 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace Barjonas.Common.Model.Lights
+namespace Barjonas.Common.Model.Lights;
+
+public class StatesLevels : KeyedCollection<string, StateLevels>
 {
-    public class StatesLevels : KeyedCollection<string, StateLevels>
+    protected override string GetKeyForItem(StateLevels item)
     {
-        protected override string GetKeyForItem(StateLevels item)
-        {
-            return item.Key;
-        }
+        return item.Key;
     }
 }

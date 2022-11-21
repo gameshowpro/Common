@@ -1,14 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Configuration;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Windows;
-using static Barjonas.Common.Model.KioskWindowHandler;
 namespace Barjonas.Common.Model;
 
 /// <summary>

@@ -1,7 +1,4 @@
-﻿using System.Security.Policy;
-using Newtonsoft.Json;
-
-namespace Barjonas.Common.Model;
+﻿namespace Barjonas.Common.Model;
 
 /// <summary>
 /// A base class for all IncomingTriggersDevice settings classes

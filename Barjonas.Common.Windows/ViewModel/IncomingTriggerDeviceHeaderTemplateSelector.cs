@@ -1,8 +1,4 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Controls;
-
-namespace Barjonas.Common.ViewModel;
+﻿namespace Barjonas.Common.ViewModel;
 
 internal class IncomingTriggerDeviceHeaderTemplateSelector : DataTemplateSelector
 {

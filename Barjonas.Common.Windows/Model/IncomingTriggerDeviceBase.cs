@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-
-namespace Barjonas.Common.Model;
+﻿namespace Barjonas.Common.Model;
 
 /// <summary>
 /// A base for <see cref="IncomingTriggerDevice{TTriggerKey, TTrigger}"/> which is common to all <see cref="IncomingTrigger"/> subclasses.

@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Data;
-using System.Drawing.Text;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-using Barjonas.Common.ViewModel;
-#nullable enable
-namespace Barjonas.Common.Model;
+﻿namespace Barjonas.Common.Model;
 
 public class IncomingTriggerComposite : IncomingTrigger
 {
@@ -83,4 +72,3 @@ public class IncomingTriggerComposite : IncomingTrigger
         set { SetProperty(ref _enabledChildren, value); }
     }
 }
-#nullable restore

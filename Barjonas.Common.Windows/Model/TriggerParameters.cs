@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Barjonas.Common.Model;
+﻿namespace Barjonas.Common.Model;
 
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
 public sealed class TriggerParameters : Attribute
