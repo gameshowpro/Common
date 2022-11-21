@@ -1,4 +1,6 @@
 ﻿using static Barjonas.Common.Wpf.Utils;
+using Point = System.Windows.Point;
+using Size = System.Windows.Size;
 
 namespace Barjonas.Common.View;
 

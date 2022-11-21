@@ -1,6 +1,6 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Windows.Media;
+using Color = System.Windows.Media.Color;
 
 namespace Barjonas.Common.Model.Lights;
 

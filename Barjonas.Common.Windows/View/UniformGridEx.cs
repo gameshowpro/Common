@@ -1,6 +1,7 @@
 ﻿// (C) Barjonas LLC 2020
 
 using System.Windows.Media;
+using Size = System.Windows.Size;
 
 namespace Barjonas.Common.View;
 

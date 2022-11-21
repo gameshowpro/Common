@@ -1,6 +1,7 @@
 ﻿// (C) Barjonas LLC 2018
 
 using System.Windows.Controls.Primitives;
+using Size = System.Windows.Size;
 
 namespace Barjonas.Common.View;
 
