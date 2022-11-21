@@ -16,16 +16,16 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
 {
 
     protected IncomingTriggerDeviceBase(
-        string name,
+        string namePrefix,
         ServiceState serviceState
     )
     {
-        Name = name;
+        NamePrefix = namePrefix;
         ServiceState = serviceState;
     }
 
     public ServiceState ServiceState { get; }
-    public string Name { get; }
+    public string NamePrefix { get; }
 
     /// <summary>
     /// A dictionary containing a list of all triggers belonging to this object, keyed by <see cref="TTriggerKey"/>, widely typed as <see cref="IncomingTrigger"/>.
@@ -35,5 +35,5 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
 
 public interface IIncomingTriggerDeviceBase : IRemoteService
 {
-    string Name { get; }
+    string NamePrefix { get; }
 }

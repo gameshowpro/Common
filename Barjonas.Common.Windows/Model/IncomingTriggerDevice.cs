@@ -6,9 +6,9 @@ using System.Collections.Immutable;
 using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using static Barjonas.Common.Model.KioskWindowHandler;
-#nullable enable
 namespace Barjonas.Common.Model;
 
 /// <summary>
@@ -17,9 +17,10 @@ namespace Barjonas.Common.Model;
 /// <typeparam name="TTriggerKey">The type of the enum defining all possible trigger keys. 
 /// Each of its members must have a description field from which the corresponding trigger's name can be derived.</typeparam>
 /// <typeparam name="TTrigger">The type of the <see cref="IncomingTrigger"/> used by this subclass</typeparam>
-public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger> : IncomingTriggerDeviceBase<TTriggerKey>
+public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : IncomingTriggerDeviceBase<TTriggerKey>
     where TTriggerKey : notnull, Enum
     where TTrigger : IncomingTrigger
+    where TSubclass : IIncomingTriggerDeviceBase
 {
     private readonly PropertyChangeFilters _propertyChangeFilters = new();
     /// <summary>
@@ -30,19 +31,21 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger> : IncomingTri
     /// <param name="serviceState">A <see cref="ServiceState"/> object which will be maintained by the subclass.</param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="MissingMemberException"></exception>
-    public IncomingTriggerDevice(
-        string name,
+    protected IncomingTriggerDevice(
+        string namePrefix,
+        int index,
         IncomingTriggerDeviceSettingsBase settings,
         ServiceState serviceState
     )
     : base
     (
-        name, 
+        namePrefix,
         serviceState
     )
     {
         BaseSettings = settings;
         ImmutableDictionary<TTriggerKey, TTrigger>.Builder dictBuilder = ImmutableDictionary.CreateBuilder<TTriggerKey, TTrigger>();
+        Type thisType = GetType();
         if (settings.TriggerSettings != null)
         {
             Type t = typeof(TTriggerKey);
@@ -55,12 +58,15 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger> : IncomingTri
                 }
                 else
                 {
-                    object[]? attrs = t.GetField(valueString)?.GetCustomAttributes(typeof(TriggerParameters), false);
-                    if (attrs?.FirstOrDefault() is not TriggerParameters attr)
+                    FieldInfo? field = t.GetField(valueString);
+                    TriggerParameters? triggerParams = GetTriggerParameters(field);
+                    if (triggerParams is null)
                     {
                         throw new MissingMemberException($"{t} must contain a {nameof(TriggerParameters)} attribute on every member.");
                     }
-                    TTrigger trigger = TriggerFactory(settings.TriggerSettings.GetOrCreate(value.ToString(), attr.Name, attr.DefaultId, attr.TriggerFilter, attr.DebounceInterval));
+                    ITriggerDefaultSpecification? triggerDefault = GetTriggerDefaultSpecification<TSubclass>(field, index);
+                    
+                    TTrigger trigger = TriggerFactory(settings.TriggerSettings.GetOrCreate(value.ToString(), triggerParams.Name, triggerDefault?.TriggerId, triggerParams.TriggerFilter, triggerParams.DebounceInterval));
                     dictBuilder.Add(value, trigger);
                 }
             }
@@ -145,4 +151,3 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger> : IncomingTri
 
     protected virtual void AfterUpdateTriggerDict() { }
 }
-#nullable restore

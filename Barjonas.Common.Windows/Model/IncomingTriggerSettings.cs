@@ -1,56 +1,56 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 
-namespace Barjonas.Common.Model
+namespace Barjonas.Common.Model;
+
+public class IncomingTriggerSettings : KeyedCollection<string, IncomingTriggerSetting>
 {
-    public class IncomingTriggerSettings : KeyedCollection<string, IncomingTriggerSetting>
+    protected override string GetKeyForItem(IncomingTriggerSetting item)
     {
-        protected override string GetKeyForItem(IncomingTriggerSetting item)
+        return item.Key;
+    }
+
+    [Obsolete("This overload is for backwards-compatability only. Specify a TriggerFilter instead of executeOnFirstInterrupt.")]
+    public IncomingTriggerSetting GetOrCreate(string key, string name, byte? defaultId, bool executeOnFirstInterrupt = false, TimeSpan? debounceInterval = null)
+        => GetOrCreate(key, name, defaultId, executeOnFirstInterrupt ? TriggerFilter.FirstOnly : TriggerFilter.All, debounceInterval);
+
+
+    public virtual IncomingTriggerSetting GetOrCreate(string key, string name, byte? defaultId, TriggerFilter triggerFilter, TimeSpan? debounceInterval = null)
+    {
+        if (name == null)
         {
-            return item.Key;
+            name = key;
         }
-
-        [Obsolete("This overload is for backwards-compatability only. Specify a TriggerFilter instead of executeOnFirstInterrupt.")]
-        public IncomingTriggerSetting GetOrCreate(string key, string name, byte defaultId, bool executeOnFirstInterrupt = false, TimeSpan? debounceInterval = null)
-            => GetOrCreate(key, name, defaultId, executeOnFirstInterrupt ? TriggerFilter.FirstOnly : TriggerFilter.All, debounceInterval);
-
-
-        public virtual IncomingTriggerSetting GetOrCreate(string key, string name, byte defaultId, TriggerFilter triggerFilter, TimeSpan? debounceInterval = null)
+        IncomingTriggerSetting trigger;
+        if (Contains(key))
         {
-            if (name == null)
-            {
-                name = key;
-            }
-            IncomingTriggerSetting trigger;
-            if (Contains(key))
-            {
-                trigger = this[key];
-            }
-            else
-            {
-                trigger = new IncomingTriggerSetting() 
-                { 
-                    Key = key, 
-                    Id = defaultId, 
-                    Name = name, 
-                    DebounceInterval = debounceInterval,
-                    TriggerEdge = true
-                };
-                Add(trigger);
-            }
-            trigger.TriggerFilter = triggerFilter; //not user-configurable for now
-            trigger._wasTouched = true;
-            return trigger;
+            trigger = this[key];
         }
-
-        public void RemoveUntouched()
+        else
         {
-            for (int i = Count - 1; i >= 0; i--)
+            trigger = new IncomingTriggerSetting() 
+            { 
+                Key = key, 
+                Id = defaultId ?? 127, 
+                Name = name, 
+                DebounceInterval = debounceInterval,
+                TriggerEdge = true,
+                IsEnabled = defaultId.HasValue
+            };
+            Add(trigger);
+        }
+        trigger.TriggerFilter = triggerFilter; //not user-configurable for now
+        trigger._wasTouched = true;
+        return trigger;
+    }
+
+    public void RemoveUntouched()
+    {
+        for (int i = Count - 1; i >= 0; i--)
+        {
+            if (!Items[i]._wasTouched)
             {
-                if (!Items[i]._wasTouched)
-                {
-                    RemoveAt(i);
-                }
+                RemoveAt(i);
             }
         }
     }

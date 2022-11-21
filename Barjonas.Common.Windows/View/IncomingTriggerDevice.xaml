@@ -177,7 +177,8 @@
             </StackPanel.Resources>
             <StackPanel Orientation="Horizontal" Margin="{StaticResource ControlSmallMargin}">
                 <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ServiceStatus}" VerticalAlignment="Center" />
-                <TextBlock Style="{StaticResource Heading}" Text="{Binding Name, Mode=OneWay}" VerticalAlignment="Center" Margin="{StaticResource ControlSmallMargin}"/>
+                <TextBlock Style="{StaticResource Header}" Text="{Binding NamePrefix, Mode=OneWay}" VerticalAlignment="Center" Margin="{StaticResource ControlSmallMargin}"/>
+                <TextBlock Style="{StaticResource Heading}" Text="{Binding BaseSettings.NameSuffix, Mode=OneWay}" VerticalAlignment="Center" Margin="{StaticResource ControlSmallMargin}"/>
                 <ItemsControl ItemsSource="{Binding ServiceState.Children.Values}" ItemTemplate="{StaticResource ServiceStateMax}" VerticalAlignment="Center" />
                 <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource IncomingTriggerDeviceHeaderTemplateSelector}" />
             </StackPanel>

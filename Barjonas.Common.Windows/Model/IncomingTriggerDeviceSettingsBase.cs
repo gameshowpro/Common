@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Security.Policy;
+using Newtonsoft.Json;
 
 namespace Barjonas.Common.Model;
 
@@ -7,10 +8,11 @@ namespace Barjonas.Common.Model;
 /// </summary>
 public abstract class IncomingTriggerDeviceSettingsBase : NotifyingClass
 {
-    protected IncomingTriggerDeviceSettingsBase(IncomingTriggerSettings incomingTriggerSettings, bool? allowDuplicateTriggerIds)
+    protected IncomingTriggerDeviceSettingsBase(IncomingTriggerSettings incomingTriggerSettings, bool? allowDuplicateTriggerIds, string nameSuffix)
     {
         TriggerSettings = incomingTriggerSettings;
         _allowDuplicateTriggerIds = allowDuplicateTriggerIds ?? false;
+        _nameSuffix = nameSuffix;
     }
 
     private bool _allowDuplicateTriggerIds;
@@ -23,6 +25,17 @@ public abstract class IncomingTriggerDeviceSettingsBase : NotifyingClass
     {
         get { return _allowDuplicateTriggerIds; }
         set { SetProperty(ref _allowDuplicateTriggerIds, value); }
+    }
+
+    private string _nameSuffix;
+    /// <summary>
+    /// A name which can be used shown on the UI to distinguish this device instance from another of the same type.
+    /// </summary>
+    [JsonProperty]
+    public string NameSuffix
+    {
+        get { return _nameSuffix; }
+        set { SetProperty(ref _nameSuffix, value); }
     }
 
     [JsonProperty]
