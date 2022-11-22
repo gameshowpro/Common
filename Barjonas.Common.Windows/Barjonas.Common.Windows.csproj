@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net7.0-windows</TargetFrameworks>
-    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
     <UseWpf>true</UseWpf>
     <UseWindowsForms>true</UseWindowsForms>
     <Company>Barjonas LLC</Company>
