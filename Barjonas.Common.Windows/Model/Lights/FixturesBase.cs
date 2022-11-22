@@ -143,10 +143,7 @@ public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
     protected static List<FixtureChannel> ChannelsFromPreset(StatePresetGroup? presetGroup)
         => presetGroup is null ? new() : new (Enumerable.Range(0, presetGroup.ChannelColors.Count).Select(
             i =>
-            new FixtureChannel()
-            {
-                FixtureChannelType = presetGroup.ChannelColors[i]
-            }
+            new FixtureChannel(presetGroup.ChannelColors[i])
         ).ToList());
 
     protected abstract IEnumerable<Fixture> BuildTemplate(IEnumerable<StatePresetGroup> presetGroups);

@@ -1,5 +1,7 @@
 ﻿// (C) Barjonas LLC 2018
 
+using System.Windows.Media;
+
 namespace Barjonas.Common.Model.Lights;
 
 /// <summary>
@@ -8,6 +10,14 @@ namespace Barjonas.Common.Model.Lights;
 public class FixtureChannel : NotifyingClass
 {
     internal event EventHandler<byte>? LevelChanged;
+    public FixtureChannel() : this(null) { }
+
+    [JsonConstructor]
+    public FixtureChannel(FixtureChannelType? fixtureChannelType)
+    {
+        _fixtureChannelType = fixtureChannelType ?? new() { Primary = Colors.White };
+    }
+
     private FixtureChannelType _fixtureChannelType;
     public FixtureChannelType FixtureChannelType
     {
@@ -45,8 +55,8 @@ public class FixtureChannel : NotifyingClass
         set { SetProperty(ref _universeIndex, value); }
     }
 
-    private Fixture _parent;
-    public Fixture Parent
+    private Fixture? _parent;
+    public Fixture? Parent
     {
         get { return _parent; }
         set { SetProperty(ref _parent, value); }

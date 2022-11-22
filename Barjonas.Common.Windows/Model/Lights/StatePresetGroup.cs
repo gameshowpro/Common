@@ -4,33 +4,27 @@ namespace Barjonas.Common.Model.Lights;
 
 public class StatePresetGroup
 {
-    public string Name { get; set; }
+    public string Name { get; }
 
-    private StatesLevels _statesLevels;
-    [JsonProperty]
-    public StatesLevels StatesLevels
+    public StatePresetGroup() : this(null, null, null) { }
+
+    [JsonConstructor]
+    public StatePresetGroup(string? name, ImmutableList<FixtureChannelType>? channelColors, StatesLevels? statesLevels)
     {
-        get
-        {
-            return _statesLevels;
-        }
-        set
-        {
-            if (_statesLevels != null)
-            {
-                throw new InvalidOperationException($"Once {nameof(StatesLevels)} is set, it is immutable.");
-            }
-            _statesLevels = value;
-            Validate();
-        }
+        Name = name ?? "no name";
+        StatesLevels = statesLevels ?? new();
+        _channelColors = channelColors ?? ImmutableList<FixtureChannelType>.Empty;
     }
 
+    [JsonProperty]
+    public StatesLevels StatesLevels { get; }
+
     [Obsolete("Use StateLevels[key]?.Levels instead")]
-    public IEnumerable<StatePresetChannel> LevelByKey(string key)
+    public IEnumerable<StatePresetChannel>? LevelByKey(string key)
     {
-        if (StatesLevels.Contains(key))
+        if (StatesLevels.TryGetValue(key, out StateLevels? levels))
         {
-            return StatesLevels[key]?.Levels;
+            return levels.Levels;
         }
         else
         {
@@ -38,9 +32,9 @@ public class StatePresetGroup
         }
     }
 
-    private IReadOnlyList<FixtureChannelType> _channelColors;
+    private ImmutableList<FixtureChannelType> _channelColors;
     [JsonProperty]
-    public IReadOnlyList<FixtureChannelType> ChannelColors
+    public ImmutableList<FixtureChannelType> ChannelColors
     {
         get
         {
@@ -55,19 +49,16 @@ public class StatePresetGroup
 
     private void Validate()
     {
-        if (_statesLevels != null && _channelColors != null)
+        int primCount = _channelColors.Count;
+        foreach (StateLevels v in StatesLevels)
         {
-            var primCount = _channelColors.Count;
-            foreach (StateLevels v in _statesLevels)
+            if (v.Levels.Count > primCount)
             {
-                if (v.Levels.Count > primCount)
-                {
-                    v.Levels = v.Levels.Take(primCount).ToList().AsReadOnly();
-                }
-                else if (v.Levels.Count != primCount)
-                {
-                    throw new InvalidOperationException($"Number of levels in all {nameof(StateLevels)} object must match number of {nameof(ChannelColors)}.");
-                }
+                v.Levels = v.Levels.Take(primCount).ToList().ToImmutableList();
+            }
+            else if (v.Levels.Count != primCount)
+            {
+                throw new InvalidOperationException($"Number of levels in all {nameof(StateLevels)} object must match number of {nameof(ChannelColors)}.");
             }
         }
     }

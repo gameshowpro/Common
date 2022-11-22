@@ -7,6 +7,17 @@ namespace Barjonas.Common.Model.Lights;
 /// </summary>
 public class StatePresetChannel : NotifyingClass
 {
+    public StatePresetChannel() : this(null)
+    {
+
+    }
+
+    [JsonConstructor]
+    public StatePresetChannel(FixtureChannelType? fixtureChannelType)
+    {
+        _fixtureChannelType = fixtureChannelType ?? new();
+    }
+
     private byte _level;
     [JsonProperty, DefaultValue(0)]
     public byte Level
