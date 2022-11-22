@@ -93,10 +93,10 @@ public static partial class UtilsWindows
     /// <param name="index">The index of the target screen, where zero is always the primary.</param>
     public static bool SizeWindowToScreen(this Window window, int index)
     {
-        var target = new Rectangle();
+        Rectangle? target = null;
         if (index == 0)
         {
-            target = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
+            target = System.Windows.Forms.Screen.PrimaryScreen?.Bounds;
         }
         else
         {
@@ -114,9 +114,9 @@ public static partial class UtilsWindows
                 }
             }
         }
-        if (target.Width > 0 && target.Height > 0)
+        if (target.HasValue && target.Value.Width > 0 && target.Value.Height > 0)
         {
-            SizeWindowToRect(window, target);
+            SizeWindowToRect(window, target.Value);
             return true;
         }
         else
