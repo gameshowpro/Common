@@ -1579,6 +1579,18 @@ namespace Barjonas.Common
                 return r;
             }
         }
+
+        /// <summary>
+        /// Alternative to <see cref="IDictionary<TKey, TValue>.TryGetValue"/> better suited to inlining.
+        /// </summary>
+        public static TValue? TryGetValueOrNull<TKey, TValue>(this IDictionary<TKey, TValue>? dictionary, TKey key)
+        {
+            if (dictionary?.TryGetValue(key, out TValue? value) == true)
+            {
+                return value!;
+            }
+            return default;
+        }
     }
 }
 #nullable restore
