@@ -41,7 +41,7 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
             if (SetProperty(ref _isDown, value))
             {
                 OnIsDownChanged(value);
-                if (value == Setting.TriggerEdge)
+                if (value == Setting.TriggerEdge && TriggerWhenDown)
                 {
                     DoTriggered();
                 }
@@ -57,7 +57,7 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
     /// </summary>
     protected virtual void DoTriggered()
     {
-        if (TriggerWhenDown && Setting.IsEnabled && (!Setting.DebounceInterval.HasValue || _lastTrigger.Elapsed > Setting.DebounceInterval.Value))
+        if (Setting.IsEnabled && (!Setting.DebounceInterval.HasValue || _lastTrigger.Elapsed > Setting.DebounceInterval.Value))
         {
             RelayTriggered(this, new TriggerArgs(TriggerData));
         }
