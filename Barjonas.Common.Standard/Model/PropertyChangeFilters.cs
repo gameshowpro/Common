@@ -135,7 +135,7 @@ public class PropertyChangeFilter
 
     private void SenderCollection_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (sender is INotifyCollectionChanged collectionSender)
+        if (sender is not null && sender is INotifyCollectionChanged collectionSender)
         {
             int senderIndex = _collectionSenders.IndexOf(collectionSender);
             if (senderIndex >= 0 && _notifyCollectionConditions[senderIndex].Contains(null))
@@ -147,7 +147,7 @@ public class PropertyChangeFilter
 
     private void Sender_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (sender is INotifyPropertyChanged itemSender)
+        if (sender is not null && sender is INotifyPropertyChanged itemSender)
         {
             int senderIndex = _itemSenders.IndexOf(itemSender);
             if (senderIndex >= 0 && e.PropertyName is not null && _notifyItemConditions[senderIndex].Contains(e.PropertyName))
