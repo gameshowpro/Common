@@ -21,14 +21,25 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
         ParentDevice = parentDevice;
         _lastTrigger.Start();
         Setting = setting;
-        SimulateTriggerCommand = new RelayCommand<bool?>((latch) => { if (latch == true) { IsDown = !_isDown; } else { DoTriggered(); } });
+        SimulateTriggerCommand = new RelayCommand<bool?>((latch) => { if (latch == true) { IsDown = !_isDown; } else { OnConfiguredEdge(); } });
         ToggleIsEnabledCommand = new(() => { Setting.IsEnabled = !Setting.IsEnabled; });
     }
 
     public IIncomingTriggerDeviceBase? ParentDevice { get; }
 
+    /// <summary>
+    /// Called whenever <see cref="IsDown"/> changes value
+    /// </summary>
+    /// <param name="value"></param>
     protected void OnIsDownChanged(bool value)
-        => IsDownChanged?.Invoke(this, value);
+    {
+        IsDownChanged?.Invoke(this, value);
+
+        if (BaseClassDetectsEdges && value == Setting.TriggerEdge)
+        {
+            OnConfiguredEdge();
+        }
+    }
 
     public IncomingTriggerSetting Setting { get; }
 
@@ -41,10 +52,6 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
             if (SetProperty(ref _isDown, value))
             {
                 OnIsDownChanged(value);
-                if (value == Setting.TriggerEdge && TriggerWhenDown)
-                {
-                    DoTriggered();
-                }
             }
         }
     }
@@ -52,21 +59,22 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
     public object? TriggerData { get; set; }
 
     /// <summary>
-    /// Called by base class whenever this trigger has been triggered, subject to the currently configured conditions.
-    /// The base implementation raises the Triggered event, so should be called from subclasses.
+    /// Called by base class whenever IsDown edge is encountered that matches TriggerEdge setting and subclass has not suppressed it using TriggerWhenDown.
+    /// Alternatively, could be called by base class.
+    /// Trigger will not be passed on to RelayTriggered unless debounce and IsEnabled tests are passed
     /// </summary>
-    protected virtual void DoTriggered()
+    protected void OnConfiguredEdge()
     {
         if (Setting.IsEnabled && (!Setting.DebounceInterval.HasValue || _lastTrigger.Elapsed > Setting.DebounceInterval.Value))
         {
-            RelayTriggered(this, new TriggerArgs(TriggerData));
+            OnVerifiedTrigger(this, new TriggerArgs(TriggerData));
         }
     }
 
     /// <summary>
     /// Called by base class whenever this trigger has been triggered. No additional filtering is perfomed in the base class.
     /// </summary>
-    protected virtual void RelayTriggered(object? source, TriggerArgs args)
+    protected virtual void OnVerifiedTrigger(object? source, TriggerArgs args)
     {
         _lastTrigger.Restart();
         LastTriggerDateTime = DateTime.UtcNow;
@@ -74,10 +82,9 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
     }
 
     /// <summary>
-    /// If true, <see cref="Triggered"/> will only be called whenever <see cref="IsDown"/> changes to true.
-    /// Previously known as IsEnabled.
+    /// If true, <see cref="OnConfiguredEdge"/> will be called whenever configured edge is detected in <see cref="IsDown"/>.
     /// </summary>
-    public virtual bool TriggerWhenDown => true;
+    public virtual bool BaseClassDetectsEdges => true;
 
     private int? _ordinal;
     /// <summary>

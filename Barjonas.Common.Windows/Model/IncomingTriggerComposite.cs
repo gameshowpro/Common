@@ -13,7 +13,7 @@ public class IncomingTriggerComposite : IncomingTrigger
         Children = children.ToImmutableList();
         foreach (IncomingTrigger child in children)
         {
-            child.Triggered += RelayTriggered;
+            child.Triggered += OnVerifiedTrigger;
             child.IsDownChanged += (s, e) => UpdateIsDown();
             child.Setting.PropertyChanged += (s, e) =>
             {
@@ -42,16 +42,13 @@ public class IncomingTriggerComposite : IncomingTrigger
         UpdateIsDown();
     }
 
-    protected override void DoTriggered()
-    {
-        //No operation. Don't want base class to raise any trigger events from its own logic
-    }
+    public override bool BaseClassDetectsEdges => false; //Don't allow the base class to call OnConfiguredEdge()
 
-    protected override void RelayTriggered(object? source, TriggerArgs args)
+    protected override void OnVerifiedTrigger(object? source, TriggerArgs args)
     {
         if (Setting.IsEnabled)
         {
-            base.RelayTriggered(source, args);
+            base.OnVerifiedTrigger(source, args);
         }
     }
 
