@@ -38,10 +38,10 @@
                                 <GradientStop Color="#ff000055" Offset="1"/>
                             </RadialGradientBrush>
                         </Grid.Background>
-                        <iconPacks:PackIconMaterial Kind="ArrowTopRightBoldOutline" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" />
+                        <iconPacks:PackIconMaterial Kind="Numeric1Circle" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" />
                     </Grid>
                     <Grid Background="#ff000033" Visibility="{Binding IsDown, Converter={StaticResource MatchToBooleanConverter}, ConverterParameter={conv:Bool False}}">
-                        <iconPacks:PackIconMaterial Kind="ArrowBottomRightBoldOutline" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" />
+                        <iconPacks:PackIconRemixIcon Kind="CreativeCommonsZeroLine" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" />
                     </Grid>
                     <Canvas Width="40" Height="40" ClipToBounds="True" Visibility="{Binding Setting.IsEnabled, Converter={StaticResource MatchToBooleanConverter},ConverterParameter={conv:Bool False}}">
                         <Line X1="-5" X2="45" Y1="-5" Y2="45" StrokeThickness="2" Stroke="White" Opacity="0.5" />
@@ -63,17 +63,32 @@
                     </Grid.InputBindings>
                 </Grid>
             </Expander.Header>
-            <ItemsControl ItemsSource="{Binding EnabledChildren}" ItemsPanel="{StaticResource UniformGridOneColumn}" Margin="0 0 0 -16">
+            <ItemsControl ItemsSource="{Binding EnabledChildren}" ItemsPanel="{StaticResource UniformGridOneColumn}" Margin="0 0 0 -9">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <DockPanel Margin="3">
-                            <TextBlock Text="{Binding ParentDevice.Name}" DockPanel.Dock="Top" FontWeight="Light"/>
-                            <DockPanel DockPanel.Dock="Top">
+                        <DockPanel Margin="3" Background="#01000000">
+                            <DockPanel.ToolTip>
+                                <ToolTip>
+                                    <DockPanel>
+                                        <TextBlock Text="{Binding ParentDevice.ServiceState.Name}" FontWeight="Light" DockPanel.Dock="Top"/>
+                                        <TextBlock Visibility="{Binding Setting.TriggerEdge, Converter={StaticResource MatchToBooleanConverterWithCollapse}, ConverterParameter={conv:Bool true}}" DockPanel.Dock="Top">
+                                            <Run Text="Trigger on rising edge of input "/>
+                                            <Run Text="{Binding Setting.Id, Converter={StaticResource ToOneBased}, Mode=OneWay}" FontWeight="SemiBold"/>
+                                        </TextBlock>
+                                        <TextBlock Visibility="{Binding Setting.TriggerEdge, Converter={StaticResource MatchToBooleanConverterWithCollapse}, ConverterParameter={conv:Bool false}}" DockPanel.Dock="Top">
+                                            <Run Text="Trigger on falling edge of input "/>
+                                            <Run Text="{Binding Setting.Id, Converter={StaticResource ToOneBased}, Mode=OneWay}" FontWeight="SemiBold"/>
+                                        </TextBlock>
+                                    </DockPanel>
+                                </ToolTip>
+                            </DockPanel.ToolTip>
+                            <TextBlock Text="{Binding ParentDevice.ServiceState.Name}" DockPanel.Dock="Top" FontWeight="Light"/>
+                            <DockPanel DockPanel.Dock="Top" Margin="0 2">
                                 <TextBlock Text="{Binding Setting.Id, Converter={StaticResource ToOneBased}}" DockPanel.Dock="Left" Padding="5 0" Margin="0 0 5 0"/>
-                                <iconPacks:PackIconMaterial Kind="ArrowBottomRightBoldOutline" Background="#01000000" ToolTip="Trigger on falling edge" Visibility="{Binding Setting.TriggerEdge, Converter={StaticResource MatchToBooleanConverterWithCollapse}, ConverterParameter={conv:Bool false}}" />
-                                <iconPacks:PackIconMaterial Kind="ArrowTopRightBoldOutline" ToolTip="Trigger on rising edge" Visibility="{Binding Setting.TriggerEdge, Converter={StaticResource MatchToBooleanConverterWithCollapse}, ConverterParameter={conv:Bool true}}"/>
+                                <iconPacks:PackIconMaterial Kind="ArrowBottomRightBoldOutline" Visibility="{Binding Setting.TriggerEdge, Converter={StaticResource MatchToBooleanConverterWithCollapse}, ConverterParameter={conv:Bool false}}" />
+                                <iconPacks:PackIconMaterial Kind="ArrowTopRightBoldOutline" Visibility="{Binding Setting.TriggerEdge, Converter={StaticResource MatchToBooleanConverterWithCollapse}, ConverterParameter={conv:Bool true}}"/>
                             </DockPanel>
-                            <Grid ToolTip="Double right click to enable/disable" DockPanel.Dock="Top">
+                            <Grid DockPanel.Dock="Top">
                                 <Grid.Resources>
                                     <Storyboard x:Key="TriggerIndicatorSB" >
                                         <DoubleAnimation Storyboard.TargetName="TriggerIndicator" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5" />
@@ -111,11 +126,8 @@
                                         </iconPacks:PackIconModern.Triggers>
                                     </iconPacks:PackIconModern>
                                 </Grid>
-                                <Grid.InputBindings>
-                                    <MouseBinding MouseAction="RightDoubleClick" Command="{Binding ToggleIsEnabledCommand}" />
-                                </Grid.InputBindings>
                             </Grid>
-                            <Separator Margin="7" />
+                            <Separator Margin="0 5 0 0" />
                         </DockPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
