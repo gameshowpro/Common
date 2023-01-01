@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>10.0</LangVersion>
     <Platforms>AnyCPU;x64;ARM64</Platforms>
     <LangVersion>preview</LangVersion>
@@ -13,24 +14,6 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
   <ItemGroup>
-    <Using Include="System" />
-    <Using Include="System.Globalization" />
-    <Using Include="System.Collections" />
-    <Using Include="System.Collections.Generic" />
-    <Using Include="System.Collections.ObjectModel" />
-    <Using Include="System.Collections.Immutable" />
-    <Using Include="System.Collections.Specialized" />
-    <Using Include="System.ComponentModel" />
-    <Using Include="System.Diagnostics.CodeAnalysis" />
-    <Using Include="System.Linq" />
-    <Using Include="System.IO" />
-    <Using Include="System.Text" />
-    <Using Include="System.Windows" />
-    <Using Include="System.Threading" />
-    <Using Include="System.Threading.Tasks" />
-    <Using Include="Newtonsoft.Json" />
-  </ItemGroup>
-  <ItemGroup>
     <None Remove="MessagePackAnalyzer.json" />
   </ItemGroup>
 
@@ -39,14 +22,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MessagePack" Version="2.4.35" />
-    <PackageReference Include="MessagePack.Annotations" Version="2.4.35" />
-    <PackageReference Include="MessagePackAnalyzer" Version="2.4.35">
+    <PackageReference Include="MessagePack" Version="2.4.59" />
+    <PackageReference Include="MessagePack.Annotations" Version="2.4.59" />
+    <PackageReference Include="MessagePackAnalyzer" Version="2.4.59">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NLog" Version="5.0.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="NLog" Version="5.1.1" />
   </ItemGroup>
 
 </Project>

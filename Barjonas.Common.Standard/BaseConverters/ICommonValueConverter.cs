@@ -1,7 +1,4 @@
-﻿using System;
-using System.Globalization;
-
-namespace Barjonas.Common.BaseConverters;
+﻿namespace Barjonas.Common.BaseConverters;
 
 public interface ICommonValueConverter
 {

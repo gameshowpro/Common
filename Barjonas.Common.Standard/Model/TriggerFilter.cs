@@ -1,9 +1,8 @@
-﻿namespace Barjonas.Common.Model
+﻿namespace Barjonas.Common.Model;
+
+public enum TriggerFilter
 {
-    public enum TriggerFilter
-    {
-        None,
-        All,
-        FirstOnly
-    }
+    None,
+    All,
+    FirstOnly
 }

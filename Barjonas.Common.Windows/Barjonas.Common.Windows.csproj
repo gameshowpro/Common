@@ -15,32 +15,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Using Include="Barjonas.Common.Utils" Static="true" />
-    <Using Include="Barjonas.Common.UtilsWindows" Static="true" />
-    <Using Include="System"/>
-    <Using Include="System.Collections.Generic"/>
-    <Using Include="System.Collections.Immutable"/>
-    <Using Include="System.Configuration"/>
-    <Using Include="System.Diagnostics"/>
-    <Using Include="System.Diagnostics.CodeAnalysis"/>
-    <Using Include="System.Linq"/>
-    <Using Include="System.Reflection"/>
-    <Using Include="System.Windows"/>
-    <Using Include="System.Windows.Threading"/>
-    <Using Include="System.Data"/>
-    <Using Include="System.Collections"/>
-    <Using Include="System.ComponentModel"/>
-    <Using Include="NLog"/>
-    <Using Include="Newtonsoft.Json"/>
-    <Using Include="System.Windows.Controls"/>
-    <Using Include="System.Windows.Data"/>
-    <Using Include="System.Windows.Input"/>
-    <Using Include="Microsoft.Xaml.Behaviors"/>
-    <Using Include="System.Drawing"/>
-    <Using Include="System.IO"/>
-    <Using Include="System.Security.Principal"/>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="MahApps.Metro" Version="2.4.9" />
     <PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
