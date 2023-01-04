@@ -1,6 +1,8 @@
 ﻿// (C) Barjonas LLC 2018
 
 #nullable enable
+using Newtonsoft.Json.Serialization;
+
 namespace Barjonas.Common;
 
 public static partial class Utils
@@ -993,19 +995,42 @@ public static partial class Utils
     /// <param name="rethrowDeserializationExceptions">If true, any deserialization exception will be rethrown. Otherwise exceptions will be logged and a new object will be returned.</param>
     /// <param name="renameFailedFiles">If true, an file which is found but cannot be deserialized will be renamed before a default object is created.</param>
     /// <returns></returns>
-    public static T Depersist<T>(string? path, out bool isNew, Logger? logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true) where T : class, new()
+    public static T Depersist<T>(string? path, out bool isNew, Logger? logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true)
+        where T : class, new()
+        => Depersist<T>(path, null, out isNew, logger, rethrowDeserializationExceptions, renameFailedFiles);
+
+    /// <summary>
+    /// Load any Type from a JSON file. On failure, create a new one.
+    /// </summary>
+    /// <typeparam name="T">A reference type which has a default constructor.</typeparam>
+    /// <param name="path">Path to the JSON file.</param>
+    /// <param name="serializationBinder">A custom serialization binder to be used instead of automatic handling.</param>
+    /// <param name="isNew">If an object is created (due to file not existing or being invalid) this will be set to true.</param>
+    /// <param name="logger">If supplied, this will be used to log useful log messages about the depersistance operation.</param>
+    /// <param name="rethrowDeserializationExceptions">If true, any deserialization exception will be rethrown. Otherwise exceptions will be logged and a new object will be returned.</param>
+    /// <param name="renameFailedFiles">If true, an file which is found but cannot be deserialized will be renamed before a default object is created.</param>
+    /// <returns></returns>
+    public static T Depersist<T>(string? path, ISerializationBinder? serializationBinder, out bool isNew, Logger? logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true) where T : class, new()
     {
-        var ser = new JsonSerializer()
+        JsonSerializer ser = new()
         {
-            TypeNameHandling = TypeNameHandling.Auto,
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
             DefaultValueHandling = DefaultValueHandling.Populate
         };
+        if (serializationBinder is null)
+        {
+            ser.TypeNameHandling = TypeNameHandling.Auto;
+        }
+        else
+        {
+            ser.TypeNameHandling = TypeNameHandling.Objects;
+            ser.SerializationBinder = serializationBinder;
+        }
         T? obj = null;
         if (path is not null && File.Exists(path))
         {
             bool renameBroken = false;
-            using var sr = new StreamReader(path);
+            using StreamReader sr = new (path);
             {
                 using JsonReader reader = new JsonTextReader(sr);
                 try
@@ -1092,6 +1117,15 @@ public static partial class Utils
     /// <param name="path">Path to the JSON file.</param>
     /// <param name="obj">Object to be persisted.</param>
     public static void Persist<T>(T obj, string? path, bool enumsAsStrings = false)
+        => Persist(obj, null, path, enumsAsStrings);
+
+    /// <summary>
+    /// Persist any type to a JSON file.
+    /// </summary>
+    /// <typeparam name="T">The type of object to be persisted.</typeparam>
+    /// <param name="path">Path to the JSON file.</param>
+    /// <param name="obj">Object to be persisted.</param>
+    public static void Persist<T>(T obj, ISerializationBinder? serializationBinder, string? path, bool enumsAsStrings = false)
     {
         if (obj is null || path is null)
         {
@@ -1101,9 +1135,17 @@ public static partial class Utils
         var ser = new JsonSerializer()
         {
             Formatting = Formatting.Indented,
-            TypeNameHandling = TypeNameHandling.Auto,
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
         };
+        if (serializationBinder is null)
+        {
+            ser.TypeNameHandling = TypeNameHandling.Auto;
+        }
+        else
+        {
+            ser.TypeNameHandling = TypeNameHandling.Objects;
+            ser.SerializationBinder = serializationBinder;
+        }
         if (enumsAsStrings)
         {
             ser.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
