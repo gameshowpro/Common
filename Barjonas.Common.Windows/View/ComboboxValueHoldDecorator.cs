@@ -11,7 +11,7 @@ namespace Barjonas.Common.View;
 ///            <ComboBox 
 ///             SelectedValue = "{Binding SelectedCaptureDevice}" 
 ///             SelectedValuePath = "guid" 
-///             e:ComboBoxValueHoldDecorator.ItemsSource = "{Binding CaptureDeviceList}">
+///             comview:ComboBoxValueHoldDecorator.ItemsSource = "{Binding CaptureDeviceList}">
 ///            <ComboBox>
 /// </example>
 public static class ComboBoxValueHoldDecorator
@@ -39,11 +39,20 @@ public static class ComboBoxValueHoldDecorator
         }
 
         // Save original binding 
-        Binding originalBinding = BindingOperations.GetBinding(target, Selector.SelectedValueProperty);
+        Binding? originalSelectedValueBinding = BindingOperations.GetBinding(target, Selector.SelectedValueProperty);
         int? selectedIndex = null;
-        if (originalBinding == null)
+        if (originalSelectedValueBinding == null)
         {
-            selectedIndex = (int)element.GetValue(Selector.SelectedIndexProperty);
+            if (BindingOperations.IsDataBound(target, s_selectedIndexProperty))
+            {
+                //this decorator's custom SelectedIndex is bound
+                selectedIndex = (int?)element.GetValue(s_selectedIndexProperty);
+            }
+            else
+            {
+                //use the default SelectedIndex instead
+                selectedIndex = (int)element.GetValue(Selector.SelectedIndexProperty);
+            }
         }
         else
         {
@@ -55,7 +64,7 @@ public static class ComboBoxValueHoldDecorator
         }
         finally
         {
-            if (originalBinding == null)
+            if (originalSelectedValueBinding == null)
             {
                 if (selectedIndex.HasValue)
                 {
@@ -69,7 +78,7 @@ public static class ComboBoxValueHoldDecorator
             }
             else
             {
-                BindingOperations.SetBinding(target, Selector.SelectedValueProperty, originalBinding);
+                BindingOperations.SetBinding(target, Selector.SelectedValueProperty, originalSelectedValueBinding);
             }
         }
     }
@@ -92,31 +101,29 @@ public static class ComboBoxValueHoldDecorator
         return enumerator.Current;
     }
 
-    //public static int GetSelectedIndex(UIElement obj)
-    //{
-    //    return (int)obj.GetValue(s_selectedIndexProperty);
-    //}
+    public static int? GetSelectedIndex(UIElement obj)
+    {
+        return (int?)obj.GetValue(s_selectedIndexProperty);
+    }
 
-    //public static void SetSelectedIndex(UIElement obj, int value)
-    //{
-    //    obj.SetValue(s_selectedIndexProperty, value);
-    //}
+    public static void SetSelectedIndex(UIElement obj, int value)
+    {
+        obj.SetValue(s_selectedIndexProperty, value);
+    }
 
-    //public static readonly DependencyProperty s_selectedIndexProperty =
-    //    DependencyProperty.RegisterAttached("SelectedIndex", typeof(int), typeof(ComboBoxValueHoldDecorator), new PropertyMetadata(-1, SelectedIndexPropertyChanged));
+    public static readonly DependencyProperty s_selectedIndexProperty =
+        DependencyProperty.RegisterAttached("SelectedIndex", typeof(int?), typeof(ComboBoxValueHoldDecorator), new PropertyMetadata(null, SelectedIndexPropertyChanged));
 
-    //private static void SelectedIndexPropertyChanged(DependencyObject element,
-    //        DependencyPropertyChangedEventArgs e)
-    //{
-    //    var target = element as Selector;
-    //    if (element == null)
-    //    {
-    //        return;
-    //    }
-    //    var newValue = (int)e.NewValue;
-    //    if (newValue >= 0)
-    //    {
-    //        target.SelectedIndex = newValue;
-    //    }
-    //}
+    private static void SelectedIndexPropertyChanged(DependencyObject element,
+            DependencyPropertyChangedEventArgs e)
+    {
+        if (element is not Selector target)
+        {
+            return;
+        }
+        if (e.NewValue is int newValue && newValue >= 0) //don't pass through nulls
+        {
+            target.SelectedIndex = newValue;
+        }
+    }
 }
