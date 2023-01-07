@@ -1,6 +1,4 @@
-﻿using Barjonas.Common.Model;
-
-namespace Barjonas.Common.View;
+﻿namespace Barjonas.Common.View;
 
 public class IncomingTriggersFilterBehavior : Behavior<CollectionViewSource>
 {

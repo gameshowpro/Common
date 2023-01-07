@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace Barjonas.Common.Converters;
+﻿namespace Barjonas.Common.Converters;
 
 public class TimeChangeKindConverter : IValueConverter
 {

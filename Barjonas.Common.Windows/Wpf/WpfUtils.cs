@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Windows.Documents;
+﻿using System.Windows.Documents;
 using System.Windows.Markup;
 using System.Windows.Media;
 using Point = System.Windows.Point;

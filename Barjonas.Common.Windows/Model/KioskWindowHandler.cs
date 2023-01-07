@@ -75,7 +75,7 @@ public class KioskWindowHandler : NotifyingClass
             {
                 Window.WindowStyle = WindowStyle.None;
                 Window.ResizeMode = ResizeMode.NoResize;
-                Window.Cursor = System.Windows.Input.Cursors.None;
+                Window.Cursor = Cursors.None;
                 Window.Topmost = true;
             }
             else

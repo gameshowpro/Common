@@ -1,5 +1,4 @@
-﻿using Barjonas.Common.Model;
-namespace Barjonas.Common.ViewModel;
+﻿namespace Barjonas.Common.ViewModel;
 
 public abstract class VmBase : NotifyingClass
 {
@@ -18,7 +17,7 @@ public abstract class VmBase : NotifyingClass
         }), Dispatcher.CurrentDispatcher);
         _todayUpdater = new DispatcherTimer(TimeSpan.FromMinutes(1), DispatcherPriority.SystemIdle, new EventHandler((o, e) => NotifyPropertyChanged(nameof(Today))), Dispatcher.CurrentDispatcher);
         ShowDataDirCommand = new RelayCommandSimple(() => ShowDataDir());
-        LaunchNLogLogCommand = new RelayCommand<string?>((string? targetKey) => Utils.LaunchCurrentNLogLog(targetKey ?? "f"));
+        LaunchNLogLogCommand = new RelayCommand<string?>((string? targetKey) => LaunchCurrentNLogLog(targetKey ?? "f"));
         PersistAllCommand = new RelayCommandSimple(persistAll);
     }
 

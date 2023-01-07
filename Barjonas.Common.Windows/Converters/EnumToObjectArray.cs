@@ -1,6 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Globalization;
 using System.Windows.Markup;
 
 namespace Barjonas.Common.Converters;

@@ -7,14 +7,17 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:conv="clr-namespace:Barjonas.Common.Converters"
+             xmlns:comview="clr-namespace:Barjonas.Common.View"
              mc:Ignorable="d" >
     <conv:MatchToBooleanConverter x:Key="MatchToBooleanConverter"/>
     <conv:MatchToBooleanConverter x:Key="NoMatchToBooleanConverter" Invert="true"/>
     <conv:MatchToBooleanConverter x:Key="MatchToBooleanConverterWithCollapse" FalseVisibility="Collapsed" />
     <conv:MatchToBooleanConverter x:Key="NoMatchToBooleanConverterWithCollapse" FalseVisibility="Collapsed" Invert="true"/>
+    <conv:NullToMinusOneConverter x:Key="NullToMinusOneConverter"/>
     <Thickness x:Key="ControlMargin">10</Thickness>
     <Thickness x:Key="ControlSmallMargin">5</Thickness>
     <SolidColorBrush x:Key="ControlGroupBackground" Color="#22000000" />
+    <Style TargetType="{x:Type comview:ComboBoxCustom}" BasedOn="{StaticResource {x:Type ComboBox}}"/>
     <Style TargetType="{x:Type Expander}" BasedOn="{StaticResource {x:Type Expander}}">
         <Setter Property="controls:ControlsHelper.ContentCharacterCasing" Value="Normal"/>
     </Style>
@@ -32,7 +35,9 @@
         <Setter Property="Width" Value="20"/>
         <Setter Property="Height" Value="20"/>
     </Style>
-    <SolidColorBrush Color="#ff9933" x:Key="MahApps.Brushes.Accent3"/>
+    <Color x:Key="MahApps.Colors.Accent3">#ff9933</Color>
+    <Color x:Key="MahApps.Colors.Accent4">#0066cc</Color>
+    <SolidColorBrush Color="{DynamicResource MahApps.Colors.Accent3}" x:Key="MahApps.Brushes.Accent3"/>
     <Style TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Circle}" x:Key="CircleButton">
         <Setter Property="Margin" Value="{StaticResource ControlMargin}"/>
         <Setter Property="Width" Value="50"/>
@@ -40,7 +45,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.Accent}" />
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Foreground" Value="#ff9933" />
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent3}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.Accent}" />
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
@@ -56,7 +61,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.Accent}" />
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Foreground" Value="#ff9933" />
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent3}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.Accent}" />
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
@@ -131,7 +136,7 @@
         <Setter Property="Width" Value="50" />
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Foreground" Value="#ff9933" />
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent3}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.Accent}" />
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">

@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using Color = System.Windows.Media.Color;
 
 namespace Barjonas.Common.Windows.Converters;
@@ -21,7 +20,7 @@ public class StringToColorConverter : IValueConverter
                 string? p = parameter?.ToString();
                 if (p is not null)
                 {
-                    if (!UtilsWindows.TryStringToColor(p, out fallback))
+                    if (!TryStringToColor(p, out fallback))
                     {
                         fallback = Colors.White;
                     }
@@ -35,7 +34,7 @@ public class StringToColorConverter : IValueConverter
         string? v = value?.ToString();
         if (v is not null)
         {
-            if (UtilsWindows.TryStringToColor(v, out Color? result))
+            if (TryStringToColor(v, out Color? result))
             {
                 return result;
             }

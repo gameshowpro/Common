@@ -48,7 +48,7 @@ public class UniformGridColsFirst : UniformGrid
         double height = rect.Height;
         double num = arrangeSize.Height - 1;
         rect.X = rect.X + rect.Width * FirstColumn;
-        foreach (UIElement internalChild in base.InternalChildren)
+        foreach (UIElement internalChild in InternalChildren)
         {
             internalChild.Arrange(rect);
             if (internalChild.Visibility == Visibility.Collapsed)

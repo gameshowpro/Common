@@ -27,7 +27,7 @@ public static partial class UtilsWindows
             wnd.ResizeMode = ResizeMode.NoResize;
             if (!Debugger.IsAttached) //Too annoying otherwise
             {
-                wnd.Cursor = System.Windows.Input.Cursors.None;
+                wnd.Cursor = Cursors.None;
             }
             wnd.Topmost = true;
             wnd.ShowInTaskbar = true;
@@ -259,4 +259,3 @@ public static partial class UtilsWindows
     }
 #endif
 }
-#nullable restore
