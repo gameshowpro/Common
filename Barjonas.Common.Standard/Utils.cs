@@ -1617,7 +1617,20 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Alternative to <see cref="IDictionary<TKey, TValue>.TryGetValue"/> better suited to inlining.
+    /// Alternative to <see cref="IDictionary<TKey, TValue>.TryGetValue"/> better suited to inlining when key is value type.
+    /// </summary>
+    public static TValue? TryGetValueOrNull<TKey, TValue>(this IDictionary<TKey, TValue>? dictionary, TKey? key)
+        where TKey : struct
+    {
+        if (key.HasValue && dictionary?.TryGetValue(key.Value, out TValue? value) == true)
+        {
+            return value!;
+        }
+        return default;
+    }
+
+    /// <summary>
+    /// Alternative to <see cref="IDictionary<TKey, TValue>.TryGetValue"/> better suited to inlining when key is reference type.
     /// </summary>
     public static TValue? TryGetValueOrNull<TKey, TValue>(this IDictionary<TKey, TValue>? dictionary, TKey key)
     {
