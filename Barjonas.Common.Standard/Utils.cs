@@ -1090,7 +1090,7 @@ public static partial class Utils
                     logger?.Error(ex, "Exception while trying to rename broken file at (0)", path);
                     return;
                 }
-                logger?.Info("Renamed broken file to (0)", newPath);
+                logger?.Info("Renamed broken file to {0}", newPath);
                 return;
             }
             i++;
