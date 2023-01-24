@@ -96,7 +96,7 @@ public static partial class Utils
         => source == null || source.Count == 0 ? default : source[0];
 
     /// <summary>
-    /// Returns a boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
+    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
     /// </summary>
     /// <param name="input">The number to be compared.</param>
     ///  <param name="min">The minimum value of the number.</param>
@@ -115,7 +115,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Returns a boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
+    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
     /// </summary>
     /// <param name="input">The number to be compared.</param>
     ///  <param name="min">The minimum value of the number.</param>
@@ -134,7 +134,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Returns a boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
+    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
     /// </summary>
     /// <param name="input">The number to be compared.</param>
     ///  <param name="min">The minimum value of the number.</param>
@@ -153,7 +153,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Returns a boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
+    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
     /// </summary>
     /// <param name="input">The number to be compared.</param>
     ///  <param name="min">The minimum value of the number.</param>
@@ -172,7 +172,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Returns a boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
+    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
     /// </summary>
     /// <param name="input">The number to be compared.</param>
     ///  <param name="min">The minimum value of the number.</param>
@@ -191,7 +191,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Returns a boolean indicating whether the given timespan falls between the other two.  Optionally, timespans equal to the bounds can also result in a true result.
+    /// Returns a Boolean indicating whether the given timespan falls between the other two.  Optionally, timespans equal to the bounds can also result in a true result.
     /// </summary>
     /// <param name="input">The number to be compared.</param>
     ///  <param name="min">The minimum value of the timespan.</param>
@@ -379,7 +379,7 @@ public static partial class Utils
     /// <summary>
     /// Extension method which returns the string specified in the Description attribute of an Enum, if any.  Oherwise, name is returned.
     /// </summary>
-    /// <param name="value">The enum value.</param>
+    /// <param name="value">The Enum value.</param>
     /// <returns></returns>
     public static string Description(this Enum? value)
     {
@@ -569,7 +569,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Peform union with a param array, which may contain 0, 1 or more items.
+    /// Perform union with a param array, which may contain 0, 1 or more items.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="source"></param>
@@ -581,7 +581,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given generic list is sized within the specified range, creating it if it doesn't exist.
+    /// Ensure the given generic list is sized within the specified range, creating it if it doesn't exist.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -598,7 +598,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given generic list is sized within the specified range.
+    /// Ensure the given generic list is sized within the specified range.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -625,7 +625,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given generic list contains the specified number of entries.
+    /// Ensure the given generic list contains the specified number of entries.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -637,7 +637,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given generic list contains the specified number of entries.
+    /// Ensure the given generic list contains the specified number of entries.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -653,7 +653,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given generic list contains the specified number of entries.
+    /// Ensure the given generic list contains the specified number of entries.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -667,7 +667,7 @@ public static partial class Utils
 
 
     /// <summary>
-    /// Enure the given generic list contains the specified number of entries.
+    /// Ensure the given generic list contains the specified number of entries.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -680,7 +680,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given generic list contains the specified number of entries.
+    /// Ensure the given generic list contains the specified number of entries.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -696,7 +696,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given generic list contains the specified number of entries.
+    /// Ensure the given generic list contains the specified number of entries.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -709,7 +709,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given generic list contains the specified number of entries.
+    /// Ensure the given generic list contains the specified number of entries.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -725,7 +725,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given generic list is sized within the specified range.
+    /// Ensure the given generic list is sized within the specified range.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -742,7 +742,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given generic list is sized within the specified range.
+    /// Ensure the given generic list is sized within the specified range.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -756,7 +756,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given binding list is sized within the specified range.
+    /// Ensure the given binding list is sized within the specified range.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -774,7 +774,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given binding list is sized within the specified range.
+    /// Ensure the given binding list is sized within the specified range.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -788,7 +788,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given immutable list builder is sized within the specified range.
+    /// Ensure the given immutable list builder is sized within the specified range.
     /// </summary>
     /// <typeparam name="T">The type of the immutable list builder.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -802,7 +802,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Enure the given immutable list is sized within the specified range.
+    /// Ensure the given immutable list is sized within the specified range.
     /// </summary>
     /// <typeparam name="T">The type of the immutable list.</typeparam>
     /// <param name="list">The immutable list to be checked.</param>
