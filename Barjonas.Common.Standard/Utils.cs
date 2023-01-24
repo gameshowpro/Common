@@ -949,6 +949,23 @@ public static partial class Utils
     }
 
     /// <summary>
+    /// Safely filter out null values from a <see cref="IEnumerable{TSource}"/> where <see cref="TSource"/> is a nullable value type, returning a sequence of non-nullable <see cref="TSource"/> types.
+    /// </summary>
+    /// <typeparam name="TSource">The item type from when nullability is to be removed.</typeparam>
+    /// <param name="source">The source sequence</param>
+    public static IEnumerable<TSource> WhereNotNull<TSource>(this IEnumerable<TSource?> source)
+        where TSource : struct
+        => source.Where(o => o.HasValue).Select(o => o!.Value);
+
+    /// <summary>
+    /// Safely filter out null values from a <see cref="IEnumerable{TSource}"/> where <see cref="TSource"/> is a nullable reference type, returning a sequence of non-nullable <see cref="TSource"/> types.
+    /// </summary>
+    /// <typeparam name="TSource">The item type from when nullability is to be removed.</typeparam>
+    /// <param name="source">The source sequence</param>
+    public static IEnumerable<TSource> WhereNotNull<TSource>(this IEnumerable<TSource?> source)
+    => source.Where(o => o is not null).Select(o => o!);
+
+    /// <summary>
     /// Replace any null IEnumerable<typeparamref name="T"/> with an empty Enumerable. Most useful when running a foreach loop on a nullable IEnumerable.
     /// </summary>
     /// <typeparam name="T">Item type</typeparam>
@@ -1104,7 +1121,7 @@ public static partial class Utils
     public static void EnsureDirectory(string path)
     {
         string? dir = Path.GetDirectoryName(path);
-        if (dir is not null)
+        if (!string.IsNullOrWhiteSpace(dir))
         {
             Directory.CreateDirectory(dir);
         }
@@ -1456,7 +1473,7 @@ public static partial class Utils
         {
             throw new Exception("String parsing failed");
         }
-        return result?.Where(t => t != null).Select(t => t!.Value);
+        return result?.WhereNotNull().Select(t => t);
     }
 
     public static IEnumerable<T?>? DelimitedStringToNullableType<T>(string delimited, string delimiter, int offset = 0, string nullStringPlaceholder = "?")
