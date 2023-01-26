@@ -1080,7 +1080,7 @@ public static partial class Utils
         }
         else
         {
-            logger?.Info("Sucessfully deserialized from {0}", path);
+            logger?.Info("Successfully deserialized from {0}", path);
             isNew = false;
         }
         return obj;
