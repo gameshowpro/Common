@@ -59,6 +59,7 @@ public record PropertyChangeCondition
 /// </summary>
 public class PropertyChangeFilter
 {
+    internal static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
     private readonly PropertyChangedEventHandler _handler;
     private readonly ImmutableList<INotifyPropertyChanged> _itemSenders; //Cannot use hashset because HashCodes are mutable
     private readonly ImmutableList<ImmutableHashSet<string>> _notifyItemConditions;
@@ -142,13 +143,25 @@ public class PropertyChangeFilter
 
     private void Sender_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (sender is not null && sender is INotifyPropertyChanged itemSender)
+        try
         {
-            int senderIndex = _itemSenders.IndexOf(itemSender);
-            if (senderIndex >= 0 && e.PropertyName is not null && _notifyItemConditions[senderIndex].Contains(e.PropertyName))
+            if (sender is INotifyPropertyChanged itemSender)
             {
-                _handler?.Invoke(sender, e);
+                int senderIndex = _itemSenders.IndexOf(itemSender);
+                if (senderIndex >= 0 && e.PropertyName is not null && _notifyItemConditions[senderIndex].Contains(e.PropertyName))
+                {
+                    _handler?.Invoke(sender, e);
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            s_logger.Fatal(ex, "Unexpected condition encountered in property handler. Null states: sender={sender}, e={e}, _itemSenders={_itemSenders}, _notifyItemConditions={_notifyItemConditions}",
+                sender is null,
+                e is null,
+                _itemSenders is null,
+                _notifyItemConditions is null
+            );
         }
     }
 
