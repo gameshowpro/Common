@@ -17,8 +17,9 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
     /// <summary>
     /// Base constructor.
     /// </summary>
-    /// <param name="name">A unique name given to this instance of this subclass of <see cref="IncomingTriggerDevice{TTriggerKey, TTrigger}"/>.</param>
-    /// <param name="triggerSettings">An object containing the settings for each <see cref="TTriggerKey"/> within this <see cref="IncomingTriggerDevice{TTriggerKey, TTrigger}"/>.</param>
+    /// <param name="namePrefix">The root of the name given to instance of this subclass of <see cref="IncomingTriggerDevice{TTriggerKey, TTrigger}"/>.</param>
+    /// <param name="settings">An object containing the settings for each <see cref="TTriggerKey"/> within this <see cref="IncomingTriggerDevice{TTriggerKey, TTrigger}"/>.</param>
+    /// <param name="index">The of index this device to be cross-referenced with default trigger specifications.</param>
     /// <param name="serviceState">A <see cref="ServiceState"/> object which will be maintained by the subclass.</param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="MissingMemberException"></exception>

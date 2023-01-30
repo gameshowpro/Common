@@ -5,6 +5,7 @@ namespace Barjonas.Common.Model;
 
 public abstract class IncomingTrigger : NotifyingClass, ITrigger
 {
+    internal static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
     private readonly Stopwatch _lastTrigger = new();
     protected Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
@@ -51,6 +52,10 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
         {
             if (SetProperty(ref _isDown, value))
             {
+                if (ParentDevice != null)
+                {
+                    s_logger.Trace("Device {Device} trigger {id}/{trigger} IsDown changed to {value}", ParentDevice.NamePrefix, Setting.Id, Setting.Name, value);
+                }
                 OnIsDownChanged(value);
             }
         }
