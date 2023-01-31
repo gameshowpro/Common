@@ -72,28 +72,6 @@ public static partial class Utils
         }
     }
 
-    //
-    // Summary:
-    //     Returns the first element of an IList, or a default value if the sequence contains
-    //     no elements.
-    //     Better for an indexable collection than the IEnumerable version.
-    //
-    // Parameters:
-    //   source:
-    //     The System.IList to return the first element of.
-    //
-    // Type parameters:
-    //   TSource:
-    //     The type of the elements of source.
-    //
-    // Returns:
-    //     default(TSource) if source is empty; otherwise, the first element in source.
-    //
-    // Exceptions:
-    //   T:System.ArgumentNullException:
-    //     source is null.
-    public static TSource? FirstOrDefault<TSource>(this IReadOnlyList<TSource>? source)
-        => source == null || source.Count == 0 ? default : source[0];
 
     /// <summary>
     /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
@@ -915,7 +893,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// A custom version of <see cref="Enumerable.ElementAtOrDefault"/> for value types which will return null if the index is out of range.
+    /// A custom version of <see cref="Enumerable.ElementAtOrDefault"/> for value types which will return null if the index is out of range or the source is null.
     /// </summary>
     /// <typeparam name="T">The non-nullable value type</typeparam>
     public static T? ElementAtOrNull<T>(this IEnumerable<T> source, int index) where T : struct
@@ -947,6 +925,20 @@ public static partial class Utils
         }
         return null;
     }
+
+    /// <summary>
+    /// A custom version of <see cref="Enumerable.FirstOrDefault"/> for value types which will return null if the source is null or empty.
+    /// </summary>
+    /// <typeparam name="TSource">The non-nullable value type</typeparam>
+    public static TSource? FirstOrNull<TSource>(this IReadOnlyList<TSource>? source) where TSource : struct
+        => source == null || source.Count == 0 ? null : source[0];
+
+    /// <summary>
+    /// A custom version of <see cref="Enumerable.FirstOrDefault"/> for value types which will return null if the source is null or empty.
+    /// </summary>
+    /// <typeparam name="TSource">The non-nullable value type</typeparam>
+    public static TSource? LastOrNull<TSource>(this IReadOnlyList<TSource>? source) where TSource : struct
+        => source == null || source.Count == 0 ? null : source[source.Count - 1];
 
     /// <summary>
     /// Safely filter out null values from a <see cref="IEnumerable{TSource}"/> where <see cref="TSource"/> is a nullable value type, returning a sequence of non-nullable <see cref="TSource"/> types.
@@ -1556,7 +1548,7 @@ public static partial class Utils
     /// A simple method to allow a task to be fired off from synchronous code which will never be seen again unless an exception needs to be handled.
     /// </summary>
     /// <param name="task">The task to be executed.</param>
-    /// <param name="exceptionHandler">A delagate which will handle and exception object in case an exception is raised.</param>
+    /// <param name="exceptionHandler">A delegate which will handle and exception object in case an exception is raised.</param>
     public static async void FireAndForgetSafeAsync(this Task task, Action<Exception>? exceptionHandler = null)
     {
         try
@@ -1600,9 +1592,7 @@ public static partial class Utils
         for (int remaining = count; remaining > 0; --remaining)
         {
             int k = rnd.Next(remaining);
-            int tmp = indices[remaining - 1];
-            indices[remaining - 1] = indices[k];
-            indices[k] = tmp;
+            (indices[k], indices[remaining - 1]) = (indices[remaining - 1], indices[k]);
         }
         if (start != 0)
         {
