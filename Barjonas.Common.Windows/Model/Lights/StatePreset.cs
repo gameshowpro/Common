@@ -1,6 +1,7 @@
 ﻿// (C) Barjonas LLC 2018
 
 using System.Threading;
+using Barjonas.Common.ViewModel;
 
 namespace Barjonas.Common.Model.Lights;
 
@@ -14,71 +15,150 @@ public class StateLevels : NotifyingClass
     public StateLevels() : this(null, null, null)
     { }
 
-    [JsonConstructor]
-    public StateLevels(string? key, ImmutableList<StatePresetChannel>? levels, ImmutableList<StatePresetChannel>? flashLevels)
+    /// <summary>
+    /// Create a <see cref="StateLevels"/> without any flashing.
+    /// </summary>
+    /// <param name="key">The name by which this StateLevels will be known within the <see cref="StatePresetGroup"/></param>
+    /// <param name="levels">The levels to use when this <see cref="StateLevels"/> is applied.</param>
+    public StateLevels(
+       string? key,
+       ImmutableList<StatePresetChannel>? levels
+    )
+    : this(key, ImmutableList.Create(new StateLevelsPhase(levels, null)), null)
+    { }
+
+
+    /// <summary>
+    /// JSON constructor for <see cref="StateLevels"/> which includes possible legacy properties from previous versions.
+    /// </summary>
+    /// <param name="key">The name by which this StateLevels will be known within the <see cref="StatePresetGroup"/></param>
+    /// <param name="levels">The levels to use during the "on" part or the flashing cycle.</param>
+    /// <param name="flashLevels">The levels to use during the "off" part of the flashing cycle.</param>
+    /// <param name="flashOnDuration">Time duration to wait after setting on color.</param>
+    /// <param name="flashOffDuration">Time duration to wait after setting off color.</param>
+    /// <param name="flashCount">The number of times to cycle between on and off. Zero or null denotes unlimited. This number is double to calculate the <see cref="CycleStepCount"/></param>
+    [JsonConstructor, Obsolete("For JSON use only")]
+    public StateLevels(
+        string? key,
+        IList<StateLevelsPhase>? phases,
+        int? cycleStepCount,
+        ImmutableList<StatePresetChannel>? levels,
+        ImmutableList<StatePresetChannel>? flashLevels,
+        float? flashOnDuration,
+        float? flashOffDuration,
+        int? flashCount
+    ) : this(
+        key,
+        phases ?? (levels == null ? null : flashOnDuration > 0 && flashOffDuration > 0 ?
+            ImmutableList.Create(
+            new StateLevelsPhase(levels, TimeSpan.FromSeconds(flashOnDuration.Value)),
+            new StateLevelsPhase(flashLevels, TimeSpan.FromSeconds(flashOffDuration.Value)))
+        :
+            ImmutableList.Create(
+                new StateLevelsPhase(levels, TimeSpan.Zero)
+            )
+        ),
+        cycleStepCount ?? (flashCount ?? 0) * 2)
+    {
+    }
+
+    /// <summary>
+    /// Create a <see cref="StateLevels"/> with all properties explicitly defined or defaulted.
+    /// </summary>
+    /// <param name="key">The name by which this StateLevels will be known within the <see cref="StatePresetGroup"/></param>
+    /// <param name="phases">A list of all phases of this <see cref="StateLevels"/>, each of which can have a duration associated with it, in case cycling is required.</param>
+    /// <param name="cycleStepCount">The number of times to cycle between the phases of this <see cref="StateLevels"/>. Zero or null denotes unlimited. The final color is dictated by <paramref name="cycleStepCount"/> modulus <paramref name="phases"/>.Count.</param>
+    public StateLevels(
+        string? key,
+        IList<StateLevelsPhase>? phases,
+        int? cycleStepCount
+    )
     {
         Key = key ?? throw new ArgumentNullException(nameof(key), "Can't create StateLevels without key");
-        Levels = levels ?? ImmutableList<StatePresetChannel>.Empty;
-        FlashLevels = flashLevels ?? ImmutableList<StatePresetChannel>.Empty;
+        Phases = new(phases == null || !phases.Any() ? ImmutableList.Create(new StateLevelsPhase()) : phases);
+        _cycleStepCount = cycleStepCount ?? 0;
         _flashTimer = new Timer((o) => DoFlash());
+        AddPhaseCommand = new RelayCommandSimple(
+            () => Phases.Add(
+                new(Phases.Last().Levels.Select(l => new StatePresetChannel(l.FixtureChannelType)).ToImmutableList(),
+                TimeSpan.FromSeconds(1)))
+        );
+        RemovePhaseCommand = new RelayCommandSimple(
+            () =>
+            {
+                if (Phases.Count > 1)
+                {
+                    Phases.RemoveAt(Phases.Count - 1);
+                }
+            }
+        );
+        SetPhaseCyclingIsEnabled();
+        Phases.CollectionChanged += (s, e) => SetPhaseCyclingIsEnabled();
+        Phases.ItemPropertyChanged += (s, e) => { if (e.PropertyName == nameof(StateLevelsPhase.Duration)) { SetPhaseCyclingIsEnabled(); } };
+        PropertyChanged += (s, e) => { if (e.PropertyName == nameof(CycleStepCount)) { SetPhaseCyclingIsEnabled(); } };
+
     }
 
     [JsonProperty]
     public string Key { get; }
 
     [JsonProperty]
-    public ImmutableList<StatePresetChannel> Levels { get; set; }
+    public ObservableCollectionEx<StateLevelsPhase> Phases { get; }
 
-    public ImmutableList<StatePresetChannel> FlashLevels { get; }
 
-    private float _flashOnDuration = 0;
+    private int _cycleStepCount = 0;
     [JsonProperty, DefaultValue(0)]
-    public float FlashOnDuration
+    public int CycleStepCount
     {
-        get { return _flashOnDuration; }
-        set { SetProperty(ref _flashOnDuration, value); }
+        get { return _cycleStepCount; }
+        set { SetProperty(ref _cycleStepCount, value); }
     }
 
-    private float _flashOffDuration = 0;
-    [JsonProperty, DefaultValue(0)]
-    public float FlashOffDuration
+    private void SetPhaseCyclingIsEnabled()
     {
-        get { return _flashOffDuration; }
-        set { SetProperty(ref _flashOffDuration, value); }
+        HasMultiplePhases = Phases.Count > 1;
+        PhaseCyclingIsEnabled = _hasMultiplePhases && _cycleStepCount != 1 && Phases.Count(p => p.Duration > TimeSpan.Zero) > 1;
+        RemovePhaseCommand.SetCanExecute(_hasMultiplePhases);
     }
 
-    private int _flashCount = 0;
-    [JsonProperty, DefaultValue(0)]
-    public int FlashCount
+    private bool _phaseCyclingIsEnabled;
+    [JsonIgnore]
+    public bool PhaseCyclingIsEnabled
     {
-        get { return _flashCount; }
-        set { SetProperty(ref _flashCount, value); }
+        get => _phaseCyclingIsEnabled;
+        private set => _ = SetProperty(ref _phaseCyclingIsEnabled, value);
+    }
+
+    private bool _hasMultiplePhases;
+    [JsonIgnore]
+    public bool HasMultiplePhases
+    {
+        get => _hasMultiplePhases;
+        private set => _ = SetProperty(ref _hasMultiplePhases, value);
     }
 
     private readonly Timer _flashTimer;
 
     private void DoFlash()
     {
-        _flashIsOn = !_flashIsOn;
-        if (_flashIsOn)
+        StateLevelsPhase thisPhase = Phases[_cycleStepCounter % Phases.Count];
+        _cycleStepCounter++;
+        Flash?.Invoke(this, thisPhase.Levels);
+        if (_cycleStepCount <= 0 || _cycleStepCounter < _cycleStepCount)
         {
-            _flashCounter++;
-        }
-        Flash?.Invoke(this, _flashIsOn ? Levels : FlashLevels);
-        if (_flashCount <= 0 || _flashCounter < _flashCount)
-        {
-            _flashTimer.Change(TimeSpan.FromSeconds(_flashIsOn ? _flashOnDuration : _flashOffDuration), Timeout.InfiniteTimeSpan);
+            if (thisPhase.Duration > TimeSpan.Zero)
+            {
+                _flashTimer.Change(thisPhase.Duration, Timeout.InfiniteTimeSpan);
+            }
         }
     }
 
-    private bool _flashIsOn;
-    private int _flashCounter;
+    private int _cycleStepCounter;
     public void ResetFlash(bool enable)
     {
         if (enable)
         {
-            _flashCounter = 0;
-            _flashIsOn = false;
+            _cycleStepCounter = 0;
             DoFlash();
         }
         else
@@ -86,4 +166,7 @@ public class StateLevels : NotifyingClass
             _flashTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
     }
+
+    public RelayCommandSimple AddPhaseCommand { get; }
+    public RelayCommandSimple RemovePhaseCommand { get; }
 }

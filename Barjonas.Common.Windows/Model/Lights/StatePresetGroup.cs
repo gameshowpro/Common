@@ -14,6 +14,7 @@ public class StatePresetGroup
         Name = name ?? "no name";
         StatesLevels = statesLevels ?? new();
         _channelColors = channelColors ?? ImmutableList<FixtureChannelType>.Empty;
+        Validate();
     }
 
     [JsonProperty]
@@ -24,7 +25,7 @@ public class StatePresetGroup
     {
         if (StatesLevels.TryGetValue(key, out StateLevels? levels))
         {
-            return levels.Levels;
+            return levels.Phases.FirstOrDefault()?.Levels;
         }
         else
         {
@@ -52,13 +53,12 @@ public class StatePresetGroup
         int primCount = _channelColors.Count;
         foreach (StateLevels v in StatesLevels)
         {
-            if (v.Levels.Count > primCount)
+            foreach (StateLevelsPhase p in v.Phases)
             {
-                v.Levels = v.Levels.Take(primCount).ToList().ToImmutableList();
-            }
-            else if (v.Levels.Count != primCount)
-            {
-                throw new InvalidOperationException($"Number of levels in all {nameof(StateLevels)} object must match number of {nameof(ChannelColors)}.");
+                if (p.Levels.Count != primCount)
+                {
+                    p.Levels = p.Levels.EnsureListCount(primCount, primCount, (i) => new(_channelColors[i]));
+                }
             }
         }
     }

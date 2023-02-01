@@ -6,8 +6,10 @@
              xmlns:conv="clr-namespace:Barjonas.Common.Converters"
              xmlns:lights="clr-namespace:Barjonas.Common.Model.Lights"
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              mc:Ignorable="d" >
     <conv:ToOneBased x:Key="ToOneBased"/>
+    <conv:TimeSpanToSecondsConverter x:Key="TimeSpanToSecondsConverter"/>
     <DataTemplate DataType="{x:Type lights:StatePresetChannel}">
         <DockPanel>
             <Rectangle DockPanel.Dock="Left" Width="10" Margin="0 10 -8 10">
@@ -20,32 +22,47 @@
     </DataTemplate>
     <DataTemplate DataType="{x:Type lights:StateLevels}">
         <StackPanel Orientation="Horizontal">
-            <Rectangle Height="66" Width="1" StrokeThickness="1" Stroke="{StaticResource MahApps.Brushes.Accent}" Margin="0 -5 0 5"/>
-            <StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Rectangle Width="4" Stroke="{StaticResource MahApps.Brushes.Accent}" StrokeThickness="1" Height="1" />
-                    <TextBlock Text="{Binding Key}"/>
-                </StackPanel>
-                <DockPanel>
-                    <ItemsControl ItemsSource="{Binding Levels}" Margin="10 0 0 0">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
+            <Rectangle Height="66" Width="1" StrokeThickness="1" Stroke="{StaticResource MahApps.Brushes.Accent}" Margin="0 -8 0 5" VerticalAlignment="Top"/>
+            <DockPanel>
+                <DockPanel DockPanel.Dock="Bottom">
+                    <ItemsControl ItemsSource="{Binding Phases}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Height="50" Margin="0">
+                                    <Rectangle Height="50" Width="1" StrokeThickness="1" Stroke="{StaticResource MahApps.Brushes.Accent}" Margin="-1 -8 0 5" VerticalAlignment="Top" />
+                                    <Rectangle Height="50" Width="1" StrokeThickness="1" Stroke="{StaticResource MahApps.Brushes.Accent}" Margin="15 -25 0 5" VerticalAlignment="Top" />
+                                    <Rectangle Width="4" Stroke="{StaticResource MahApps.Brushes.Accent}" StrokeThickness="1" Height="1" VerticalAlignment="Center" />
+                                    <ItemsControl ItemsSource="{Binding Levels}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                    <controls:NumericUpDown Value="{Binding Duration, Converter={StaticResource TimeSpanToSecondsConverter}}" Interval="0.1" StringFormat="0.0#;0.0#;∞" Minimum="0" Maximum="5" NumericInputMode="Decimal" controls:TextBoxHelper.Watermark="Dur (s)" Visibility="{Binding Visibility, ElementName=CycleSteps}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <controls:NumericUpDown Value="{Binding FlashOnDuration}" Interval="0.1" StringFormat="0.0#" Minimum="0" Maximum="5" NumericInputMode="Decimal" controls:TextBoxHelper.Watermark="On (s)" DockPanel.Dock="Left" />
-                    <controls:NumericUpDown Value="{Binding FlashOffDuration}" Interval="0.1" StringFormat="0.0#" Minimum="0" Maximum="5" NumericInputMode="Decimal" controls:TextBoxHelper.Watermark="Off (s)" DockPanel.Dock="Left" />
-                    <controls:NumericUpDown Value="{Binding FlashCount}" NumericInputMode="Numbers" Minimum="0" Maximum="99" controls:TextBoxHelper.Watermark="Count" DockPanel.Dock="Left" />
+                    <controls:NumericUpDown Value="{Binding CycleStepCount}" NumericInputMode="Numbers" Minimum="0" Maximum="99" StringFormat="0;0;∞" controls:TextBoxHelper.Watermark="Cycle Steps" DockPanel.Dock="Left" x:Name="CycleSteps" Visibility="{Binding HasMultiplePhases, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 </DockPanel>
-            </StackPanel>
+                <StackPanel Background="{StaticResource MahApps.Brushes.Window.Background}"> <!-- Mask the line from top phase invading on our space -->
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0 9 0 0" VerticalAlignment="Bottom">
+                        <Rectangle Width="10" Stroke="{StaticResource MahApps.Brushes.Accent}" StrokeThickness="1" Height="1" />
+                        <TextBlock Text="{Binding Key}" VerticalAlignment="Center"/>
+                        <Button Style="{StaticResource CircleButton}" Width="20" Height="20" Margin="5 0" Content="{iconPacks:MaterialDesign Kind=Add, Width=9}" Command="{Binding AddPhaseCommand}"/>
+                        <Button Style="{StaticResource CircleButton}" Width="20" Height="20" Margin="0" Content="{iconPacks:MaterialDesign Kind=Remove, Width=9}" Command="{Binding RemovePhaseCommand}"/>
+                        <iconPacks:PackIconRemixIcon Kind="TimerFlashFill" Margin="5 0" Visibility="{Binding PhaseCyclingIsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Center" ToolTip="This state cycles between multiple phases" x:Name="IsCycling" />
+                    </StackPanel>
+                </StackPanel>
+            </DockPanel>
         </StackPanel>
     </DataTemplate>
     <DataTemplate DataType="{x:Type lights:StatePresetGroup}">
         <Expander Header="{Binding Name}" IsExpanded="True">
             <StackPanel>
                 <ItemsControl ItemsSource="{Binding StatesLevels}" Margin="3 0 0 0" />
-                <Rectangle Width="7" Stroke="{StaticResource MahApps.Brushes.Accent}" StrokeThickness="1" Height="1" Margin="0 -10 0 0" HorizontalAlignment="Left" />
+                <Rectangle Width="7" Stroke="{StaticResource MahApps.Brushes.Accent}" StrokeThickness="1" Height="1" Margin="0 -15 0 0" HorizontalAlignment="Left" />
             </StackPanel>
         </Expander>
     </DataTemplate>

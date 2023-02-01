@@ -12,7 +12,7 @@ public class StatePresetGroups : KeyedCollection<string, StatePresetGroup>
     }
 
     /// <summary>
-    /// Assign the assocuated FixtureChannelType to each StatePresetChannel so that the view can show the correct color highlighting for each channel.
+    /// Assign the associated FixtureChannelType to each StatePresetChannel so that the view can show the correct color highlighting for each channel.
     /// </summary>
     public void AddChannelTypes()
     {
@@ -20,11 +20,14 @@ public class StatePresetGroups : KeyedCollection<string, StatePresetGroup>
         {
             foreach (StateLevels levels in group.StatesLevels)
             {
-                int i = 0;
-                foreach (StatePresetChannel chan in levels.Levels)
+                foreach (StateLevelsPhase phases in levels.Phases)
                 {
-                    chan.FixtureChannelType = group.ChannelColors[i];
-                    i++;
+                    int i = 0;
+                    foreach (StatePresetChannel channel in phases.Levels)
+                    {
+                        channel.FixtureChannelType = group.ChannelColors[i];
+                        i++;
+                    }
                 }
             }
         }

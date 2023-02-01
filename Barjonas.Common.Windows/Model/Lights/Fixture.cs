@@ -109,7 +109,7 @@ public class Fixture : NotifyingClass
 
     public void ReapplyStatePreset()
     {
-        ApplyStatePreset(State?.Levels);
+        ApplyStatePreset(State?.Phases.FirstOrDefault()?.Levels);
     }
 
     public void ApplyStatePreset(string presetKey)
@@ -161,7 +161,7 @@ public class Fixture : NotifyingClass
                 State.Flash += CurrentState_Flash;
             }
         }
-        if (changed && stateLevels?.FlashOnDuration > 0 && stateLevels?.FlashOffDuration > 0)
+        if (changed && stateLevels.PhaseCyclingIsEnabled)
         {
             if (flashNow)
             {
@@ -170,7 +170,7 @@ public class Fixture : NotifyingClass
         }
         else
         {
-            ApplyStatePreset(stateLevels?.Levels);
+            ApplyStatePreset(stateLevels.Phases.FirstOrDefault()?.Levels);
         }
     }
 
