@@ -32,6 +32,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
     : base
     (
         namePrefix,
+        settings,
         serviceState
     )
     {
