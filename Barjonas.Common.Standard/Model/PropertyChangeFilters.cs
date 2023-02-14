@@ -3,6 +3,7 @@
 
 #nullable enable
 
+
 namespace Barjonas.Common.Model;
 
 public record PropertyChangeCondition
@@ -72,6 +73,7 @@ public class PropertyChangeFilter
         List<HashSet<string?>> notifyCollectionConditions = new();
         ImmutableList<INotifyPropertyChanged>.Builder itemSendersBuilder = ImmutableList.CreateBuilder<INotifyPropertyChanged>();
         List<HashSet<string>> notifyItemConditions = new();
+        int senderIndex;
         foreach (PropertyChangeCondition condition in conditions)
         {
             if (!condition.IsInvalid)
@@ -81,30 +83,24 @@ public class PropertyChangeFilter
                 {
                     if (condition.SenderCollection is not null)
                     {
-                        int senderIndex = collectionSendersBuilder.IndexOf(condition.SenderCollection);
+                        senderIndex = collectionSendersBuilder.IndexOf(condition.SenderCollection);
                         if (senderIndex < 0)
                         {
                             senderIndex = collectionSendersBuilder.Count;
                             collectionSendersBuilder.Add(condition.SenderCollection);
                             notifyCollectionConditions.Add(new());
-                            condition.SenderCollection.CollectionChanged += SenderCollection_CollectionChanged;
-                        }
-                        if (condition.Property is not null && condition.SenderCollection is IItemPropertyChanged ipc)
-                        {
-                            ipc.ItemPropertyChanged += Ipc_ItemPropertyChanged;
                         }
                         notifyCollectionConditions[senderIndex].Add(condition.Property);
                     }
                 }
                 else if (condition.Property is not null)
                 {
-                    int senderIndex = itemSendersBuilder.IndexOf(condition.Sender);
+                    senderIndex = itemSendersBuilder.IndexOf(condition.Sender);
                     if (senderIndex < 0)
                     {
                         senderIndex = itemSendersBuilder.Count;
                         itemSendersBuilder.Add(condition.Sender);
                         notifyItemConditions.Add(new());
-                        condition.Sender.PropertyChanged += Sender_PropertyChanged;
                     }
                     notifyItemConditions[senderIndex].Add(condition.Property);
                 }
@@ -114,7 +110,48 @@ public class PropertyChangeFilter
         _notifyItemConditions = notifyItemConditions.Select(c => c.ToImmutableHashSet()).ToImmutableList();
         _collectionSenders = collectionSendersBuilder.ToImmutable();
         _notifyCollectionConditions = notifyCollectionConditions.Select(c => c.ToImmutableHashSet()).ToImmutableList();
+        //Note the property handlers are hooked up last, otherwise they may fire before non-nullable lists they consume have been set.
+        AddEventHandlers();
         InvokeAll();
+    }
+
+    /// <summary>
+    /// Use the same lists that the event handlers will use. If they're not ready, we'll fail fast.
+    /// </summary>
+    private void AddEventHandlers()
+    {
+        foreach (INotifyPropertyChanged sender in _itemSenders)
+        {
+            sender.PropertyChanged += Sender_PropertyChanged;
+        }
+        int senderIndex = 0;
+        foreach (INotifyCollectionChanged sender in _collectionSenders)
+        {
+            sender.CollectionChanged += SenderCollection_CollectionChanged;
+            if (_notifyCollectionConditions.ElementAtOrDefault(senderIndex)?.Any() == true && sender is IItemPropertyChanged ipc)
+            {
+                ipc.ItemPropertyChanged += Ipc_ItemPropertyChanged;
+            }
+            senderIndex++;
+        }
+    }
+
+    private void RemoveEventHandlers()
+    {
+        foreach (INotifyPropertyChanged sender in _itemSenders)
+        {
+            sender.PropertyChanged -= Sender_PropertyChanged;
+        }
+        int senderIndex = 0;
+        foreach (INotifyCollectionChanged sender in _collectionSenders)
+        {
+            sender.CollectionChanged -= SenderCollection_CollectionChanged;
+            if (_notifyCollectionConditions.ElementAtOrDefault(senderIndex)?.Any() == true && sender is IItemPropertyChanged ipc)
+            {
+                ipc.ItemPropertyChanged -= Ipc_ItemPropertyChanged;
+            }
+            senderIndex++;
+        }
     }
 
     private void Ipc_ItemPropertyChanged(object? sender, ItemPropertyChangedEventArgs e)
@@ -169,20 +206,7 @@ public class PropertyChangeFilter
         => _handler?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
 
     internal void Release()
-    {
-        foreach (INotifyPropertyChanged item in _itemSenders)
-        {
-            item.PropertyChanged -= Sender_PropertyChanged;
-        }
-        foreach (INotifyCollectionChanged collection in _collectionSenders)
-        {
-            collection.CollectionChanged -= SenderCollection_CollectionChanged;
-            if (collection is IItemPropertyChanged ipc)
-            {
-                ipc.ItemPropertyChanged += Ipc_ItemPropertyChanged;
-            }
-        }
-    }
+        => RemoveEventHandlers();
 }
 
 public class PropertyChangeFilters
