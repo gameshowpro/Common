@@ -1,44 +1,78 @@
 ﻿namespace Barjonas.Common.Model;
-
-public class Debouncer
+#nullable enable
+public enum DebounceMode
 {
-    private readonly Timer _timer;
-    private bool _isRunning = false;
-    private bool _isDebouncing = false;
-    public event EventHandler Execute;
-    public Debouncer()
+    [Description("Fire, block, wait")]
+    FireBlockWait,
+    [Description("Block, wait, fire")]
+    BlockWaitFire
+}
+
+/// <summary>
+/// Class to enforce a maximum invocation frequency of single method.
+/// </summary>
+public class Debouncer<TArg>
+{
+    private TArg? _latestArg;
+    private DebounceMode Mode { get; }
+    private readonly Timer _blockTimer;
+    private bool _isBlocking = false;
+    private bool _executeAfterBlock = false;
+    public event EventHandler<TArg>? Execute;
+    public Debouncer(DebounceMode mode, TimeSpan minimumInterval)
     {
-        _timer = new Timer(TimerComplete, null, Timeout.Infinite, Timeout.Infinite);
+        _blockTimer = new Timer(TimerComplete, null, Timeout.Infinite, Timeout.Infinite);
+        Mode = mode;
+        MinimumInterval = minimumInterval;
     }
 
-    public TimeSpan MinimumInterval { get; set; } = TimeSpan.FromSeconds(1);
+    public TimeSpan MinimumInterval { get; }
 
     /// <summary>
-    /// Raise the <see cref="Execute"/> event immediately unless less than the <see cref="MinimumInterval"/> has not passed since its last execution.
-    /// In that case, ensure that the <see cref="Execute"/> event is fired immediately after the <see cref="MinimumInterval"/> has passed.
+    /// Will either raise the <see cref="Execute"/> event immediately or after a maximum delay of <see cref="MinimumInterval"/>, depending on time elapsed since last execution and <see cref="Mode"/>.
     /// </summary>
-    public void TryExecute()
+    public void TryExecute(TArg arg)
     {
-        if (_isRunning)
+        lock (this)
         {
-            _isDebouncing = true;
-        }
-        else
-        {
-            _isRunning = true;
-            _timer.Change(MinimumInterval, Timeout.InfiniteTimeSpan);
-            Execute?.Invoke(this, new EventArgs());
+            _latestArg = arg;
+            if (_isBlocking)
+            {
+                _executeAfterBlock = true;
+            }
+            else
+            {
+                _isBlocking = true;
+                _blockTimer.Change(MinimumInterval, Timeout.InfiniteTimeSpan);
+                if (Mode == DebounceMode.FireBlockWait)
+                {
+                    Execute?.Invoke(this, _latestArg);
+                    _executeAfterBlock = false;
+                }
+                else
+                {
+                    _executeAfterBlock = true;
+                }
+            }
         }
     }
 
-    private void TimerComplete(object state)
+    private void TimerComplete(object? state)
     {
-        _isRunning = false;
-        _timer.Change(Timeout.Infinite, Timeout.Infinite);
-        if (_isDebouncing)
+        lock (this)
         {
-            _isDebouncing = false;
-            Execute?.Invoke(this, new EventArgs());
+            //the blocking is over
+            _isBlocking = false;
+            _blockTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            if (_executeAfterBlock)
+            {
+                _executeAfterBlock = false;
+                if (_latestArg is not null)
+                {
+                    Execute?.Invoke(this, _latestArg);
+                }
+            }
         }
     }
 }
+#nullable restore
