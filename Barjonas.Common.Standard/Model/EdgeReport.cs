@@ -1,6 +1,7 @@
 ﻿
 using MessagePack.Formatters;
 using MessagePack;
+using System.ComponentModel.DataAnnotations;
 #nullable enable
 
 namespace Barjonas.Common.Model;
@@ -11,8 +12,9 @@ namespace Barjonas.Common.Model;
 /// <param name="TimeStamp">In the case of a faceoff, the high-precision interval elapsed since the faceoff started.</param>
 /// <param name="IsRising">If this is rising edge (i.e. button is down) then true. If this is a falling edge (e.g. button coming back up) then false.</param>
 /// <param name="IsTest">If this edge report is the result of test request then true, otherwise false.</param>
+/// <param name="LockoutTimeRemaining">If this edge was treated as being locked out, the amount of time until the end of that lockout. Otherwise, null.</param>
 [MessagePackObject, MessagePackFormatter(typeof(EdgeReportFormatter))]
-public record EdgeReport(int Version, int Index, int? Ordinal, TimeSpan? TimeStamp, bool IsRising, bool IsTest);
+public record EdgeReport(int Version, int Index, int? Ordinal, TimeSpan? TimeStamp, bool IsRising, bool IsTest, TimeSpan? LockoutTimeRemaining);
 public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport>
 {
     internal const byte MessagePackVersion = 1;
@@ -22,13 +24,13 @@ public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport>
     {
     }
 
-    private const int CurrentFieldCount = 7;
+    private const int CurrentFieldCount = 8;
     public EdgeReport Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
     {
-        int fieldcount = reader.ReadArrayHeader();
-        if (fieldcount < CurrentFieldCount)
+        int fieldCount = reader.ReadArrayHeader();
+        if (fieldCount < CurrentFieldCount)
         {
-            throw new MessagePackSerializationException($"Expected at least {CurrentFieldCount} fields. Only found {fieldcount}");
+            throw new MessagePackSerializationException($"Expected at least {CurrentFieldCount} fields. Only found {fieldCount}");
         }
         byte messagePackVersion = reader.ReadByte();
         if (messagePackVersion <= 0)
@@ -41,8 +43,12 @@ public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport>
         TimeSpan? timeStamp = reader.TryReadNil() ? null : new TimeSpan(reader.ReadInt64());
         bool isDown = reader.ReadBoolean();
         bool isTest = reader.ReadBoolean();
+        TimeSpan? lockoutTimeRemaining =
+            fieldCount > 7 ?
+                reader.TryReadNil() ? null : new TimeSpan(reader.ReadInt64())
+            : null;
 
-        return new(version, index, ordinal, timeStamp, isDown, isTest);
+        return new(version, index, ordinal, timeStamp, isDown, isTest, lockoutTimeRemaining);
     }
 
     public void Serialize(ref MessagePackWriter writer, EdgeReport value, MessagePackSerializerOptions options)
@@ -69,6 +75,14 @@ public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport>
         }
         writer.Write(value.IsRising);
         writer.Write(value.IsTest);
+        if (value.LockoutTimeRemaining.HasValue)
+        {
+            writer.Write(value.LockoutTimeRemaining.Value.Ticks);
+        }
+        else
+        {
+            writer.WriteNil();
+        }
     }
 }
 #nullable restore

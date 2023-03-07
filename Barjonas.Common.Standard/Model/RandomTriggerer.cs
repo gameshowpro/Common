@@ -43,7 +43,7 @@ public class RandomTriggerer
             return;
         }
         List<InputTime> inputTimes = new();
-        
+
         foreach (TriggerDefinition i in triggerRandomRequest.Inputs)
         {
             TimeSpan time = TimeSpan.FromMilliseconds((s_rnd.NextDouble() * (triggerRandomRequest.MaximumTime - triggerRandomRequest.MinimumTime).TotalMilliseconds)) + triggerRandomRequest.MinimumTime;
@@ -54,7 +54,7 @@ public class RandomTriggerer
         int ordinal = 0;
         foreach (InputTime inputTime in inputTimes.OrderBy(i => i.FireTime))
         {
-            EdgeReport newReport = new(ReportVersion, inputTime.Input, inputTime.Rising ? ordinal++ : null, inputTime.ReportedTime, inputTime.Rising, true);
+            EdgeReport newReport = new(ReportVersion, inputTime.Input, inputTime.Rising ? ordinal++ : null, inputTime.ReportedTime, inputTime.Rising, true, null);
 
             _testSteps.Enqueue(new TriggerTestStep(inputTime.FireTime - previous, newReport));
             previous = inputTime.FireTime;

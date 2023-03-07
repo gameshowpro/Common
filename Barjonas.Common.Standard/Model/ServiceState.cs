@@ -83,7 +83,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         string name,
         ObservableDictionary<string, ServiceState> children,
         RemoteServiceStates aggregateState,
-        string? detail, 
+        string? detail,
         double? progress,
         Func<ServiceState, RemoteServiceStates>? serviceStateAggregator,
         Func<ServiceState, string>? detailAggregator,
@@ -148,10 +148,10 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     /// </summary>
     public ServiceState
         (
-            string key, 
-            string name, 
-            RemoteServiceStates aggregateState, 
-            string? detail, 
+            string key,
+            string name,
+            RemoteServiceStates aggregateState,
+            string? detail,
             double? progress
         )
         :
@@ -174,18 +174,18 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     /// </summary>
     public ServiceState
         (
-            string name, 
-            RemoteServiceStates aggregateState, 
-            string? detail, 
+            string name,
+            RemoteServiceStates aggregateState,
+            string? detail,
             double? progress
-        ) 
-        : 
+        )
+        :
         this
         (
-            name, 
-            name, 
-            aggregateState, 
-            detail, 
+            name,
+            name,
+            aggregateState,
+            detail,
             progress
         )
     { }
@@ -285,7 +285,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             Func<ServiceState, string> detailAggregator,
             Func<ServiceState, double?> progressAggregator
         )
-        :       
+        :
         this
         (
             key,
@@ -469,7 +469,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         List<ServiceState> notConnected = state.Children.Values.Where(s => s.AggregateState != RemoteServiceStates.Connected).ToList();
         if (notConnected.Any())
         {
-            
+
             if (notConnected.Count == 1)
             {
                 string? firstWarning = notConnected[0].Detail;
@@ -571,7 +571,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             return;
         }
         HashSet<string> remainingKeys = new(Children.Keys);
-        foreach(ServiceState child in children)
+        foreach (ServiceState child in children)
         {
             if (Children.TryGetValue(child.Key, out ServiceState? existingChild))
             {
@@ -581,7 +581,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             else
             {
                 Children.Add(child.Key, child);
-            }    
+            }
         }
         foreach (string key in remainingKeys)
         {
@@ -595,7 +595,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         Detail = other.Detail;
         Progress = other.Progress;
         UpdateChildren(other.Children.Values);
-        AllUpdated?.Invoke(this, new ());
+        AllUpdated?.Invoke(this, new());
     }
     public class MsgPackResolver : IMessagePackFormatter<ServiceState>
     {
