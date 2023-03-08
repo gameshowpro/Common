@@ -76,8 +76,14 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
         }
     }
 
+    protected void OnLockedOutEdge(TimeSpan lockoutTimeRemaining)
+    {
+        LastLockoutDateTime = DateTime.UtcNow;
+        //Todo - use a timer to track how long the lockout lasts, to be surfaced on the UI
+    }
+
     /// <summary>
-    /// Called by base class whenever this trigger has been triggered. No additional filtering is perfomed in the base class.
+    /// Called by base class whenever this trigger has been triggered. No additional filtering is performed in the base class.
     /// </summary>
     protected virtual void OnVerifiedTrigger(object? source, TriggerArgs args)
     {
@@ -126,6 +132,13 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
     {
         get { return _lastTriggerDateTime; }
         protected set { SetProperty(ref _lastTriggerDateTime, value); }
+    }
+
+    private DateTime _lastLockoutDateTime = DateTime.MinValue;
+    public DateTime LastLockoutDateTime
+    {
+        get { return _lastLockoutDateTime; }
+        protected set { SetProperty(ref _lastLockoutDateTime, value); }
     }
 
     public RelayCommand<bool?> SimulateTriggerCommand { get; private set; }

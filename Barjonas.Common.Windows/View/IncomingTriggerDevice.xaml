@@ -30,6 +30,9 @@
                         <Storyboard x:Key="TriggerIndicatorSB" >
                             <DoubleAnimation Storyboard.TargetName="TriggerIndicator" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5" />
                         </Storyboard>
+                        <Storyboard x:Key="LockoutIndicatorSB" >
+                            <DoubleAnimation Storyboard.TargetName="LockoutIndicator" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5" />
+                        </Storyboard>
                     </Grid.Resources>
                     <Grid Visibility="{Binding IsDown, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <Grid.Background>
@@ -139,6 +142,9 @@
             <Storyboard x:Key="TriggerIndicatorSB" >
                 <DoubleAnimation Storyboard.TargetName="TriggerIndicator" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5" />
             </Storyboard>
+            <Storyboard x:Key="LockoutIndicatorSB" >
+                <DoubleAnimation Storyboard.TargetName="LockoutIndicator" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5" />
+            </Storyboard>
         </DataTemplate.Resources>
         <Grid ToolTip="Double right click to enable/disable" Margin="5">
             <Grid Visibility="{Binding IsDown, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -172,6 +178,13 @@
                         </EventTrigger>
                     </iconPacks:PackIconModern.Triggers>
                 </iconPacks:PackIconModern>
+                <iconPacks:PackIconMaterial Opacity="0" Kind="Lock" Name="LockoutIndicator" Width="15" Height="15" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Red" Tag="{Binding LastLockoutDateTime, NotifyOnTargetUpdated=True}">
+                    <iconPacks:PackIconMaterial.Triggers>
+                        <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                            <BeginStoryboard Storyboard="{StaticResource LockoutIndicatorSB}" />
+                        </EventTrigger>
+                    </iconPacks:PackIconMaterial.Triggers>
+                </iconPacks:PackIconMaterial>
             </Grid>
             <Grid.InputBindings>
                 <MouseBinding MouseAction="RightDoubleClick" Command="{Binding ToggleIsEnabledCommand}" />
