@@ -85,7 +85,8 @@ public static class ComboBoxValueHoldDecorator
 
     private static object? ItemAt(IEnumerable? list, int index)
     {
-        if (list == null) return null;
+        if (list == null)
+            return null;
         IEnumerator enumerator = list.GetEnumerator();
         if (index < 0)
         {

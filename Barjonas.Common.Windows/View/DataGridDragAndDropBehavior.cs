@@ -30,7 +30,7 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
 
     private void RaiseDragEndedEvent()
     {
-        RoutedEventArgs? args = new (s_dragEndedEvent);
+        RoutedEventArgs? args = new(s_dragEndedEvent);
         AssociatedObject.RaiseEvent(args);
     }
     #endregion
@@ -162,8 +162,8 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
                 //make sure the popup is visible
                 Popup.IsOpen = true;
             }
-            Size popupSize = new (Popup.ActualWidth, Popup.ActualHeight);
-            
+            Size popupSize = new(Popup.ActualWidth, Popup.ActualHeight);
+
             if (row != null)
             {
                 Popup.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
@@ -175,7 +175,7 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
                 Popup.IsOpen = false;
             }
         }
-        
+
         if (row != null)
         {
             AssociatedObject.SelectedItem = row.Item;

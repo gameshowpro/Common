@@ -450,7 +450,7 @@ public static partial class Utils
         }
     }
 
-    private static readonly HashSet<char> s_spacesAndTabs = new() { ' ', '\u00A0', '\t' } ;
+    private static readonly HashSet<char> s_spacesAndTabs = new() { ' ', '\u00A0', '\t' };
     public static bool IsSpaceOrTab(this char value) => s_spacesAndTabs.Contains(value);
 
     public static string? UpperCaseIfRequired(string? input, double allowedLowerPercent = .50, bool upperIfUnknown = true)
@@ -852,7 +852,7 @@ public static partial class Utils
     /// <returns></returns>
     public static string EnsureStringLength(string original, int targetLength, char padding)
     {
-        int diff =  targetLength - original.Length;
+        int diff = targetLength - original.Length;
         if (diff == 0)
         {
             return original;
@@ -922,7 +922,7 @@ public static partial class Utils
         }
         else if (source is IReadOnlyCollection<T> col)
         {
-            if(index.IsInRange(0, col.Count - 1))
+            if (index.IsInRange(0, col.Count - 1))
             {
                 return col.ElementAt(index);
             }
@@ -1050,7 +1050,7 @@ public static partial class Utils
         if (path is not null && File.Exists(path))
         {
             bool renameBroken = false;
-            using StreamReader sr = new (path);
+            using StreamReader sr = new(path);
             {
                 using JsonReader reader = new JsonTextReader(sr);
                 try
@@ -1496,7 +1496,7 @@ public static partial class Utils
         }
         else if (targetType.IsAssignableFrom(typeof(uint)))
         {
-            IEnumerable<uint?>result = parts.Select<string, uint?>(s => uint.TryParse(s.Trim(), out uint i) ? i - (uint)offset : null);
+            IEnumerable<uint?> result = parts.Select<string, uint?>(s => uint.TryParse(s.Trim(), out uint i) ? i - (uint)offset : null);
             return (IEnumerable<T?>)result;
         }
         else if (targetType.IsAssignableFrom(typeof(long)))

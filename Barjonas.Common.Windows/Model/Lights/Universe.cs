@@ -67,7 +67,7 @@ public class Universe
         var startOneBased = start + 1;  //must account for DMX start code which is at position zero
         if ((sourceData.Length + startOneBased) > _data.Length || startOneBased < 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(sourceData),"Source data goes outside of universe.");
+            throw new ArgumentOutOfRangeException(nameof(sourceData), "Source data goes outside of universe.");
         }
         var oldData = new byte[sourceData.Length];
         //Take copy of old values

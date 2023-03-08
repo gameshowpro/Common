@@ -2,7 +2,7 @@
 
 public class IncomingTriggerSetting : NotifyingClass, INotifyDataErrorInfo
 {
-    protected internal  IncomingTriggerSetting() { }
+    protected internal IncomingTriggerSetting() { }
 
     internal bool _wasTouched;
     public TriggerFilter TriggerFilter { get; set; }

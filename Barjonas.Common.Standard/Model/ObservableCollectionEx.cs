@@ -108,7 +108,7 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
     /// Adds the elements of the specified collection to the end of the ObservableCollectionEx.
     /// </summary> 
     public void AddRange(IEnumerable<T> collection)
-        =>  AddRange(collection, false);
+        => AddRange(collection, false);
 
     /// <summary> 
     /// Adds the elements of the specified collection to the end of the ObservableCollectionEx.

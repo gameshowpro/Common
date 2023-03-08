@@ -141,7 +141,7 @@ public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
     }
 
     protected static List<FixtureChannel> ChannelsFromPreset(StatePresetGroup? presetGroup)
-        => presetGroup is null ? new() : new (Enumerable.Range(0, presetGroup.ChannelColors.Count).Select(
+        => presetGroup is null ? new() : new(Enumerable.Range(0, presetGroup.ChannelColors.Count).Select(
             i =>
             new FixtureChannel(presetGroup.ChannelColors[i])
         ).ToList());

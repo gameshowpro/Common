@@ -9,7 +9,7 @@ public class IncomingTriggerSettings : KeyedCollection<string, IncomingTriggerSe
         return item.Key;
     }
 
-    [Obsolete("This overload is for backwards-compatability only. Specify a TriggerFilter instead of executeOnFirstInterrupt.")]
+    [Obsolete("This overload is for backwards-compatibility only. Specify a TriggerFilter instead of executeOnFirstInterrupt.")]
     public IncomingTriggerSetting GetOrCreate(string key, string name, byte? defaultId, bool executeOnFirstInterrupt = false, TimeSpan? debounceInterval = null)
         => GetOrCreate(key, name, defaultId, executeOnFirstInterrupt ? TriggerFilter.FirstOnly : TriggerFilter.All, debounceInterval);
 
@@ -27,11 +27,11 @@ public class IncomingTriggerSettings : KeyedCollection<string, IncomingTriggerSe
         }
         else
         {
-            trigger = new IncomingTriggerSetting() 
-            { 
-                Key = key, 
-                Id = defaultId ?? 127, 
-                Name = name, 
+            trigger = new IncomingTriggerSetting()
+            {
+                Key = key,
+                Id = defaultId ?? 127,
+                Name = name,
                 DebounceInterval = debounceInterval,
                 TriggerEdge = true,
                 IsEnabled = defaultId.HasValue

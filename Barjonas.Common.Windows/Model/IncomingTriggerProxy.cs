@@ -39,7 +39,8 @@ public class IncomingTriggerProxy<TKey> : NotifyingClass, ITrigger
     public IncomingTrigger? Source
     {
         get => _source;
-        private set {
+        private set
+        {
             IncomingTrigger? previous = _source;
             if (SetProperty(ref _source, value))
             {

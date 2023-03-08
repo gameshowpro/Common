@@ -2,7 +2,7 @@
 #nullable enable
 namespace Barjonas.Common.Model;
 
-public record SettingsFileSpecification (object Key, string FileName, bool IsWithinLayoutSubfolder);
+public record SettingsFileSpecification(object Key, string FileName, bool IsWithinLayoutSubfolder);
 
 /// <summary>
 /// A standardized way to store and retreive a set of settings file names against consistent keys.
@@ -23,10 +23,10 @@ public class SettingsFileManager
     public SettingsFileManager(
         Environment.SpecialFolder rootFolder,
         string? organization,
-        string? project, 
+        string? project,
         params SettingsFileSpecification[] fileSpecifications
-    ) 
-    : this(rootFolder, rootFolder, organization, project, fileSpecifications) 
+    )
+    : this(rootFolder, rootFolder, organization, project, fileSpecifications)
     { }
 
     /// <summary>

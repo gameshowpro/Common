@@ -5,7 +5,7 @@ namespace Barjonas.Common.Model;
 public class RandomTriggerer
 {
     private const int ReportVersion = 1;
-    private readonly TimeSpan s_maxMaxRandomTriggerTime = TimeSpan.FromSeconds(4);
+    private readonly TimeSpan _maxMaxRandomTriggerTime = TimeSpan.FromSeconds(4);
     private record TriggerTestStep(TimeSpan Time, EdgeReport? Report);
     public event Action<EdgeReport>? ReportCallback;
     public event Action<EdgeReport[]>? Finished;
@@ -18,7 +18,7 @@ public class RandomTriggerer
     {
         _testStepper = new(DoTestStep);
         _startingState = startingState;
-        if (triggerRandomRequest.MaximumTime > s_maxMaxRandomTriggerTime)
+        if (triggerRandomRequest.MaximumTime > _maxMaxRandomTriggerTime)
         {
             success = false;
             message = $"Maximum time is greater than maximum of {triggerRandomRequest.MaximumTime}";

@@ -75,7 +75,7 @@ public static class NativeMethods
         }
     }
     [DllImport("Shcore.dll")]
-    internal static extern IntPtr GetDpiForMonitor([In]IntPtr hmonitor, [In]DpiType dpiType, [Out]out uint dpiX, [Out]out uint dpiY);
+    internal static extern IntPtr GetDpiForMonitor([In] IntPtr hmonitor, [In] DpiType dpiType, [Out] out uint dpiX, [Out] out uint dpiY);
 
     /// <summary>
     /// Represents the different types of scaling.
