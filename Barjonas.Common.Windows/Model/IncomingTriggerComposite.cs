@@ -48,6 +48,12 @@ public class IncomingTriggerComposite : IncomingTrigger
     {
         if (Setting.IsEnabled)
         {
+            if (source is IncomingTrigger trigger)
+            {
+                //The PropertyChanged event might come later. IncomingTrigger subclasses should have updated these properties before calling here.
+                Ordinal = trigger.Ordinal;
+                Time = trigger.Time;
+            }
             base.OnVerifiedTrigger(source, args);
         }
     }
