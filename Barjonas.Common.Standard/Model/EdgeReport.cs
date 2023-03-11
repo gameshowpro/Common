@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Barjonas.Common.Model;
 
-/// <param name="Version">The version of this object, to aid backwards compatability implementation if the type changes.</param>
+/// <param name="Version">The version of this object, to aid backwards compatibility implementation if the type changes.</param>
 /// <param name="Index">The zero-based index on the GPI which changed state.</param>
 /// <param name="Ordinal">In the case of a faceoff, the zero-based ordinal of this trigger. 0 = 1st.</param>
 /// <param name="TimeStamp">In the case of a faceoff, the high-precision interval elapsed since the faceoff started.</param>
@@ -24,13 +24,14 @@ public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport>
     {
     }
 
+    private const int MinFieldCount = 7;
     private const int CurrentFieldCount = 8;
     public EdgeReport Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
     {
         int fieldCount = reader.ReadArrayHeader();
-        if (fieldCount < CurrentFieldCount)
+        if (fieldCount < MinFieldCount)
         {
-            throw new MessagePackSerializationException($"Expected at least {CurrentFieldCount} fields. Only found {fieldCount}");
+            throw new MessagePackSerializationException($"Expected at least {MinFieldCount} fields. Only found {fieldCount}");
         }
         byte messagePackVersion = reader.ReadByte();
         if (messagePackVersion <= 0)
