@@ -44,7 +44,10 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <controls:NumericUpDown Value="{Binding CycleStepCount}" NumericInputMode="Numbers" Minimum="0" Maximum="99" StringFormat="0;0;∞" controls:TextBoxHelper.Watermark="Cycle Steps" DockPanel.Dock="Left" x:Name="CycleSteps" Visibility="{Binding HasMultiplePhases, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <UniformGrid Columns="1" DockPanel.Dock="Left">
+                        <controls:NumericUpDown Value="{Binding CycleStepCount}" NumericInputMode="Numbers" Minimum="0" Maximum="99" StringFormat="0;0;∞" controls:TextBoxHelper.Watermark="Cycle Steps" x:Name="CycleSteps" Visibility="{Binding HasMultiplePhases, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <controls:NumericUpDown Value="{Binding LoopBackStep, Converter={StaticResource ToOneBased}}" NumericInputMode="Numbers" Minimum="1" Maximum="99" StringFormat="0;0;∞" controls:TextBoxHelper.Watermark="Loop back" ToolTip="The step to which we return after every loop" Visibility="{Binding HasMultiplePhases, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </UniformGrid>
                 </DockPanel>
                 <StackPanel Background="{StaticResource MahApps.Brushes.Window.Background}"> <!-- Mask the line from top phase invading on our space -->
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0 9 0 0" VerticalAlignment="Bottom">

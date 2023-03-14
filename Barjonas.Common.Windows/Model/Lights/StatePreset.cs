@@ -12,7 +12,7 @@ public class StateLevels : NotifyingClass
 {
     internal event EventHandler<IReadOnlyList<StatePresetChannel>>? Flash;
 
-    public StateLevels() : this(null, null, null)
+    public StateLevels() : this(null, null, null, null)
     { }
 
     /// <summary>
@@ -24,7 +24,7 @@ public class StateLevels : NotifyingClass
        string? key,
        ImmutableList<StatePresetChannel>? levels
     )
-    : this(key, ImmutableList.Create(new StateLevelsPhase(levels, null)), null)
+    : this(key, ImmutableList.Create(new StateLevelsPhase(levels, null)), null, null)
     { }
 
 
@@ -58,7 +58,7 @@ public class StateLevels : NotifyingClass
                 new StateLevelsPhase(levels, TimeSpan.Zero)
             )
         ),
-        cycleStepCount ?? (flashCount ?? 0) * 2)
+        cycleStepCount ?? (flashCount ?? 0) * 2, 0)
     {
     }
 
@@ -71,12 +71,15 @@ public class StateLevels : NotifyingClass
     public StateLevels(
         string? key,
         IList<StateLevelsPhase>? phases,
-        int? cycleStepCount
+        int? cycleStepCount,
+        int? loopBackStep
     )
     {
         Key = key ?? throw new ArgumentNullException(nameof(key), "Can't create StateLevels without key");
         Phases = new(phases == null || !phases.Any() ? ImmutableList.Create(new StateLevelsPhase()) : phases);
+        
         _cycleStepCount = cycleStepCount ?? 0;
+        _loopBackStep = loopBackStep ?? 0;
         _flashTimer = new Timer((o) => DoFlash());
         AddPhaseCommand = new RelayCommandSimple(
             () => Phases.Add(
@@ -114,6 +117,14 @@ public class StateLevels : NotifyingClass
         set { SetProperty(ref _cycleStepCount, value); }
     }
 
+    private int _loopBackStep;
+    [JsonProperty]
+    public int LoopBackStep
+    {
+        get => _loopBackStep;
+        set => _ = SetProperty(ref _loopBackStep, value);
+    }
+
     private void SetPhaseCyclingIsEnabled()
     {
         HasMultiplePhases = Phases.Count > 1;
@@ -141,8 +152,16 @@ public class StateLevels : NotifyingClass
 
     private void DoFlash()
     {
-        StateLevelsPhase thisPhase = Phases[_cycleStepCounter % Phases.Count];
+        StateLevelsPhase thisPhase = Phases[_cycleStep];
         _cycleStepCounter++;
+        if ((_cycleStep + 1) >= Phases.Count)
+        {
+            _cycleStep = _loopBackStep.KeepInRange(0, Phases.Count - 1);
+        }
+        else
+        {
+            _cycleStep++;
+        }
         Flash?.Invoke(this, thisPhase.Levels);
         if (_cycleStepCount <= 0 || _cycleStepCounter < _cycleStepCount)
         {
@@ -154,11 +173,13 @@ public class StateLevels : NotifyingClass
     }
 
     private int _cycleStepCounter;
+    private int _cycleStep;
     public void ResetFlash(bool enable)
     {
         if (enable)
         {
             _cycleStepCounter = 0;
+            _cycleStep = 0;
             DoFlash();
         }
         else
