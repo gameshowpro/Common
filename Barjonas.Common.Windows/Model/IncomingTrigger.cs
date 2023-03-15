@@ -70,11 +70,14 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
     /// </summary>
     protected void OnConfiguredEdge()
     {
-        if (Setting.IsEnabled && (!Setting.DebounceInterval.HasValue || _lastTrigger.Elapsed > Setting.DebounceInterval.Value))
+        if (Setting.IsEnabled && !DebounceIsInProgress())
         {
             OnVerifiedTrigger(this, new TriggerArgs(TriggerData));
         }
     }
+
+    protected bool DebounceIsInProgress()
+        => _lastTrigger.Elapsed > Setting.DebounceInterval;
 
     protected void OnLockedOutEdge(TimeSpan lockoutTimeRemaining)
     {
