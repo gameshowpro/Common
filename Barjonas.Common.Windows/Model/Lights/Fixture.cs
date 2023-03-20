@@ -161,16 +161,19 @@ public class Fixture : NotifyingClass
                 State.Flash += CurrentState_Flash;
             }
         }
-        if (changed && stateLevels.PhaseCyclingIsEnabled)
+        if (changed)
         {
-            if (flashNow)
+            if (stateLevels.PhaseCyclingIsEnabled)
             {
-                State?.ResetFlash(true);
+                if (flashNow)
+                {
+                    State?.ResetFlash(true);
+                }
             }
-        }
-        else
-        {
-            ApplyStatePreset(stateLevels.Phases.FirstOrDefault()?.Levels);
+            else
+            {
+                ApplyStatePreset(stateLevels.Phases.FirstOrDefault()?.Levels);
+            }
         }
     }
 
