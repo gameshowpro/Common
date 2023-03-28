@@ -52,12 +52,14 @@ public abstract class AppBase<App, Sys, MainWindow> : Application, IComponentCon
     protected override void OnStartup(StartupEventArgs e)
     {
         _sys = new Sys();
+        s_logger.Trace("Creating windows");
         s_windows = s_windowsFactory?.Invoke();
         int index = 0;
         foreach (Window window in s_windows.NeverNull())
         {
             window.DataContext = _sys;
             window.Show();
+            s_logger.Trace("Showing window {index} of type {window}", index, window.GetType().Name);
             if (index == 0)
             {
                 window.Closed += MainWindow_Closed;
