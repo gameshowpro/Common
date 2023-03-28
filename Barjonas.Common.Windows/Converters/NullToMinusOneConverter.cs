@@ -6,5 +6,5 @@ internal class NullToMinusOneConverter : IValueConverter
         => value ?? -1;
 
     public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => value is int valInt && valInt == -1 ? null : value;
+        => (value is int valInt && valInt == -1) || (value is double valDou && valDou == -1) ? null : value;
 }
