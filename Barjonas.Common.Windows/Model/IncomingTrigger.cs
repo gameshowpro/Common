@@ -77,7 +77,7 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
     }
 
     protected bool DebounceIsInProgress()
-        => _lastTrigger.Elapsed > Setting.DebounceInterval;
+        => _lastTrigger.Elapsed < Setting.DebounceInterval;
 
     protected void OnLockedOutEdge(TimeSpan lockoutTimeRemaining)
     {
