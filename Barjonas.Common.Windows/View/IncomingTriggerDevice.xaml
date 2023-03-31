@@ -209,7 +209,7 @@
             </StackPanel>
             <controls:ToggleSwitch OnContent="Showing all triggers" OffContent="Showing enabled triggers only" x:Name="ShowAllFilter" DockPanel.Dock="Left"/>
             <controls:ToggleSwitch OnContent="Duplicates allowed" OffContent="Duplicates not allowed" IsOn="{Binding BaseSettings.AllowDuplicateTriggerIds}"/>
-            <DataGrid ItemsSource="{Binding Source={StaticResource IncomingTriggerFilter}}" AutoGenerateColumns="False" HorizontalAlignment="Left">
+            <DataGrid ItemsSource="{Binding Source={StaticResource IncomingTriggerFilter}}" AutoGenerateColumns="False" IsReadOnly="True" HorizontalAlignment="Left">
                 <DataGrid.Resources>
                     <Style TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Flat}">
                         <Setter Property="Height" Value="20"/>
