@@ -1121,13 +1121,22 @@ public static partial class Utils
     /// Create a directory for a given path if it does not exist. Path may be to a file or directory.
     /// </summary>
     /// <param name="path">A path to a directory, or a file in a directory.</param>
-    public static void EnsureDirectory(string path)
+    /// <returns>True if directory existed or was created, otherwise false.</returns>
+    public static bool EnsureDirectory([NotNullWhen(true)] string? path)
     {
         string? dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrWhiteSpace(dir))
         {
-            Directory.CreateDirectory(dir);
+            try
+            {
+                Directory.CreateDirectory(dir);
+                return true;
+            }
+            catch
+            {
+            }
         }
+        return false;
     }
 
     /// <summary>
@@ -1577,14 +1586,15 @@ public static partial class Utils
     /// </summary>
     /// <param name="start">The lowest number in the sequence.</param>
     /// <param name="count">The length of the sequence.</param>
-    /// <param name="rnd">The random number generator to use.</param>
+    /// <param name="rnd">The random number generator to use.  If null, use default instance.</param>
     /// <param name="disallowedStart">A number which will not be allowed in the first position.</param>
-    public static int[] ShuffledNumbers(int start, int count, Random rnd, int disallowedStart)
+    public static int[] ShuffledNumbers(int start, int count, Random? rnd, int disallowedStart)
     {
-        var shuffle = ShuffledNumbers(start, count, rnd);
+        Random random = rnd ?? s_rnd;
+        var shuffle = ShuffledNumbers(start, count, random);
         if (shuffle[0] == disallowedStart)
         {
-            int swap = rnd.Next(1, count);
+            int swap = random.Next(1, count);
             shuffle[0] = shuffle[swap];
             shuffle[swap] = disallowedStart;
         }
@@ -1596,13 +1606,14 @@ public static partial class Utils
     /// </summary>
     /// <param name="start">The lowest number in the sequence.</param>
     /// <param name="count">The length of the sequence.</param>
-    /// <param name="rnd">The random number generator to use.</param>
-    public static int[] ShuffledNumbers(int start, int count, Random rnd)
+    /// <param name="rnd">The random number generator to use. If null, use default instance.</param>
+    public static int[] ShuffledNumbers(int start, int count, Random? rnd)
     {
         int[] indices = Enumerable.Range(0, count).ToArray();
+        Random random = rnd ?? s_rnd;
         for (int remaining = count; remaining > 0; --remaining)
         {
-            int k = rnd.Next(remaining);
+            int k = random.Next(remaining);
             (indices[k], indices[remaining - 1]) = (indices[remaining - 1], indices[k]);
         }
         if (start != 0)
@@ -1616,14 +1627,16 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Return a random number excluding one value. Excecution time should be consistent.
+    /// Return a random number excluding one value. Execution time should be consistent.
     /// </summary>
     /// <param name="minimum">Inclusive lower bound.</param>
     /// <param name="maximumExclusive">The exclusive upper bound.</param>
     /// <param name="excluding">The integer to exclude.</param>
-    public static int RandomExcluding(int minimum, int maximumExclusive, int excluding, Random rnd)
+    /// <param name="rnd">The random number generator to use.  If null, use default instance.</param>
+    public static int RandomExcluding(int minimum, int maximumExclusive, int excluding, Random? rnd)
     {
-        int r = rnd.Next(minimum, maximumExclusive - 1);
+        Random random = rnd ?? s_rnd;
+        int r = random.Next(minimum, maximumExclusive - 1);
         if (r >= excluding)
         {
             return r + 1;
@@ -1632,6 +1645,22 @@ public static partial class Utils
         {
             return r;
         }
+    }
+
+    private static Random s_rnd = new Random();
+    /// <summary>
+    /// Generate a random string of the requested length consisting only of upper-case alphabetic characters.
+    /// </summary>
+    /// <param name="length"></param>
+    /// <returns></returns>
+    public static string RandomAlphabeticString(int length)
+    {
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++)
+        {
+            sb.Append((char)s_rnd.Next(65,91));
+        }
+        return sb.ToString();
     }
 
     /// <summary>
