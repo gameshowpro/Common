@@ -1154,7 +1154,7 @@ public static partial class Utils
     /// <typeparam name="T">The type of object to be persisted.</typeparam>
     /// <param name="path">Path to the JSON file.</param>
     /// <param name="obj">Object to be persisted.</param>
-    public static void Persist<T>(T obj, ISerializationBinder? serializationBinder, string? path, bool enumsAsStrings = false)
+    public static void Persist<T>(T obj, ISerializationBinderEx? serializationBinder, string? path, bool enumsAsStrings = false)
     {
         if (obj is null || path is null)
         {
@@ -1172,7 +1172,7 @@ public static partial class Utils
         }
         else
         {
-            ser.TypeNameHandling = TypeNameHandling.Objects;
+            ser.TypeNameHandling = serializationBinder.TypeNameHandling ?? TypeNameHandling.Objects;
             ser.SerializationBinder = serializationBinder;
         }
         if (enumsAsStrings)
