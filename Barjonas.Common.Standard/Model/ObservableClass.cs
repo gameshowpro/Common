@@ -6,7 +6,7 @@ namespace Barjonas.Common.Model;
 [JsonObject(MemberSerialization.OptIn)]
 public class ObservableClass : INotifyPropertyChanged
 {
-    protected bool _supressEvents;
+    protected bool _suppressEvents;
     protected bool _isDirty;
     public event PropertyChangedEventHandler? PropertyChanged;
     protected virtual bool CompareEnumerablesByContent { get => false; }
@@ -17,18 +17,18 @@ public class ObservableClass : INotifyPropertyChanged
     protected virtual void NotifyPropertyChanged(PropertyChangedEventArgs args)
         => PropertyChanged?.Invoke(this, args);
 
-    public bool SupressEvents
+    public bool SuppressEvents
     {
         get
-        { return _supressEvents; }
+        { return _suppressEvents; }
         set
         {
-            if (_supressEvents != value)
+            if (_suppressEvents != value)
             {
-                _supressEvents = value;
-                if (_supressEvents && _isDirty)
+                _suppressEvents = value;
+                if (_suppressEvents && _isDirty)
                 {
-                    //Something changed while events were supressed
+                    //Something changed while events were suppressed
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
                     _isDirty = false;
                 }
@@ -53,7 +53,7 @@ public class ObservableClass : INotifyPropertyChanged
             {
                 changed = true;
                 field = value;
-                if (_supressEvents)
+                if (_suppressEvents)
                 {
                     _isDirty = true;
                 }
@@ -64,7 +64,7 @@ public class ObservableClass : INotifyPropertyChanged
                 field = value;
             }
         }
-        if (forceEvent || (changed && !_supressEvents))
+        if (forceEvent || (changed && !_suppressEvents))
         {
             NotifyPropertyChanged(memberName);
         }
