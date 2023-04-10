@@ -22,6 +22,8 @@ public class TimeSpanToSpecialFormat : IValueConverter
             }
             switch (option)
             {
+                case 2:
+                    return $"{(int)ts.TotalMinutes}:{ts.Seconds + ((double)ts.Milliseconds / 1000):00.0}";
                 case 1:
                     return $"{(int)ts.TotalMinutes}:{ts.Seconds + ((double)ts.Milliseconds / 1000)}";
                 default:
