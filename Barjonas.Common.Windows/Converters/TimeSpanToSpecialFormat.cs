@@ -23,9 +23,9 @@ public class TimeSpanToSpecialFormat : IValueConverter
             switch (option)
             {
                 case 2:
-                    return $"{(int)ts.TotalMinutes}:{ts.Seconds + ((double)ts.Milliseconds / 1000):00.0}";
+                    return ts.ToString(false, 2, 1);
                 case 1:
-                    return $"{(int)ts.TotalMinutes}:{ts.Seconds + ((double)ts.Milliseconds / 1000)}";
+                    return ts.ToString(false, 0, 4);
                 default:
                     if (ts < s_switchPoint)
                     {

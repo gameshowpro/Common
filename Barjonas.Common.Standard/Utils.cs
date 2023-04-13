@@ -547,6 +547,35 @@ public static partial class Utils
     }
 
     /// <summary>
+    /// Convert a TimeSpan to a string with decimal places using intuitive rounding rules, unlike string.Format.
+    /// Only useful when you need at least minutes, seconds and decimals.
+    /// </summary>
+    /// <param name="timeSpan">The timespan to be serialized.</param>
+    /// <param name="includeHour">If false, the hour data will be rolled into the minutes.</param>
+    /// <param name="minuteMinimumDigits">The minimum number of digits to include in the hour portion.</param>
+    public static string ToString(this TimeSpan timeSpan, bool includeHour, int minuteMinimumDigits, int decimalPlaces)
+    {
+        StringBuilder stringBuilder = new(32);
+        double minutes;
+        if (includeHour)
+        {
+            double hours = (timeSpan.Days * 24) + timeSpan.Hours;
+            stringBuilder.Append(string.Format($"D1", hours));
+            stringBuilder.Append(':');
+            minutes = timeSpan.Minutes;
+        }
+        else
+        {
+            minutes = (timeSpan.Days * 1440) + (timeSpan.Hours * 60) + timeSpan.Minutes;
+        }
+        stringBuilder.Append(string.Format($"D{minuteMinimumDigits}", minutes));
+        stringBuilder.Append(':');
+        double seconds = timeSpan.Seconds + ((double)timeSpan.Milliseconds / 1000);
+        stringBuilder.Append(string.Format($"F{decimalPlaces}", seconds));
+        return stringBuilder.ToString();
+    }
+
+    /// <summary>
     /// Perform union with a param array, which may contain 0, 1 or more items.
     /// </summary>
     /// <typeparam name="T"></typeparam>
