@@ -556,11 +556,11 @@ public static partial class Utils
     public static string ToString(this TimeSpan timeSpan, bool includeHour, int minuteMinimumDigits, int decimalPlaces)
     {
         StringBuilder stringBuilder = new(32);
-        double minutes;
+        int minutes;
         if (includeHour)
         {
             double hours = (timeSpan.Days * 24) + timeSpan.Hours;
-            stringBuilder.Append(string.Format($"D1", hours));
+            stringBuilder.Append(string.Format($"{{0:D1}}", hours));
             stringBuilder.Append(':');
             minutes = timeSpan.Minutes;
         }
@@ -568,10 +568,8 @@ public static partial class Utils
         {
             minutes = (timeSpan.Days * 1440) + (timeSpan.Hours * 60) + timeSpan.Minutes;
         }
-        stringBuilder.Append(string.Format($"D{minuteMinimumDigits}", minutes));
-        stringBuilder.Append(':');
-        double seconds = timeSpan.Seconds + ((double)timeSpan.Milliseconds / 1000);
-        stringBuilder.Append(string.Format($"F{decimalPlaces}", seconds));
+        double seconds = Math.Round(timeSpan.Seconds + ((double)timeSpan.Milliseconds / 1000), decimalPlaces);
+        stringBuilder.Append(string.Format($"{{0:D{minuteMinimumDigits}}}:{(seconds < 10 ? "0" : "")}{{1:F{decimalPlaces}}}", minutes, seconds));
         return stringBuilder.ToString();
     }
 
