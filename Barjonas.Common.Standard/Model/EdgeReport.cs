@@ -1,7 +1,6 @@
 ﻿
 using MessagePack.Formatters;
 using MessagePack;
-using System.ComponentModel.DataAnnotations;
 #nullable enable
 
 namespace Barjonas.Common.Model;
