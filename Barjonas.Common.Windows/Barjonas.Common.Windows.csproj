@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(BARJONAS_SHARED)Barjonas.Common.Standard\Barjonas.Common.Standard.csproj" />
+    <ProjectReference Include="..\Barjonas.Common.Standard\Barjonas.Common.Standard.csproj" />
   </ItemGroup>
 
 </Project>
