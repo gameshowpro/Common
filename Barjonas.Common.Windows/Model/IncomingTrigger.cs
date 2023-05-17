@@ -122,7 +122,7 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
 
     private bool _isTest;
     /// <summary>
-    /// The IsTest decaration which was specified by the most recent triggerer.  Primarily intended for to help log clarification.
+    /// The IsTest decoration which was specified by the most recent triggerer.  Primarily intended for to help log clarification.
     /// </summary>
     public bool IsTest
     {
