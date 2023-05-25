@@ -17,12 +17,21 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     public delegate void SetAllDelegate(RemoteServiceStates aggregateState, string? detail, double? progress = 0);
     public event PropertyChangedEventHandler? PropertyChanged;
     public event EventHandler? AllUpdated;
+    public event EventHandler<bool>? IsConnectedChanged;
     [IgnoreMember]
     private readonly Func<ServiceState, RemoteServiceStates>? _serviceStateAggregator;
     [IgnoreMember]
     private readonly Func<ServiceState, string>? _detailAggregator;
     [IgnoreMember]
     private readonly Func<ServiceState, double?>? _progressAggregator;
+    /// <summary>
+    /// Delegate which may be used with dispatcher to ensure calls to <see cref="UpdateChildren(IEnumerable{ServiceState}?)" /> are invoked on the intended thread.
+    /// </summary>
+    public Action<IEnumerable<ServiceState>?> UpdateChildrenAction { get; }
+    /// <summary>
+    /// Delegate which may be used with dispatcher to ensure calls to <see cref="UpdateFrom(ServiceState)" /> are invoked on the intended thread.
+    /// </summary>
+    public Action<ServiceState> UpdateFromAction { get; }
 
     public static ServiceState CreateUnknown(string key, string name)
         => new
@@ -90,6 +99,8 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         Func<ServiceState, double?>? progressAggregator
     )
     {
+        UpdateChildrenAction = new(UpdateChildren);
+        UpdateFromAction = new(UpdateFrom);
         Key = key;
         Name = name;
         Children = children;
@@ -385,8 +396,14 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         {
             if (_aggregateState != value)
             {
+                bool isConnected = value == RemoteServiceStates.Connected;
+                bool wasConnected = _aggregateState == RemoteServiceStates.Connected;
                 _aggregateState = value;
-                PropertyChanged?.Invoke(this, new(nameof(AggregateState)));
+                if (wasConnected != isConnected)
+                {
+                    IsConnectedChanged?.Invoke(this, isConnected);
+                }
+                PropertyChanged?.Invoke(this, new(nameof(AggregateState)));               
             }
         }
     }
