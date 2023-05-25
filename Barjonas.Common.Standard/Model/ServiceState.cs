@@ -27,11 +27,11 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     /// <summary>
     /// Delegate which may be used with dispatcher to ensure calls to <see cref="UpdateChildren(IEnumerable{ServiceState}?)" /> are invoked on the intended thread.
     /// </summary>
-    public Action<IEnumerable<ServiceState>?> UpdateChildrenAction { get; }
+    public Func<IEnumerable<ServiceState>?, bool> UpdateChildrenDelegate { get; }
     /// <summary>
     /// Delegate which may be used with dispatcher to ensure calls to <see cref="UpdateFrom(ServiceState)" /> are invoked on the intended thread.
     /// </summary>
-    public Action<ServiceState> UpdateFromAction { get; }
+    public Func<ServiceState, bool> UpdateFromDelegate { get; }
 
     public static ServiceState CreateUnknown(string key, string name)
         => new
@@ -99,8 +99,8 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         Func<ServiceState, double?>? progressAggregator
     )
     {
-        UpdateChildrenAction = new(UpdateChildren);
-        UpdateFromAction = new(UpdateFrom);
+        UpdateChildrenDelegate = new(UpdateChildren);
+        UpdateFromDelegate = new(UpdateFrom);
         Key = key;
         Name = name;
         Children = children;
@@ -580,52 +580,80 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     public void UpdateChildren(params ServiceState[] children)
         => UpdateChildren((IEnumerable<ServiceState>)children);
 
-    public void UpdateChildren(IEnumerable<ServiceState>? children)
+    /// <summary>
+    /// Update the children of this <see cref="ServiceState"/>, returning true if any change was made to any of them.
+    /// </summary>
+    public bool UpdateChildren(IEnumerable<ServiceState>? children)
     {
+        bool change = false;
         if (children == null)
         {
+            change = Children.Any();
             Children.Clear();
-            return;
+            return change;
         }
         HashSet<string> remainingKeys = new(Children.Keys);
         foreach (ServiceState child in children)
         {
             if (Children.TryGetValue(child.Key, out ServiceState? existingChild))
             {
-                existingChild.UpdateFrom(child);
+                change = existingChild.UpdateFrom(child) || change;
                 remainingKeys.Remove(child.Key);
             }
             else
             {
+                change = true;
                 Children.Add(child.Key, child);
             }
         }
         foreach (string key in remainingKeys)
         {
+            change = true;
             _ = Children.Remove(key);
         }
+        return change;
     }
 
-    public void UpdateFrom(ServiceState other)
+    /// <summary>
+    /// Update this <see cref="ServiceState"/> from another, returning true if any change was made.
+    /// </summary>
+    public bool UpdateFrom(ServiceState other)
     {
-        AggregateState = other.AggregateState;
-        Detail = other.Detail;
-        Progress = other.Progress;
-        UpdateChildren(other.Children.Values);
-        AllUpdated?.Invoke(this, new());
+        bool change = false;
+        if (AggregateState != other.AggregateState)
+        {
+            change = true;
+            AggregateState = other.AggregateState;
+        }
+        if (Detail != other.Detail)
+        {
+            change = true;
+            Detail = other.Detail;
+        }
+        if (Progress != other.Progress)
+        {
+            change = true;
+            Progress = other.Progress;
+        }
+        change = UpdateChildren(other.Children.Values) || change;
+        if (change)
+        {
+            AllUpdated?.Invoke(this, new());
+        }
+        return change;
     }
     public class MsgPackResolver : IMessagePackFormatter<ServiceState>
     {
         private const int CurrentFieldCount = 6;
         public ServiceState Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
-            int fieldcount = reader.ReadArrayHeader();
-            if (fieldcount < CurrentFieldCount)
+            int? fieldCount = reader.ReadArrayHeader();
+            if (fieldCount < CurrentFieldCount)
             {
-                throw new MessagePackSerializationException($"Expected at least {CurrentFieldCount} fields. Only found {fieldcount}");
+                throw new MessagePackSerializationException($"Expected at least {CurrentFieldCount} fields. Only found {fieldCount}");
             }
-            string name = reader.ReadString();
-            string key = reader.IsNil ? name : reader.ReadString();
+            string name = reader.ReadString() ?? "Unknown";
+            string? key = reader.ReadString();
             RemoteServiceStates state = (RemoteServiceStates)reader.ReadByte();
             string? detail = reader.IsNil ? null : reader.ReadString();
             double? progress = reader.IsNil ? null : reader.ReadDouble();
