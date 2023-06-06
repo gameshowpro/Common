@@ -59,7 +59,17 @@ public class EnumToObjectArray : MarkupExtension, IValueConverter
 
     public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        return TypeToList((Type)value);
+        if (value is Type type)
+        {
+            //presume enum type
+            return TypeToList(type);
+        }
+        else if (value is IEnumerable enumerable)
+        { 
+            //presume IEnumerable<Enum>
+            return enumerable.Cast<Enum>().Select(e => new { Value = e, Name = e.ToString(), DisplayName = e.Description(), Underlying = e.UnderlyingValue() });
+        }
+        return null;
     }
 
     public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
