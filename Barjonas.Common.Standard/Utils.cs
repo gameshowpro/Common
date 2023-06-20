@@ -1468,6 +1468,38 @@ public static partial class Utils
                 }
             }
         }
+        else if (value is IEnumerable<float?> nfloats)
+        {
+            foreach (float? i in nfloats)
+            {
+                sb.Append(delimiter);
+                sb.Append(i.HasValue ? (i.Value + offset).ToString("n3") : nullNumberPlaceholder);
+            }
+        }
+        else if (value is IEnumerable<float> floats)
+        {
+            foreach (float i in floats)
+            {
+                sb.Append(delimiter);
+                sb.Append((i + offset).ToString("n3"));
+            }
+        }
+        else if (value is IEnumerable<double?> ndoubles)
+        {
+            foreach (double? i in ndoubles)
+            {
+                sb.Append(delimiter);
+                sb.Append(i.HasValue ? (i.Value + offset).ToString("n3") : nullNumberPlaceholder);
+            }
+        }
+        else if (value is IEnumerable<double> doubles)
+        {
+            foreach (double i in doubles)
+            {
+                sb.Append(delimiter);
+                sb.Append((i + offset).ToString("n3"));
+            }
+        }
         else
         {
             return null;

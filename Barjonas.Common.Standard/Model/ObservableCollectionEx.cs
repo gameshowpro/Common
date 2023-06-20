@@ -15,10 +15,10 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
     /// Raise once for each batch of changes, independently of INotifyCollectionChanged, which has many complex issues in implementation making it unrelible.
     /// </summary>
     public event EventHandler? BatchChange;
-    private bool _batchChangeSupressed = false;
+    private bool _batchChangeSuppressed = false;
     protected void OnBatchChange()
     {
-        if (!_batchChangeSupressed)
+        if (!_batchChangeSuppressed)
         {
             BatchChange?.Invoke(this, EventArgs.Empty);
         }
@@ -115,7 +115,7 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
     /// </summary> 
     public void AddRange(IEnumerable<T> collection, bool clearFirst)
     {
-        _batchChangeSupressed = true;
+        _batchChangeSuppressed = true;
         if (collection == null)
         {
             throw new ArgumentNullException(nameof(collection));
@@ -134,7 +134,7 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
             changed = true;
             index++;
         }
-        _batchChangeSupressed = false;
+        _batchChangeSuppressed = false;
         if (changed)
         {
             OnBatchChange();

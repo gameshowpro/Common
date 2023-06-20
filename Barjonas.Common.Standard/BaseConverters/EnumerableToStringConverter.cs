@@ -85,6 +85,22 @@ public abstract class EnumerableToStringConverter : ICommonValueConverter
         {
             return Utils.EnumerableToDelimitedString(intList, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
+        else if (value is IEnumerable<float> floats)
+        {
+            return Utils.EnumerableToDelimitedString(floats, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+        }
+        else if (value is IEnumerable<double> doubles)
+        {
+            return Utils.EnumerableToDelimitedString(doubles, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+        }
+        else if (value is IEnumerable<float?> nfloats)
+        {
+            return Utils.EnumerableToDelimitedString(nfloats, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+        }
+        else if (value is IEnumerable<double?> ndoubles)
+        {
+            return Utils.EnumerableToDelimitedString(ndoubles, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+        }
         else
         {
             return _doNothing;
