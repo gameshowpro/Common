@@ -1,6 +1,7 @@
 ﻿// (C) Barjonas LLC 2018
 
 #nullable enable
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Barjonas.Common;
@@ -908,6 +909,19 @@ public static partial class Utils
         {
             item.Index = i;
             i++;
+        }
+    }
+
+    /// <summary>
+    /// Performs the specified action on each element of the list, making the element's positional index available to the action.
+    /// </summary>
+    /// <param name="action">The System.Action&lt;T&gt; delegate to perform on each element of the list.</param>
+    public static void ForEachWithIndex<T>(this IEnumerable<T> list, Action<T, int> action)
+    {
+        int index = 0;
+        foreach (T item in list)
+        {
+            action(item, index++);
         }
     }
 
