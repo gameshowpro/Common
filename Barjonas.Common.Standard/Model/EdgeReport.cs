@@ -1,7 +1,6 @@
 ﻿
 using MessagePack.Formatters;
 using MessagePack;
-#nullable enable
 
 namespace Barjonas.Common.Model;
 
@@ -85,4 +84,4 @@ public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport>
         }
     }
 }
-#nullable restore
+

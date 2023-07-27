@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-#nullable enable
+
 namespace Barjonas.Common.Model;
 public class RandomTriggerer
 {
@@ -102,4 +102,4 @@ public class RandomTriggerer
         }
     }
 }
-#nullable restore
+

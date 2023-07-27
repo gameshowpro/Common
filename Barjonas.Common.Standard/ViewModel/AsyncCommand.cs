@@ -1,6 +1,6 @@
 ﻿// (C) Barjonas LLC 2021
 
-#nullable enable
+
 namespace Barjonas.Common.ViewModel;
 
 /// <summary>
@@ -92,4 +92,4 @@ public class AsyncCommand<T> : IAsyncCommand<T> where T : notnull
     }
     #endregion
 }
-#nullable restore
+

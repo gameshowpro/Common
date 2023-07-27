@@ -1,6 +1,6 @@
 ﻿// (C) Barjonas LLC 2018
 
-#nullable enable
+
 namespace Barjonas.Common.ViewModel;
 
 /// <summary>
@@ -84,4 +84,4 @@ public class RelayCommand<T> : ICommand
 
     #endregion
 }
-#nullable restore
+

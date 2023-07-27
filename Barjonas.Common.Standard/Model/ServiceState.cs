@@ -1,6 +1,6 @@
 ﻿using MessagePack;
 using MessagePack.Formatters;
-#nullable enable
+
 namespace Barjonas.Common.Model;
 
 /// <summary>
@@ -707,4 +707,4 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         }
     }
 }
-#nullable restore
+

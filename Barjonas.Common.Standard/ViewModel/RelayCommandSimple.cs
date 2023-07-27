@@ -9,7 +9,7 @@ public class RelayCommandSimple : ICommand
 {
     #region Fields
 
-    protected readonly Action _execute = null;
+    protected readonly Action _execute;
 
     #endregion
 
@@ -47,7 +47,7 @@ public class RelayCommandSimple : ICommand
     ///<returns>
     ///true if this command can be executed; otherwise, false.
     ///</returns>
-    public bool CanExecute(object parameter)
+    public bool CanExecute(object? parameter)
     {
         return _canExecute;
     }
@@ -55,13 +55,13 @@ public class RelayCommandSimple : ICommand
     ///<summary>
     ///Occurs when changes occur that affect whether or not the command should execute.
     ///</summary>
-    public event EventHandler CanExecuteChanged;
+    public event EventHandler? CanExecuteChanged;
 
     ///<summary>
     ///Defines the method to be called when the command is invoked.
     ///</summary>
     ///<param name="parameter">Data used by the command. If the command does not require data to be passed, this object can be set to <see langword="null" />.</param>
-    public virtual void Execute(object parameter)
+    public virtual void Execute(object? parameter)
     {
         _execute();
     }

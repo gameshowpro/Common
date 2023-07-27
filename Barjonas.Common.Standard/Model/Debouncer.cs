@@ -1,5 +1,4 @@
 ﻿namespace Barjonas.Common.Model;
-#nullable enable
 public enum DebounceMode
 {
     [Description("Fire, block, wait")]
@@ -75,4 +74,4 @@ public class Debouncer<TArg>
         }
     }
 }
-#nullable restore
+

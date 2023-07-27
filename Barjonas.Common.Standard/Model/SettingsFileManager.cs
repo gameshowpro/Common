@@ -1,4 +1,4 @@
-﻿#nullable enable
+﻿
 namespace Barjonas.Common.Model;
 
 public record SettingsFileSpecification(object Key, string FileName, bool IsWithinLayoutSubfolder);
@@ -224,4 +224,4 @@ public class SettingsFileManager
         }
     }
 }
-#nullable restore
+

@@ -1,4 +1,4 @@
-﻿#nullable enable
+﻿
 namespace Barjonas.Common.Model;
 
 public abstract class ManyToManyDictionary<TKeyA, TKeyB, TPair>
@@ -115,4 +115,4 @@ public abstract class ManyToManyDictionary<TKeyA, TKeyB, TPair>
         _pairsByTKeyA.Clear();
     }
 }
-#nullable restore
+

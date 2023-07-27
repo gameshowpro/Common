@@ -1,6 +1,6 @@
 ﻿// (C) Barjonas LLC 2022
 
-#nullable enable
+
 namespace Barjonas.Common.Model;
 
 [JsonObject(MemberSerialization.OptIn)]
@@ -144,4 +144,4 @@ public class ObservableClass : INotifyPropertyChanged
         }
     }
 }
-#nullable restore
+

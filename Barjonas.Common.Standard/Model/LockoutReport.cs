@@ -1,7 +1,7 @@
 ﻿
 using MessagePack.Formatters;
 using MessagePack;
-#nullable enable
+
 
 namespace Barjonas.Common.Model;
 
@@ -51,4 +51,4 @@ public class LockoutReportFormatter : IMessagePackFormatter<LockoutReport>
         writer.Write(value.IsLockedOut);
     }
 }
-#nullable restore
+

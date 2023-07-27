@@ -1,37 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>10.0</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
     <Platforms>AnyCPU;x64;ARM64</Platforms>
     <LangVersion>preview</LangVersion>
     <Company>Barjonas LLC</Company>
     <Authors>Hamish Barjonas</Authors>
-    <Copyright>Barjonas LLC 2021</Copyright>
+    <Copyright>Barjonas LLC 2023</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <RootNamespace>Barjonas.Common</RootNamespace>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Configurations>Debug;Release</Configurations>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="MessagePackAnalyzer.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="MessagePackAnalyzer.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="MessagePack" Version="2.5.124" />
-    <PackageReference Include="MessagePack.Annotations" Version="2.5.124" />
-    <PackageReference Include="MessagePackAnalyzer" Version="2.5.124">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NLog" Version="5.2.2" />
   </ItemGroup>
-
 </Project>

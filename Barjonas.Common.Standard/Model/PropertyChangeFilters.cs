@@ -1,7 +1,7 @@
 ﻿// (C) Barjonas LLC 2022
 
 
-#nullable enable
+
 
 
 namespace Barjonas.Common.Model;
@@ -242,4 +242,4 @@ public class PropertyChangeFilters
 
     public bool Any() => _filters.Any();
 }
-#nullable restore
+

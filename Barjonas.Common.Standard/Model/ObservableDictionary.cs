@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace Barjonas.Common.Model;
+﻿namespace Barjonas.Common.Model;
 
 public class ObservableDictionary<TKey, TValue> : ICollection<KeyValuePair<TKey, TValue>>, IDictionary<TKey, TValue>, IDictionary, INotifyCollectionChanged, INotifyPropertyChanged
     where TKey : notnull
@@ -255,4 +254,3 @@ public class ObservableDictionary<TKey, TValue> : ICollection<KeyValuePair<TKey,
 
     #endregion
 }
-#nullable disable

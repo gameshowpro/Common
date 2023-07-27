@@ -2,8 +2,8 @@
 
 public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<TKey, TItem>, INotifyCollectionChanged, INotifyPropertyChanged where TKey : IComparable
 {
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
     int _prevCount = 0;
 
     protected virtual bool EnforceOrderByKey => false;
@@ -71,7 +71,7 @@ public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<T
     }
 
     protected virtual void InvokePropertyChanged(string propertyName)
-        => PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     /// <summary>
     /// Method to add a new object to the collection, or to replace an existing one if there is 
@@ -114,16 +114,16 @@ public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<T
     private int GetItemIndex(TItem item)
     {
         TKey keyToFind = GetKeyForItem(item);
-        return BaseList.FindIndex((TItem existingItem) =>
-                                  GetKeyForItem(existingItem).Equals(keyToFind));
+        return BaseList?.FindIndex((TItem existingItem) =>
+                                  GetKeyForItem(existingItem).Equals(keyToFind)) ?? -1;
     }
 
     /// <summary>
     /// Property to provide access to the "hidden" List{} in the base class.
     /// </summary>
-    public List<TItem> BaseList
+    public List<TItem>? BaseList
     {
-        get { return base.Items as List<TItem>; }
+        get => Items as List<TItem>;
     }
 
     /// <summary>

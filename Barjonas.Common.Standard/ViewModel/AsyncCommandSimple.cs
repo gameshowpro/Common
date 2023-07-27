@@ -5,13 +5,13 @@ namespace Barjonas.Common.ViewModel;
 /// <summary>
 /// An ICommand implementation with one parameter and customizable CanExecute functionality for executing an async function.
 /// </summary>
-public class AsyncCommandSimple : IAsyncCommand<object>
+public class AsyncCommandSimple : IAsyncCommand<object?>
 {
     #region Fields
     private bool _isExecuting;
     private readonly Func<Task> _execute;
-    private readonly Func<bool> _canExecute;
-    private readonly Action<Exception> _errorHandler;
+    private readonly Func<bool>? _canExecute;
+    private readonly Action<Exception>? _errorHandler;
     #endregion
 
     #region Constructors
@@ -22,8 +22,8 @@ public class AsyncCommandSimple : IAsyncCommand<object>
     /// <param name="canExecute">The execution status logic.</param>
     public AsyncCommandSimple(
         Func<Task> execute,
-        Func<bool> canExecute = null,
-        Action<Exception> errorHandler = null
+        Func<bool>? canExecute = null,
+        Action<Exception>? errorHandler = null
     )
     {
         _execute = execute ?? throw new ArgumentNullException(nameof(execute));
@@ -40,7 +40,7 @@ public class AsyncCommandSimple : IAsyncCommand<object>
     ///<returns>
     ///true if this command can be executed; otherwise, false.
     ///</returns>
-    public virtual bool CanExecute(object parameter)
+    public virtual bool CanExecute(object? parameter)
         => !_isExecuting && (_canExecute?.Invoke() ?? true);
 
     ///<summary>
@@ -55,7 +55,7 @@ public class AsyncCommandSimple : IAsyncCommand<object>
     ///<summary>
     ///Occurs when changes occur that affect whether or not the command should execute.
     ///</summary>
-    public event EventHandler CanExecuteChanged;
+    public event EventHandler? CanExecuteChanged;
     //{
     //    add { CommandManager.RequerySuggested += value; }
     //    remove { CommandManager.RequerySuggested -= value; }
@@ -65,7 +65,7 @@ public class AsyncCommandSimple : IAsyncCommand<object>
     ///Defines the method to be called when the command is invoked.
     ///</summary>
     ///<param name="parameter">Data used by the command, which is ignored by this implementation.</param>
-    public async Task ExecuteAsync(object parameter)
+    public async Task ExecuteAsync(object? parameter)
     {
         if (CanExecute())
         {
@@ -87,10 +87,10 @@ public class AsyncCommandSimple : IAsyncCommand<object>
     #endregion
 
     #region ICommand
-    bool ICommand.CanExecute(object parameter)
+    bool ICommand.CanExecute(object? parameter)
         => CanExecute(null);
 
-    void ICommand.Execute(object parameter)
+    void ICommand.Execute(object? parameter)
         => ExecuteAsync(null).FireAndForgetSafeAsync(_errorHandler);
     #endregion
 }

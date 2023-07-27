@@ -1,4 +1,4 @@
-﻿#nullable enable
+﻿
 namespace Barjonas.Common.Model;
 
 public interface IItemPropertyChanged
@@ -190,4 +190,4 @@ public class ItemPropertyChangedEventArgs : PropertyChangedEventArgs
     public ItemPropertyChangedEventArgs(int index, PropertyChangedEventArgs args) : this(index, args.PropertyName)
     { }
 }
-#nullable restore
+

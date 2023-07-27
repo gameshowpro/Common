@@ -1,6 +1,4 @@
 ﻿// (C) Barjonas LLC 2018
-
-#nullable enable
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -1761,4 +1759,4 @@ public static partial class Utils
         return default;
     }
 }
-#nullable restore
+

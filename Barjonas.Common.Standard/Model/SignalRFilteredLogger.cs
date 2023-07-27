@@ -1,4 +1,4 @@
-﻿#nullable enable
+﻿
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -88,4 +88,4 @@ public sealed class SignalRFilteredProvider : ILoggerProvider
 
     public void Dispose() { }
 }
-#nullable restore
+
