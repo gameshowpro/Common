@@ -1,9 +1,9 @@
-﻿namespace Barjonas.Common.Converters;
+﻿namespace Barjonas.Common.BaseConverters;
 
-internal class NullToMinusOneConverter : IValueConverter
+public class NullToMinusOneConverter : ICommonValueConverter
 {
     public bool DisplayIsOneBased { get; set; }
-    public object Convert(object? value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (targetType == typeof(double))
         {
@@ -29,7 +29,7 @@ internal class NullToMinusOneConverter : IValueConverter
         }
     }
 
-    public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         switch (value)
         {

@@ -1,6 +1,6 @@
 ﻿// (C) Barjonas LLC 2018
 
-namespace Barjonas.Common.Converters;
+namespace Barjonas.Common.BaseConverters;
 
 /// <summary>
 /// Convert a TimeSpan to a format which is not possible through simple string.Format() call.
@@ -9,10 +9,15 @@ namespace Barjonas.Common.Converters;
 /// ConverterParameter = 1:
 ///     Total minutes, remaining seconds and milliseconds, e.g. 12:43.4553
 /// </summary>
-public class TimeSpanToSpecialFormat : IValueConverter
+public class TimeSpanToSpecialFormatConverter : ICommonValueConverter
 {
+    private readonly object _unsetValue;
+    public TimeSpanToSpecialFormatConverter(object unsetValue)
+    {
+        _unsetValue = unsetValue;
+    }
     private static readonly TimeSpan s_switchPoint = TimeSpan.FromMinutes(1);
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is TimeSpan ts)
         {
@@ -39,16 +44,16 @@ public class TimeSpanToSpecialFormat : IValueConverter
         }
         else
         {
-            throw new ArgumentException();
+            throw new ArgumentException(null, nameof(value));
         }
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (TimeSpan.TryParse(value.ToString(), out TimeSpan result))
+        if (value is not null && TimeSpan.TryParse(value.ToString(), out TimeSpan result))
         {
             return result;
         }
-        return DependencyProperty.UnsetValue;
+        return _unsetValue;
     }
 }

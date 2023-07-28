@@ -1,4 +1,5 @@
-﻿global using System;
+﻿global using static Barjonas.Common.Utils;
+global using System;
 global using System.Globalization;
 global using System.Collections;
 global using System.Collections.Generic;

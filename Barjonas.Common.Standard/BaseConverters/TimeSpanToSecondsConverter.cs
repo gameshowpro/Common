@@ -1,11 +1,16 @@
 ﻿// (C) Barjonas LLC 2018
 
-namespace Barjonas.Common.Converters;
+namespace Barjonas.Common.BaseConverters;
 
-public class TimeSpanToSecondsConverter : IValueConverter
+public class TimeSpanToSecondsConverter : ICommonValueConverter
 {
+    private readonly object _unsetValue;
+    public TimeSpanToSecondsConverter(object unsetValue)
+    {
+        _unsetValue = unsetValue;
+    }
     public bool IntCeiling { get; set; }
-    public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is TimeSpan span)
         {
@@ -24,11 +29,11 @@ public class TimeSpanToSecondsConverter : IValueConverter
         }
         else
         {
-            throw new ArgumentException();
+            throw new ArgumentException(null, nameof(value));
         }
     }
 
-    public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null)
         {
@@ -44,7 +49,7 @@ public class TimeSpanToSecondsConverter : IValueConverter
         }
         else
         {
-            return DependencyProperty.UnsetValue;
+            return _unsetValue;
         }
     }
 }

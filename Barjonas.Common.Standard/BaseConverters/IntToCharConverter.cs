@@ -1,22 +1,22 @@
-// (C) Barjonas LLC 2018
+﻿// (C) Barjonas LLC 2018
 
 namespace Barjonas.Common.BaseConverters;
 
-public class EnumToDescriptionConverter : ICommonValueConverter
+public class IntToCharConverter : ICommonValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is Enum valueEnum)
+        if (value is int valueInt)
         {
-            if (targetType == typeof(int))
+            if (!valueInt.IsInRange(0, 25))
             {
-                return (int)value;
+                return string.Empty;
             }
-            return valueEnum.Description();
+            return (char)(valueInt + 65);
         }
         else
         {
-            throw new ArgumentException("Value must be an enum");
+            throw new NotImplementedException();
         }
     }
 

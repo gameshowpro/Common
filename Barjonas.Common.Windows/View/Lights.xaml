@@ -8,7 +8,7 @@
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              mc:Ignorable="d" >
-    <conv:ToOneBased x:Key="ToOneBased"/>
+    <conv:ToOneBasedConverter x:Key="ToOneBased"/>
     <conv:TimeSpanToSecondsConverter x:Key="TimeSpanToSecondsConverter"/>
     <DataTemplate DataType="{x:Type lights:StatePresetChannel}">
         <DockPanel>

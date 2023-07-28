@@ -86,7 +86,7 @@ public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<T
         }
         else
         {
-            base.Add(item);
+            Add(item);
         }
     }
 

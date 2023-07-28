@@ -34,71 +34,71 @@ public abstract class EnumerableToStringConverter : ICommonValueConverter
         string separator = s_joinTypes[(int)JoinType];
         if (value is IEnumerable<bool> bools)
         {
-            return Utils.EnumerableToDelimitedString(bools, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(bools, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<bool?> nbools)
         {
-            return Utils.EnumerableToDelimitedString(nbools, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(nbools, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<string> strings)
         {
-            return Utils.EnumerableToDelimitedString(strings, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(strings, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<string?> nstrings)
         {
-            return Utils.EnumerableToDelimitedString(nstrings, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(nstrings, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<int> ints)
         {
-            return Utils.EnumerableToDelimitedString(ints, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(ints, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<int?> nints)
         {
-            return Utils.EnumerableToDelimitedString(nints, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(nints, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<long> longs)
         {
-            return Utils.EnumerableToDelimitedString(longs, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(longs, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<long?> nlongs)
         {
-            return Utils.EnumerableToDelimitedString(nlongs, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(nlongs, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<uint> uints)
         {
-            return Utils.EnumerableToDelimitedString(uints, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(uints, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<uint?> nuints)
         {
-            return Utils.EnumerableToDelimitedString(nuints, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(nuints, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<ulong> ulongs)
         {
-            return Utils.EnumerableToDelimitedString(ulongs, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(ulongs, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<ulong?> nulongs)
         {
-            return Utils.EnumerableToDelimitedString(nulongs, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(nulongs, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<IEnumerable<int>> intList)
         {
-            return Utils.EnumerableToDelimitedString(intList, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(intList, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<float> floats)
         {
-            return Utils.EnumerableToDelimitedString(floats, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(floats, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<double> doubles)
         {
-            return Utils.EnumerableToDelimitedString(doubles, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(doubles, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<float?> nfloats)
         {
-            return Utils.EnumerableToDelimitedString(nfloats, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(nfloats, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else if (value is IEnumerable<double?> ndoubles)
         {
-            return Utils.EnumerableToDelimitedString(ndoubles, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
+            return EnumerableToDelimitedString(ndoubles, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
         else
         {
@@ -134,57 +134,57 @@ public abstract class EnumerableToStringConverter : ICommonValueConverter
             {
                 if (itemType == typeof(string))
                 {
-                    return ToEnumerableImplementation(Utils.DelimitedStringToNonNullableString(valueString, separator, NullStringPlaceholder), targetType) ?? _doNothing;
+                    return ToEnumerableImplementation(DelimitedStringToNonNullableString(valueString, separator, NullStringPlaceholder), targetType) ?? _doNothing;
                 }
                 else if (itemType == typeof(int))
                 {
-                    return ToEnumerableImplementation(Utils.DelimitedStringToNonNullableType<int>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<int>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
                 }
                 else if (itemType == typeof(uint))
                 {
-                    return ToEnumerableImplementation(Utils.DelimitedStringToNonNullableType<uint>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<uint>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
                 }
                 else if (itemType == typeof(long))
                 {
-                    return ToEnumerableImplementation(Utils.DelimitedStringToNonNullableType<long>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<long>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
                 }
                 else if (itemType == typeof(ulong))
                 {
-                    return ToEnumerableImplementation(Utils.DelimitedStringToNonNullableType<ulong>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<ulong>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
                 }
                 else if (itemType == typeof(bool))
                 {
-                    return ToEnumerableImplementation(Utils.DelimitedStringToNonNullableType<bool>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<bool>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
                 }
             }
             else if (underlyingNullableItemType == typeof(string))
             {
-                return ToEnumerableImplementation(Utils.DelimitedStringToNullableString(valueString, separator, NullStringPlaceholder), targetType) ?? _doNothing;
+                return ToEnumerableImplementation(DelimitedStringToNullableString(valueString, separator, NullStringPlaceholder), targetType) ?? _doNothing;
             }
 
             else if (underlyingNullableItemType == typeof(int))
             {
-                return ToEnumerableImplementation(Utils.DelimitedStringToNullableType<int>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                return ToEnumerableImplementation(DelimitedStringToNullableType<int>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
             }
 
             else if (underlyingNullableItemType == typeof(uint))
             {
-                return ToEnumerableImplementation(Utils.DelimitedStringToNullableType<uint>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                return ToEnumerableImplementation(DelimitedStringToNullableType<uint>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
             }
 
             else if (underlyingNullableItemType == typeof(long))
             {
-                return ToEnumerableImplementation(Utils.DelimitedStringToNullableType<long>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                return ToEnumerableImplementation(DelimitedStringToNullableType<long>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
             }
 
             else if (underlyingNullableItemType == typeof(ulong))
             {
-                return ToEnumerableImplementation(Utils.DelimitedStringToNullableType<ulong>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                return ToEnumerableImplementation(DelimitedStringToNullableType<ulong>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
             }
 
             else if (underlyingNullableItemType == typeof(bool))
             {
-                return ToEnumerableImplementation(Utils.DelimitedStringToNullableType<bool>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                return ToEnumerableImplementation(DelimitedStringToNullableType<bool>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
             }
         }
         return _doNothing;
