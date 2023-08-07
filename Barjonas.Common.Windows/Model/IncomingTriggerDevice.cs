@@ -52,11 +52,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
                 else
                 {
                     FieldInfo? field = t.GetField(valueString);
-                    TriggerParameters? triggerParams = GetTriggerParameters(field);
-                    if (triggerParams is null)
-                    {
-                        throw new MissingMemberException($"{t} must contain a {nameof(TriggerParameters)} attribute on every member.");
-                    }
+                    TriggerParameters? triggerParams = GetTriggerParameters(field) ?? throw new MissingMemberException($"{t} must contain a {nameof(TriggerParameters)} attribute on every member.");
                     ITriggerDefaultSpecification? triggerDefault = GetTriggerDefaultSpecification<TSubclass>(field, index);
                     
                     TTrigger trigger = TriggerFactory(settings.TriggerSettings.GetOrCreate(value.ToString(), triggerParams.Name, triggerDefault?.TriggerId, triggerParams.TriggerFilter, triggerParams.DebounceInterval));

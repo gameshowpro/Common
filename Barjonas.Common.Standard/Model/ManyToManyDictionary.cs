@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 namespace Barjonas.Common.Model;
 
 public abstract class ManyToManyDictionary<TKeyA, TKeyB, TPair>
@@ -61,16 +63,14 @@ public abstract class ManyToManyDictionary<TKeyA, TKeyB, TPair>
         where TPrimary : notnull
         where TForeign : notnull
     {
-        if (primaryDictionary.ContainsKey(key))
+        if (primaryDictionary.TryGetValue(key, out Dictionary<TForeign,TPair>? commandsForTrigger))
         {
-            Dictionary<TForeign, TPair> commandsForTrigger = primaryDictionary[key];
             foreach (TPair pair in commandsForTrigger.Values)
             {
                 TForeign foreign = getForeignKey(pair);
-                if (foreignDictionary.ContainsKey(foreign))
+                if (foreignDictionary.TryGetValue(foreign, out Dictionary<TPrimary, TPair>? triggersForCommand))
                 {
                     PairRemoved(pair);
-                    Dictionary<TPrimary, TPair> triggersForCommand = foreignDictionary[foreign];
                     if (triggersForCommand.ContainsKey(key))
                     {
                         _ = triggersForCommand.Remove(key);

@@ -14,7 +14,7 @@ public record LockoutReport(int Version, int Index, TimeSpan TimeStamp, bool IsL
 public class LockoutReportFormatter : IMessagePackFormatter<LockoutReport>
 {
     internal const byte MessagePackVersion = 1;
-    public static readonly LockoutReportFormatter Instance = new();
+    public static readonly LockoutReportFormatter s_instance = new();
 
     private LockoutReportFormatter()
     {

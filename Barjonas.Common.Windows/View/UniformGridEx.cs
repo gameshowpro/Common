@@ -11,7 +11,7 @@ namespace Barjonas.Common.View;
 /// </summary>    
 public class UniformGridEx : Grid
 {
-    public static readonly DependencyProperty ColumnMemberPathProperty =
+    public static readonly DependencyProperty s_columnMemberPathProperty =
             DependencyProperty.Register(
                     "ColumnMemberPath",
                     typeof(string),
@@ -22,11 +22,11 @@ public class UniformGridEx : Grid
 
     public string ColumnMemberPath
     {
-        get { return (string)GetValue(ColumnMemberPathProperty); }
-        set { SetValue(ColumnMemberPathProperty, value); }
+        get { return (string)GetValue(s_columnMemberPathProperty); }
+        set { SetValue(s_columnMemberPathProperty, value); }
     }
 
-    public static readonly DependencyProperty RowMemberPathProperty =
+    public static readonly DependencyProperty s_rowMemberPathProperty =
     DependencyProperty.Register(
             "RowMemberPath",
             typeof(string),
@@ -37,11 +37,11 @@ public class UniformGridEx : Grid
 
     public string RowMemberPath
     {
-        get { return (string)GetValue(RowMemberPathProperty); }
-        set { SetValue(RowMemberPathProperty, value); }
+        get { return (string)GetValue(s_rowMemberPathProperty); }
+        set { SetValue(s_rowMemberPathProperty, value); }
     }
 
-    public static readonly DependencyProperty ColumnSpanMemberPathProperty =
+    public static readonly DependencyProperty s_columnSpanMemberPathProperty =
             DependencyProperty.Register(
                     "ColumnSpanMemberPath",
                     typeof(string),
@@ -52,11 +52,11 @@ public class UniformGridEx : Grid
 
     public string ColumnSpanMemberPath
     {
-        get { return (string)GetValue(ColumnSpanMemberPathProperty); }
-        set { SetValue(ColumnSpanMemberPathProperty, value); }
+        get { return (string)GetValue(s_columnSpanMemberPathProperty); }
+        set { SetValue(s_columnSpanMemberPathProperty, value); }
     }
 
-    public static readonly DependencyProperty RowSpanMemberPathProperty =
+    public static readonly DependencyProperty s_rowSpanMemberPathProperty =
         DependencyProperty.Register(
             "RowSpanMemberPath",
             typeof(string),
@@ -67,8 +67,8 @@ public class UniformGridEx : Grid
 
     public string RowSpanMemberPath
     {
-        get { return (string)GetValue(RowSpanMemberPathProperty); }
-        set { SetValue(RowSpanMemberPathProperty, value); }
+        get { return (string)GetValue(s_rowSpanMemberPathProperty); }
+        set { SetValue(s_rowSpanMemberPathProperty, value); }
     }
 
     private static void UpdateChildrenBinding(DependencyObject d, DependencyProperty property, string path)
@@ -89,13 +89,13 @@ public class UniformGridEx : Grid
     private static void UpdateChildBinding(FrameworkElement child, DependencyProperty property, string path) 
         => child.SetBinding(property, new Binding(path));
 
-    public static readonly DependencyProperty ColumnsProperty =
+    public static readonly DependencyProperty s_columnsProperty =
         DependencyProperty.Register("Columns", typeof(int), typeof(UniformGridEx), new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.AffectsArrange, OnColumnsChanged));
 
     public int Columns
     {
-        get { return (int)GetValue(ColumnsProperty); }
-        set { SetValue(ColumnsProperty, value); }
+        get { return (int)GetValue(s_columnsProperty); }
+        set { SetValue(s_columnsProperty, value); }
     }
 
     private static void OnColumnsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -106,13 +106,13 @@ public class UniformGridEx : Grid
         }
     }
 
-    public static readonly DependencyProperty RowsProperty =
+    public static readonly DependencyProperty s_rowsProperty =
         DependencyProperty.Register("Rows", typeof(int), typeof(UniformGridEx), new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.AffectsArrange, OnRowsChanged));
 
     public int Rows
     {
-        get { return (int)GetValue(RowsProperty); }
-        set { SetValue(RowsProperty, value); }
+        get { return (int)GetValue(s_rowsProperty); }
+        set { SetValue(s_rowsProperty, value); }
     }
 
     private static void OnRowsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

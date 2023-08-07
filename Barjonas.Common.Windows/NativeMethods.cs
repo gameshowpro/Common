@@ -66,12 +66,12 @@ public static class NativeMethods
             /// and so can save some bytes by using a MONITORINFO structure.
             /// </summary>
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = CCHDEVICENAME)]
-        internal string DeviceName;
+        internal string _deviceName;
 
         public void Init()
         {
             Size = 40 + 2 * CCHDEVICENAME;
-            DeviceName = string.Empty;
+            _deviceName = string.Empty;
         }
     }
     [DllImport("Shcore.dll")]

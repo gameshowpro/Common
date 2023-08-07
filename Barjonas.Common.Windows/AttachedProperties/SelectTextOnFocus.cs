@@ -7,7 +7,7 @@ namespace Barjonas.Common.AttachedProperties;
 
 public class SelectTextOnFocus : DependencyObject
 {
-    public static readonly DependencyProperty ActiveProperty = DependencyProperty.RegisterAttached(
+    public static readonly DependencyProperty s_activeProperty = DependencyProperty.RegisterAttached(
         "Active",
         typeof(bool),
         typeof(SelectTextOnFocus),
@@ -70,11 +70,11 @@ public class SelectTextOnFocus : DependencyObject
     [AttachedPropertyBrowsableForType(typeof(TextBox))]
     public static bool GetActive(DependencyObject @object)
     {
-        return (bool)@object.GetValue(ActiveProperty);
+        return (bool)@object.GetValue(s_activeProperty);
     }
 
     public static void SetActive(DependencyObject @object, bool value)
     {
-        @object.SetValue(ActiveProperty, value);
+        @object.SetValue(s_activeProperty, value);
     }
 }

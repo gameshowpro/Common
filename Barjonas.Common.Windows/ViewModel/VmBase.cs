@@ -15,7 +15,7 @@ public abstract class VmBase : NotifyingClass
             DateTime now = DateTime.Now;
             TimeOfDayMinute = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, now.Kind);
         }), Dispatcher.CurrentDispatcher);
-        _todayUpdater = new DispatcherTimer(TimeSpan.FromMinutes(1), DispatcherPriority.SystemIdle, new EventHandler((o, e) => NotifyPropertyChanged(nameof(Today))), Dispatcher.CurrentDispatcher);
+        _ = new DispatcherTimer(TimeSpan.FromMinutes(1), DispatcherPriority.SystemIdle, new EventHandler((o, e) => NotifyPropertyChanged(nameof(Today))), Dispatcher.CurrentDispatcher);
         ShowDataDirCommand = new RelayCommandSimple(() => ShowDataDir());
         LaunchNLogLogCommand = new RelayCommand<string?>((string? targetKey) => LaunchCurrentNLogLog(targetKey ?? "f"));
         PersistAllCommand = new RelayCommandSimple(persistAll);
@@ -30,7 +30,6 @@ public abstract class VmBase : NotifyingClass
 
     private readonly DispatcherTimer _todUpdater;
     public DateTime TimeOfDay => DateTime.Now;
-    private readonly DispatcherTimer _todayUpdater;
     public DateTime Today => DateTime.Now;
     public DateTime BuildDate { get; }
     public string VersionString { get; }

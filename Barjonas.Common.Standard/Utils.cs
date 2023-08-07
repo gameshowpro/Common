@@ -45,7 +45,6 @@ public static partial class Utils
         Func<TFirst, TSecond, TResult> resultSelector
     )
     {
-        first.Zip(second, resultSelector);
         using IEnumerator<TFirst> e1 = first.GetEnumerator();
         using IEnumerator<TSecond> e2 = second.GetEnumerator();
         while (e1.MoveNext())
@@ -594,10 +593,7 @@ public static partial class Utils
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureAndCreateListCount<T>(ref IList<T> list, int minCount, int maxCount, Func<int, T> factory)
     {
-        if (list == null)
-        {
-            list = new List<T>();
-        }
+        list ??= new List<T>();
         EnsureListCount(list, minCount, maxCount, factory);
     }
 
@@ -613,7 +609,7 @@ public static partial class Utils
     {
         if (list == null)
         {
-            throw new ArgumentNullException();
+            throw new ArgumentNullException(nameof(list));
         }
         while (!list.Count.IsInRange(minCount, maxCount, true))
         {
@@ -649,10 +645,7 @@ public static partial class Utils
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureOrCreateListCount<T>(ref List<T> list, int minCount, Func<int, T> factory)
     {
-        if (list == null)
-        {
-            list = new List<T>();
-        }
+        list ??= new ();
         EnsureListCount(list, minCount, factory);
     }
 
@@ -692,10 +685,7 @@ public static partial class Utils
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureOrCreateListCount<T>(ref ObservableCollection<T> list, int minCount, int maxCount, Func<int, T> factory)
     {
-        if (list == null)
-        {
-            list = new ObservableCollection<T>();
-        }
+        list ??= new ();
         EnsureListCount(list, minCount, maxCount, factory);
     }
 
@@ -721,10 +711,7 @@ public static partial class Utils
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureOrCreateListCount<T>(ref ObservableCollectionEx<T> list, int minCount, int maxCount, Func<int, T> factory) where T : INotifyPropertyChanged
     {
-        if (list == null)
-        {
-            list = new ObservableCollectionEx<T>();
-        }
+        list ??= new ();
         EnsureListCount(list, minCount, maxCount, factory);
     }
 
@@ -738,10 +725,7 @@ public static partial class Utils
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureOrCreateListCount<T>(ref List<T> list, int minCount, int maxCount, Func<int, T> factory)
     {
-        if (list == null)
-        {
-            list = new List<T>();
-        }
+        list ??= new ();
         EnsureListCount(list, minCount, maxCount, factory);
     }
 
@@ -769,10 +753,7 @@ public static partial class Utils
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureOrCreateListCount<T>(ref BindingList<T> list, int minCount, int maxCount, Func<int, T> factory)
     {
-        if (list == null)
-        {
-            list = new BindingList<T>();
-        }
+        list ??= new ();
         IList<T> ilist = list;
         EnsureListCount(ilist, minCount, maxCount, factory);
     }
@@ -817,7 +798,7 @@ public static partial class Utils
     {
         if (list == null)
         {
-            throw new ArgumentNullException();
+            throw new ArgumentNullException(nameof(list));
         }
         if (list.Count.IsInRange(minCount, maxCount))
         {
@@ -1537,7 +1518,7 @@ public static partial class Utils
     }
 
 
-    public static IEnumerable<string?>? DelimitedStringToNullableString(string delimited, string delimiter, string? nullStringPlaceholder = "?", bool exceptionOnFailure = false)
+    public static IEnumerable<string?>? DelimitedStringToNullableString(string delimited, string delimiter, string? nullStringPlaceholder = "?")
     {
         if (string.IsNullOrWhiteSpace(delimited))
         {
@@ -1548,10 +1529,10 @@ public static partial class Utils
     }
 
 
-    public static IEnumerable<T>? DelimitedStringToNonNullableType<T>(string delimited, string delimiter, int offset = 0, string nullStringPlaceholder = "?", bool exceptionOnFailure = false)
+    public static IEnumerable<T>? DelimitedStringToNonNullableType<T>(string delimited, string delimiter, int offset = 0, bool exceptionOnFailure = false)
         where T : struct
     {
-        IEnumerable<T?>? result = DelimitedStringToNullableType<T>(delimited, delimiter, offset, nullStringPlaceholder);
+        IEnumerable<T?>? result = DelimitedStringToNullableType<T>(delimited, delimiter, offset);
         if (exceptionOnFailure && result?.Any(t => t is null) == true)
         {
             throw new Exception("String parsing failed");
@@ -1559,7 +1540,7 @@ public static partial class Utils
         return result?.WhereNotNull().Select(t => t);
     }
 
-    public static IEnumerable<T?>? DelimitedStringToNullableType<T>(string delimited, string delimiter, int offset = 0, string nullStringPlaceholder = "?")
+    public static IEnumerable<T?>? DelimitedStringToNullableType<T>(string delimited, string delimiter, int offset = 0)
         where T : struct
     {
         if (string.IsNullOrWhiteSpace(delimited))
@@ -1614,7 +1595,7 @@ public static partial class Utils
             int index = value.IndexOf(BuildVersionMetadataPrefix);
             if (index > 0)
             {
-                value = value.Substring(index + BuildVersionMetadataPrefix.Length);
+                value = value[(index + BuildVersionMetadataPrefix.Length)..];
                 if (DateTime.TryParseExact(value, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
                 {
                     return result;
@@ -1718,7 +1699,7 @@ public static partial class Utils
         }
     }
 
-    private static Random s_rnd = new Random();
+    private static readonly Random s_rnd = new();
     /// <summary>
     /// Generate a random string of the requested length consisting only of upper-case alphabetic characters.
     /// </summary>
@@ -1726,7 +1707,7 @@ public static partial class Utils
     /// <returns></returns>
     public static string RandomAlphabeticString(int length)
     {
-        StringBuilder sb = new StringBuilder(length);
+        StringBuilder sb = new(length);
         for (int i = 0; i < length; i++)
         {
             sb.Append((char)s_rnd.Next(65,91));

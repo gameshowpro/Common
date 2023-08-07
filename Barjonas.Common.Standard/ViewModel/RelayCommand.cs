@@ -7,11 +7,16 @@ namespace Barjonas.Common.ViewModel;
 /// An ICommand implementation with one parameter and customizable CanExecute functionality.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class RelayCommand<T> : ICommand
+/// <remarks>
+/// Creates a new command.
+/// </remarks>
+/// <param name="execute">The execution logic.</param>
+/// <param name="canExecute">The execution status logic (currently ignored).</param>
+public class RelayCommand<T>(Action<T?> execute, Predicate<T?>? canExecute) : ICommand
 {
     #region Fields
 
-    protected readonly Action<T?> _execute;
+    protected readonly Action<T?> _execute = execute;
 
     #endregion
 
@@ -25,16 +30,6 @@ public class RelayCommand<T> : ICommand
     public RelayCommand(Action<T?> execute)
         : this(execute, null)
     {
-    }
-
-    /// <summary>
-    /// Creates a new command.
-    /// </summary>
-    /// <param name="execute">The execution logic.</param>
-    /// <param name="canExecute">The execution status logic (currently ignored).</param>
-    public RelayCommand(Action<T?> execute, Predicate<T?>? canExecute)
-    {
-        _execute = execute;
     }
 
     public void SetCanExecute(bool canExecute)
