@@ -138,23 +138,23 @@ public abstract class EnumerableToStringConverter : ICommonValueConverter
                 }
                 else if (itemType == typeof(int))
                 {
-                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<int>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<int>(valueString, separator, IntUiOffset), targetType) ?? _doNothing;
                 }
                 else if (itemType == typeof(uint))
                 {
-                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<uint>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<uint>(valueString, separator, IntUiOffset), targetType) ?? _doNothing;
                 }
                 else if (itemType == typeof(long))
                 {
-                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<long>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<long>(valueString, separator, IntUiOffset), targetType) ?? _doNothing;
                 }
                 else if (itemType == typeof(ulong))
                 {
-                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<ulong>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<ulong>(valueString, separator, IntUiOffset), targetType) ?? _doNothing;
                 }
                 else if (itemType == typeof(bool))
                 {
-                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<bool>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                    return ToEnumerableImplementation(DelimitedStringToNonNullableType<bool>(valueString, separator, IntUiOffset), targetType) ?? _doNothing;
                 }
             }
             else if (underlyingNullableItemType == typeof(string))
@@ -164,27 +164,27 @@ public abstract class EnumerableToStringConverter : ICommonValueConverter
 
             else if (underlyingNullableItemType == typeof(int))
             {
-                return ToEnumerableImplementation(DelimitedStringToNullableType<int>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                return ToEnumerableImplementation(DelimitedStringToNullableType<int>(valueString, separator, IntUiOffset), targetType) ?? _doNothing;
             }
 
             else if (underlyingNullableItemType == typeof(uint))
             {
-                return ToEnumerableImplementation(DelimitedStringToNullableType<uint>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                return ToEnumerableImplementation(DelimitedStringToNullableType<uint>(valueString, separator, IntUiOffset), targetType) ?? _doNothing;
             }
 
             else if (underlyingNullableItemType == typeof(long))
             {
-                return ToEnumerableImplementation(DelimitedStringToNullableType<long>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                return ToEnumerableImplementation(DelimitedStringToNullableType<long>(valueString, separator, IntUiOffset), targetType) ?? _doNothing;
             }
 
             else if (underlyingNullableItemType == typeof(ulong))
             {
-                return ToEnumerableImplementation(DelimitedStringToNullableType<ulong>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                return ToEnumerableImplementation(DelimitedStringToNullableType<ulong>(valueString, separator, IntUiOffset), targetType) ?? _doNothing;
             }
 
             else if (underlyingNullableItemType == typeof(bool))
             {
-                return ToEnumerableImplementation(DelimitedStringToNullableType<bool>(valueString, separator, IntUiOffset, NullStringPlaceholder), targetType) ?? _doNothing;
+                return ToEnumerableImplementation(DelimitedStringToNullableType<bool>(valueString, separator, IntUiOffset), targetType) ?? _doNothing;
             }
         }
         return _doNothing;
