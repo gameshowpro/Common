@@ -16,6 +16,13 @@ public record EdgeReport(int Version, int Index, int? Ordinal, TimeSpan? TimeSta
 public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport>
 {
     internal const byte MessagePackVersion = 1;
+#pragma warning disable IDE1006 // Naming is required by MessagePack library
+    public static readonly EdgeReportFormatter Instance = new();
+#pragma warning restore IDE1006
+
+    private EdgeReportFormatter()
+    {
+    }
 
     private const int MinFieldCount = 7;
     private const int CurrentFieldCount = 8;
