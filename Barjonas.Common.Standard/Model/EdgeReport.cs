@@ -16,11 +16,6 @@ public record EdgeReport(int Version, int Index, int? Ordinal, TimeSpan? TimeSta
 public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport>
 {
     internal const byte MessagePackVersion = 1;
-    public static readonly EdgeReportFormatter s_instance = new();
-
-    private EdgeReportFormatter()
-    {
-    }
 
     private const int MinFieldCount = 7;
     private const int CurrentFieldCount = 8;
