@@ -1739,5 +1739,41 @@ public static partial class Utils
         }
         return default;
     }
+
+    public static bool TryGetElement<TSource>(this IEnumerable<TSource> source, int index, [MaybeNullWhen(false)] out TSource element)
+    {
+        Debug.Assert(source != null);
+
+        if (index >= 0)
+        {
+            using IEnumerator<TSource> e = source.GetEnumerator();
+            while (e.MoveNext())
+            {
+                if (index == 0)
+                {
+                    element = e.Current;
+                    return true;
+                }
+
+                index--;
+            }
+        }
+
+        element = default;
+        return false;
+    }
+
+    public static bool TryGetElement<TSource>(this IList<TSource> source, int index, [MaybeNullWhen(false)] out TSource element)
+    {
+        Debug.Assert(source != null);
+
+        if (index >= 0 && source.Count > index)
+        {
+            element = source[index];
+            return true;
+        }
+        element = default;
+        return false;
+    }
 }
 
