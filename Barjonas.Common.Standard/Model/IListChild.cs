@@ -2,5 +2,5 @@
 
 public interface IListChild<T> where T : IListChild<T>
 {
-    IList<T> Parent { get; }
+    IList<T>? Parent { get; }
 }

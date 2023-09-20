@@ -907,8 +907,12 @@ public static partial class Utils
     /// <summary>
     /// Nudge a given item in a given list by a given number of positions.
     /// </summary>
-    public static void Nudge<T>(this IList<T> list, T item, int vector) where T : IIndexed
+    public static void Nudge<T>(this IList<T>? list, T? item, int vector) where T : IIndexed
     {
+        if (list == null || item == null)
+        {
+            return;
+        }
         int newIndex = item.Index + vector;
         if (newIndex.IsInRange(0, list.Count, false))
         {
@@ -920,7 +924,7 @@ public static partial class Utils
 
     public static void Nudge<T>(this T item, int vector) where T : IIndexed, IListChild<T>
     {
-        Nudge(item.Parent, item, vector);
+        Nudge(item?.Parent, item, vector);
     }
 
     /// <summary>
