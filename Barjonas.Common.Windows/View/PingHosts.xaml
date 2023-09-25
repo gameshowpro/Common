@@ -1,0 +1,62 @@
+﻿<ResourceDictionary
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:gl="clr-namespace:System.Globalization;assembly=mscorlib" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:conv="clr-namespace:Barjonas.Common.Converters"
+             xmlns:comview="clr-namespace:Barjonas.Common.View"
+             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"  
+             mc:Ignorable="d">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Barjonas.Common.Windows;component/View/RemoteService.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+    <Thickness x:Key="ControlMargin">10</Thickness>
+    <Thickness x:Key="ControlSmallMargin">5</Thickness>
+    <conv:ToOneBasedConverter x:Key="ToOneBased"/>
+    <conv:TimeSpanToSecondsConverter x:Key="TimeSpanToSecondsConverter"/>
+    <DataTemplate x:Key="PingHosts.SettingsEdit">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Status"/>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Host"/>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="InstanceName"/>
+            </Grid.ColumnDefinitions>
+            <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ServiceStatus}" VerticalAlignment="Center" DockPanel.Dock="Left" Grid.Column="0" />
+            <TextBox VerticalAlignment="Center" Margin="{StaticResource ControlSmallMargin}" controls:TextBoxHelper.Watermark="Ping host" Text="{Binding Settings.Host}" Grid.Column="1"/>
+            <TextBox Text="{Binding Settings.DisplayName}" controls:TextBoxHelper.Watermark="Instance name" Grid.Column="2"  />
+        </Grid>
+    </DataTemplate>
+    <DataTemplate x:Key="PingHosts.Monitor">
+        <DataTemplate.Resources>
+            <Storyboard x:Key="HeartSB" >
+                <DoubleAnimation Storyboard.TargetName="HeartText" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:1.0">
+                    <DoubleAnimation.EasingFunction>
+                        <CubicEase EasingMode="EaseInOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard>
+        </DataTemplate.Resources>
+        <DockPanel LastChildFill="False" Visibility="{Binding Settings.Host, Converter={StaticResource NoMatchToBooleanConverterWithCollapse}, ConverterParameter=''}">
+            <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ServiceStatus}" VerticalAlignment="Center" DockPanel.Dock="Left" />
+            <TextBlock VerticalAlignment="Center" Margin="{StaticResource ControlSmallMargin}" Style="{StaticResource SmallPrint}" DockPanel.Dock="Top" Tag="{Binding HeartbeatTime, NotifyOnTargetUpdated=True}" Opacity="0" Name="HeartText">
+                <TextBlock.Triggers>
+                    <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                        <BeginStoryboard Storyboard="{StaticResource HeartSB}" />
+                    </EventTrigger>
+                </TextBlock.Triggers>
+                    <Run Foreground="LightPink">♥</Run><Run Text="{Binding LastPingTime, Mode=OneWay, StringFormat=hh\\:mm\\:ss}"/>
+            </TextBlock>
+            <DockPanel DockPanel.Dock="Left" Margin="{StaticResource ControlSmallMargin}">
+                <TextBlock FontSize="{DynamicResource MahApps.Font.Size.FloatingWatermark}" Opacity="0.6" DockPanel.Dock="Top">
+                    <Run Text="Ping" />
+                    <Run Text="{Binding Settings.DisplayName, Mode=OneWay}" />
+                </TextBlock>
+                <TextBlock Text="{Binding Settings.Host}" DockPanel.Dock="Top"  />
+            </DockPanel>
+        </DockPanel>
+    </DataTemplate>
+</ResourceDictionary>
