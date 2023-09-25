@@ -10,17 +10,19 @@ public class PingHost : ObservableClass, IRemoteService
     public PingHost(PingHostSettings settings, CancellationToken cancellationToken)
     {
         Settings = settings;
+        ServiceState = new("Ping");
         settings.PropertyChanged += (s, e) =>
         {
             switch (e.PropertyName)
             {
                 case nameof(Settings.Host):
+                    ServiceState.AggregateState = RemoteServiceStates.Disconnected;
+                    ServiceState.Detail = "In progress";
                     _settingChange.Set();
                     break;
             }
         };
         _cancellationToken = cancellationToken;
-        ServiceState = new("Ping");
         _ = Task.Run(UpdateLoop, cancellationToken);
     }
     public PingHostSettings Settings { get; }
@@ -56,10 +58,15 @@ public class PingHost : ObservableClass, IRemoteService
                     }
                     else
                     {
-                        PingReply reply = await pingSender.SendPingAsync(Settings.Host, timeout, buffer, options);
-                        ServiceState.AggregateState = reply.Status == IPStatus.Success ? RemoteServiceStates.Connected : RemoteServiceStates.Warning;
-                        ServiceState.Detail = reply.Status == IPStatus.Success ? $"Reply time {reply.RoundtripTime}ms" : "No reply";
-                        if (reply.Status == IPStatus.Success)
+                        PingReply? reply = null;
+                        try
+                        {
+                            reply = await pingSender.SendPingAsync(Settings.Host, timeout, buffer, options);
+                        }
+                        catch { };
+                        ServiceState.AggregateState = reply?.Status == IPStatus.Success ? RemoteServiceStates.Connected : RemoteServiceStates.Warning;
+                        ServiceState.Detail = reply == null ? "Unresolved" : reply?.Status == IPStatus.Success ? $"Reply time {reply.RoundtripTime}ms" : "No reply";
+                        if (reply?.Status == IPStatus.Success)
                         {
                             LastPingTime = DateTime.UtcNow;
                         }

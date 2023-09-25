@@ -41,15 +41,17 @@
             </Storyboard>
         </DataTemplate.Resources>
         <DockPanel LastChildFill="False" Visibility="{Binding Settings.Host, Converter={StaticResource NoMatchToBooleanConverterWithCollapse}, ConverterParameter=''}">
-            <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ServiceStatus}" VerticalAlignment="Center" DockPanel.Dock="Left" />
-            <TextBlock VerticalAlignment="Center" Margin="{StaticResource ControlSmallMargin}" Style="{StaticResource SmallPrint}" DockPanel.Dock="Top" Tag="{Binding HeartbeatTime, NotifyOnTargetUpdated=True}" Opacity="0" Name="HeartText">
-                <TextBlock.Triggers>
-                    <EventTrigger RoutedEvent="Binding.TargetUpdated">
-                        <BeginStoryboard Storyboard="{StaticResource HeartSB}" />
-                    </EventTrigger>
-                </TextBlock.Triggers>
-                    <Run Foreground="LightPink">♥</Run><Run Text="{Binding LastPingTime, Mode=OneWay, StringFormat=hh\\:mm\\:ss}"/>
-            </TextBlock>
+            <Grid>
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ServiceStatus}" VerticalAlignment="Center" DockPanel.Dock="Left" />
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Tag="{Binding LastPingTime, NotifyOnTargetUpdated=True}" Opacity="0" Name="HeartText">
+                    <TextBlock.Triggers>
+                        <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                            <BeginStoryboard Storyboard="{StaticResource HeartSB}" />
+                        </EventTrigger>
+                    </TextBlock.Triggers>
+                    <Run Foreground="LightPink">♥</Run>
+                </TextBlock>
+            </Grid>
             <DockPanel DockPanel.Dock="Left" Margin="{StaticResource ControlSmallMargin}">
                 <TextBlock FontSize="{DynamicResource MahApps.Font.Size.FloatingWatermark}" Opacity="0.6" DockPanel.Dock="Top">
                     <Run Text="Ping" />
