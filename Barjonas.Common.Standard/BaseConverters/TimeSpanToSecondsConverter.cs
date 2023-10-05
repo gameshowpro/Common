@@ -23,13 +23,9 @@ public class TimeSpanToSecondsConverter : ICommonValueConverter
                 return span.TotalSeconds;
             }
         }
-        else if (value == null)
-        {
-            return null;
-        }
         else
         {
-            throw new ArgumentException(null, nameof(value));
+            return null;
         }
     }
 
