@@ -258,4 +258,62 @@ public static partial class UtilsWindows
         return array;
     }
 #endif
+
+    public static void EnforceMinimumUptime(TimeSpan minimum, Microsoft.Extensions.Logging.ILogger logger, CancellationToken cancellationToken)
+    {
+        TimeSpan uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
+        TimeSpan waitTime = minimum - uptime;
+        if (waitTime > TimeSpan.Zero)
+        {
+            logger.LogInformation("Delaying by {seconds} seconds to enforce minimum uptime setting", waitTime.TotalSeconds);
+            Task.Delay(waitTime, cancellationToken).Wait(cancellationToken);
+            logger.LogInformation("Delay complete");
+        }
+        else
+        {
+            logger.LogInformation("System up time is {uptime}, so no need to wait", uptime.ToSentence());
+        }
+    }
+
+    public static void WaitForServices(ImmutableList<string> services, TimeSpan serviceRunTimeout, Microsoft.Extensions.Logging.ILogger logger)
+    {
+        if (!services.Any())
+        {
+            logger.LogInformation("Configuration does not contain any services to wait for, so no need to wait");
+        }
+        foreach (string service in services)
+        {
+            ServiceController? sc = null;
+            ServiceControllerStatus? status = null;
+            try
+            {
+                sc = new ServiceController(service);
+                status = sc.Status;
+            }
+            catch (Exception ex)
+            {
+               logger.LogError(ex, "Exception while trying to find service {service}, so can't wait on it", service);
+            }
+            if (status != null && sc != null)
+            {
+                if (status.Value == ServiceControllerStatus.Running)
+                {
+                    logger.LogInformation("Service {service} is running, so no need to wait", service);
+                }
+                else
+                {
+                    logger.LogInformation("Service {service} is {state}, so waiting for it now", service, status.Value);
+                    try
+                    {
+                        sc.WaitForStatus(ServiceControllerStatus.Running, serviceRunTimeout);
+                        logger.LogInformation("Continuing now that service {service} is running", service);
+                    }
+                    catch (System.ServiceProcess.TimeoutException)
+                    {
+                        logger.LogError("Continuing after giving up waiting for {service} to start running", service);
+                    }
+                }
+            }
+        }
+    }
 }
