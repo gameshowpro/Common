@@ -376,6 +376,16 @@ public static partial class Utils
         return Convert.ChangeType(value, value.GetTypeCode());
     }
 
+    /// <summary>
+    /// Return the supplied enum member if it is non-null and defined, otherwise return a defined default.
+    /// </summary>
+    /// <typeparam name="T">The type of the enum.</typeparam>
+    /// <param name="value">The value to check.</param>
+    /// <param name="defaultValue">The default value to be returned if the value is not defined.</param>
+    /// <returns></returns>
+    public static T EnumFallbackToDefault<T> (this T? value, T defaultValue) where T : struct, Enum
+        => !value.HasValue || !Enum.IsDefined(value.Value) ? defaultValue : value.Value;
+
     public static void StartProcessTerminateWatchdog(Logger? logger = null, TimeSpan? timeout = null)
     {
         TimeSpan defaultedTimeout = timeout ?? TimeSpan.FromSeconds(2);
@@ -1778,6 +1788,23 @@ public static partial class Utils
         }
         element = default;
         return false;
+    }
+
+    /// <summary>
+    /// Return true and output safe reference to <see cref="ToCheck"/> if it's not null.
+    /// </summary>
+    /// <typeparam name="T">The type of object to check.</typeparam>
+    /// <param name="toCheck">The object to check.</param>
+    /// <param name="valueNotNull">The null-checked version of the object</param>
+    public static bool SafeNullCheck<T>(this T? toCheck, [NotNullWhen(true)] out T? valueNotNull) where T : class
+    {
+        if (toCheck == null)
+        {
+            valueNotNull = null;
+            return false;
+        }
+        valueNotNull = toCheck; 
+        return true;
     }
 }
 
