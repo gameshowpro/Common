@@ -10,7 +10,7 @@
              mc:Ignorable="d" >
     <DataTemplate DataType="{x:Type commodel:KioskWindowHandler}">
         <DockPanel LastChildFill="False">
-            <TextBlock Text="{Binding Window.Title}" FontSize="18" FontFamily="Segoe UI Semilight" DockPanel.Dock="Top"/>
+            <TextBlock Text="{Binding Window.Title}" FontSize="18" FontFamily="Segoe UI Variable,Segoe UI Semilight" FontWeight="Light" DockPanel.Dock="Top"/>
             <DockPanel DockPanel.Dock="Top" LastChildFill="False">
                 <controls:NumericUpDown Value="{Binding CurrentSettings.DisplayIndex}" controls:TextBoxHelper.Watermark="Display" controls:TextBoxHelper.UseFloatingWatermark="True" DockPanel.Dock="Left" Margin="5" />
                 <ToggleButton Style="{StaticResource CircleToggle}" IsChecked="{Binding CurrentSettings.IsKiosk}" ToolTip="Kiosk mode" Content="{iconPacks:Material Kind=Fullscreen}" Margin="5" DockPanel.Dock="Left"/>
