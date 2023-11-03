@@ -11,7 +11,7 @@ namespace Barjonas.Common.Model;
 /// Subclasses may extend ServiceState to add a list of sub-services to give a more detailed report of the current state, e.g. Sounds are OK, GPI card not found.
 /// </remarks>
 /// <param name="Progress">Any progress associated with the state. If finished, value should be 1. If not started, value should be 0. If indeterminate, value should be null. This is represented by a constant spinner.</param>
-[MessagePackObject, MessagePackFormatter(typeof(MsgPackResolver))]
+[MessagePackObject, MessagePackFormatter(typeof(MsgPackResolver)), JsonObject(MemberSerialization.OptIn)]
 public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 {
     public delegate void SetAllDelegate(RemoteServiceStates aggregateState, string? detail, double? progress = 0);
@@ -381,14 +381,14 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
       )
     { }
 
-    [Key(0)]
+    [Key(0), JsonProperty]
     public string Key { get; }
-    [Key(1)]
+    [Key(1), JsonProperty]
     public string Name { get; }
 
     [IgnoreMember]
     private RemoteServiceStates _aggregateState;
-    [Key(2)]
+    [Key(2), JsonProperty]
     public RemoteServiceStates AggregateState
     {
         get => _aggregateState;
@@ -410,7 +410,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 
     [IgnoreMember]
     private string? _detail;
-    [Key(3)]
+    [Key(3), JsonProperty]
     public string? Detail
     {
         get => _detail;
@@ -426,7 +426,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 
     [IgnoreMember]
     private double? _progress = 0;
-    [Key(4)]
+    [Key(4), JsonProperty]
     public double? Progress
     {
         get => _progress;
@@ -440,7 +440,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         }
     }
 
-    [Key(5)]
+    [Key(5), JsonProperty]
     public ObservableDictionary<string, ServiceState> Children { get; }
 
     public void SetAll(RemoteServiceStates aggregateState, string? detail = "", double? progress = 0)
