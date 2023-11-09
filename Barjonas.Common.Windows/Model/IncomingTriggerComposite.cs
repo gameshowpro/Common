@@ -17,9 +17,15 @@ public class IncomingTriggerComposite : IncomingTrigger
             child.IsDownChanged += (s, e) => UpdateIsDown();
             child.Setting.PropertyChanged += (s, e) =>
             {
-                if (e.PropertyName == nameof(IncomingTriggerSetting.IsEnabled))
+                switch (e.PropertyName)
                 {
-                    EnabledChildren = CalculateEnabledChildren;
+                    case nameof(IncomingTriggerSetting.TriggerEdge):
+                        UpdateIsDown();
+                        break;
+                    case nameof(IncomingTriggerSetting.IsEnabled):
+                        EnabledChildren = CalculateEnabledChildren;
+                        UpdateIsDown();
+                        break;
                 }
             };
             child.PropertyChanged += (s, e) =>
@@ -60,7 +66,7 @@ public class IncomingTriggerComposite : IncomingTrigger
 
     private void UpdateIsDown()
     {
-        IsDown = Children.Any(t => t.IsDown == t.Setting.TriggerEdge);
+        IsDown = _enabledChildren.Any(t => t.IsDown == t.Setting.TriggerEdge);
     }
 
     private ImmutableList<IncomingTrigger> CalculateEnabledChildren 
