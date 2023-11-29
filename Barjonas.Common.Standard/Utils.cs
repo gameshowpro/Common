@@ -328,6 +328,48 @@ public static partial class Utils
     }
 
     /// <summary>
+    /// Narrow a <see cref="ulong"/> to an int, clamping to <see cref="int.MaxValue"/> if it's out of range.
+    /// </summary>
+    /// <param name="number"></param>
+    public static int NarrowToIntClamped(this ulong number)
+        => number > int.MaxValue ? int.MaxValue : (int)number;
+
+    /// <summary>
+    /// Narrow a <see cref="uint"/> to an int, clamping to <see cref="int.MaxValue"/> if it's out of range.
+    /// </summary>
+    /// <param name="number"></param>
+    public static int NarrowToIntClamped(this uint number)
+        => number > int.MaxValue ? int.MaxValue : (int)number;
+
+    /// <summary>
+    /// Narrow a <see cref="long"/> to an int, clamping to <see cref="int.MaxValue"/> or <see cref="int.MinValue"/> if it's out of range.
+    /// </summary>
+    /// <param name="number"></param>
+    public static int NarrowToIntClamped(this long number)
+        => (int)KeepInRange(number, int.MinValue, int.MaxValue);
+
+    /// <summary>
+    /// Calculate the factorial of the given number.
+    /// </summary>
+    /// <remarks>Factorials are often used to calculate the possible distinct sequences of distinct objects.</remarks>
+    /// <param name="number">The number to operate upon, e.g. the number of distinct objects.</param>
+    public static ulong Factorial(this ulong number)
+    {
+        if (number < 2)
+            return 1;
+
+        checked
+        {
+            ulong factorial = number;
+            for (ulong i = 2; i < number; i++)
+            {
+                factorial *= i;
+            }
+            return factorial;
+        }
+    }
+
+    /// <summary>
     /// Convert an integer to a string representing the corresponding ordinal, e.g. 1st, 2nd, 3rd etc.
     /// </summary>
     /// <param name="value">The value to be converted.</param>
@@ -353,7 +395,7 @@ public static partial class Utils
         => ToOrdinal((int?)value, fromZeroBased);
 
     /// <summary>
-    /// Extension method which returns the string specified in the Description attribute of an Enum, if any.  Oherwise, name is returned.
+    /// Extension method which returns the string specified in the Description attribute of an Enum, if any.  Otherwise, name is returned.
     /// </summary>
     /// <param name="value">The Enum value.</param>
     /// <returns></returns>
@@ -1650,17 +1692,16 @@ public static partial class Utils
     /// <summary>
     /// Return a shuffled sequence of numbers, ensuring the first in the sequence does not equal the given number.
     /// </summary>
-    /// <param name="start">The lowest number in the sequence.</param>
-    /// <param name="count">The length of the sequence.</param>
+    /// <param name="sequenceLength">The length of the sequence.</param>
     /// <param name="rnd">The random number generator to use.  If null, use default instance.</param>
     /// <param name="disallowedStart">A number which will not be allowed in the first position.</param>
-    public static int[] ShuffledNumbers(int start, int count, Random? rnd, int disallowedStart)
+    public static int[] ShuffledNumbers(int sequenceLength, Random? rnd, int disallowedStart)
     {
         Random random = rnd ?? s_rnd;
-        var shuffle = ShuffledNumbers(start, count, random);
+        var shuffle = ShuffledNumbers(sequenceLength, random);
         if (shuffle[0] == disallowedStart)
         {
-            int swap = random.Next(1, count);
+            int swap = random.Next(1, sequenceLength);
             shuffle[0] = shuffle[swap];
             shuffle[swap] = disallowedStart;
         }
@@ -1673,7 +1714,7 @@ public static partial class Utils
     /// <param name="start">The lowest number in the sequence.</param>
     /// <param name="count">The length of the sequence.</param>
     /// <param name="rnd">The random number generator to use. If null, use default instance.</param>
-    public static int[] ShuffledNumbers(int start, int count, Random? rnd)
+    public static int[] ShuffledNumbers(int count, Random? rnd)
     {
         int[] indices = Enumerable.Range(0, count).ToArray();
         Random random = rnd ?? s_rnd;
@@ -1682,14 +1723,130 @@ public static partial class Utils
             int k = random.Next(remaining);
             (indices[k], indices[remaining - 1]) = (indices[remaining - 1], indices[k]);
         }
-        if (start != 0)
+        return indices;
+    }
+
+    /// <summary>
+    /// Return a shuffled sequence of numbers, preventing the sequence for matching any of these supplied.
+    /// </summary>
+    /// <param name="sequenceLength">The length of the sequence.</param>
+    /// <param name="rnd">The random number generator to use. If null, use default instance.</param>
+    /// <param name="preventedResults">A <see cref="HashSet"/> return valued to be disallowed./param>
+    public static int[] ShuffledNumbers(int sequenceLength, Random? rnd, HashSet<int[]> preventedResults)
+    {
+        //There are more efficient ways to do this, but none simpler.
+        //Could get stuck if set of prevented results is >= sequenceLength factorial
+        while (true)
         {
-            for (int i = 0; i < count; i++)
+            int[] result = ShuffledNumbers(sequenceLength, rnd);
+            if (!preventedResults.Contains(result))
             {
-                indices[i] += start;
+                return result;
             }
         }
-        return indices;
+    }
+
+    private class IntArrayComparer : IEqualityComparer<int[]>
+    {
+        public bool Equals(int[]? x, int[]? y)
+            => StructuralComparisons.StructuralEqualityComparer.Equals(x, y);
+
+        public int GetHashCode([DisallowNull] int[] obj)
+            => StructuralComparisons.StructuralEqualityComparer.GetHashCode(obj);
+    }
+
+    /// <summary>
+    /// Return multiple unique variations of a shuffled sequence of numbers.
+    /// </summary>
+    /// <param name="sequenceLength">The length of each sequence.</param>
+    /// <param name="maxCount">The maximum number of variations.</param>
+    /// <param name="rnd">The random number generator to use. If null, use default instance.</param>
+    public static ImmutableArray<int[]> ShuffledNumbersPermutations(int sequenceLength, int maxCount, Random? rnd)
+    {
+        int maxPossible = Factorial((ulong)sequenceLength).NarrowToIntClamped();
+        if (maxCount > maxPossible)
+        {
+            //special case where we're going to want every possible combination
+            return AllShuffledNumbersPermutations(sequenceLength, maxPossible, rnd);
+        }
+        else
+        {
+            IntArrayComparer comparer = new();
+            ImmutableArray<int[]>.Builder builder = ImmutableArray.CreateBuilder<int[]>(maxCount);
+            HashSet<int[]> uniqueVariations = new(maxCount, comparer);
+            for (int i = 0; i < maxCount; i++)
+            {
+                while (true)
+                {
+                    int[] result = ShuffledNumbers(sequenceLength, rnd, uniqueVariations);
+                    if (!uniqueVariations.Contains(result))
+                    {
+                        builder.Add(result);
+                        uniqueVariations.Add(result);
+                        break;
+                    }
+                }
+            }
+            return builder.ToImmutableArray();
+        }
+    }
+
+    /// <summary>
+    /// Return every unique variation of a shuffled sequence of numbers.
+    /// </summary>
+    /// <remarks>Based on Heap's Algorithm.</remarks>
+    /// <param name="sequenceLength">The length of the sequence to be shuffled. Using this for numbers greater than 8 is not recommended.</param>
+    /// <param name="rnd">The random number generator to use. If null, use default instance.</param>
+    public static ImmutableArray<int[]> ShuffledNumbersPermutations(int sequenceLength, Random? rnd)
+    {
+        int maxPossible = Factorial((ulong)sequenceLength).NarrowToIntClamped();
+        return AllShuffledNumbersPermutations(sequenceLength, maxPossible, rnd);
+    }
+
+    private static ImmutableArray<int[]> AllShuffledNumbersPermutations(int sequenceLength, int permutationCount, Random? rnd)
+    {
+        int[][] permutations = new int[sequenceLength][];
+        int[] indexes = new int[sequenceLength];
+        for (int i = 1; i < sequenceLength; i++)
+        {
+            indexes[i] = 0;
+        }
+        ImmutableArray<int[]>.Builder builder = ImmutableArray.CreateBuilder<int[]>(permutationCount);
+        int[] items = Enumerable.Range(0, sequenceLength).ToArray();
+        for (int permutationIndex = 0; permutationIndex < permutationCount; permutationIndex++)
+        {
+            for (int i = 1; i < sequenceLength;)
+            {
+                if (indexes[i] < i)
+                {
+                    if ((i & 1) == 1)
+                    {
+                        Swap(ref items[i], ref items[indexes[i]]);
+                    }
+                    else
+                    {
+                        Swap(ref items[i], ref items[0]);
+                    }
+
+                    permutations[permutationIndex] = (int[])items.Clone();
+
+                    indexes[i]++;
+                    i = 1;
+                }
+                else
+                {
+                    indexes[i++] = 0;
+                }
+            }
+        }
+        
+        
+        return permutations.ToImmutableArray();
+
+        static void Swap(ref int a, ref int b)
+        {
+            (b, a) = (a, b);
+        }
     }
 
     /// <summary>
