@@ -4,8 +4,8 @@ namespace Barjonas.Common.Model;
 public record SettingsFileSpecification(object Key, string FileName, bool IsWithinLayoutSubfolder);
 
 /// <summary>
-/// A standardized way to store and retreive a set of settings file names against consistent keys.
-/// If the key is a <see cref="Type"/>, additional functionlity is available.
+/// A standardized way to store and retrieve a set of settings file names against consistent keys.
+/// If the key is a <see cref="Type"/>, additional functionality is available.
 /// </summary>
 public class SettingsFileManager
 {
@@ -18,7 +18,7 @@ public class SettingsFileManager
     /// <param name="rootFolder">The system folder in which the data directory will be rooted.</param>
     /// <param name="organization">The name of the first level of folder within the system folder.</param>
     /// <param name="project">The name of the second level of folder within the system folder.</param>
-    /// <param name="fileNames">A dictionory of file names keyed by their associated <see cref="Type"/> or more complex identifier (in the case of multiple files for one type)</param>
+    /// <param name="fileNames">A dictionary of file names keyed by their associated <see cref="Type"/> or more complex identifier (in the case of multiple files for one type)</param>
     public SettingsFileManager(
         Environment.SpecialFolder rootFolder,
         string? organization,
@@ -35,7 +35,7 @@ public class SettingsFileManager
     /// <param name="legacyFolder">A system folder in which the data directory may have been previously rooted and be in need of migration.</param>
     /// <param name="organization">The name of the first level of folder within the system folder.</param>
     /// <param name="project">The name of the second level of folder within the system folder.</param>
-    /// <param name="fileNames">A dictionory of file names keyed by their associated <see cref="Type"/> or more complex identifier (in the case of multiple files for one type)</param>
+    /// <param name="fileNames">A dictionary of file names keyed by their associated <see cref="Type"/> or more complex identifier (in the case of multiple files for one type)</param>
     public SettingsFileManager(
         Environment.SpecialFolder rootFolder,
         Environment.SpecialFolder legacyFolder,
@@ -137,7 +137,7 @@ public class SettingsFileManager
         => Directory.CreateDirectory(DataDirectory);
 
     /// <summary>
-    /// Get the abosolute path associated with the given key, which is most commonly a <see cref="Type"/>.
+    /// Get the absolute path associated with the given key, which is most commonly a <see cref="Type"/>.
     /// </summary>
     /// <param name="key">The key associated with the path, which is most commonly a <see cref="Type"/></param>
     public string? GetPath(object key)
@@ -151,7 +151,7 @@ public class SettingsFileManager
 
 
     /// <summary>
-    /// Try to get the abosolute path associated with the given key, which is most commonly a <see cref="Type"/>.
+    /// Try to get the absolute path associated with the given key, which is most commonly a <see cref="Type"/>.
     /// </summary>
     /// <param name="key">The key associated with the path, which is most commonly a <see cref="Type"/></param>
     public bool TryGetPath(object key, [NotNullWhen(true)] out string? path)
@@ -180,7 +180,7 @@ public class SettingsFileManager
     }
 
     /// <summary>
-    /// Deperist an object from file path which keyed by somethign other than its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
+    /// Depersist an object from file path which keyed by something other than its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
     /// </summary>
     /// <param name="key">The key which was associated with this object's file.</param>
     /// <typeparam name="T">The type of the object being depersisted.</typeparam>
@@ -188,7 +188,7 @@ public class SettingsFileManager
         => Utils.Depersist<T>(GetPath(key), out _);
 
     /// <summary>
-    /// Deperist an object from file path which keyed by somethign other than its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
+    /// Depersist an object from file path which keyed by something other than its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
     /// </summary>
     /// <param name="key">The key which was associated with this object's file.</param>
     /// <typeparam name="T">The type of the object being depersisted.</typeparam>
@@ -197,7 +197,7 @@ public class SettingsFileManager
         => Utils.Depersist<T>(GetPath(key), out isNew);
 
     /// <summary>
-    /// Deperist an object from file path which was keyed by its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
+    /// Depersist an object from file path which was keyed by its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
     /// </summary>
     /// <typeparam name="T">The type of the object being depersisted.</typeparam>
     /// <param name="isNew">If an object is created (due to file not existing or being invalid) this will be set to true.</param>
@@ -205,7 +205,7 @@ public class SettingsFileManager
         => Utils.Depersist<T>(GetPath(typeof(T)), out isNew);
 
     /// <summary>
-    /// Deperist an object from file path which was keyed by its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
+    /// Depersist an object from file path which was keyed by its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
     /// </summary>
     /// <typeparam name="T">The type of the object being depersisted</typeparam>
     public T Depersist<T>() where T : class, new()
