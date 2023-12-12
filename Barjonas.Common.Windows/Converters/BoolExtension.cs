@@ -4,9 +4,7 @@ using System.Windows.Markup;
 
 namespace Barjonas.Common.Converters;
 
-public sealed class BoolExtension : MarkupExtension
+public sealed class BoolExtension(bool value) : MarkupExtension
 {
-    public BoolExtension(bool value) { Value = value; }
-    public bool Value { get; set; }
-    public override object ProvideValue(IServiceProvider sp) { return Value; }
+    public bool Value { get; set; } = value; public override object ProvideValue(IServiceProvider sp) { return Value; }
 };

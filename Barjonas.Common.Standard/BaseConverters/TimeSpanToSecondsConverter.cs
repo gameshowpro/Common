@@ -2,13 +2,10 @@
 
 namespace Barjonas.Common.BaseConverters;
 
-public class TimeSpanToSecondsConverter : ICommonValueConverter
+public class TimeSpanToSecondsConverter(object unsetValue) : ICommonValueConverter
 {
-    private readonly object _unsetValue;
-    public TimeSpanToSecondsConverter(object unsetValue)
-    {
-        _unsetValue = unsetValue;
-    }
+    private readonly object _unsetValue = unsetValue;
+
     public bool IntCeiling { get; set; }
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {

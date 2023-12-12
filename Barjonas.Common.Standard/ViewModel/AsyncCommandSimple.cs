@@ -5,31 +5,25 @@ namespace Barjonas.Common.ViewModel;
 /// <summary>
 /// An ICommand implementation with one parameter and customizable CanExecute functionality for executing an async function.
 /// </summary>
-public class AsyncCommandSimple : IAsyncCommand<object?>
+/// <remarks>
+/// Creates a new command.
+/// </remarks>
+/// <param name="execute">The execution logic.</param>
+/// <param name="canExecute">The execution status logic.</param>
+public class AsyncCommandSimple(
+    Func<Task> execute,
+    Func<bool>? canExecute = null,
+    Action<Exception>? errorHandler = null
+    ) : IAsyncCommand<object?>
 {
     #region Fields
     private bool _isExecuting;
-    private readonly Func<Task> _execute;
-    private readonly Func<bool>? _canExecute;
-    private readonly Action<Exception>? _errorHandler;
-    #endregion
+    private readonly Func<Task> _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+    private readonly Func<bool>? _canExecute = canExecute;
+    private readonly Action<Exception>? _errorHandler = errorHandler;
 
+    #endregion
     #region Constructors
-    /// <summary>
-    /// Creates a new command.
-    /// </summary>
-    /// <param name="execute">The execution logic.</param>
-    /// <param name="canExecute">The execution status logic.</param>
-    public AsyncCommandSimple(
-        Func<Task> execute,
-        Func<bool>? canExecute = null,
-        Action<Exception>? errorHandler = null
-    )
-    {
-        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-        _canExecute = canExecute;
-        _errorHandler = errorHandler;
-    }
     #endregion
 
     #region IAsyncCommand Members

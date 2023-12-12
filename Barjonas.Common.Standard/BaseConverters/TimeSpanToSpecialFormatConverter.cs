@@ -9,13 +9,9 @@ namespace Barjonas.Common.BaseConverters;
 /// ConverterParameter = 1:
 ///     Total minutes, remaining seconds and milliseconds, e.g. 12:43.4553
 /// </summary>
-public class TimeSpanToSpecialFormatConverter : ICommonValueConverter
+public class TimeSpanToSpecialFormatConverter(object unsetValue) : ICommonValueConverter
 {
-    private readonly object _unsetValue;
-    public TimeSpanToSpecialFormatConverter(object unsetValue)
-    {
-        _unsetValue = unsetValue;
-    }
+    private readonly object _unsetValue = unsetValue;
     private static readonly TimeSpan s_switchPoint = TimeSpan.FromMinutes(1);
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {

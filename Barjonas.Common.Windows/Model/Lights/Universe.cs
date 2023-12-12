@@ -14,7 +14,7 @@ public class Universe
     {
         _settings = settings;
         _data = new byte[universeSize + 1]; //First byte is DMX start code
-        _channels = new List<UniverseChannel>();
+        _channels = [];
         for (var i = 1; i <= universeSize; i++)
         {
             _channels.Add(new UniverseChannel(this, i - 1));

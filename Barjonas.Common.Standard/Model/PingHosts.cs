@@ -1,11 +1,6 @@
 ﻿namespace Barjonas.Common.Model;
 
-public class PingHosts
+public class PingHosts(IEnumerable<PingHostSettings> settings, CancellationToken cancellationToken)
 {
-    public PingHosts(IEnumerable<PingHostSettings> settings, CancellationToken cancellationToken)
-    {
-        Items = new(settings.Select(s => new PingHost(s, cancellationToken)));
-    }
-
-    public ObservableCollection<PingHost> Items { get; }
+    public ObservableCollection<PingHost> Items { get; } = new(settings.Select(s => new PingHost(s, cancellationToken)));
 }

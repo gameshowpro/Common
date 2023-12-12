@@ -43,7 +43,7 @@ public class GreaterThanToBooleanConverter : IValueConverter, IMultiValueConvert
 
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
     {
-        return new object[] { Binding.DoNothing, Binding.DoNothing };
+        return [Binding.DoNothing, Binding.DoNothing];
     }
 
     public object ConvertBack(object value, Type targetType, object parameter,

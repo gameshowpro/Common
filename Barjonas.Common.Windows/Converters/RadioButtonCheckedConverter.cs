@@ -18,7 +18,7 @@ public class RadioButtonCheckedConverter : IValueConverter, IMultiValueConverter
 
     public object?[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
     {
-        return new object?[] { (int)value, null };
+        return [(int)value, null];
     }
 
     public object ConvertBack(object value, Type targetType, object parameter,

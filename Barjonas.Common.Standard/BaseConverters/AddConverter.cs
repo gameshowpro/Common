@@ -2,14 +2,9 @@
 
 namespace Barjonas.Common.BaseConverters;
 
-public class AddConverter : ICommonValueConverter
+public class AddConverter(object doNothing) : ICommonValueConverter
 {
-    private readonly object _doNothing;
-
-    public AddConverter(object doNothing)
-    {
-        _doNothing = doNothing;
-    }
+    private readonly object _doNothing = doNothing;
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {

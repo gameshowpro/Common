@@ -4,9 +4,7 @@ using System.Windows.Markup;
 
 namespace Barjonas.Common.Converters;
 
-public sealed class DoubleExtension : MarkupExtension
+public sealed class DoubleExtension(double value) : MarkupExtension
 {
-    public DoubleExtension(double value) { Value = value; }
-    public double Value { get; set; }
-    public override object ProvideValue(IServiceProvider sp) { return Value; }
+    public double Value { get; set; } = value; public override object ProvideValue(IServiceProvider sp) { return Value; }
 };

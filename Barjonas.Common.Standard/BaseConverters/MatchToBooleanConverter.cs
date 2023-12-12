@@ -5,14 +5,9 @@ namespace Barjonas.Common.BaseConverters;
 /// <summary>
 /// Return a visibility or boolean depending on match to one or more parameters.
 /// </summary>
-public abstract class MatchToBooleanConverter : ICommonValueConverter, ICommonMultiValueConverter
+public abstract class MatchToBooleanConverter(object doNothing) : ICommonValueConverter, ICommonMultiValueConverter
 {
-    private readonly object _doNothing;
-
-    public MatchToBooleanConverter(object doNothing)
-    {
-        _doNothing = doNothing;
-    }
+    private readonly object _doNothing = doNothing;
 
     /// <summary>
     /// Return a <see cref="bool"/> or equivalent depending on whether the first element in <paramref name="value"/> equal the second element.
@@ -68,7 +63,7 @@ public abstract class MatchToBooleanConverter : ICommonValueConverter, ICommonMu
 
     public object?[] ConvertBack(object? value, Type[] targetTypes, object? parameter, CultureInfo culture)
     {
-        return new object[] { _doNothing, _doNothing };
+        return [_doNothing, _doNothing];
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

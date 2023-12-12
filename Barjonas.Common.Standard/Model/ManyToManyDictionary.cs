@@ -8,8 +8,8 @@ public abstract class ManyToManyDictionary<TKeyA, TKeyB, TPair>
     where TKeyB : notnull
     where TPair : Tuple<TKeyA, TKeyB>
 {
-    private readonly Dictionary<TKeyA, Dictionary<TKeyB, TPair>> _pairsByTKeyA = new();
-    private readonly Dictionary<TKeyB, Dictionary<TKeyA, TPair>> _pairsByTKeyB = new();
+    private readonly Dictionary<TKeyA, Dictionary<TKeyB, TPair>> _pairsByTKeyA = [];
+    private readonly Dictionary<TKeyB, Dictionary<TKeyA, TPair>> _pairsByTKeyB = [];
 
     protected virtual void PairAdded(TPair pair) { }
     protected virtual void PairRemoved(TPair pair) { }
@@ -24,7 +24,7 @@ public abstract class ManyToManyDictionary<TKeyA, TKeyB, TPair>
         }
         else
         {
-            byKeyB = new();
+            byKeyB = [];
             _pairsByTKeyA.Add(pair.Item1, byKeyB);
         }
         if (byKeyB.ContainsKey(pair.Item2))
@@ -39,7 +39,7 @@ public abstract class ManyToManyDictionary<TKeyA, TKeyB, TPair>
         }
         else
         {
-            byKeyA = new();
+            byKeyA = [];
             _pairsByTKeyB.Add(pair.Item2, byKeyA);
         }
         if (byKeyA.ContainsKey(pair.Item1))

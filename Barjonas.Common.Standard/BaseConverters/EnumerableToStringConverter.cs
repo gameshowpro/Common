@@ -10,20 +10,15 @@ public enum StringConverterJoinType
     Bullet,
     Tilda
 }
-public abstract class EnumerableToStringConverter : ICommonValueConverter
+public abstract class EnumerableToStringConverter(object doNothing) : ICommonValueConverter
 {
     public string NullStringPlaceholder { get; set; } = "NullPlaceholder";
     public string NullNumberPlaceholder { get; set; } = "";
-    private static readonly string[] s_joinTypes = new string[] { ", ", "", "\n", "\n\u2022", "~" };
+    private static readonly string[] s_joinTypes = [", ", "", "\n", "\n\u2022", "~"];
     public StringConverterJoinType JoinType { get; set; } = StringConverterJoinType.Comma;
     public bool IncludeEmptyItems { get; set; } = false;
     public int IntUiOffset { get; set; } = 1;
-    private readonly object _doNothing;
-
-    public EnumerableToStringConverter(object doNothing)
-    {
-        _doNothing = doNothing;
-    }
+    private readonly object _doNothing = doNothing;
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {

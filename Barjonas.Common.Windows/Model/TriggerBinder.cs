@@ -3,19 +3,13 @@
 /// <summary>
 /// Class which can bind any IncomingTrigger to any ICommand, so that the command is Executed whenever the IncomingTrigger is triggered.
 /// </summary>
-public class TriggerBinder : ManyToManyDictionary<ITrigger, ICommand, TriggerBinder.TriggerPair>
+public class TriggerBinder(bool useDispatcher = true) : ManyToManyDictionary<ITrigger, ICommand, TriggerBinder.TriggerPair>
 {
-    public class TriggerPair : Tuple<ITrigger, ICommand>
+    public class TriggerPair(ITrigger trigger, ICommand command, object? commandParameter, Dispatcher? dispatcher) : Tuple<ITrigger, ICommand>(trigger, command)
     {
-        public TriggerPair(ITrigger trigger, ICommand command, object? commandParameter, Dispatcher? dispatcher) : base(trigger, command)
-        {
-            _commandParameter = commandParameter;
-            _dispatcher = dispatcher;
-            _executeDelegate = new(command.Execute);
-        }
-        private readonly object? _commandParameter;
-        private readonly Dispatcher? _dispatcher;
-        private readonly Action<object?> _executeDelegate;
+        private readonly object? _commandParameter = commandParameter;
+        private readonly Dispatcher? _dispatcher = dispatcher;
+        private readonly Action<object?> _executeDelegate = new(command.Execute);
         internal void Subscribe()
             => Item1.Triggered += _dispatcher == null ? Trigger_OnTriggeredWithoutDispatcher : Trigger_OnTriggeredWithDispatcher;
 
@@ -38,12 +32,7 @@ public class TriggerBinder : ManyToManyDictionary<ITrigger, ICommand, TriggerBin
         }
     }
 
-    private readonly Dispatcher? _dispatcher;
-
-    public TriggerBinder(bool useDispatcher = true)
-    {
-        _dispatcher = useDispatcher ? Dispatcher.CurrentDispatcher : null;
-    }
+    private readonly Dispatcher? _dispatcher = useDispatcher ? Dispatcher.CurrentDispatcher : null;
 
     public bool TryAdd(ITrigger? trigger, ICommand command, object? commandParameter)
     {

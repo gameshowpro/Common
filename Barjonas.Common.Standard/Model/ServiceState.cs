@@ -38,7 +38,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         (
             key,
             name,
-            new ObservableDictionary<string, ServiceState>(),
+            [],
             RemoteServiceStates.Disconnected,
             "Unknown",
             0,
@@ -65,7 +65,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         (
             key,
             name ?? key,
-            children == null ? new ObservableDictionary<string, ServiceState>() : new ObservableDictionary<string, ServiceState>(children),
+            children == null ? [] : new ObservableDictionary<string, ServiceState>(children),
             aggregateState ?? RemoteServiceStates.Disconnected,
             detail,
             progress,
@@ -170,7 +170,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         (
             key,
             name,
-            new ObservableDictionary<string, ServiceState>(),
+            [],
             aggregateState,
             detail,
             progress,
@@ -274,7 +274,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         (
             key,
             name,
-            new ObservableDictionary<string, ServiceState>(),
+            [],
             RemoteServiceStates.Disconnected,
             null,
             0,
@@ -484,7 +484,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     public static string GetAggregateDetail(ServiceState state)
     {
         List<ServiceState> notConnected = state.Children.Values.Where(s => s.AggregateState != RemoteServiceStates.Connected).ToList();
-        if (notConnected.Any())
+        if (notConnected.Count != 0)
         {
 
             if (notConnected.Count == 1)
@@ -588,7 +588,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         bool change = false;
         if (children == null)
         {
-            change = Children.Any();
+            change = Children.Count != 0;
             Children.Clear();
             return change;
         }
@@ -657,7 +657,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             RemoteServiceStates state = (RemoteServiceStates)reader.ReadByte();
             string? detail = reader.IsNil ? null : reader.ReadString();
             double? progress = reader.IsNil ? null : reader.ReadDouble();
-            ObservableDictionary<string, ServiceState> children = new();
+            ObservableDictionary<string, ServiceState> children = [];
             int childCount = reader.ReadArrayHeader();
             for (int i = 0; i < childCount; i++)
             {

@@ -8,7 +8,7 @@ public class StateLevelsPhase : NotifyingClass
     [JsonConstructor]
     public StateLevelsPhase(ImmutableList<StatePresetChannel>? levels, TimeSpan? duration)
     {
-        Levels = levels ?? ImmutableList<StatePresetChannel>.Empty;
+        Levels = levels ?? [];
         Duration = duration ?? TimeSpan.Zero;
     }
 

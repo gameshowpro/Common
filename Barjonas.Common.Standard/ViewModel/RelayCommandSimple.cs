@@ -5,25 +5,19 @@ namespace Barjonas.Common.ViewModel;
 /// <summary>
 /// An ICommand implementation with no parameters and no built-in CanExecute functionality.
 /// </summary>
-public class RelayCommandSimple : ICommand
+/// <remarks>
+/// Initializes a new instance of <see cref="DelegateCommand{T}"/>.
+/// </remarks>
+/// <param name="execute">Delegate to execute when Execute is called on the command.  This can be null to just hook up a CanExecute delegate.</param>
+/// <remarks><seealso cref="CanExecute"/> will always return true.</remarks>
+public class RelayCommandSimple(Action execute) : ICommand
 {
     #region Fields
 
-    protected readonly Action _execute;
+    protected readonly Action _execute = execute ?? throw new ArgumentNullException(nameof(execute));
 
     #endregion
-
     #region Constructors
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="DelegateCommand{T}"/>.
-    /// </summary>
-    /// <param name="execute">Delegate to execute when Execute is called on the command.  This can be null to just hook up a CanExecute delegate.</param>
-    /// <remarks><seealso cref="CanExecute"/> will always return true.</remarks>
-    public RelayCommandSimple(Action execute)
-    {
-        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-    }
 
     public void SetCanExecute(bool canExecute)
     {

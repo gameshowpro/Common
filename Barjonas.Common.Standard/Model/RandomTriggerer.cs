@@ -42,7 +42,7 @@ public class RandomTriggerer
             message = "Random trigger sequence is already in progress";
             return;
         }
-        List<InputTime> inputTimes = new();
+        List<InputTime> inputTimes = [];
 
         foreach (TriggerDefinition i in triggerRandomRequest.Inputs)
         {

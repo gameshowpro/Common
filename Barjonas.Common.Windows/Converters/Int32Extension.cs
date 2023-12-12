@@ -4,9 +4,7 @@ using System.Windows.Markup;
 
 namespace Barjonas.Common.Converters;
 
-public sealed class Int32Extension : MarkupExtension
+public sealed class Int32Extension(int value) : MarkupExtension
 {
-    public Int32Extension(int value) { Value = value; }
-    public int Value { get; set; }
-    public override object ProvideValue(IServiceProvider sp) { return Value; }
+    public int Value { get; set; } = value; public override object ProvideValue(IServiceProvider sp) { return Value; }
 };

@@ -12,8 +12,8 @@ public class StatePresetGroup
     public StatePresetGroup(string? name, ImmutableList<FixtureChannelType>? channelColors, StatesLevels? statesLevels)
     {
         Name = name ?? "no name";
-        StatesLevels = statesLevels ?? new();
-        _channelColors = channelColors ?? ImmutableList<FixtureChannelType>.Empty;
+        StatesLevels = statesLevels ?? [];
+        _channelColors = channelColors ?? [];
         Validate();
     }
 

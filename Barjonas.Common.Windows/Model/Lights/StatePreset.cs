@@ -50,10 +50,10 @@ public class StateLevels : NotifyingClass
     ) : this(
         key,
         phases ?? (levels == null ? null : flashOnDuration > 0 && flashOffDuration > 0 ?
-            ImmutableList.Create(
-            new StateLevelsPhase(levels, TimeSpan.FromSeconds(flashOnDuration.Value)),
-            new StateLevelsPhase(flashLevels, TimeSpan.FromSeconds(flashOffDuration.Value)))
-        :
+            [
+                new StateLevelsPhase(levels, TimeSpan.FromSeconds(flashOnDuration.Value)),
+                new StateLevelsPhase(flashLevels, TimeSpan.FromSeconds(flashOffDuration.Value)),
+            ] :
             ImmutableList.Create(
                 new StateLevelsPhase(levels, TimeSpan.Zero)
             )

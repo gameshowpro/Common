@@ -5,19 +5,13 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Barjonas.Common.Model;
 
-public sealed class SignalRFilteredLogger : ILogger
+public sealed class SignalRFilteredLogger(Logger logger, bool allMessages) : ILogger
 {
-    private readonly Logger _logger;
+    private readonly Logger _logger = logger;
     private readonly static Stopwatch s_stopwatch = Stopwatch.StartNew();
     private static readonly TimeSpan s_maximumInvocationTime = TimeSpan.FromSeconds(0.1);
     private readonly ConcurrentDictionary<string, TimeSpan> _invocationsInProgress = new();
-    private readonly bool _allMessages;
-
-    public SignalRFilteredLogger(Logger logger, bool allMessages)
-    {
-        _logger = logger;
-        _allMessages = allMessages;
-    }
+    private readonly bool _allMessages = allMessages;
 
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull => default!;
 
@@ -71,16 +65,10 @@ public sealed class SignalRFilteredLogger : ILogger
 /// In particular, it's the only known way to log the invocation ID on the client end for comparison with the server without swamping the log with lots of other messages.
 /// </summary>
 [ProviderAlias(nameof(SignalRFilteredLogger))]
-public sealed class SignalRFilteredProvider : ILoggerProvider
+public sealed class SignalRFilteredProvider(Logger logger, bool allMessages) : ILoggerProvider
 {
-    private readonly Logger _logger;
-    private readonly bool _allMessages;
-
-    public SignalRFilteredProvider(Logger logger, bool allMessages)
-    {
-        _logger = logger;
-        _allMessages = allMessages;
-    }
+    private readonly Logger _logger = logger;
+    private readonly bool _allMessages = allMessages;
 
     public ILogger CreateLogger(string categoryName) =>
        new SignalRFilteredLogger(_logger, _allMessages);

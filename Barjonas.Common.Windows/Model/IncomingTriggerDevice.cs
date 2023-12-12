@@ -107,7 +107,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
     private void UpdateTriggerDict()
     {
         //Not using ImmutableDictionary.Builder because we have to transform the list at the end anyway
-        Dictionary<int, ImmutableList<TTrigger>.Builder> newTriggerDict = new();
+        Dictionary<int, ImmutableList<TTrigger>.Builder> newTriggerDict = [];
         bool allowDuplicateTriggerIds = BaseSettings.AllowDuplicateTriggerIds;
         foreach (TTrigger trigger in Triggers.Values)
         {

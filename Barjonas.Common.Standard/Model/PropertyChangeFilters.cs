@@ -70,9 +70,9 @@ public class PropertyChangeFilter
     {
         _handler = action;
         ImmutableList<INotifyCollectionChanged>.Builder collectionSendersBuilder = ImmutableList.CreateBuilder<INotifyCollectionChanged>();
-        List<HashSet<string?>> notifyCollectionConditions = new();
+        List<HashSet<string?>> notifyCollectionConditions = [];
         ImmutableList<INotifyPropertyChanged>.Builder itemSendersBuilder = ImmutableList.CreateBuilder<INotifyPropertyChanged>();
-        List<HashSet<string>> notifyItemConditions = new();
+        List<HashSet<string>> notifyItemConditions = [];
         int senderIndex;
         foreach (PropertyChangeCondition condition in conditions)
         {
@@ -88,7 +88,7 @@ public class PropertyChangeFilter
                         {
                             senderIndex = collectionSendersBuilder.Count;
                             collectionSendersBuilder.Add(condition.SenderCollection);
-                            notifyCollectionConditions.Add(new());
+                            notifyCollectionConditions.Add([]);
                         }
                         notifyCollectionConditions[senderIndex].Add(condition.Property);
                     }
@@ -100,7 +100,7 @@ public class PropertyChangeFilter
                     {
                         senderIndex = itemSendersBuilder.Count;
                         itemSendersBuilder.Add(condition.Sender);
-                        notifyItemConditions.Add(new());
+                        notifyItemConditions.Add([]);
                     }
                     notifyItemConditions[senderIndex].Add(condition.Property);
                 }
@@ -211,7 +211,7 @@ public class PropertyChangeFilter
 
 public class PropertyChangeFilters
 {
-    private readonly List<PropertyChangeFilter> _filters = new();
+    private readonly List<PropertyChangeFilter> _filters = [];
     public void AddFilter(PropertyChangedEventHandler handler, params PropertyChangeCondition[] conditions)
     {
         AddFilter(handler, (IEnumerable<PropertyChangeCondition>)conditions);
@@ -240,6 +240,6 @@ public class PropertyChangeFilters
         _filters.ForEach(f => f.InvokeAll());
     }
 
-    public bool Any() => _filters.Any();
+    public bool Any() => _filters.Count != 0;
 }
 

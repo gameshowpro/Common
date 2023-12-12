@@ -5,17 +5,15 @@ namespace Barjonas.Common.Model.Lights;
 /// <summary>
 /// Wrapper for a channel level preset which includes iNotifyPropertyChanged
 /// </summary>
-public class StatePresetChannel : NotifyingClass
+[method: JsonConstructor]
+/// <summary>
+/// Wrapper for a channel level preset which includes iNotifyPropertyChanged
+/// </summary>
+public class StatePresetChannel(FixtureChannelType? fixtureChannelType) : NotifyingClass
 {
     public StatePresetChannel() : this(null)
     {
 
-    }
-
-    [JsonConstructor]
-    public StatePresetChannel(FixtureChannelType? fixtureChannelType)
-    {
-        _fixtureChannelType = fixtureChannelType ?? new();
     }
 
     private byte _level;
@@ -26,7 +24,7 @@ public class StatePresetChannel : NotifyingClass
         set { SetProperty(ref _level, value); }
     }
 
-    private FixtureChannelType _fixtureChannelType;
+    private FixtureChannelType _fixtureChannelType = fixtureChannelType ?? new();
     public FixtureChannelType FixtureChannelType
     {
         get { return _fixtureChannelType; }

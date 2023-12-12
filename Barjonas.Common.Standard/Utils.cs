@@ -500,7 +500,7 @@ public static partial class Utils
         }
     }
 
-    private static readonly HashSet<char> s_spacesAndTabs = new() { ' ', '\u00A0', '\t' };
+    private static readonly HashSet<char> s_spacesAndTabs = [' ', '\u00A0', '\t'];
     public static bool IsSpaceOrTab(this char value) => s_spacesAndTabs.Contains(value);
 
     public static string? UpperCaseIfRequired(string? input, double allowedLowerPercent = .50, bool upperIfUnknown = true)
@@ -697,7 +697,7 @@ public static partial class Utils
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureOrCreateListCount<T>(ref List<T> list, int minCount, Func<int, T> factory)
     {
-        list ??= new ();
+        list ??= [];
         EnsureListCount(list, minCount, factory);
     }
 
@@ -737,7 +737,7 @@ public static partial class Utils
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureOrCreateListCount<T>(ref ObservableCollection<T> list, int minCount, int maxCount, Func<int, T> factory)
     {
-        list ??= new ();
+        list ??= [];
         EnsureListCount(list, minCount, maxCount, factory);
     }
 
@@ -763,7 +763,7 @@ public static partial class Utils
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureOrCreateListCount<T>(ref ObservableCollectionEx<T> list, int minCount, int maxCount, Func<int, T> factory) where T : INotifyPropertyChanged
     {
-        list ??= new ();
+        list ??= [];
         EnsureListCount(list, minCount, maxCount, factory);
     }
 
@@ -777,7 +777,7 @@ public static partial class Utils
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureOrCreateListCount<T>(ref List<T> list, int minCount, int maxCount, Func<int, T> factory)
     {
-        list ??= new ();
+        list ??= [];
         EnsureListCount(list, minCount, maxCount, factory);
     }
 
@@ -805,7 +805,7 @@ public static partial class Utils
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureOrCreateListCount<T>(ref BindingList<T> list, int minCount, int maxCount, Func<int, T> factory)
     {
-        list ??= new ();
+        list ??= [];
         IList<T> ilist = list;
         EnsureListCount(ilist, minCount, maxCount, factory);
     }
@@ -1328,8 +1328,8 @@ public static partial class Utils
         return scaled.KeepInRange(Math.Min(minOut, maxOut), Math.Max(minOut, maxOut));
     }
 
-    private static readonly string[] s_unitsMap = new[] { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen" };
-    private static readonly string[] s_tensMap = new[] { "zero", "ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety" };
+    private static readonly string[] s_unitsMap = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+    private static readonly string[] s_tensMap = ["zero", "ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
 
     public static string ToWords(this int number)
     {

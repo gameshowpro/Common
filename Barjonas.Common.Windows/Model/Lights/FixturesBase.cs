@@ -45,7 +45,7 @@ public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
 
     private Dictionary<string, FixtureSettings> SettingsToDictionary(List<FixtureSettings> depersistedSettings)
     {
-        Dictionary<string, FixtureSettings> dict = new();
+        Dictionary<string, FixtureSettings> dict = [];
         foreach (FixtureSettings fs in depersistedSettings)
         {
             if (dict.ContainsKey(fs.Key))
@@ -78,7 +78,7 @@ public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
     {
         //Note - it probably would have been smarter just copy the values from each depersisted group into its
         //corresponding default, then use the modified default instead.
-        Dictionary<StatePresetGroup, StatePresetGroup> depersistedToDefault = new();
+        Dictionary<StatePresetGroup, StatePresetGroup> depersistedToDefault = [];
         foreach (StatePresetGroup defG in defaults)
         {
             if (depersisted.Contains(defG.Name))
@@ -115,7 +115,7 @@ public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
                 depersistedToDefault.Add(defG, defG);
             }
         }
-        List<string> groupsToRemove = new();
+        List<string> groupsToRemove = [];
         foreach (StatePresetGroup depG in depersisted)
         {
             if (depersistedToDefault.ContainsKey(depG))

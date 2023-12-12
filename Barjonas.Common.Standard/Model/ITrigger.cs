@@ -10,13 +10,8 @@ public interface ITrigger
     public event EventHandler<TriggerArgs> Triggered;
 }
 
-public class TriggerArgs : EventArgs
+public class TriggerArgs(object? data = null) : EventArgs
 {
-    public TriggerArgs(object? data = null)
-    {
-        Data = data;
-    }
-
-    public object? Data { get; }
+    public object? Data { get; } = data;
 }
 

@@ -2,10 +2,9 @@
 
 namespace Barjonas.Common.BaseConverters;
 
-public class EnumerableStringToObjectsConverter : ICommonValueConverter
+public class EnumerableStringToObjectsConverter(object doNothing) : ICommonValueConverter
 {
-    private readonly object _doNothing;
-    public EnumerableStringToObjectsConverter(object doNothing) => _doNothing = doNothing;
+    private readonly object _doNothing = doNothing;
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {

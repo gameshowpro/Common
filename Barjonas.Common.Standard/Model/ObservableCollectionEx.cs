@@ -24,7 +24,7 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
         }
     }
 
-    public static ObservableCollectionEx<T> Empty { get; } = new ObservableCollectionEx<T>();
+    public static ObservableCollectionEx<T> Empty { get; } = [];
 
     /// <summary>
     /// Occurs when a property is changed within an item.
@@ -162,7 +162,12 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
 /// <summary>
 /// Provides data for the <see cref="ObservableCollectionEx{T}.ItemPropertyChanged"/> event.
 /// </summary>
-public class ItemPropertyChangedEventArgs : PropertyChangedEventArgs
+/// <remarks>
+/// Initializes a new instance of the <see cref="ItemPropertyChangedEventArgs"/> class.
+/// </remarks>
+/// <param name="index">The index in the collection of changed item.</param>
+/// <param name="name">The name of the property that changed.</param>
+public class ItemPropertyChangedEventArgs(int index, string? name) : PropertyChangedEventArgs(name)
 {
     /// <summary>
     /// Gets the index in the collection for which the property change has occurred.
@@ -170,17 +175,7 @@ public class ItemPropertyChangedEventArgs : PropertyChangedEventArgs
     /// <value>
     /// Index in parent collection.
     /// </value>
-    public int CollectionIndex { get; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ItemPropertyChangedEventArgs"/> class.
-    /// </summary>
-    /// <param name="index">The index in the collection of changed item.</param>
-    /// <param name="name">The name of the property that changed.</param>
-    public ItemPropertyChangedEventArgs(int index, string? name) : base(name)
-    {
-        CollectionIndex = index;
-    }
+    public int CollectionIndex { get; } = index;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ItemPropertyChangedEventArgs"/> class.

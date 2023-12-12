@@ -1,17 +1,11 @@
 ﻿namespace Barjonas.Common.Model;
 
-public class PingHostSettings : ObservableClass
+public class PingHostSettings(string? host, string? displayName) : ObservableClass
 {
     public PingHostSettings() : this(null, null)
     { }
 
-    public PingHostSettings(string? host, string? displayName)
-    {
-        _host = host ?? string.Empty;
-        _displayName = displayName ?? string.Empty;
-    }
-
-    private string _host = "localhost";
+    private string _host = host ?? string.Empty;
     [JsonProperty, DefaultValue("localhost")]
     public string Host
     {
@@ -19,7 +13,7 @@ public class PingHostSettings : ObservableClass
         set { SetProperty(ref _host, value); }
     }
 
-    private string _displayName;
+    private string _displayName = displayName ?? string.Empty;
     /// <summary>
     /// A name which can be used shown on the UI to distinguish this device instance from another of the same type.
     /// </summary>

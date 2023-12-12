@@ -7,31 +7,25 @@ namespace Barjonas.Common.ViewModel;
 /// An ICommand implementation with one parameter and customizable CanExecute functionality for executing an async function.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class AsyncCommand<T> : IAsyncCommand<T> where T : notnull
+/// <remarks>
+/// Creates a new command.
+/// </remarks>
+/// <param name="execute">The execution logic.</param>
+/// <param name="canExecute">The execution status logic.</param>
+public class AsyncCommand<T>(
+    Func<T, Task> execute,
+    Func<T, bool>? canExecute = null,
+    Action<Exception>? errorHandler = null
+    ) : IAsyncCommand<T> where T : notnull
 {
     #region Fields
     private bool _isExecuting;
-    private readonly Func<T, Task> _execute;
-    private readonly Func<T, bool>? _canExecute;
-    private readonly Action<Exception>? _errorHandler;
-    #endregion
+    private readonly Func<T, Task> _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+    private readonly Func<T, bool>? _canExecute = canExecute;
+    private readonly Action<Exception>? _errorHandler = errorHandler;
 
+    #endregion
     #region Constructors
-    /// <summary>
-    /// Creates a new command.
-    /// </summary>
-    /// <param name="execute">The execution logic.</param>
-    /// <param name="canExecute">The execution status logic.</param>
-    public AsyncCommand(
-        Func<T, Task> execute,
-        Func<T, bool>? canExecute = null,
-        Action<Exception>? errorHandler = null
-    )
-    {
-        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-        _canExecute = canExecute;
-        _errorHandler = errorHandler;
-    }
     #endregion
 
     #region IAsyncCommand Members
