@@ -199,6 +199,10 @@ public abstract class EnumerableToStringConverter(object doNothing) : ICommonVal
         {
             return source?.ToImmutableHashSet();
         }
+        else if (targetType.IsAssignableFrom(typeof(FrozenSet<T>)))
+        {
+            return source?.ToFrozenSet();
+        }
         else if (targetType.IsAssignableFrom(typeof(ObservableCollection<T>)))
         {
             return source is null ? null : new ObservableCollection<T>(source.ToList());

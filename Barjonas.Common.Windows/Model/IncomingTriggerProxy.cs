@@ -8,9 +8,9 @@ namespace Barjonas.Common.Model;
 public class IncomingTriggerProxy<TKey> : NotifyingClass, ITrigger
     where TKey : notnull
 {
-    public ImmutableDictionary<TKey, IncomingTrigger> Options { get; }
+    public FrozenDictionary<TKey, IncomingTrigger> Options { get; }
     public event EventHandler<TriggerArgs>? Triggered;
-    public IncomingTriggerProxy(ImmutableDictionary<TKey, IncomingTrigger> options)
+    public IncomingTriggerProxy(FrozenDictionary<TKey, IncomingTrigger> options)
     {
         Options = options;
         SimulateTriggerCommand = new((toggle) => Triggered?.Invoke(this, new(toggle)));

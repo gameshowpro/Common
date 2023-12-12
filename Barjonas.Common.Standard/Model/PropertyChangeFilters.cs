@@ -63,9 +63,9 @@ public class PropertyChangeFilter
     internal static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
     private readonly PropertyChangedEventHandler _handler;
     private readonly ImmutableList<INotifyPropertyChanged> _itemSenders; //Cannot use hashset because HashCodes are mutable
-    private readonly ImmutableList<ImmutableHashSet<string>> _notifyItemConditions;
+    private readonly ImmutableList<FrozenSet<string>> _notifyItemConditions;
     private readonly ImmutableList<INotifyCollectionChanged> _collectionSenders;
-    private readonly ImmutableList<ImmutableHashSet<string?>> _notifyCollectionConditions;
+    private readonly ImmutableList<FrozenSet<string?>> _notifyCollectionConditions;
     internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions)
     {
         _handler = action;
@@ -107,9 +107,9 @@ public class PropertyChangeFilter
             }
         }
         _itemSenders = itemSendersBuilder.ToImmutable();
-        _notifyItemConditions = notifyItemConditions.Select(c => c.ToImmutableHashSet()).ToImmutableList();
+        _notifyItemConditions = notifyItemConditions.Select(c => c.ToFrozenSet()).ToImmutableList();
         _collectionSenders = collectionSendersBuilder.ToImmutable();
-        _notifyCollectionConditions = notifyCollectionConditions.Select(c => c.ToImmutableHashSet()).ToImmutableList();
+        _notifyCollectionConditions = notifyCollectionConditions.Select(c => c.ToFrozenSet()).ToImmutableList();
         //Note the property handlers are hooked up last, otherwise they may fire before non-nullable lists they consume have been set.
         AddEventHandlers();
         InvokeAll();

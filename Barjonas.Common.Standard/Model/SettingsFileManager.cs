@@ -10,7 +10,7 @@ public record SettingsFileSpecification(object Key, string FileName, bool IsWith
 public class SettingsFileManager
 {
     private static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
-    private readonly ImmutableDictionary<object, SettingsFileSpecification> _fileNames;
+    private readonly FrozenDictionary<object, SettingsFileSpecification> _fileNames;
 
     /// <summary>
     /// Construct a <see cref="SettingsFileManager"/> with the given data directory and keyed list of files.
@@ -53,7 +53,7 @@ public class SettingsFileManager
         DataDirectoryUri = new(DataDirectory + @"\", UriKind.Absolute);
         EnsureDataDirectory();
         _fileNames = fileSpecifications
-            .ToImmutableDictionary(
+            .ToFrozenDictionary(
                 (fs) => fs.Key,
                 (fs) => fs
             );

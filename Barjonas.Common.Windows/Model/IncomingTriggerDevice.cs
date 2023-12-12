@@ -1,5 +1,7 @@
 ﻿// (C) Barjonas LLC 2018
 
+using System.Collections.Frozen;
+
 namespace Barjonas.Common.Model;
 
 /// <summary>
@@ -60,9 +62,9 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
                 }
             }
         }
-        Triggers = dictBuilder.ToImmutable();
+        Triggers = dictBuilder.ToFrozenDictionary();
         settings.TriggerSettings?.RemoveUntouched();
-        TriggersBase = Triggers.ToImmutableDictionary(kvp => kvp.Key, kvp => (IncomingTrigger)kvp.Value);
+        TriggersBase = Triggers.ToFrozenDictionary(kvp => kvp.Key, kvp => (IncomingTrigger)kvp.Value);
 
         _propertyChangeFilters.AddFilter((s, e) => UpdateTriggerDict(), Triggers.Values.SelectMany(
             t => 
@@ -72,7 +74,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
             })
             .Union(new PropertyChangeCondition(BaseSettings, nameof(IncomingTriggerDeviceSettingsBase.AllowDuplicateTriggerIds)))
         );
-        _triggerDict ??= ImmutableDictionary<int, ImmutableList<TTrigger>>.Empty;
+        _triggerDict ??= FrozenDictionary<int, ImmutableList<TTrigger>>.Empty;
     }
 
     /// <summary>
@@ -85,16 +87,16 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
     /// <summary>
     /// A dictionary containing a list of all triggers belonging to this object, keyed by <see cref="TTriggerKey"/>, strongly typed as <see cref="TTrigger"/>.
     /// </summary>
-    public ImmutableDictionary<TTriggerKey, TTrigger> Triggers { get; }
+    public FrozenDictionary<TTriggerKey, TTrigger> Triggers { get; }
 
     /// <summary>
     /// A dictionary containing a list of all triggers belonging to this object, keyed by <see cref="TTriggerKey"/>, widely typed as <see cref="IncomingTrigger"/>.
     /// </summary>
-    public override ImmutableDictionary<TTriggerKey, IncomingTrigger> TriggersBase { get; }
+    public override FrozenDictionary<TTriggerKey, IncomingTrigger> TriggersBase { get; }
     /// <summary>
     /// A dictionary containing a list of all IncomingTrigger objects mapped to each trigger ID.
     /// </summary>
-    protected ImmutableDictionary<int, ImmutableList<TTrigger>> _triggerDict;
+    protected FrozenDictionary<int, ImmutableList<TTrigger>> _triggerDict;
 
     private double _progress = 0;
     public double Progress
@@ -113,12 +115,12 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
         {
             if (trigger.Setting.IsEnabled)
             {
-                if (newTriggerDict.ContainsKey(trigger.Setting.Id))
+                if (newTriggerDict.TryGetValue(trigger.Setting.Id, out ImmutableList<TTrigger>.Builder? value))
                 {
                     trigger.Setting.IdIsValid = allowDuplicateTriggerIds;
                     if (allowDuplicateTriggerIds)
                     {
-                        newTriggerDict[trigger.Setting.Id].Add(trigger);
+                        value.Add(trigger);
                     }
                 }
                 else
@@ -134,7 +136,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
                 trigger.Setting.IdIsValid = true;
             }
         }
-        _triggerDict = newTriggerDict.ToImmutableDictionary((pair) => pair.Key, (pair) => pair.Value.ToImmutable());
+        _triggerDict = newTriggerDict.ToFrozenDictionary((pair) => pair.Key, (pair) => pair.Value.ToImmutable());
         AfterUpdateTriggerDict();
     }
 

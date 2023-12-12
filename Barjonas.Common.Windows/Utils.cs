@@ -1,4 +1,6 @@
 ﻿// (C) Barjonas LLC 2019
+using System.Collections.Frozen;
+
 namespace Barjonas.Common;
 
 public static partial class UtilsWindows
@@ -154,10 +156,10 @@ public static partial class UtilsWindows
         return false;
     }
 
-    public static ImmutableDictionary<TTriggerKey, IncomingTriggerComposite> ComposeDevicesIntoTriggerDictionary<TTriggerKey>(
+    public static FrozenDictionary<TTriggerKey, IncomingTriggerComposite> ComposeDevicesIntoTriggerDictionary<TTriggerKey>(
         IEnumerable<IncomingTriggerDeviceBase<TTriggerKey>> devices)
             where TTriggerKey : struct, Enum
-        => Enum.GetValues<TTriggerKey>().ToImmutableDictionary(
+        => Enum.GetValues<TTriggerKey>().ToFrozenDictionary(
                 t => t, 
                 t => new IncomingTriggerComposite(devices.Select(d => d.TriggersBase[t]), t.ToString(), GetTriggerParameters(t.GetType().GetField(t.ToString()))?.Name ?? "No name")
             );

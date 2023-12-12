@@ -892,17 +892,6 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Creates a new immutable collection prefilled with the specified items from a param array.
-    /// </summary>
-    /// <typeparam name="TKey">The type of keys stored by the dictionary.</typeparam>
-    /// <typeparam name="TValue">The type of values stored by the dictionary.</typeparam>
-    /// <param name="items">A parameter array of the items to prepopulate.</param>
-    /// <returns>The new immutable collection.</returns>
-    public static ImmutableDictionary<TKey, TValue> ImmutableDictionaryFromParams<TKey, TValue>(IEqualityComparer<TKey>? keyComparer, params KeyValuePair<TKey, TValue>[] items)
-         where TKey : notnull
-        => ImmutableDictionary.CreateRange(keyComparer, items);
-
-    /// <summary>
     /// Return a copy of the given string with characters added to or removed from the end until it matches the given target length.
     /// </summary>
     /// <param name="original">The input string of uncertain length.</param>
