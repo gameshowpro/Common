@@ -21,7 +21,7 @@ public class RandomTriggerer
         if (triggerRandomRequest.MaximumTime > _maxMaxRandomTriggerTime)
         {
             success = false;
-            message = $"Maximum time is greater than maximum of {triggerRandomRequest.MaximumTime}";
+            message = $"Maximum time is greater than maximum of {_maxMaxRandomTriggerTime}";
             return;
         }
         if (triggerRandomRequest.Inputs?.Any() != true)
@@ -62,7 +62,7 @@ public class RandomTriggerer
         AddRestoreStep(previous);
         SetTimerForNextStep();
 
-        success = false;
+        success = true;
         message = null;
     }
 
