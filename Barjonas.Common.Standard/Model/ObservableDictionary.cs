@@ -236,7 +236,7 @@ public class ObservableDictionary<TKey, TValue> : ICollection<KeyValuePair<TKey,
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
     }
 
-    public IDictionaryEnumerator GetEnumerator() => (IDictionaryEnumerator)_dictionary.GetEnumerator();
+    public IDictionaryEnumerator GetEnumerator() => ((IDictionary)_dictionary).GetEnumerator();
 
     public void Remove(object key) => RemoveWithNotification((TKey)key);
 
