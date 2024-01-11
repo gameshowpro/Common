@@ -90,6 +90,9 @@ public static partial class Utils
         }
     }
 
+    public static bool IsInRange(this int? input, int min, int max, bool maxIsInclusive = true)
+        => input.HasValue && IsInRange(input.Value, min, max, maxIsInclusive);
+
     /// <summary>
     /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
     /// </summary>
@@ -108,6 +111,9 @@ public static partial class Utils
             return (input < max && input >= min);
         }
     }
+
+    public static bool IsInRange(this byte? input, byte min, byte max, bool maxIsInclusive = true)
+        => input.HasValue && IsInRange(input.Value, min, max, maxIsInclusive);
 
     /// <summary>
     /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
@@ -128,6 +134,9 @@ public static partial class Utils
         }
     }
 
+    public static bool IsInRange(this long? input, long min, long max, bool maxIsInclusive = true)
+        => input.HasValue && IsInRange(input.Value, min, max, maxIsInclusive);
+
     /// <summary>
     /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
     /// </summary>
@@ -146,6 +155,9 @@ public static partial class Utils
             return (input < max && input >= min);
         }
     }
+
+    public static bool IsInRange(this float? input, float min, float max, bool maxIsInclusive = true)
+        => input.HasValue && IsInRange(input.Value, min, max, maxIsInclusive);
 
     /// <summary>
     /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
@@ -166,6 +178,9 @@ public static partial class Utils
         }
     }
 
+    public static bool IsInRange(this double? input, double min, double max, bool maxIsInclusive = true)
+        => input.HasValue && IsInRange(input.Value, min, max, maxIsInclusive);
+
     /// <summary>
     /// Returns a Boolean indicating whether the given timespan falls between the other two.  Optionally, timespans equal to the bounds can also result in a true result.
     /// </summary>
@@ -184,6 +199,9 @@ public static partial class Utils
             return (input < max && input >= min);
         }
     }
+
+    public static bool IsInRange(this TimeSpan? input, TimeSpan min, TimeSpan max, bool maxIsInclusive = true)
+        => input.HasValue && IsInRange(input.Value, min, max, maxIsInclusive);
 
     /// <summary>
     /// Keeps an Int32 within the given bounds, clipping it if it falls outside.
