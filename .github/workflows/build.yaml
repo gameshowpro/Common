@@ -43,11 +43,6 @@ jobs:
       with:
         setAllVars: true
 
-    - name: Add Version File to Artifact
-      shell: pwsh
-      run : |
-        New-Item -Path ${{ github.workspace }}\${{ matrix.ChannelName }} -Name 'version.txt' -ItemType 'file' -Value "$env:GitBuildVersionSimple"
-
     - name: Build release packages
       run: |
         dotnet restore $env:PROJECT_PATH
