@@ -1,0 +1,74 @@
+on:
+  push:
+    branches:
+      - main
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+
+  Build_And_Package:
+    name: Build and package
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        ChannelName:
+        - Release
+
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_NOLOGO: true
+      BuildConfiguration: Release
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      PROJECT_PATH: .\GameshowPro.Common.Windows\GameshowPro.Common.Windows.csproj
+      PUBLISH_PATH: .\publish
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+
+    - name: Use .NET 8.0.x
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+        dotnet-quality: 'ga'
+
+    - name: Nerdbank.GitVersioning
+      uses: dotnet/nbgv@v0.4.1
+      with:
+        setAllVars: true
+
+    - name: Add Version File to Artifact
+      shell: pwsh
+      run : |
+        New-Item -Path ${{ github.workspace }}\${{ matrix.ChannelName }} -Name 'version.txt' -ItemType 'file' -Value "$env:GitBuildVersionSimple"
+
+    - name: Build release packages
+      run: |
+        dotnet restore $env:PROJECT_PATH
+        dotnet pack $env:PROJECT_PATH --output $env:PUBLISH_PATH
+      if:  ${{ success() && matrix.ChannelName  == 'Release' }}
+
+    - name: Upload
+      uses: actions/upload-artifact@v3
+      with:
+        name: nuget packages
+        path: ${{ $env:PUBLISH_PATH }}/*.nupkg
+
+    - name: Add tags
+      id: addTags
+      shell: pwsh
+      run: |
+        nbgv tag 
+        git push origin "v$env:NBGV_ChocolateyPackageVersion"
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ env.NBGV_ChocolateyPackageVersion }}
+        files: ${{ $env:PUBLISH_PATH }}/*.nupkg
