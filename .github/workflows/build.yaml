@@ -58,7 +58,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: nuget packages
-        path: ${{ $env:PUBLISH_PATH }}/*.nupkg
+        path: ${{ env:PUBLISH_PATH }}/*.nupkg
 
     - name: Add tags
       id: addTags
@@ -71,4 +71,4 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: v${{ env.NBGV_ChocolateyPackageVersion }}
-        files: ${{ $env:PUBLISH_PATH }}/*.nupkg
+        files: ${{ env:PUBLISH_PATH }}/*.nupkg
