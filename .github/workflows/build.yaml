@@ -26,6 +26,7 @@ jobs:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       PROJECT_PATH: .\GameshowPro.Common.Windows\GameshowPro.Common.Windows.csproj
       PUBLISH_PATH: .\publish
+      PACKAGE_GLOB: ./publish/*.nupkg
 
     steps:
     - uses: actions/checkout@v4
@@ -53,7 +54,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: nuget packages
-        path: ${{ env.PUBLISH_PATH }}/*.nupkg
+        path: ${{ env.PACKAGE_GLOB }}
 
     - name: Add tags
       id: addTags
@@ -66,4 +67,4 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: v${{ env.NBGV_ChocolateyPackageVersion }}
-        files: ${{ env.PUBLISH_PATH }}/*.nupkg
+        files: ${{ env.PACKAGE_GLOB }}
