@@ -26,6 +26,7 @@
     <Style TargetType="{x:Type comview:ComboBoxCustom}" BasedOn="{StaticResource {x:Type ComboBox}}"/>
     <Style TargetType="{x:Type Expander}" BasedOn="{StaticResource {x:Type Expander}}">
         <Setter Property="controls:ControlsHelper.ContentCharacterCasing" Value="Normal"/>
+        <Setter Property="controls:HeaderedControlHelper.HeaderBackground" Value="#22ffffff"/>
     </Style>
     <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource {x:Type CheckBox}}">
         <Setter Property="controls:CheckBoxHelper.CheckGlyphForegroundChecked" Value="White"/>
