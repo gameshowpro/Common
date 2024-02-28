@@ -14,7 +14,6 @@ namespace GameshowPro.Common.Model;
 [MessagePackObject, MessagePackFormatter(typeof(MsgPackResolver)), JsonObject(MemberSerialization.OptIn)]
 public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 {
-    public delegate void SetAllDelegate(RemoteServiceStates aggregateState, string? detail, double? progress = 0);
     public event PropertyChangedEventHandler? PropertyChanged;
     public event EventHandler? AllUpdated;
     public event EventHandler<bool>? IsConnectedChanged;
@@ -32,6 +31,10 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     /// Delegate which may be used with dispatcher to ensure calls to <see cref="UpdateFrom(ServiceState)" /> are invoked on the intended thread.
     /// </summary>
     public Func<ServiceState, bool> UpdateFromDelegate { get; }
+    /// <summary>
+    /// Delegate which may be used with dispatcher to ensure calls to <see cref="SetAll(RemoteServiceStates, string?, double?)" /> are invoked on the intended thread.
+    /// </summary>
+    public Action<RemoteServiceStates, string?, double?> SetAllDelegate { get; }
 
     public static ServiceState CreateUnknown(string key, string name)
         => new
@@ -101,6 +104,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     {
         UpdateChildrenDelegate = new(UpdateChildren);
         UpdateFromDelegate = new(UpdateFrom);
+        SetAllDelegate = new(SetAll);
         Key = key;
         Name = name;
         Children = children;
@@ -615,9 +619,15 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     }
 
     /// <summary>
-    /// Update this <see cref="ServiceState"/> from another, returning true if any change was made.
+    /// Update this <see cref="ServiceState"/> from another, including children, returning true if any change was made.
     /// </summary>
     public bool UpdateFrom(ServiceState other)
+        => UpdateFrom(other, true);
+
+    /// <summary>
+    /// Update this <see cref="ServiceState"/> from another, optionally including children, returning true if any change was made.
+    /// </summary>
+    public bool UpdateFrom(ServiceState other, bool includeChildren)
     {
         bool change = false;
         if (AggregateState != other.AggregateState)
@@ -635,7 +645,10 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             change = true;
             Progress = other.Progress;
         }
-        change = UpdateChildren(other.Children.Values) || change;
+        if (includeChildren)
+        {
+            change = UpdateChildren(other.Children.Values) || change;
+        }
         if (change)
         {
             AllUpdated?.Invoke(this, new());
