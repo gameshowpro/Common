@@ -1,6 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace GameshowPro.Common;

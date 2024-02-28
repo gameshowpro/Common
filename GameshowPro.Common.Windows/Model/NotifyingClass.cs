@@ -1,4 +1,4 @@
-﻿// (C) Barjonas LLC 2018
+﻿// (C) Barjonas LLC 2024
 
 namespace GameshowPro.Common.Model;
 

@@ -1,7 +1,4 @@
-﻿
-using System.Collections.Generic;
-
-namespace GameshowPro.Common.Model;
+﻿namespace GameshowPro.Common.Model;
 
 public abstract class ManyToManyDictionary<TKeyA, TKeyB, TPair>
     where TKeyA : notnull

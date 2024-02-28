@@ -1,7 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Collections.Frozen;
-
 namespace GameshowPro.Common.Model;
 
 /// <summary>

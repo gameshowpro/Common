@@ -1,6 +1,4 @@
 ﻿// (C) Barjonas LLC 2019
-using System.Collections.Frozen;
-
 namespace GameshowPro.Common;
 
 public static partial class UtilsWindows

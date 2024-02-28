@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Windows.Markup;
+﻿using System.Windows.Markup;
 
 namespace GameshowPro.Common.Wpf;
 
@@ -19,7 +18,7 @@ public abstract class AppBase<App, Sys, MainWindow> : Application, IComponentCon
 
     protected static void BaseMain(string resourceLocater = "app.xaml", DateTime? buildTime = null, bool kioskMode = false, Func<IEnumerable<Window>>? windowsFactory = null)
     {
-        s_windowsFactory = windowsFactory ?? (new(() => new List<Window> { new MainWindow() }));
+        s_windowsFactory = windowsFactory ?? (new(() => [new MainWindow()]));
         s_kioskMode = kioskMode;
         AssemblyName? assembly = Assembly.GetEntryAssembly()?.GetName();
         string? process = assembly?.Name;

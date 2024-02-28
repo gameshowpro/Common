@@ -19,7 +19,6 @@ global using System.ComponentModel;
 global using System.Globalization;
 global using System.ServiceProcess;
 global using System.Threading;
-global using System.Threading.Tasks;
 global using System.Drawing;
 global using System.IO;
 global using System.Security.Principal;

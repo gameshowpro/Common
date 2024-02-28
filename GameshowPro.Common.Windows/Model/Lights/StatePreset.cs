@@ -1,6 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Threading;
 using GameshowPro.Common.ViewModel;
 
 namespace GameshowPro.Common.Model.Lights;
