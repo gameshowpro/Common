@@ -5,7 +5,7 @@ namespace GameshowPro.Common.BaseConverters;
 public enum StringConverterJoinType
 {
     Comma,
-    Simple,
+    Empty,
     Newline,
     Bullet,
     Tilda
