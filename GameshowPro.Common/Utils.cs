@@ -664,7 +664,7 @@ public static partial class Utils
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureAndCreateListCount<T>(ref IList<T> list, int minCount, int maxCount, Func<int, T> factory)
     {
-        list ??= new List<T>();
+        list ??= [];
         EnsureListCount(list, minCount, maxCount, factory);
     }
 
@@ -982,6 +982,14 @@ public static partial class Utils
     }
 
     /// <summary>
+    /// Return the element at the given index. If it is out of range, return null.
+    /// </summary>
+    /// <param name="index">The index of the character within the <see cref="StringBuilder"/>.</param>
+    /// <param name="source">The <see cref="StringBuilder"/> to containing the character.</param>
+    public static char? ElementAtOrNull(this StringBuilder source, int index)
+        => index.IsInRange(0, source.Length, false) ? source[index] : null;
+
+    /// <summary>
     /// A custom version of <see cref="Enumerable.ElementAtOrDefault"/> for value types which will return null if the index is out of range or the source is null.
     /// </summary>
     /// <typeparam name="T">The non-nullable value type</typeparam>
@@ -1053,7 +1061,7 @@ public static partial class Utils
     /// <param name="source">Nullable IEnumerable</param>
     public static IEnumerable<T> NeverNull<T>(this IEnumerable<T>? source)
     {
-        return source ?? Enumerable.Empty<T>();
+        return source ?? [];
     }
 
     /// <summary>
@@ -1769,7 +1777,7 @@ public static partial class Utils
         if (maxCount > maxPossible)
         {
             //special case where we're going to want every possible combination
-            return AllShuffledNumbersPermutations(sequenceLength, maxPossible, rnd);
+            return AllShuffledNumbersPermutations(sequenceLength, maxPossible);
         }
         else
         {
@@ -1798,14 +1806,13 @@ public static partial class Utils
     /// </summary>
     /// <remarks>Based on Heap's Algorithm.</remarks>
     /// <param name="sequenceLength">The length of the sequence to be shuffled. Using this for numbers greater than 8 is not recommended.</param>
-    /// <param name="rnd">The random number generator to use. If null, use default instance.</param>
-    public static ImmutableArray<int[]> ShuffledNumbersPermutations(int sequenceLength, Random? rnd)
+    public static ImmutableArray<int[]> ShuffledNumbersPermutations(int sequenceLength)
     {
         int maxPossible = Factorial((ulong)sequenceLength).NarrowToIntClamped();
-        return AllShuffledNumbersPermutations(sequenceLength, maxPossible, rnd);
+        return AllShuffledNumbersPermutations(sequenceLength, maxPossible);
     }
 
-    private static ImmutableArray<int[]> AllShuffledNumbersPermutations(int sequenceLength, int permutationCount, Random? rnd)
+    private static ImmutableArray<int[]> AllShuffledNumbersPermutations(int sequenceLength, int permutationCount)
     {
         int[][] permutations = new int[sequenceLength][];
         int[] indexes = new int[sequenceLength];
@@ -1962,6 +1969,23 @@ public static partial class Utils
             return false;
         }
         valueNotNull = toCheck; 
+        return true;
+    }
+
+    /// <summary>
+    /// Return true and output safe reference to <see cref="ToCheck"/> if it's not null.
+    /// </summary>
+    /// <typeparam name="T">The type of object to check.</typeparam>
+    /// <param name="toCheck">The object to check.</param>
+    /// <param name="valueNotNull">The null-checked version of the object</param>
+    public static bool SafeNullCheck<T>(this T? toCheck, [NotNullWhen(true)] out T? valueNotNull) where T : struct
+    {
+        if (toCheck == null)
+        {
+            valueNotNull = null;
+            return false;
+        }
+        valueNotNull = toCheck;
         return true;
     }
 
