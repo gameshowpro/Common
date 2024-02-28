@@ -39,8 +39,12 @@ public class ObservableClass : INotifyPropertyChanged
     /// <summary>
     /// Set a property, if it has changed, and raise event as appropriate.  Return boolean indicated whether any change was made.
     /// </summary>
+    /// <param name="memberName">The name of the member to set, to be used in event invocations. Automatically set to CallerMemberName.</param>
+    /// <param name="forceEvent">If true, event is raised regardless of whether there was a change.</param>
+    /// <param name="beforeChangeDelegate">If a pending change is detected, this delegate will be invoked before the change is applied. This is the last chance to access the old value. Note: the delegate is run on the calling thread rather than any dispatcher.</param>
+    /// <param name="afterChangeDelegate">If a pending change is detected, this delegate will be invoked after the change is applied. This is an alternative a conditional statement based on the return value. Note: the delegate is run on the calling thread rather than any dispatcher.</param>
     protected virtual bool SetProperty<TField>(
-        ref TField field, TField value, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "", bool forceEvent = false)
+        ref TField field, TField value, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "", bool forceEvent = false, Action? beforeChangeDelegate = null, Action? afterChangeDelegate = null)
     {
         bool changed = false;
         if ((field == null != (value == null)) || (field != null))
@@ -52,7 +56,9 @@ public class ObservableClass : INotifyPropertyChanged
             if (HasChanged(CompareEnumerablesByContent, field, value))
             {
                 changed = true;
+                beforeChangeDelegate?.Invoke();
                 field = value;
+                afterChangeDelegate?.Invoke();
                 if (_suppressEvents)
                 {
                     _isDirty = true;
