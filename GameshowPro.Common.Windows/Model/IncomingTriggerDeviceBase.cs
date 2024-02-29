@@ -15,11 +15,13 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
     {
         NamePrefix = namePrefix;
         ServiceState = serviceState;
+        Settings = settings;
         _changeFilters.AddFilter((s, e) => AnyIsEnabled = settings.TriggerSettings.Any(s => s.IsEnabled), settings.TriggerSettings.Select(s => new PropertyChangeCondition(s, nameof(s.IsEnabled))));
     }
 
     public ServiceState ServiceState { get; }
     public string NamePrefix { get; }
+    public IncomingTriggerDeviceSettingsBase Settings { get; }
 
     /// <summary>
     /// A dictionary containing a list of all triggers belonging to this object, keyed by <see cref="TTriggerKey"/>, widely typed as <see cref="IncomingTrigger"/>.
@@ -40,4 +42,5 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
 public interface IIncomingTriggerDeviceBase : IRemoteService
 {
     string NamePrefix { get; }
+    IncomingTriggerDeviceSettingsBase Settings { get; }
 }

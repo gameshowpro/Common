@@ -5,11 +5,12 @@
 /// </summary>
 public abstract class IncomingTriggerDeviceSettingsBase : NotifyingClass
 {
-    protected IncomingTriggerDeviceSettingsBase(IncomingTriggerSettings incomingTriggerSettings, bool? allowDuplicateTriggerIds, string nameSuffix)
+    protected IncomingTriggerDeviceSettingsBase(IncomingTriggerSettings incomingTriggerSettings, bool? allowDuplicateTriggerIds, string nameSuffix, bool? isEnabled)
     {
         TriggerSettings = incomingTriggerSettings;
         _allowDuplicateTriggerIds = allowDuplicateTriggerIds ?? false;
         _nameSuffix = nameSuffix;
+        _isEnabled = isEnabled ?? true;
     }
 
     private bool _allowDuplicateTriggerIds;
@@ -37,4 +38,12 @@ public abstract class IncomingTriggerDeviceSettingsBase : NotifyingClass
 
     [JsonProperty]
     public virtual IncomingTriggerSettings TriggerSettings { get; }
+
+    private bool _isEnabled;
+    [JsonProperty]
+    public bool IsEnabled
+    {
+        get => _isEnabled;
+        set => _ = SetProperty(ref _isEnabled, value);
+    }
 }

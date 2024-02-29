@@ -28,6 +28,19 @@ public class IncomingTriggerComposite : IncomingTrigger
                         break;
                 }
             };
+            if (child.ParentDevice != null)
+            {
+                child.ParentDevice.Settings.PropertyChanged += (s, e) =>
+                {
+                    switch (e.PropertyName)
+                    {
+                        case nameof(IncomingTriggerDeviceSettingsBase.IsEnabled):
+                            EnabledChildren = CalculateEnabledChildren;
+                            UpdateIsDown();
+                            break;
+                    }
+                };
+            }
             child.PropertyChanged += (s, e) =>
             {
                 switch (e.PropertyName)
@@ -56,11 +69,14 @@ public class IncomingTriggerComposite : IncomingTrigger
         {
             if (source is IncomingTrigger trigger)
             {
-                //The PropertyChanged event might come later. IncomingTrigger subclasses should have updated these properties before calling here.
-                Ordinal = trigger.Ordinal;
-                Time = trigger.Time;
+                if (TriggerIsEnabled(trigger))
+                {
+                    //The PropertyChanged event might come later. IncomingTrigger subclasses should have updated these properties before calling here.
+                    Ordinal = trigger.Ordinal;
+                    Time = trigger.Time;
+                    base.OnVerifiedTrigger(source, args);
+                }
             }
-            base.OnVerifiedTrigger(source, args);
         }
     }
 
@@ -70,7 +86,10 @@ public class IncomingTriggerComposite : IncomingTrigger
     }
 
     private ImmutableList<IncomingTrigger> CalculateEnabledChildren 
-        => Children.Where(c => c.Setting.IsEnabled).ToImmutableList();
+        => Children.Where(TriggerIsEnabled).ToImmutableList();
+
+    private static bool TriggerIsEnabled(IncomingTrigger trigger)
+        => trigger.Setting.IsEnabled && trigger.ParentDevice?.Settings.IsEnabled == true;
 
     public ImmutableList<IncomingTrigger> Children { get; }
 

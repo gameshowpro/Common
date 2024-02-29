@@ -207,6 +207,7 @@
                 <ItemsControl ItemsSource="{Binding ServiceState.Children.Values}" ItemTemplate="{StaticResource ServiceStateMax}" VerticalAlignment="Center" />
                 <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource IncomingTriggerDeviceHeaderTemplateSelector}" />
             </StackPanel>
+            <controls:ToggleSwitch OnContent="Device is enabled" OffContent="Device is disabled" IsOn="{Binding BaseSettings.IsEnabled}"/>
             <controls:ToggleSwitch OnContent="Showing all triggers" OffContent="Showing enabled triggers only" x:Name="ShowAllFilter" DockPanel.Dock="Left"/>
             <controls:ToggleSwitch OnContent="Duplicates allowed" OffContent="Duplicates not allowed" IsOn="{Binding BaseSettings.AllowDuplicateTriggerIds}"/>
             <DataGrid ItemsSource="{Binding Source={StaticResource IncomingTriggerFilter}}" AutoGenerateColumns="False" IsReadOnly="True" HorizontalAlignment="Left">
