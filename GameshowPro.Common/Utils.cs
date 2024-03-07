@@ -1176,11 +1176,10 @@ public static partial class Utils
 
     private static void RenameBrokenFile(string path, Logger? logger = null)
     {
-        int i = 1;
         string? dir = Path.GetDirectoryName(path);
         string pathNoExt = Path.GetFileNameWithoutExtension(path);
         string ext = Path.GetExtension(path);
-        while (true)
+        for (int i = 1; i < 100; i++)
         {
             string newPath = Path.Combine(dir ?? "", $"{pathNoExt}.broken.{i}{ext}");
             if (!File.Exists(newPath))
@@ -1198,7 +1197,6 @@ public static partial class Utils
                 logger?.Info("Renamed broken file to {0}", newPath);
                 return;
             }
-            i++;
         }
     }
 
