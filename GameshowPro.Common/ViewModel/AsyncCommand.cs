@@ -117,10 +117,10 @@ public class AsyncCommand<T>(
 
     #region ICommand
     bool ICommand.CanExecute(object? parameter)
-        => CanExecute((T?)parameter);
+        => CanExecute(parameter == null ? default : (T?)parameter);
 
     void ICommand.Execute(object? parameter)
-        => ExecuteAsync((T?)parameter).FireAndForgetSafeAsync(_errorHandler);
+        => ExecuteAsync(parameter == null ? default : (T?)parameter).FireAndForgetSafeAsync(_errorHandler);
     #endregion
 }
 
