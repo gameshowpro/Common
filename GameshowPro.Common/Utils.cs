@@ -1037,6 +1037,69 @@ public static partial class Utils
         => source == null || source.Count == 0 ? null : source[source.Count - 1];
 
     /// <summary>
+    /// Return the lowest non-null value in the given sequence. If the sequence is null or does not contain any non-null value, return null.
+    /// </summary>
+    public static T? MinOrDefault<T>(this IEnumerable<T?>? source)
+    {
+        if (source == null)
+        {
+            return default;
+        }
+
+        using IEnumerator<T?> enumerator = source.GetEnumerator();
+        if (!enumerator.MoveNext())
+        {
+            return default;
+        }
+
+        Comparer<T> comparer = Comparer<T>.Default;
+        T? min = enumerator.Current;
+
+        while (enumerator.MoveNext())
+        {
+            T? current = enumerator.Current;
+            if (current != null && (min == null || comparer.Compare(current, min) < 0))
+            {
+                min = current;
+            }
+        }
+
+        return min;
+    }
+
+    /// <summary>
+    /// Return the highest non-null value in the given sequence. If the sequence is null or does not contain any non-null value, return null.
+    /// </summary>
+    public static T? MaxOrDefault<T>(this IEnumerable<T>? source)
+    {
+        if (source == null)
+        {
+            return default;
+        }
+
+        using IEnumerator<T?> enumerator = source.GetEnumerator();
+        if (!enumerator.MoveNext())
+        {
+            return default;
+        }
+
+        Comparer<T> comparer = Comparer<T>.Default;
+        T? max = enumerator.Current;
+
+        while (enumerator.MoveNext())
+        {
+            T? current = enumerator.Current;
+            if (current != null && (max == null || comparer.Compare(current, max) > 0))
+            {
+                max = current;
+            }
+        }
+
+        return max;
+    }
+
+
+    /// <summary>
     /// Safely filter out null values from a <see cref="IEnumerable{TSource}"/> where <see cref="TSource"/> is a nullable value type, returning a sequence of non-nullable <see cref="TSource"/> types.
     /// </summary>
     /// <typeparam name="TSource">The item type from when nullability is to be removed.</typeparam>

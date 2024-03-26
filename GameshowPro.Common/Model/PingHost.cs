@@ -7,9 +7,11 @@ public class PingHost : ObservableClass, IRemoteService
     private readonly static TimeSpan s_interval = TimeSpan.FromSeconds(5);
     private readonly CancellationToken _cancellationToken;
     private readonly AutoResetEvent _settingChange = new(false);
-    public PingHost(PingHostSettings settings, CancellationToken cancellationToken)
+    private readonly ILogger _logger;
+    public PingHost(PingHostSettings settings, ILogger logger,  CancellationToken cancellationToken)
     {
         Settings = settings;
+        _logger = logger;
         ServiceState = new("Ping");
         settings.PropertyChanged += (s, e) =>
         {
@@ -29,19 +31,6 @@ public class PingHost : ObservableClass, IRemoteService
 
     private async Task UpdateLoop()
     {
-        Ping pingSender = new();
-        PingOptions options = new()
-        {
-            // Use the default Ttl value which is 128,
-            // but change the fragmentation behavior.
-            DontFragment = true
-        };
-
-        // Create a buffer of 32 bytes of data to be transmitted.
-        string data = Enumerable.Repeat('a', 32).ToArray().ToString()!;
-        byte[] buffer = Encoding.ASCII.GetBytes(data);
-        int timeout = 120;
-
         var waitHandles = new WaitHandle[] { _cancellationToken.WaitHandle, _settingChange };
         int handle;
         while (!_cancellationToken.IsCancellationRequested)
@@ -58,17 +47,24 @@ public class PingHost : ObservableClass, IRemoteService
                     }
                     else
                     {
-                        PingReply? reply = null;
-                        try
+                        PingHostNameResult result =  await PingClient.SendPing(Settings.Host, _logger, _cancellationToken);
+                        if (result.MinimumRoundtripTime.HasValue)
                         {
-                            reply = await pingSender.SendPingAsync(Settings.Host, timeout, buffer, options);
-                        }
-                        catch { };
-                        ServiceState.AggregateState = reply?.Status == IPStatus.Success ? RemoteServiceStates.Connected : RemoteServiceStates.Warning;
-                        ServiceState.Detail = reply == null ? "Unresolved" : reply?.Status == IPStatus.Success ? $"Reply time {reply.RoundtripTime}ms" : "No reply";
-                        if (reply?.Status == IPStatus.Success)
-                        {
+                            ServiceState.AggregateState = RemoteServiceStates.Connected;
+                            ServiceState.Detail = $"Reply time {result.MinimumRoundtripTime.Value.TotalMilliseconds}ms";
                             LastPingTime = DateTime.UtcNow;
+                        }
+                        else
+                        {
+                            ServiceState.AggregateState = RemoteServiceStates.Warning;
+                            if (result.AddressResults.Length == 0)
+                            {
+                                ServiceState.Detail = "Could not resolve host name";
+                            }
+                            else
+                            {
+                                ServiceState.Detail = "No reply";
+                            }
                         }
                     }
                     break;
