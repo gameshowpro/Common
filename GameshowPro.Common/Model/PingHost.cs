@@ -1,6 +1,4 @@
-﻿using System.Net.NetworkInformation;
-
-namespace GameshowPro.Common.Model;
+﻿namespace GameshowPro.Common.Model;
 
 public class PingHost : ObservableClass, IRemoteService
 {

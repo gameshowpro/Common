@@ -1,7 +1,4 @@
-﻿using System.Collections.Concurrent;
-
-
-namespace GameshowPro.Common.Model;
+﻿namespace GameshowPro.Common.Model;
 public class RandomTriggerer
 {
     private const int ReportVersion = 1;
