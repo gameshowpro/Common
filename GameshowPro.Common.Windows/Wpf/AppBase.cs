@@ -20,8 +20,11 @@ public abstract class AppBase<App, Sys, MainWindow> : Application, IComponentCon
     {
         s_windowsFactory = windowsFactory ?? (new(() => [new MainWindow()]));
         s_kioskMode = kioskMode;
-        AssemblyName? assembly = Assembly.GetEntryAssembly()?.GetName();
-        string? process = assembly?.Name;
+        Assembly? entryAssembly = Assembly.GetEntryAssembly();
+        AssemblyName? assemblyName = entryAssembly?.GetName();
+        buildTime ??= entryAssembly?.GetBuildDate();
+        string? process = assemblyName?.Name;
+        Version? version = assemblyName?.Version;
         if (process != null)
         {
             s_resourceLocator = new Uri($"/{process};component/{resourceLocater}", UriKind.Relative);
@@ -31,7 +34,7 @@ public abstract class AppBase<App, Sys, MainWindow> : Application, IComponentCon
                 if (mutex.WaitOne(0, false))
                 {
                     App app = new();
-                    s_logger.Info($"Initializing {process}{(buildTime == null ? "" : $", built {buildTime:s}")}");
+                    s_logger.Info($"Initializing {process}{(version == null ? "" : $"v{version}")}{(buildTime == null ? "" : $", built {buildTime:s}")}");
                     app.InitializeComponent();
                     _ = app.Run();
                 }
