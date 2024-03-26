@@ -28,7 +28,7 @@ public static class PingClient
         }
         if (reply.Status == IPStatus.Success)
         {
-            logger.LogInformation("Ping to {address} succeeded in {time}ms", ipAddress, reply.RoundtripTime);
+            //logger.LogTrace("Ping to {address} succeeded in {time}ms", ipAddress, reply.RoundtripTime);
             return new(ipAddress, TimeSpan.FromMilliseconds(reply.RoundtripTime));
         }
         else
