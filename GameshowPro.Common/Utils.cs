@@ -58,6 +58,29 @@ public static partial class Utils
         }
     }
 
+    ///
+    /// <summary>Determines whether any element of a sequence satisfies a condition.</summary>
+    /// <param name="source">An System.Collections.Generic.IEnumerable`1 whose elements to apply the predicate to.</param>
+    /// <param name="predicate">A function to test each element for a condition, including the index of the element.</param>
+    /// <typeparam name="TSource">The elements of source.</typeparam>
+    /// <returns>
+    ///     true if the source sequence is not empty and at least one of its elements passes
+    ///     the test in the specified predicate; otherwise, false.
+    /// </returns>
+    public static bool Any<TSource>(this IEnumerable<TSource> source, Func<TSource, int, bool> predicate)
+    {
+        int index = 0;
+        foreach (TSource item in source)
+        {
+            if (predicate(item, index))
+            {
+                return true;
+            }
+            index++;
+        }
+        return false;
+    }
+
     // Adds the elements of the given collection to the end of this list unless they are null. If
     // required, the capacity of the list is increased to twice the previous
     // capacity or the new size, whichever is larger.
@@ -574,6 +597,10 @@ public static partial class Utils
         int upperLowerCount = upperCount + lowerCount;
         return (((float)lowerCount) / upperLowerCount) > allowedLowerPercent;
     }
+
+
+    public static string PluralOrSingular(this int number, string singularNoun, string pluralNoun)
+        => $"{number} {(number == 1 ? singularNoun : pluralNoun)}";
 
     public static string PluralIfRequired(this int number, string singularNoun, string pluralSuffix = "s")
     {
