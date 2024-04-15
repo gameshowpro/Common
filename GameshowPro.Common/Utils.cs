@@ -1,4 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
+using NLog;
 using Newtonsoft.Json.Serialization;
 
 namespace GameshowPro.Common;
@@ -1189,7 +1190,7 @@ public static partial class Utils
     /// <param name="rethrowDeserializationExceptions">If true, any deserialization exception will be rethrown. Otherwise exceptions will be logged and a new object will be returned.</param>
     /// <param name="renameFailedFiles">If true, an file which is found but cannot be deserialized will be renamed before a default object is created.</param>
     /// <returns></returns>
-    public static T Depersist<T>(string? path, out bool isNew, Logger? logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true)
+    public static T Depersist<T>(string? path, out bool isNew, ILogger? logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true)
         where T : class, new()
         => Depersist<T>(path, null, out isNew, logger, rethrowDeserializationExceptions, renameFailedFiles);
 
@@ -1204,7 +1205,7 @@ public static partial class Utils
     /// <param name="rethrowDeserializationExceptions">If true, any deserialization exception will be rethrown. Otherwise exceptions will be logged and a new object will be returned.</param>
     /// <param name="renameFailedFiles">If true, an file which is found but cannot be deserialized will be renamed before a default object is created.</param>
     /// <returns></returns>
-    public static T Depersist<T>(string? path, ISerializationBinder? serializationBinder, out bool isNew, Logger? logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true) where T : class, new()
+    public static T Depersist<T>(string? path, ISerializationBinder? serializationBinder, out bool isNew, ILogger? logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true) where T : class, new()
     {
         JsonSerializer ser = new()
         {
@@ -1233,7 +1234,7 @@ public static partial class Utils
                 }
                 catch (Exception ex)
                 {
-                    logger?.Error(ex, "Exception while deserializing {0}", path);
+                    logger?.LogError(ex, "Exception while deserializing {path}", path);
                     if (renameFailedFiles)
                     {
                         renameBroken = true;
@@ -1253,17 +1254,17 @@ public static partial class Utils
         {
             obj = new T();
             isNew = true;
-            logger?.Info("Created new object because nothing could be deserialized from {0}", path);
+            logger?.LogInformation("Created new object because nothing could be deserialized from {path}", path);
         }
         else
         {
-            logger?.Info("Successfully deserialized from {0}", path);
+            logger?.LogInformation("Successfully deserialized from {path}", path);
             isNew = false;
         }
         return obj;
     }
 
-    private static void RenameBrokenFile(string path, Logger? logger = null)
+    private static void RenameBrokenFile(string path, ILogger? logger = null)
     {
         string? dir = Path.GetDirectoryName(path);
         string pathNoExt = Path.GetFileNameWithoutExtension(path);
@@ -1280,10 +1281,10 @@ public static partial class Utils
                 }
                 catch (Exception ex)
                 {
-                    logger?.Error(ex, "Exception while trying to rename broken file at (0)", path);
+                    logger?.LogError(ex, "Exception while trying to rename broken file at {path}", path);
                     return;
                 }
-                logger?.Info("Renamed broken file to {0}", newPath);
+                logger?.LogInformation("Renamed broken file to {0}", newPath);
                 return;
             }
         }
@@ -1363,13 +1364,13 @@ public static partial class Utils
     /// <returns></returns>
     public static string? CurrentNLogLogPath(string targetName = "f")
     {
-        Target target = LogManager.Configuration.FindTargetByName(targetName ?? "f");
+        NLog.Targets.Target target = LogManager.Configuration.FindTargetByName(targetName ?? "f");
         switch (target)
         {
-            case FileTarget ft:
+            case NLog.Targets.FileTarget ft:
                 return FileTargetToPath(ft);
             case NLog.Targets.Wrappers.AsyncTargetWrapper atw:
-                if (atw.WrappedTarget is FileTarget wft)
+                if (atw.WrappedTarget is NLog.Targets.FileTarget wft)
                 {
                     return FileTargetToPath(wft);
                 }
@@ -1378,7 +1379,7 @@ public static partial class Utils
         return null;
     }
 
-    private static string FileTargetToPath(FileTarget ft)
+    private static string FileTargetToPath(NLog.Targets.FileTarget ft)
     {
         return Path.GetFullPath(ft.FileName.Render(new LogEventInfo { TimeStamp = DateTime.Now }));
     }

@@ -5,9 +5,8 @@ namespace GameshowPro.Common.Model;
 
 public abstract class IncomingTrigger : NotifyingClass, ITrigger
 {
-    internal static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
+    protected readonly ILogger _logger;
     private readonly Stopwatch _lastTrigger = new();
-    protected Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
     public delegate void IsDownChangedEventHandler(IncomingTrigger sender, bool isDown);
     /// <summary>
@@ -17,8 +16,9 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
 
     public event EventHandler<TriggerArgs>? Triggered;
 
-    protected IncomingTrigger(IncomingTriggerSetting setting, IIncomingTriggerDeviceBase? parentDevice)
+    protected IncomingTrigger(IncomingTriggerSetting setting, IIncomingTriggerDeviceBase? parentDevice, ILogger logger)
     {
+        _logger = logger;
         ParentDevice = parentDevice;
         _lastTrigger.Start();
         Setting = setting;
@@ -52,10 +52,7 @@ public abstract class IncomingTrigger : NotifyingClass, ITrigger
         {
             if (SetProperty(ref _isDown, value))
             {
-                if (ParentDevice != null)
-                {
-                    s_logger.Trace("Device {Device} trigger {id}/{trigger} IsDown changed to {value}", ParentDevice.NamePrefix, Setting.Id, Setting.Name, value);
-                }
+                _logger.LogTrace("IsDown changed to {value}", value);
                 OnIsDownChanged(value);
             }
         }

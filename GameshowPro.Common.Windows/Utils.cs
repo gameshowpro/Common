@@ -1,4 +1,6 @@
 ﻿// (C) Barjonas LLC 2019
+using GameshowPro.Common.View;
+
 namespace GameshowPro.Common;
 
 public static partial class UtilsWindows
@@ -155,11 +157,17 @@ public static partial class UtilsWindows
     }
 
     public static FrozenDictionary<TTriggerKey, IncomingTriggerComposite> ComposeDevicesIntoTriggerDictionary<TTriggerKey>(
-        IEnumerable<IncomingTriggerDeviceBase<TTriggerKey>> devices)
+        IEnumerable<IncomingTriggerDeviceBase<TTriggerKey>> devices,
+        ILoggerFactory loggerFactory)
             where TTriggerKey : struct, Enum
         => Enum.GetValues<TTriggerKey>().ToFrozenDictionary(
                 t => t, 
-                t => new IncomingTriggerComposite(devices.Select(d => d.TriggersBase[t]), t.ToString(), GetTriggerParameters(t.GetType().GetField(t.ToString()))?.Name ?? "No name")
+                t => new IncomingTriggerComposite(
+                    devices.Select(d => d.TriggersBase[t]), 
+                    t.ToString(), 
+                    GetTriggerParameters(t.GetType().GetField(t.ToString()))?.Name ?? "No name",
+                    loggerFactory.CreateLogger($"{nameof(IncomingTriggerComposite)}({t})")
+                )
             );
 
     internal static TriggerParameters? GetTriggerParameters(MemberInfo? enumMemberInfo)

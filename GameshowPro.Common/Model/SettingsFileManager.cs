@@ -1,4 +1,4 @@
-﻿
+﻿using NLog;
 namespace GameshowPro.Common.Model;
 
 public record SettingsFileSpecification(object Key, string FileName, bool IsWithinLayoutSubfolder);

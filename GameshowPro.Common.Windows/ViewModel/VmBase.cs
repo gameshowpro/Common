@@ -2,7 +2,6 @@
 
 public abstract class VmBase : NotifyingClass
 {
-    protected static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
     private readonly string _dataDir;
     public VmBase(string dataDir, Action persistAll, DateTime? buildDate = null, string? versionString = null)
     {

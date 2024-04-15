@@ -1,9 +1,5 @@
 ﻿// (C) Barjonas LLC 2022
-
-
-
-
-
+using NLog;
 namespace GameshowPro.Common.Model;
 
 public record PropertyChangeCondition

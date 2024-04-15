@@ -2,13 +2,14 @@
 
 public class IncomingTriggerComposite : IncomingTrigger
 {
-    public IncomingTriggerComposite(IEnumerable<IncomingTrigger> children, string key, string name)
+    public IncomingTriggerComposite(IEnumerable<IncomingTrigger> children, string key, string name, ILogger logger)
         : base(new IncomingTriggerSetting()
         {
             Name = name,
             Key = key,
             IsEnabled = true //Default to enabled, could be disabled per-session by user, but not persisted
-        }, null)
+
+        }, null, logger)
     {
         Children = children.ToImmutableList();
         foreach (IncomingTrigger child in children)
@@ -74,6 +75,8 @@ public class IncomingTriggerComposite : IncomingTrigger
                     //The PropertyChanged event might come later. IncomingTrigger subclasses should have updated these properties before calling here.
                     Ordinal = trigger.Ordinal;
                     Time = trigger.Time;
+                    IsTest = trigger.IsTest;
+                    _logger.LogTrace("Received trigger from {source}, ordinal {ordinal}, time {time}{IsTest}", source.GetType(), Ordinal, Time, IsTest ? " TEST ONLY" : "");
                     base.OnVerifiedTrigger(source, args);
                 }
             }

@@ -7,13 +7,20 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
     where TTriggerKey : notnull, Enum
 {
     private readonly PropertyChangeFilters _changeFilters = new();
+    protected ILoggerFactory _loggerFactory;
+    protected ILogger _logger;
     protected IncomingTriggerDeviceBase(
         string namePrefix,
+        int index,
         IncomingTriggerDeviceSettingsBase settings,
-        ServiceState serviceState
+        ServiceState serviceState,
+        ILoggerFactory loggerFactory
     )
     {
+        _loggerFactory = loggerFactory;
+        _logger = loggerFactory.CreateLogger(GetType());
         NamePrefix = namePrefix;
+        Index = index;
         ServiceState = serviceState;
         Settings = settings;
         _changeFilters.AddFilter((s, e) => AnyIsEnabled = settings.TriggerSettings.Any(s => s.IsEnabled), settings.TriggerSettings.Select(s => new PropertyChangeCondition(s, nameof(s.IsEnabled))));
@@ -22,6 +29,7 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
     public ServiceState ServiceState { get; }
     public string NamePrefix { get; }
     public IncomingTriggerDeviceSettingsBase Settings { get; }
+    public int Index { get; }
 
     /// <summary>
     /// A dictionary containing a list of all triggers belonging to this object, keyed by <see cref="TTriggerKey"/>, widely typed as <see cref="IncomingTrigger"/>.
@@ -42,5 +50,6 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
 public interface IIncomingTriggerDeviceBase : IRemoteService
 {
     string NamePrefix { get; }
+    int Index { get; }
     IncomingTriggerDeviceSettingsBase Settings { get; }
 }

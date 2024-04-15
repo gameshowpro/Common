@@ -27,13 +27,16 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
         string namePrefix,
         int index,
         IncomingTriggerDeviceSettingsBase settings,
-        ServiceState serviceState
+        ServiceState serviceState,
+        ILoggerFactory loggerFactory
     )
     : base
     (
         namePrefix,
+        index,
         settings,
-        serviceState
+        serviceState,
+        loggerFactory
     )
     {
         BaseSettings = settings;
@@ -55,7 +58,16 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
                     TriggerParameters? triggerParams = GetTriggerParameters(field) ?? throw new MissingMemberException($"{t} must contain a {nameof(TriggerParameters)} attribute on every member.");
                     ITriggerDefaultSpecification? triggerDefault = GetTriggerDefaultSpecification<TSubclass>(field, index);
                     
-                    TTrigger trigger = TriggerFactory(settings.TriggerSettings.GetOrCreate(value.ToString(), triggerParams.Name, triggerDefault?.TriggerId, triggerParams.TriggerFilter, triggerParams.DebounceInterval));
+                    TTrigger trigger = 
+                        TriggerFactory(
+                            settings.TriggerSettings.GetOrCreate(
+                                value.ToString(), 
+                                triggerParams.Name, 
+                                triggerDefault?.TriggerId, 
+                                triggerParams.TriggerFilter, 
+                                triggerParams.DebounceInterval
+                            ),
+                            loggerFactory);
                     dictBuilder.Add(value, trigger);
                 }
             }
@@ -80,7 +92,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
     /// </summary>
     public IncomingTriggerDeviceSettingsBase BaseSettings { get; }
 
-    protected abstract TTrigger TriggerFactory(IncomingTriggerSetting triggerSetting);
+    protected abstract TTrigger TriggerFactory(IncomingTriggerSetting triggerSetting, ILoggerFactory loggerFactory);
 
     /// <summary>
     /// A dictionary containing a list of all triggers belonging to this object, keyed by <see cref="TTriggerKey"/>, strongly typed as <see cref="TTrigger"/>.

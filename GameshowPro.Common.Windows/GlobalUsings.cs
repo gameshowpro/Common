@@ -25,6 +25,5 @@ global using System.Security.Principal;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.WindowsAPICodePack.Dialogs;
 global using Microsoft.Xaml.Behaviors;
-global using NLog;
 global using Newtonsoft.Json;
 global using GameshowPro.Common.Model;

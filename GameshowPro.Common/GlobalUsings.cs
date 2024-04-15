@@ -21,8 +21,6 @@ global using System.Windows.Input;
 global using System.Diagnostics;
 global using System.Reflection;
 global using GameshowPro.Common.Model;
-global using NLog;
-global using NLog.Targets;
 global using System.Collections.Concurrent;
 global using Microsoft.Extensions.Logging;
 global using ILogger = Microsoft.Extensions.Logging.ILogger;
