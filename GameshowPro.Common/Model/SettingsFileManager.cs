@@ -9,7 +9,7 @@ public record SettingsFileSpecification(object Key, string FileName, bool IsWith
 /// </summary>
 public class SettingsFileManager
 {
-    private static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger _logger;
     private readonly FrozenDictionary<object, SettingsFileSpecification> _fileNames;
 
     /// <summary>
@@ -23,9 +23,10 @@ public class SettingsFileManager
         Environment.SpecialFolder rootFolder,
         string? organization,
         string? project,
+        ILogger logger,
         params SettingsFileSpecification[] fileSpecifications
     )
-    : this(rootFolder, rootFolder, organization, project, fileSpecifications)
+    : this(rootFolder, rootFolder, organization, project, logger, fileSpecifications)
     { }
 
     /// <summary>
@@ -41,14 +42,16 @@ public class SettingsFileManager
         Environment.SpecialFolder legacyFolder,
         string? organization,
         string? project,
+        ILogger logger,
         params SettingsFileSpecification[] fileSpecifications
     )
     {
+        _logger = logger;
         DataDirectory = GetDirectory(rootFolder, organization, project);
         if (legacyFolder != rootFolder)
         {
             string legacyDirectory = GetDirectory(legacyFolder, organization, project);
-            MigrateDirectory(DataDirectory, legacyDirectory);
+            MigrateDirectory(DataDirectory, legacyDirectory, logger);
         }
         DataDirectoryUri = new(DataDirectory + @"\", UriKind.Absolute);
         EnsureDataDirectory();
@@ -77,7 +80,7 @@ public class SettingsFileManager
     /// </summary>
     /// <param name="current">The destination</param>
     /// <param name="legacy">The possible original</param>
-    private static void MigrateDirectory(string current, string legacy)
+    private static void MigrateDirectory(string current, string legacy, ILogger logger)
     {
         DirectoryInfo? legacyDir = new(legacy);
         if (!legacyDir.Exists)
@@ -97,12 +100,12 @@ public class SettingsFileManager
             try
             {
                 file.MoveTo(currentFilePath, false);
-                s_logger.Info("Migrated \"{legacyDir}\" to \"{currentFilePath}\"", file.FullName, currentFilePath);
+                logger.LogInformation("Migrated \"{legacyDir}\" to \"{currentFilePath}\"", file.FullName, currentFilePath);
             }
             catch (Exception ex)
             {
                 allFilesMoved = false;
-                s_logger.Warn(ex, "Exception while migrating \"{legacyDir}\" to \"{currentFilePath}\"", file.FullName, currentFilePath);
+                logger.LogWarning(ex, "Exception while migrating \"{legacyDir}\" to \"{currentFilePath}\"", file.FullName, currentFilePath);
             }
         }
 
@@ -110,18 +113,18 @@ public class SettingsFileManager
         foreach (DirectoryInfo legacySubDir in legacySubDirs)
         {
             string currentSubDir = Path.Combine(current, legacySubDir.Name);
-            MigrateDirectory(currentSubDir, legacySubDir.FullName);
+            MigrateDirectory(currentSubDir, legacySubDir.FullName, logger);
         }
         if (allFilesMoved)
         {
             try
             {
                 legacyDir.Delete();
-                s_logger.Info("Deleted \"{legacyDir}\" because all files had been moved", legacyDir.FullName);
+                logger.LogInformation("Deleted \"{legacyDir}\" because all files had been moved", legacyDir.FullName);
             }
             catch (Exception ex)
             {
-                s_logger.Warn(ex, "Exception while deleting \"{legacyDir}\" because all files had been moved", legacyDir.FullName);
+                logger.LogWarning(ex, "Exception while deleting \"{legacyDir}\" because all files had been moved", legacyDir.FullName);
             }
         }
     }

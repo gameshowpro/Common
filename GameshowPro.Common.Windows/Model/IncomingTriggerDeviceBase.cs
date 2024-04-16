@@ -6,7 +6,7 @@
 public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, IIncomingTriggerDeviceBase
     where TTriggerKey : notnull, Enum
 {
-    private readonly PropertyChangeFilters _changeFilters = new();
+    private readonly PropertyChangeFilters _changeFilters;
     protected ILoggerFactory _loggerFactory;
     protected ILogger _logger;
     protected IncomingTriggerDeviceBase(
@@ -18,6 +18,7 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
     )
     {
         _loggerFactory = loggerFactory;
+        _changeFilters = new(loggerFactory.CreateLogger($"{GetType()}.{nameof(PropertyChangeFilters)}"));
         _logger = loggerFactory.CreateLogger(GetType());
         NamePrefix = namePrefix;
         Index = index;

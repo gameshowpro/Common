@@ -13,7 +13,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
     where TTrigger : IncomingTrigger
     where TSubclass : IIncomingTriggerDeviceBase
 {
-    private readonly PropertyChangeFilters _propertyChangeFilters = new();
+    private readonly PropertyChangeFilters _propertyChangeFilters;
     /// <summary>
     /// Base constructor.
     /// </summary>
@@ -39,6 +39,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
         loggerFactory
     )
     {
+        _propertyChangeFilters = new(loggerFactory.CreateLogger($"{GetType()}.{nameof(PropertyChangeFilters)}"));
         BaseSettings = settings;
         ImmutableDictionary<TTriggerKey, TTrigger>.Builder dictBuilder = ImmutableDictionary.CreateBuilder<TTriggerKey, TTrigger>();
         Type thisType = GetType();
