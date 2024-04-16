@@ -469,18 +469,18 @@ public static partial class Utils
     public static T EnumFallbackToDefault<T> (this T? value, T defaultValue) where T : struct, Enum
         => !value.HasValue || !Enum.IsDefined(value.Value) ? defaultValue : value.Value;
 
-    public static void StartProcessTerminateWatchdog(Logger? logger = null, TimeSpan? timeout = null)
+    public static void StartProcessTerminateWatchdog(ILogger? logger = null, TimeSpan? timeout = null)
     {
         TimeSpan defaultedTimeout = timeout ?? TimeSpan.FromSeconds(2);
         using (var nuker = new System.Threading.Timer(
             o =>
             {
-                logger?.Error("Process timed out and was terminated");
+                logger?.LogError("Process timed out and was terminated");
                 Process.GetCurrentProcess().Kill();
             }, null, defaultedTimeout, TimeSpan.FromMilliseconds(-1)))
         {
         }
-        logger?.Debug("Watchdog is waiting {0} for process to end.", defaultedTimeout);
+        logger?.LogDebug("Watchdog is waiting {0} for process to end.", defaultedTimeout);
     }
 
     private static readonly Dictionary<char, char> s_replacements = new()
