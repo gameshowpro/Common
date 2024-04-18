@@ -206,9 +206,42 @@ public class PropertyChangeFilter
         => RemoveEventHandlers();
 }
 
-public class PropertyChangeFilters (ILogger logger)
+public class PropertyChangeFilters
 {
-    private readonly ILogger _logger = logger;
+    public static ILoggerFactory? s_loggerFactory;
+    public static void AssignLoggerFactory(ILoggerFactory loggerFactory)
+    {
+        if (s_loggerFactory != null)
+        {
+            throw new InvalidOperationException("Logger factory is already assigned.");
+        }
+        s_loggerFactory = loggerFactory;
+    }
+
+    /// <summary>
+    /// Create a <see cref="PropertyChangeFilters"/> instance using a new <see cref="ILogger"> from the <see cref="ILoggerFactory"/> instance previously assigned using the static function <see cref="AssignLoggerFactory(ILoggerFactory)"/>.
+    /// </summary>
+    /// <param name="loggerNamePrefix">The first part of the name of the new logger, to distinguish it from any other instance of <see cref="PropertyChangeFilters"/></param>
+    /// <exception cref="InvalidOperationException"><see cref="AssignLoggerFactory(ILoggerFactory)"/> must be called before calling this constructor</exception>
+    public PropertyChangeFilters(string loggerNamePrefix)
+    {
+        if (s_loggerFactory is null)
+        {
+            throw new InvalidOperationException($"{nameof(AssignLoggerFactory)} must be called before calling this constructor.");
+        }
+        _logger = s_loggerFactory.CreateLogger($"{loggerNamePrefix}/{nameof(PropertyChangeFilters)}");
+    }
+
+    /// <summary>
+    /// Create a <see cref="PropertyChangeFilters"/> instance using a pre-created <see cref="ILogger"/>. This may be preferable for parent objects with a high volume of instances.
+    /// </summary>
+    /// <param name="logger">A pre-created logger.</param>
+    public PropertyChangeFilters(ILogger logger)
+    {
+        _logger = logger;
+    }
+
+    private readonly ILogger _logger;
     private readonly List<PropertyChangeFilter> _filters = [];
     public void AddFilter(PropertyChangedEventHandler handler, params PropertyChangeCondition[] conditions)
     {

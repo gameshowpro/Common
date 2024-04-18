@@ -18,7 +18,7 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
     )
     {
         _loggerFactory = loggerFactory;
-        _changeFilters = new(loggerFactory.CreateLogger($"{GetType()}.{nameof(PropertyChangeFilters)}"));
+        _changeFilters = new(GetType().Name);
         _logger = loggerFactory.CreateLogger(GetType());
         NamePrefix = namePrefix;
         Index = index;

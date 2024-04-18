@@ -39,7 +39,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
         loggerFactory
     )
     {
-        _propertyChangeFilters = new(loggerFactory.CreateLogger($"{GetType()}.{nameof(PropertyChangeFilters)}"));
+        _propertyChangeFilters = new(GetType().Name);
         BaseSettings = settings;
         ImmutableDictionary<TTriggerKey, TTrigger>.Builder dictBuilder = ImmutableDictionary.CreateBuilder<TTriggerKey, TTrigger>();
         Type thisType = GetType();
