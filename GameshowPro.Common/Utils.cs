@@ -930,6 +930,25 @@ public static partial class Utils
         return builder.ToImmutable();
     }
 
+    public static ImmutableArray<T> ImmutableArrayEnsureCountAndIndices<T>(this IEnumerable<T>? list, int minCount, int maxCount, Func<int, T> factory)
+where T : IIndexed
+    {
+        ImmutableArray<T> built = ImmutableArrayEnsureCount(list, minCount, maxCount, factory);
+        built.SetIndices();
+        return built;
+    }
+
+    public static ImmutableArray<T> ImmutableArrayEnsureCount<T>(this IEnumerable<T>? list, int minCount, int maxCount, Func<int, T> factory)
+    {
+        ImmutableArray<T>.Builder builder = ImmutableArray.CreateBuilder<T>();
+        if (list != null && !(list is ImmutableArray<T> array && array.IsDefault))
+        {
+            builder.AddRange(list);
+        }
+        builder.EnsureListCount(minCount, maxCount, factory);
+        return builder.ToImmutable();
+    }
+
     /// <summary>
     /// Return a copy of the given string with characters added to or removed from the end until it matches the given target length.
     /// </summary>
@@ -1191,7 +1210,7 @@ public static partial class Utils
     /// <param name="renameFailedFiles">If true, an file which is found but cannot be deserialized will be renamed before a default object is created.</param>
     /// <returns></returns>
     public static T Depersist<T>(string? path, out bool isNew, ILogger? logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true)
-        where T : class, new()
+        where T : new()
         => Depersist<T>(path, null, out isNew, logger, rethrowDeserializationExceptions, renameFailedFiles);
 
     /// <summary>
@@ -1205,7 +1224,7 @@ public static partial class Utils
     /// <param name="rethrowDeserializationExceptions">If true, any deserialization exception will be rethrown. Otherwise exceptions will be logged and a new object will be returned.</param>
     /// <param name="renameFailedFiles">If true, an file which is found but cannot be deserialized will be renamed before a default object is created.</param>
     /// <returns></returns>
-    public static T Depersist<T>(string? path, ISerializationBinder? serializationBinder, out bool isNew, ILogger? logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true) where T : class, new()
+    public static T Depersist<T>(string? path, ISerializationBinder? serializationBinder, out bool isNew, ILogger? logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true) where T : new()
     {
         JsonSerializer ser = new()
         {
@@ -1221,7 +1240,7 @@ public static partial class Utils
             ser.TypeNameHandling = TypeNameHandling.Objects;
             ser.SerializationBinder = serializationBinder;
         }
-        T? obj = null;
+        T? obj = default;
         if (path is not null && File.Exists(path))
         {
             bool renameBroken = false;

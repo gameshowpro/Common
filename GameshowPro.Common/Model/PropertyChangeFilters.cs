@@ -2,6 +2,7 @@
 using NLog;
 namespace GameshowPro.Common.Model;
 
+public record FilterTriggerInstance(object sender, PropertyChangedEventArgs args);
 public record PropertyChangeCondition
 {
     internal INotifyPropertyChanged? Sender { get; }
@@ -62,6 +63,7 @@ public class PropertyChangeFilter
     private readonly ImmutableList<FrozenSet<string>> _notifyItemConditions;
     private readonly ImmutableList<INotifyCollectionChanged> _collectionSenders;
     private readonly ImmutableList<FrozenSet<string?>> _notifyCollectionConditions;
+    private readonly List<FilterTriggerInstance> _pausedQueue = [];
     internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions, ILogger logger)
     {
         _logger = logger;
@@ -158,7 +160,7 @@ public class PropertyChangeFilter
             int senderIndex = _collectionSenders.IndexOf(collectionSender);
             if (senderIndex >= 0 && _notifyCollectionConditions[senderIndex].Contains(e.PropertyName))
             {
-                _handler?.Invoke(sender, new PropertyChangedEventArgs(e.PropertyName));
+                InvokeOrEnqueue(sender, new PropertyChangedEventArgs(e.PropertyName));
             }
         }
     }
@@ -170,7 +172,7 @@ public class PropertyChangeFilter
             int senderIndex = _collectionSenders.IndexOf(collectionSender);
             if (senderIndex >= 0 && _notifyCollectionConditions[senderIndex].Contains(null))
             {
-                _handler?.Invoke(sender, new PropertyChangedEventArgs(e.Action.ToString()));
+                InvokeOrEnqueue(sender, new PropertyChangedEventArgs(e.Action.ToString()));
             }
         }
     }
@@ -184,7 +186,7 @@ public class PropertyChangeFilter
                 int senderIndex = _itemSenders.IndexOf(itemSender);
                 if (senderIndex >= 0 && e.PropertyName is not null && _notifyItemConditions[senderIndex].Contains(e.PropertyName))
                 {
-                    _handler?.Invoke(sender, e);
+                    InvokeOrEnqueue(sender, e);
                 }
             }
         }
@@ -200,10 +202,41 @@ public class PropertyChangeFilter
     }
 
     internal void InvokeAll()
-        => _handler?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
+        => InvokeOrEnqueue(this, new PropertyChangedEventArgs(string.Empty));
 
     internal void Release()
         => RemoveEventHandlers();
+
+    private void InvokeOrEnqueue(object sender, PropertyChangedEventArgs args)
+    {
+        if (Paused)
+        {
+            _pausedQueue.Add(new (sender, args));
+        }
+        else
+        {
+            _handler.Invoke(sender, args);
+        }
+    }
+
+    public bool Paused { get; private set; }
+
+    /// <summary>
+    /// Stop firing the handler until after <see cref="Resume"> is called.
+    /// </summary>
+    public void Pause()
+        => Paused = true;
+
+    /// <summary>
+    /// Return all triggers held back from handler since <see cref="Pause"> was called, then resume firing the handler.
+    /// </summary>
+    public ImmutableList<FilterTriggerInstance> Resume()
+    {
+        ImmutableList<FilterTriggerInstance> queue = [.. _pausedQueue];
+        Paused = false;
+        _pausedQueue.Clear();
+        return queue;
+    }
 }
 
 public class PropertyChangeFilters
@@ -243,18 +276,21 @@ public class PropertyChangeFilters
 
     private readonly ILogger _logger;
     private readonly List<PropertyChangeFilter> _filters = [];
-    public void AddFilter(PropertyChangedEventHandler handler, params PropertyChangeCondition[] conditions)
-    {
-        AddFilter(handler, (IEnumerable<PropertyChangeCondition>)conditions);
-    }
 
-    public void AddFilter(PropertyChangedEventHandler handler, IEnumerable<PropertyChangeCondition>? conditions)
+    [return: NotNullIfNotNull(nameof(conditions))]
+    public PropertyChangeFilter AddFilter(PropertyChangedEventHandler handler, params PropertyChangeCondition[] conditions)
+        => AddFilter(handler, (IEnumerable<PropertyChangeCondition>)conditions);
+
+    [return:NotNullIfNotNull(nameof(conditions))]
+    public PropertyChangeFilter? AddFilter(PropertyChangedEventHandler handler, IEnumerable<PropertyChangeCondition>? conditions)
     {
         if (conditions != null)
         {
-            var filter = new PropertyChangeFilter(handler, conditions, _logger);
+            PropertyChangeFilter filter = new (handler, conditions, _logger);
             _filters.Add(filter);
+            return filter;
         }
+        return null;
     }
 
     public void ClearFilters()

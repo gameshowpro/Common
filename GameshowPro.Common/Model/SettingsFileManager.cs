@@ -187,7 +187,7 @@ public class SettingsFileManager
     /// </summary>
     /// <param name="key">The key which was associated with this object's file.</param>
     /// <typeparam name="T">The type of the object being depersisted.</typeparam>
-    public T Depersist<T>(object key) where T : class, new()
+    public T Depersist<T>(object key) where T : new()
         => Utils.Depersist<T>(GetPath(key), out _);
 
     /// <summary>
@@ -196,7 +196,7 @@ public class SettingsFileManager
     /// <param name="key">The key which was associated with this object's file.</param>
     /// <typeparam name="T">The type of the object being depersisted.</typeparam>
     /// <param name="isNew">If an object is created (due to file not existing or being invalid) this will be set to true.</param>
-    public T Depersist<T>(object key, out bool isNew) where T : class, new()
+    public T Depersist<T>(object key, out bool isNew) where T : new()
         => Utils.Depersist<T>(GetPath(key), out isNew);
 
     /// <summary>
@@ -204,14 +204,14 @@ public class SettingsFileManager
     /// </summary>
     /// <typeparam name="T">The type of the object being depersisted.</typeparam>
     /// <param name="isNew">If an object is created (due to file not existing or being invalid) this will be set to true.</param>
-    public T Depersist<T>(out bool isNew) where T : class, new()
+    public T Depersist<T>(out bool isNew) where T : new()
         => Utils.Depersist<T>(GetPath(typeof(T)), out isNew);
 
     /// <summary>
     /// Depersist an object from file path which was keyed by its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
     /// </summary>
     /// <typeparam name="T">The type of the object being depersisted</typeparam>
-    public T Depersist<T>() where T : class, new()
+    public T Depersist<T>() where T : new()
          => Utils.Depersist<T>(GetPath(typeof(T)), out _);
 
     /// <summary>
@@ -219,7 +219,7 @@ public class SettingsFileManager
     /// </summary>
     /// <typeparam name="T">The type of the object being persisted</typeparam>
     /// <param name="obj">The object being persisted. If null, there will be no exception and no operation.</param>
-    public void Persist<T>(T? obj) where T : class, new()
+    public void Persist<T>(T? obj) where T : new()
     {
         if (obj is not null)
         {
