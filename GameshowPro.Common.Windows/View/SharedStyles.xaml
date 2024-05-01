@@ -31,6 +31,7 @@
     <Style TargetType="{x:Type GroupBox}" BasedOn="{StaticResource {x:Type GroupBox}}">
         <Setter Property="controls:ControlsHelper.ContentCharacterCasing" Value="Normal"/>
         <Setter Property="controls:HeaderedControlHelper.HeaderBackground" Value="#22ffffff"/>
+        <Setter Property="BorderBrush" Value="#22ffffff"/>
         <Setter Property="controls:HeaderedControlHelper.HeaderForeground" Value="White"/>
     </Style>
     <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource {x:Type CheckBox}}">

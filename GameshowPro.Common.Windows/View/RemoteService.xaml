@@ -168,4 +168,12 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
     </DataTemplate>
+    <DataTemplate DataType="{x:Type commodelwindows:RemoteServiceManager}" x:Key="RemoteServiceManager_GroupSettings">
+        <DataGrid ItemsSource="{Binding MonitorUiGroups}" HeadersVisibility="None" FrozenColumnCount="1">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Index, Converter={StaticResource ToOneBased}}" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Settings.Name}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DataTemplate>
 </ResourceDictionary>
