@@ -6,7 +6,7 @@ public class PingHost : ObservableClass, IRemoteService
     private readonly CancellationToken _cancellationToken;
     private readonly AutoResetEvent _settingChange = new(false);
     private readonly ILogger _logger;
-    public PingHost(PingHostSettings settings, ILogger logger,  CancellationToken cancellationToken)
+    public PingHost(IPingHostSettings settings, ILogger logger,  CancellationToken cancellationToken)
     {
         Settings = settings;
         _logger = logger;
@@ -25,7 +25,8 @@ public class PingHost : ObservableClass, IRemoteService
         _cancellationToken = cancellationToken;
         _ = Task.Run(UpdateLoop, cancellationToken);
     }
-    public PingHostSettings Settings { get; }
+    public IPingHostSettings Settings { get; }
+    IRemoteServiceSettings IRemoteService.Settings => Settings.RemoteServiceSettings;
 
     private async Task UpdateLoop()
     {
@@ -81,5 +82,4 @@ public class PingHost : ObservableClass, IRemoteService
         get => _lastPingTime;
         private set => _ = SetProperty(ref _lastPingTime, value);
     }
-
 }

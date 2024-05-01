@@ -43,7 +43,7 @@
         <DockPanel LastChildFill="False" Visibility="{Binding Settings.Host, Converter={StaticResource NoMatchToBooleanConverterWithCollapse}, ConverterParameter=''}">
             <Grid>
                 <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ServiceStatus}" VerticalAlignment="Center" DockPanel.Dock="Left" />
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Tag="{Binding LastPingTime, NotifyOnTargetUpdated=True}" Opacity="0" Name="HeartText">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Tag="{Binding LastPingTime, NotifyOnTargetUpdated=True}" Opacity="0" Name="HeartText" IsHitTestVisible="False">
                     <TextBlock.Triggers>
                         <EventTrigger RoutedEvent="Binding.TargetUpdated">
                             <BeginStoryboard Storyboard="{StaticResource HeartSB}" />

@@ -4,10 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:commodel="clr-namespace:GameshowPro.Common.Model;assembly=GameshowPro.Common"
+             xmlns:commodelwindows="clr-namespace:GameshowPro.Common.Model"
              xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:conv="clr-namespace:GameshowPro.Common.Converters"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              mc:Ignorable="d" >
-
+    <conv:ToOneBasedConverter x:Key="ToOneBased"/>
     <DataTemplate x:Key="ServiceStateMax">
         <DockPanel>
             <DockPanel DockPanel.Dock="Top">
@@ -32,6 +34,16 @@
                     </DockPanel>
                 </ToolTip>
             </ContentControl.ToolTip>
+            <ContentControl.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Layout">
+                        <StackPanel>
+                            <controls:NumericUpDown Value="{Binding Settings.RemoteServiceSettings.MonitorUiOrder}" controls:TextBoxHelper.Watermark="Monitoring order" Interval="3" Minimum="-3" Style="{StaticResource NumericUpDownNoText}"/>
+                            <controls:NumericUpDown Value="{Binding Settings.RemoteServiceSettings.MonitorUiGroup, Converter={StaticResource ToOneBased}}" controls:TextBoxHelper.Watermark="Monitoring group" Style="{StaticResource NumericUpDownNoText}"/>
+                        </StackPanel>
+                    </MenuItem>
+                </ContextMenu>
+            </ContentControl.ContextMenu>
         </ContentControl>
     </DataTemplate>
     <DataTemplate DataType="{x:Type commodel:ServiceState}">
@@ -144,5 +156,16 @@
             </Ellipse>
             <controls:ProgressRing IsActive="{Binding Progress, Converter={StaticResource MatchToBooleanConverter}, ConverterParameter={x:Null}}" IsHitTestVisible="False" Width="20" Height="20" Foreground="White"/>
         </Grid>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type commodelwindows:RemoteServiceManager}">
+        <ItemsControl ItemsSource="{Binding MonitorUiGroups}" DockPanel.Dock="Top" Grid.IsSharedSizeScope="True">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type commodelwindows:RemoteServiceGroup}">
+                    <GroupBox Header="{Binding Settings.Name}">
+                        <ItemsControl ItemsSource="{Binding Items}" ItemTemplateSelector="{Binding DataContext.DataTemplateSelector, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}"/>
+                    </GroupBox>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </DataTemplate>
 </ResourceDictionary>

@@ -52,5 +52,6 @@ public interface IIncomingTriggerDeviceBase : IRemoteService
 {
     string NamePrefix { get; }
     int Index { get; }
-    IncomingTriggerDeviceSettingsBase Settings { get; }
+    new IncomingTriggerDeviceSettingsBase Settings { get; }
+    IRemoteServiceSettings IRemoteService.Settings => Settings.RemoteServiceSettings;
 }

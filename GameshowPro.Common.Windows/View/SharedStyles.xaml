@@ -28,6 +28,11 @@
         <Setter Property="controls:ControlsHelper.ContentCharacterCasing" Value="Normal"/>
         <Setter Property="controls:HeaderedControlHelper.HeaderBackground" Value="#22ffffff"/>
     </Style>
+    <Style TargetType="{x:Type GroupBox}" BasedOn="{StaticResource {x:Type GroupBox}}">
+        <Setter Property="controls:ControlsHelper.ContentCharacterCasing" Value="Normal"/>
+        <Setter Property="controls:HeaderedControlHelper.HeaderBackground" Value="#22ffffff"/>
+        <Setter Property="controls:HeaderedControlHelper.HeaderForeground" Value="White"/>
+    </Style>
     <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource {x:Type CheckBox}}">
         <Setter Property="controls:CheckBoxHelper.CheckGlyphForegroundChecked" Value="White"/>
         <Setter Property="controls:CheckBoxHelper.CheckGlyphForegroundCheckedMouseOver" Value="{StaticResource MahApps.Brushes.Accent3}"/>
@@ -202,4 +207,143 @@
     <ItemsPanelTemplate x:Key="UniformGridOneColumn">
         <UniformGrid Columns="1"/>
     </ItemsPanelTemplate>
+    <Style x:Key="NumericUpDownNoText" TargetType="{x:Type controls:NumericUpDown}" BasedOn="{StaticResource {x:Type controls:NumericUpDown}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:NumericUpDown}">
+                    <Grid SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+                        <Border x:Name="Base"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding controls:ControlsHelper.CornerRadius}"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        <DockPanel>
+                            <TextBlock x:Name="PART_Message"
+                                       Margin="4 0"
+                                       Padding="{TemplateBinding Padding}"
+                                       HorizontalAlignment="Stretch"
+                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       Style="{DynamicResource MahApps.Styles.TextBlock.Watermark}"
+                                       Text="{TemplateBinding controls:TextBoxHelper.Watermark}"
+                                       TextAlignment="{TemplateBinding controls:TextBoxHelper.WatermarkAlignment}"
+                                       TextTrimming="{TemplateBinding controls:TextBoxHelper.WatermarkTrimming}"
+                                       TextWrapping="{TemplateBinding controls:TextBoxHelper.WatermarkWrapping}"
+                                       Visibility="Visible"
+                                       DockPanel.Dock="Top"/>
+                            <Grid Margin="{TemplateBinding BorderThickness}" DockPanel.Dock="Top">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition x:Name="PART_LeftColumn" Width="0" />
+                                    <ColumnDefinition x:Name="PART_MiddleColumn" Width="*" />
+                                    <ColumnDefinition x:Name="PART_RightColumn" Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="PART_TextBox" Width="0"/>
+                                <RepeatButton x:Name="PART_NumericUp"
+                                              Grid.Column="1"
+                                              HorizontalAlignment="Stretch"
+                                              Margin="0"
+                                              Delay="{TemplateBinding Delay}"
+                                              Focusable="{TemplateBinding UpDownButtonsFocusable}"
+                                              Foreground="{TemplateBinding Foreground}"
+                                              IsTabStop="False"
+                                              Style="{DynamicResource MahApps.Styles.Button.Chromeless}">
+                                    <Path x:Name="PolygonUp"
+                                          Width="20"
+                                          Height="14"
+                                          Data="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"
+                                          Fill="{DynamicResource MahApps.Brushes.Gray1}"
+                                          Stretch="Fill" />
+                                </RepeatButton>
+                                <RepeatButton x:Name="PART_NumericDown"
+                                              Grid.Column="2"
+                                              HorizontalAlignment="Stretch"
+                                              Margin="0"
+                                              VerticalContentAlignment="Center"
+                                              Delay="{TemplateBinding Delay}"
+                                              Focusable="{TemplateBinding UpDownButtonsFocusable}"
+                                              Foreground="{TemplateBinding Foreground}"
+                                              IsTabStop="False"
+                                              Style="{DynamicResource MahApps.Styles.Button.Chromeless}">
+                                    <Path x:Name="PolygonDown"
+                                          Width="20"
+                                          Height="14"
+                                          Data="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z"
+                                          Fill="{DynamicResource MahApps.Brushes.Gray1}"
+                                          Stretch="Fill" />
+                                </RepeatButton>
+                            </Grid>
+                        </DockPanel>
+                        <Border x:Name="DisabledVisualElement"
+                                Background="{DynamicResource MahApps.Brushes.Control.Disabled}"
+                                BorderBrush="{DynamicResource MahApps.Brushes.Control.Disabled}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding controls:ControlsHelper.CornerRadius}"
+                                IsHitTestVisible="False"
+                                Opacity="0"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                Visibility="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(controls:ControlsHelper.DisabledVisualElementVisibility), Mode=OneWay}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="SwitchUpDownButtons" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="PART_NumericDown" Property="Grid.Column" Value="2" />
+                            <Setter TargetName="PART_NumericUp" Property="Grid.Column" Value="1" />
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="SwitchUpDownButtons" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="PART_NumericDown" Property="Grid.Column" Value="1" />
+                            <Setter TargetName="PART_NumericUp" Property="Grid.Column" Value="2" />
+                        </MultiTrigger>
+
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="DisabledVisualElement" Property="Opacity" Value="0.6" />
+                        </Trigger>
+                        <Trigger Property="IsReadOnly" Value="True">
+                            <Setter Property="InterceptArrowKeys" Value="False" />
+                            <Setter Property="InterceptManualEnter" Value="False" />
+                            <Setter Property="InterceptMouseWheel" Value="False" />
+                            <Setter TargetName="PART_NumericDown" Property="IsEnabled" Value="False" />
+                            <Setter TargetName="PART_NumericUp" Property="IsEnabled" Value="False" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsReadOnly" Value="False" />
+                                <Condition Property="InterceptManualEnter" Value="False" />
+                            </MultiTrigger.Conditions>
+                        </MultiTrigger>
+                        <Trigger SourceName="PART_NumericUp" Property="IsMouseOver" Value="True">
+                            <Setter TargetName="PART_NumericUp" Property="Background" Value="{DynamicResource MahApps.Brushes.Gray8}" />
+                            <Setter TargetName="PolygonUp" Property="Fill" Value="{DynamicResource MahApps.Brushes.Accent}" />
+                        </Trigger>
+                        <Trigger SourceName="PART_NumericUp" Property="IsPressed" Value="True">
+                            <Setter TargetName="PART_NumericUp" Property="Background" Value="{DynamicResource MahApps.Brushes.ThemeForeground}" />
+                            <Setter TargetName="PolygonUp" Property="Fill" Value="{DynamicResource MahApps.Brushes.ThemeBackground}" />
+                        </Trigger>
+                        <Trigger SourceName="PART_NumericDown" Property="IsMouseOver" Value="True">
+                            <Setter TargetName="PART_NumericDown" Property="Background" Value="{DynamicResource MahApps.Brushes.Gray8}" />
+                            <Setter TargetName="PolygonDown" Property="Fill" Value="{DynamicResource MahApps.Brushes.Accent}" />
+                        </Trigger>
+                        <Trigger SourceName="PART_NumericDown" Property="IsPressed" Value="True">
+                            <Setter TargetName="PART_NumericDown" Property="Background" Value="{DynamicResource MahApps.Brushes.ThemeForeground}" />
+                            <Setter TargetName="PolygonDown" Property="Fill" Value="{DynamicResource MahApps.Brushes.ThemeBackground}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="Base" Property="BorderBrush" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(controls:ControlsHelper.MouseOverBorderBrush)}" />
+                        </Trigger>
+                        <Trigger Property="HideUpDownButtons" Value="True">
+                            <Setter TargetName="PART_NumericDown" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_NumericUp" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

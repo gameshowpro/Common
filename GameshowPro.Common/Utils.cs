@@ -991,15 +991,27 @@ where T : IIndexed
     }
 
     /// <summary>
-    /// Performs the specified action on each element of the list, making the element's positional index available to the action.
+    /// Performs the specified action on each element of the <see cref="IEnumerable{T}">, making the element's positional index available to the action.
     /// </summary>
-    /// <param name="action">The System.Action&lt;T&gt; delegate to perform on each element of the list.</param>
+    /// <param name="action">The <see cref="Action{T, int}"/> delegate to perform on each element of the list.</param>
     public static void ForEachWithIndex<T>(this IEnumerable<T> list, Action<T, int> action)
     {
         int index = 0;
         foreach (T item in list)
         {
             action(item, index++);
+        }
+    }
+
+    /// <summary>
+    /// Performs the specified action on each element of the <see cref="IEnumerable{T}">.
+    /// </summary>
+    /// <param name="action">The <see cref="Action{T}"/> delegate to perform on each element of the list.</param>
+    public static void ForEach<T>(this IEnumerable<T> list, Action<T> action)
+    {
+        foreach (T item in list)
+        {
+            action(item);
         }
     }
 

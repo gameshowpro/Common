@@ -1,8 +1,10 @@
-﻿namespace GameshowPro.Common.Model;
+﻿
+namespace GameshowPro.Common.Model;
 
-public class PingHostSettings(string? host, string? displayName) : ObservableClass
+[method:JsonConstructor]
+public class PingHostSettings(string? host, string? displayName, RemoteServiceSettings? remoteServiceSettings) : NotifyingClass, IPingHostSettings
 {
-    public PingHostSettings() : this(null, null)
+    public PingHostSettings() : this(null, null, null)
     { }
 
     private string _host = host ?? string.Empty;
@@ -14,6 +16,7 @@ public class PingHostSettings(string? host, string? displayName) : ObservableCla
     }
 
     private string _displayName = displayName ?? string.Empty;
+
     /// <summary>
     /// A name which can be used shown on the UI to distinguish this device instance from another of the same type.
     /// </summary>
@@ -23,5 +26,7 @@ public class PingHostSettings(string? host, string? displayName) : ObservableCla
         get { return _displayName; }
         set { SetProperty(ref _displayName, value); }
     }
+
+    public IRemoteServiceSettings RemoteServiceSettings { get; } = remoteServiceSettings ?? new();
 }
 
