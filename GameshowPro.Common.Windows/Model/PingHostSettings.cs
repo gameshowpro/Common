@@ -27,6 +27,7 @@ public class PingHostSettings(string? host, string? displayName, RemoteServiceSe
         set { SetProperty(ref _displayName, value); }
     }
 
+    [JsonProperty]
     public IRemoteServiceSettings RemoteServiceSettings { get; } = remoteServiceSettings ?? new();
 }
 
