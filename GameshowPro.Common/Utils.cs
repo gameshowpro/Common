@@ -1246,6 +1246,7 @@ where T : IIndexed
         if (serializationBinder is null)
         {
             ser.TypeNameHandling = TypeNameHandling.Auto;
+            ser.Converters.Add(new JsonConverters.TypeConverter());
         }
         else
         {
@@ -1373,6 +1374,7 @@ where T : IIndexed
         if (serializationBinder is null)
         {
             ser.TypeNameHandling = TypeNameHandling.Auto;
+            ser.Converters.Add(new JsonConverters.TypeConverter());
         }
         else
         {
@@ -2105,6 +2107,15 @@ where T : IIndexed
         }
         valueNotNull = toCheck;
         return true;
+    }
+
+    private static Type _runtimeType = typeof(Type).GetType(); //Trick to get and instance of an internal object.
+    /// <summary>
+    /// Returns true if supplied <see cref="Type"/> is either <see cref="Type"/> or <see cref="System.RuntimeType"/>.
+    /// </summary>
+    public static bool IsTypeOrRuntimeType(this Type type)
+    {
+        return type == typeof(Type) || type == _runtimeType;
     }
 
     public static T[] ArrayRepeat<T>(T value, int count)
