@@ -1,4 +1,5 @@
-﻿using static GameshowPro.Common.Wpf.Utils;
+﻿using Microsoft.Xaml.Behaviors.Layout;
+using static GameshowPro.Common.Wpf.Utils;
 using Point = System.Windows.Point;
 using Size = System.Windows.Size;
 
@@ -42,6 +43,17 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
     {
         get { return (System.Windows.Controls.Primitives.Popup?)GetValue(s_popupProperty); }
         set { SetValue(s_popupProperty, value); }
+    }
+    #endregion
+
+    #region DragAndDropController
+    public static readonly DependencyProperty s_dragAndDropControllerProperty =
+        DependencyProperty.Register("DragAndDropController", typeof(IDragAndDropController), typeof(DataGridDragAndDropBehavior), new PropertyMetadata(null));
+
+    public IDragAndDropController? DragAndDropController
+        {
+        get { return (IDragAndDropController?)GetValue(s_dragAndDropControllerProperty); }
+        set { SetValue(s_dragAndDropControllerProperty, value); }
     }
     #endregion
 
@@ -105,7 +117,7 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
 
     private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
-        if (!_isDragging || _isEditing || Popup?.IsOpen != true)
+        if (_draggedItem == null || !_isDragging || _isEditing || Popup?.IsOpen != true)
         {
             return;
         }
@@ -113,19 +125,26 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
         //get the target item
         object targetItem = AssociatedObject.SelectedItem;
 
-        if (!ReferenceEquals(_draggedItem, targetItem) && AssociatedObject.ItemsSource is IList items)
+        if (!ReferenceEquals(_draggedItem, targetItem))
         {
-            //remove the source from the list
-            (AssociatedObject.ItemsSource as IList)?.Remove(_draggedItem);
-            //read this after removal in case removal caused a change
-            int targetIndex = items.IndexOf(targetItem);
-            //move source at the target's location
-            (AssociatedObject.ItemsSource as IList)?.Insert(targetIndex, _draggedItem);
+            if (DragAndDropController != null)
+            {
+                DragAndDropController.Move(_draggedItem, targetItem);
+            }
+            else if (AssociatedObject.ItemsSource is IList items)
+            {
+                //remove the source from the list
+                (AssociatedObject.ItemsSource as IList)?.Remove(_draggedItem);
+                //read this after removal in case removal caused a change
+                int targetIndex = items.IndexOf(targetItem);
+                //move source at the target's location
+                (AssociatedObject.ItemsSource as IList)?.Insert(targetIndex, _draggedItem);
 
-            //select the dropped item
-            AssociatedObject.SelectedItem = _draggedItem;
+                //select the dropped item
+                AssociatedObject.SelectedItem = _draggedItem;
 
-            RaiseDragEndedEvent();
+                RaiseDragEndedEvent();
+            }
         }
 
         //reset
@@ -181,4 +200,9 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
             AssociatedObject.SelectedItem = row.Item;
         }
     }
+}
+
+public interface IDragAndDropController
+{
+    void Move(object draggedItem, object targetItem);
 }
