@@ -6,22 +6,22 @@ namespace GameshowPro.Common.Model;
 public class NotifyingClass : ObservableClass
 {
     protected readonly Dispatcher _dispatcher = Dispatcher.CurrentDispatcher;
-    protected readonly Action<string> NotifyPropertyChangedAction;
+    protected readonly Action<PropertyChangedEventArgs> NotifyPropertyChangedAction;
 
     public NotifyingClass()
     {
-        NotifyPropertyChangedAction = new Action<string>(base.NotifyPropertyChanged);
+        NotifyPropertyChangedAction = new (NotifyPropertyChanged);
     }
 
-    protected override void NotifyPropertyChanged(string name)
+    protected override void OnPropertyChanged(PropertyChangedEventArgs args)
     {
         if (_dispatcher.CheckAccess())
         {
-            base.NotifyPropertyChanged(name);
+            NotifyPropertyChanged(args);
         }
         else
         {
-            _dispatcher.BeginInvoke(NotifyPropertyChangedAction, DispatcherPriority.DataBind, name);
+            _dispatcher.BeginInvoke(NotifyPropertyChangedAction, DispatcherPriority.DataBind, args);
         }
     }
    

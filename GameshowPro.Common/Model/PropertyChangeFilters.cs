@@ -64,7 +64,8 @@ public class PropertyChangeFilter
     private readonly ImmutableList<INotifyCollectionChanged> _collectionSenders;
     private readonly ImmutableList<FrozenSet<string?>> _notifyCollectionConditions;
     private readonly List<FilterTriggerInstance> _pausedQueue = [];
-    internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions, ILogger logger)
+
+    internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions, bool invokeAfterConstruction, ILogger logger)
     {
         _logger = logger;
         _handler = action;
@@ -111,7 +112,10 @@ public class PropertyChangeFilter
         _notifyCollectionConditions = notifyCollectionConditions.Select(c => c.ToFrozenSet()).ToImmutableList();
         //Note the property handlers are hooked up last, otherwise they may fire before non-nullable lists they consume have been set.
         AddEventHandlers();
-        InvokeAll();
+        if (invokeAfterConstruction)
+        {
+            InvokeAll();
+        }
     }
 
     /// <summary>
@@ -121,7 +125,15 @@ public class PropertyChangeFilter
     {
         foreach (INotifyPropertyChanged sender in _itemSenders)
         {
-            sender.PropertyChanged += Sender_PropertyChanged;
+            if (sender is ObservableClass observable)
+            {
+               //avoid dispatcher
+               observable.PropertyChangedOnOriginalThread += Sender_PropertyChanged;
+            }
+            else
+            {
+                sender.PropertyChanged += Sender_PropertyChanged;
+            }
         }
         int senderIndex = 0;
         foreach (INotifyCollectionChanged sender in _collectionSenders)
@@ -139,7 +151,14 @@ public class PropertyChangeFilter
     {
         foreach (INotifyPropertyChanged sender in _itemSenders)
         {
-            sender.PropertyChanged -= Sender_PropertyChanged;
+            if (sender is ObservableClass observable)
+            {
+                observable.PropertyChangedOnOriginalThread -= Sender_PropertyChanged;
+            }
+            else
+            {
+                sender.PropertyChanged -= Sender_PropertyChanged;
+            }
         }
         int senderIndex = 0;
         foreach (INotifyCollectionChanged sender in _collectionSenders)
@@ -277,16 +296,46 @@ public class PropertyChangeFilters
     private readonly ILogger _logger;
     private readonly List<PropertyChangeFilter> _filters = [];
 
+    /// <summary>
+    /// Add a new filter and optionally invoke the handler immediately after construction.
+    /// </summary>
+    /// <param name="handler">A delegate to handle the notifications when the filter yields and output.</param>
+    /// <param name="invokeAfterConstruction">If true, the handler will be invoked immediately after construction</param>
+    /// <param name="conditions">A parameter array of conditions under which the handler should be fired.</param>
+    [return: NotNullIfNotNull(nameof(conditions))]
+    public PropertyChangeFilter AddFilter(PropertyChangedEventHandler handler, bool invokeAfterConstruction, params PropertyChangeCondition[] conditions)
+        => AddFilter(handler, invokeAfterConstruction, (IEnumerable<PropertyChangeCondition>)conditions);
+
+    /// <summary>
+    /// Add a new filter and invoke the handler immediately after construction.
+    /// </summary>
+    /// <param name="handler">A delegate to handle the notifications when the filter yields and output.</param>
+    /// <param name="conditions">A parameter array of conditions under which the handler should be fired.</param>
     [return: NotNullIfNotNull(nameof(conditions))]
     public PropertyChangeFilter AddFilter(PropertyChangedEventHandler handler, params PropertyChangeCondition[] conditions)
         => AddFilter(handler, (IEnumerable<PropertyChangeCondition>)conditions);
 
-    [return:NotNullIfNotNull(nameof(conditions))]
+    /// <summary>
+    /// Add a new filter and invoke the handler immediately after construction.
+    /// </summary>
+    /// <param name="handler">A delegate to handle the notifications when the filter yields and output.</param>
+    /// <param name="conditions">The conditions under which the handler should be fired.</param>
+    [return: NotNullIfNotNull(nameof(conditions))]
     public PropertyChangeFilter? AddFilter(PropertyChangedEventHandler handler, IEnumerable<PropertyChangeCondition>? conditions)
+        => AddFilter(handler, true, conditions);
+
+    /// <summary>
+    /// Add a new filter and optionally invoke the handler immediately after construction.
+    /// </summary>
+    /// <param name="handler">A delegate to handle the notifications when the filter yields and output.</param>
+    /// <param name="invokeAfterConstruction">If true, the handler will be invoked immediately after construction</param>
+    /// <param name="conditions">The conditions under which the handler should be fired.</param>
+    [return:NotNullIfNotNull(nameof(conditions))]
+    public PropertyChangeFilter? AddFilter(PropertyChangedEventHandler handler, bool invokeAfterConstruction, IEnumerable<PropertyChangeCondition>? conditions)
     {
         if (conditions != null)
         {
-            PropertyChangeFilter filter = new (handler, conditions, _logger);
+            PropertyChangeFilter filter = new (handler, conditions, invokeAfterConstruction, _logger);
             _filters.Add(filter);
             return filter;
         }

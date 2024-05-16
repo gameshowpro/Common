@@ -6,16 +6,52 @@ namespace GameshowPro.Common.Model;
 [JsonObject(MemberSerialization.OptIn)]
 public class ObservableClass : INotifyPropertyChanged
 {
+    /// <summary>
+    /// A subclass of PropertyChangedEventArgs that <see cref="PropertyChangedOnOriginalThread"/> has already been raised and should not be raised again.
+    /// Only created and consumed within this <see cref="ObservableClass"/>.
+    /// </summary>
+    /// <param name="propertyName"></param>
+    private class PropertyChangeEventArgsAlreadyRaisedOnOriginalThread(string propertyName) : PropertyChangedEventArgs(propertyName)
+    {
+    }
+
     protected bool _suppressEvents;
     protected bool _isDirty;
+    /// <summary>
+    /// Raised when property on the subclass is changed.  This event is intended for UI binding and is always dispatched onto the UI thread.
+    /// </summary>
     public event PropertyChangedEventHandler? PropertyChanged;
+    /// <summary>
+    /// Raised when property on the subclass is changed.  This event is always raised on the thread that set the property, so should not be used for UI binding.
+    /// </summary>
+    public event PropertyChangedEventHandler? PropertyChangedOnOriginalThread;
     protected virtual bool CompareEnumerablesByContent { get => false; }
 
-    protected virtual void NotifyPropertyChanged(string name)
+    /// <summary>
+    /// Subclasses can override this method to insert their own logic before raising an event to subscribers.
+    /// For example, dispatching the event to the UI thread.
+    /// </summary>
+    protected virtual void OnPropertyChanged(PropertyChangedEventArgs args)
+        => NotifyPropertyChanged(args);
+
+    /// <summary>
+    /// Allows subclasses to raise <see cref="PropertyChanged"/> events to subscribers by name.
+    /// </summary>
+    protected void NotifyPropertyChanged(string name)
         => NotifyPropertyChanged(new PropertyChangedEventArgs(name));
 
-    protected virtual void NotifyPropertyChanged(PropertyChangedEventArgs args)
-        => PropertyChanged?.Invoke(this, args);
+    /// <summary>
+    /// Allows subclasses to raise <see cref="PropertyChanged"/> events to subscribers with a pre-created <see cref="PropertyChangedEventArgs"/>.
+    /// </summary>
+    protected void NotifyPropertyChanged(PropertyChangedEventArgs args)
+    {
+        if (args is not PropertyChangeEventArgsAlreadyRaisedOnOriginalThread)
+        {
+            //This execution was not chained from OnPropertyChanged fired from SetProperty within this class, so we still haven't raised PropertyChangedOnOriginalThread.
+            PropertyChangedOnOriginalThread?.Invoke(this, args);
+        }
+        PropertyChanged?.Invoke(this, args);
+    }
 
     public bool SuppressEvents
     {
@@ -72,7 +108,9 @@ public class ObservableClass : INotifyPropertyChanged
         }
         if (forceEvent || (changed && !_suppressEvents))
         {
-            NotifyPropertyChanged(memberName);
+            PropertyChangeEventArgsAlreadyRaisedOnOriginalThread args = new(memberName);
+            PropertyChangedOnOriginalThread?.Invoke(this, args);
+            OnPropertyChanged(args);
         }
         return changed;
     }
