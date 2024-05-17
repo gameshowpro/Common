@@ -1370,7 +1370,7 @@ where T : IIndexed
     /// <typeparam name="T">The type of object to be persisted.</typeparam>
     /// <param name="path">Path to the JSON file.</param>
     /// <param name="obj">Object to be persisted.</param>
-    public static void Persist<T>(T obj, string? path, bool enumsAsStrings = false)
+    public static void Persist<T>(T obj, string? path, bool enumsAsStrings = true)
         => Persist(obj, null, path, enumsAsStrings);
 
     /// <summary>
@@ -1379,7 +1379,7 @@ where T : IIndexed
     /// <typeparam name="T">The type of object to be persisted.</typeparam>
     /// <param name="path">Path to the JSON file.</param>
     /// <param name="obj">Object to be persisted.</param>
-    public static void Persist<T>(T obj, ISerializationBinderEx? serializationBinder, string? path, bool enumsAsStrings = false)
+    public static void Persist<T>(T obj, ISerializationBinderEx? serializationBinder, string? path, bool enumsAsStrings = true)
     {
         if (obj is null || path is null)
         {
