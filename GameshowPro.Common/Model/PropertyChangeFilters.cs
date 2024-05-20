@@ -164,7 +164,7 @@ public class PropertyChangeFilter
         foreach (INotifyCollectionChanged sender in _collectionSenders)
         {
             sender.CollectionChanged -= SenderCollection_CollectionChanged;
-            if (_notifyCollectionConditions.ElementAtOrDefault(senderIndex)?.Any() == true && sender is IItemPropertyChanged ipc)
+            if (_notifyCollectionConditions.ElementAtOrDefault(senderIndex)?.Count > 0 && sender is IItemPropertyChanged ipc)
             {
                 ipc.ItemPropertyChanged -= Ipc_ItemPropertyChanged;
             }
@@ -260,7 +260,7 @@ public class PropertyChangeFilter
 
 public class PropertyChangeFilters
 {
-    public static ILoggerFactory? s_loggerFactory;
+    private static ILoggerFactory? s_loggerFactory;
     public static void AssignLoggerFactory(ILoggerFactory loggerFactory)
     {
         if (s_loggerFactory != null)

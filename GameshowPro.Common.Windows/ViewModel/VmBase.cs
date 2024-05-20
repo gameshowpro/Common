@@ -27,7 +27,6 @@ public abstract class VmBase : NotifyingClass
         set { SetProperty(ref _timeOfDayMinute, value); }
     }
 
-    private readonly DispatcherTimer _todUpdater;
     public DateTime TimeOfDay => DateTime.Now;
     public DateTime Today => DateTime.Now;
     public DateTime BuildDate { get; }
