@@ -1,4 +1,4 @@
-﻿namespace GameshowPro.Common.Model;
+﻿namespace GameshowPro.Common.JsonNet;
 
 public interface ISerializationBinderEx : Newtonsoft.Json.Serialization.ISerializationBinder
 {

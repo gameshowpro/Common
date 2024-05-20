@@ -4,16 +4,16 @@ namespace GameshowPro.Common.Model.Lights;
 public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
     where TSub : FixturesBase<TSub>, new()
 {
-    protected static void Persist(TSub lights, IList<StatePresetGroup>? presetGroup, string? lightsPath, string? presetsPath)
+    protected static void Persist(IPersistence persistence, TSub lights, IList<StatePresetGroup>? presetGroup, string? lightsPath, string? presetsPath)
     {
-        Utils.Persist(lights.Select(FixtureSettings.FromFixture), lightsPath, true);
-        Utils.Persist(presetGroup, presetsPath, true);
+        persistence.Persist(lights.Select(FixtureSettings.FromFixture), lightsPath, true);
+        persistence.Persist(presetGroup, presetsPath, true);
     }
 
-    protected static TSub Depersist(string? lightsPath, string? presetsPath, ILogger logger)
+    protected static TSub Depersist(IPersistence persistence, string? lightsPath, string? presetsPath, ILogger logger)
     {
-        List<FixtureSettings> depersistedSettings = Depersist<List<FixtureSettings>>(lightsPath, out _);
-        StatePresetGroups depersistedGroups = Depersist<StatePresetGroups>(presetsPath, out _);
+        List<FixtureSettings> depersistedSettings = persistence.Depersist<List<FixtureSettings>>(lightsPath, out _);
+        StatePresetGroups depersistedGroups = persistence.Depersist<StatePresetGroups>(presetsPath, out _);
         TSub newFixtures = new();
         newFixtures.Create(depersistedGroups, depersistedSettings, logger);
         return newFixtures;

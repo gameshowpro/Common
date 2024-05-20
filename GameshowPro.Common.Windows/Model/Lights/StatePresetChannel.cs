@@ -1,5 +1,7 @@
 ﻿// (C) Barjonas LLC 2018
 
+using System.Runtime.Serialization;
+
 namespace GameshowPro.Common.Model.Lights;
 
 /// <summary>
@@ -17,7 +19,7 @@ public class StatePresetChannel(FixtureChannelType? fixtureChannelType) : Notify
     }
 
     private byte _level;
-    [JsonProperty, DefaultValue(0)]
+    [DataMember, DefaultValue(0)]
     public byte Level
     {
         get { return _level; }

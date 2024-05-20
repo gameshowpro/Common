@@ -5,7 +5,7 @@ public class KioskWindowHandler : NotifyingClass
     public class Settings : NotifyingClass
     {
         private int _displayIndex = 0;
-        [JsonProperty, DefaultValue(0)]
+        [DataMember, DefaultValue(0)]
         public int DisplayIndex
         {
             get { return _displayIndex; }
@@ -13,7 +13,7 @@ public class KioskWindowHandler : NotifyingClass
         }
 
         private bool _isKiosk = false;
-        [JsonProperty, DefaultValue(true)]
+        [DataMember, DefaultValue(true)]
         public bool IsKiosk
         {
             get { return _isKiosk; }
@@ -21,7 +21,7 @@ public class KioskWindowHandler : NotifyingClass
         }
 
         private bool _isVisible = true;
-        [JsonProperty, DefaultValue(true)]
+        [DataMember, DefaultValue(true)]
         public bool IsVisible
         {
             get { return _isVisible; }

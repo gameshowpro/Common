@@ -4,8 +4,6 @@ A collection of converters which are similar in purpose to `System.Windows.Data.
 ## Package references
 ### MessagePack
 Allows common types to define custom messagepack serialization.
-### Newtonsoft.Json
-Allows multiple JSON serialization helper utilities.
 ### Microsoft.Extensions.Logging
 Allows logging to be injected into some functions.
 ### NLog

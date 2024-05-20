@@ -17,7 +17,7 @@ public class StatePresetGroup
         Validate();
     }
 
-    [JsonProperty]
+    [DataMember]
     public StatesLevels StatesLevels { get; }
 
     [Obsolete("Use StateLevels[key]?.Levels instead")]
@@ -34,7 +34,7 @@ public class StatePresetGroup
     }
 
     private ImmutableList<FixtureChannelType> _channelColors;
-    [JsonProperty]
+    [DataMember]
     public ImmutableList<FixtureChannelType> ChannelColors
     {
         get

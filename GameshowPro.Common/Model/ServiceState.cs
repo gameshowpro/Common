@@ -1,4 +1,5 @@
-﻿using MessagePack;
+﻿using System.Runtime.Serialization;
+using MessagePack;
 using MessagePack.Formatters;
 
 namespace GameshowPro.Common.Model;
@@ -11,7 +12,7 @@ namespace GameshowPro.Common.Model;
 /// Subclasses may extend ServiceState to add a list of sub-services to give a more detailed report of the current state, e.g. Sounds are OK, GPI card not found.
 /// </remarks>
 /// <param name="Progress">Any progress associated with the state. If finished, value should be 1. If not started, value should be 0. If indeterminate, value should be null. This is represented by a constant spinner.</param>
-[MessagePackObject, MessagePackFormatter(typeof(MsgPackResolver)), JsonObject(MemberSerialization.OptIn)]
+[MessagePackObject, MessagePackFormatter(typeof(MsgPackResolver))]
 public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 {
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -385,14 +386,14 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
       )
     { }
 
-    [Key(0), JsonProperty]
+    [Key(0), DataMember]
     public string Key { get; }
-    [Key(1), JsonProperty]
+    [Key(1), DataMember]
     public string Name { get; }
 
     [IgnoreMember]
     private RemoteServiceStates _aggregateState;
-    [Key(2), JsonProperty]
+    [Key(2), DataMember]
     public RemoteServiceStates AggregateState
     {
         get => _aggregateState;
@@ -414,7 +415,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 
     [IgnoreMember]
     private string? _detail;
-    [Key(3), JsonProperty]
+    [Key(3), DataMember]
     public string? Detail
     {
         get => _detail;
@@ -430,7 +431,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 
     [IgnoreMember]
     private double? _progress = 0;
-    [Key(4), JsonProperty]
+    [Key(4), DataMember]
     public double? Progress
     {
         get => _progress;
@@ -444,7 +445,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         }
     }
 
-    [Key(5), JsonProperty]
+    [Key(5), DataMember]
     public ObservableDictionary<string, ServiceState> Children { get; }
 
     public void SetAll(RemoteServiceStates aggregateState, string? detail = "", double? progress = 0)

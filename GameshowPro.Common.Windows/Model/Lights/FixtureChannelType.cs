@@ -11,7 +11,7 @@ namespace GameshowPro.Common.Model.Lights;
 public class FixtureChannelType : NotifyingClass
 {
     private Color _primary;
-    [JsonProperty, DefaultValue("#00000000")]
+    [DataMember, DefaultValue("#00000000")]
     public Color Primary
     {
         get { return _primary; }

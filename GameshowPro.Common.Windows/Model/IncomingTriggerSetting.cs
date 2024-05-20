@@ -8,7 +8,7 @@ public class IncomingTriggerSetting : NotifyingClass, INotifyDataErrorInfo
     public TriggerFilter TriggerFilter { get; set; }
 
     private string _key = "";
-    [JsonProperty, DefaultValue("")]
+    [DataMember, DefaultValue("")]
     public string Key
     {
         get { return _key; }
@@ -30,7 +30,7 @@ public class IncomingTriggerSetting : NotifyingClass, INotifyDataErrorInfo
     /// The direction of the edge which should cause a trigger. 
     /// If true, trigger on rising edge, otherwise trigger on falling edge.
     /// </summary>
-    [JsonProperty]
+    [DataMember]
     public bool TriggerEdge
     {
         get => _triggerEdge;
@@ -38,7 +38,7 @@ public class IncomingTriggerSetting : NotifyingClass, INotifyDataErrorInfo
     }
 
     private int _id = -1;
-    [JsonProperty, DefaultValue(-1)]
+    [DataMember, DefaultValue(-1)]
     public int Id
     {
         get { return _id; }
@@ -46,7 +46,7 @@ public class IncomingTriggerSetting : NotifyingClass, INotifyDataErrorInfo
     }
 
     private string _name = "";
-    [JsonProperty, DefaultValue("")]
+    [DataMember, DefaultValue("")]
     public string Name
     {
         get { return _name; }
@@ -54,7 +54,7 @@ public class IncomingTriggerSetting : NotifyingClass, INotifyDataErrorInfo
     }
 
     private bool _isEnabled = true;
-    [JsonProperty, DefaultValue(true)]
+    [DataMember, DefaultValue(true)]
     public bool IsEnabled
     {
         get { return _isEnabled; }
@@ -62,7 +62,7 @@ public class IncomingTriggerSetting : NotifyingClass, INotifyDataErrorInfo
     }
 
     private TimeSpan? _debounceInterval = null;
-    [JsonProperty, DefaultValue(null)]
+    [DataMember, DefaultValue(null)]
     public TimeSpan? DebounceInterval
     {
         get { return _debounceInterval; }

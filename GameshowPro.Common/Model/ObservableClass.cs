@@ -1,9 +1,10 @@
 ﻿// (C) Barjonas LLC 2022
 
 
+using System.Runtime.Serialization;
+
 namespace GameshowPro.Common.Model;
 
-[JsonObject(MemberSerialization.OptIn)]
 public class ObservableClass : INotifyPropertyChanged
 {
     /// <summary>
@@ -14,8 +15,9 @@ public class ObservableClass : INotifyPropertyChanged
     private class PropertyChangeEventArgsAlreadyRaisedOnOriginalThread(string propertyName) : PropertyChangedEventArgs(propertyName)
     {
     }
-
+    [IgnoreDataMember]
     protected bool _suppressEvents;
+    [IgnoreDataMember]
     protected bool _isDirty;
     /// <summary>
     /// Raised when property on the subclass is changed.  This event is intended for UI binding and is always dispatched onto the UI thread.
@@ -25,6 +27,7 @@ public class ObservableClass : INotifyPropertyChanged
     /// Raised when property on the subclass is changed.  This event is always raised on the thread that set the property, so should not be used for UI binding.
     /// </summary>
     public event PropertyChangedEventHandler? PropertyChangedOnOriginalThread;
+    [IgnoreDataMember]
     protected virtual bool CompareEnumerablesByContent { get => false; }
 
     /// <summary>
@@ -53,6 +56,7 @@ public class ObservableClass : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, args);
     }
 
+    [IgnoreDataMember]
     public bool SuppressEvents
     {
         get

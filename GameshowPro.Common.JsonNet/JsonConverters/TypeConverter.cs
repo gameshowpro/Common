@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace GameshowPro.Common.JsonConverters;
+namespace GameshowPro.Common.JsonNet.JsonConverters;
 /// <summary>
 /// A JsonConverter that serializes <see cref="Type"/> objects with just their assembly-scoped names, but tolerates fully qualified names for deserialization.
 /// </summary>

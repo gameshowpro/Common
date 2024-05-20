@@ -19,7 +19,7 @@ public class RemoteServiceSettings(int? monitorUiGroup, int? monitorUiOrder) : N
     /// The visual group in which this service should be displayed on the monitoring UI.
     /// </summary>
     private int _monitorUiGroup = monitorUiGroup ?? 0;
-    [JsonProperty]
+    [DataMember]
     public int MonitorUiGroup
     {
         get => _monitorUiGroup;
@@ -35,7 +35,7 @@ public class RemoteServiceSettings(int? monitorUiGroup, int? monitorUiOrder) : N
     /// Order in which this service should be shown on the monitoring UI.
     /// </summary>
     private int _monitorUiOrder = monitorUiOrder ?? 0;
-    [JsonProperty]
+    [DataMember]
     public int MonitorUiOrder
     {
         get => _monitorUiOrder;

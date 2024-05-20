@@ -1,5 +1,4 @@
-﻿using NLog;
-namespace GameshowPro.Common.Model;
+﻿namespace GameshowPro.Common.JsonNet;
 
 public record SettingsFileSpecification(object Key, string FileName, bool IsWithinLayoutSubfolder);
 
@@ -188,7 +187,7 @@ public class SettingsFileManager
     /// <param name="key">The key which was associated with this object's file.</param>
     /// <typeparam name="T">The type of the object being depersisted.</typeparam>
     public T Depersist<T>(object key) where T : new()
-        => Utils.Depersist<T>(GetPath(key), out _);
+        => JsonNetUtils.Depersist<T>(GetPath(key), out _);
 
     /// <summary>
     /// Depersist an object from file path which keyed by something other than its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
@@ -197,7 +196,7 @@ public class SettingsFileManager
     /// <typeparam name="T">The type of the object being depersisted.</typeparam>
     /// <param name="isNew">If an object is created (due to file not existing or being invalid) this will be set to true.</param>
     public T Depersist<T>(object key, out bool isNew) where T : new()
-        => Utils.Depersist<T>(GetPath(key), out isNew);
+        => JsonNetUtils.Depersist<T>(GetPath(key), out isNew);
 
     /// <summary>
     /// Depersist an object from file path which was keyed by its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
@@ -205,14 +204,14 @@ public class SettingsFileManager
     /// <typeparam name="T">The type of the object being depersisted.</typeparam>
     /// <param name="isNew">If an object is created (due to file not existing or being invalid) this will be set to true.</param>
     public T Depersist<T>(out bool isNew) where T : new()
-        => Utils.Depersist<T>(GetPath(typeof(T)), out isNew);
+        => JsonNetUtils.Depersist<T>(GetPath(typeof(T)), out isNew);
 
     /// <summary>
     /// Depersist an object from file path which was keyed by its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
     /// </summary>
     /// <typeparam name="T">The type of the object being depersisted</typeparam>
     public T Depersist<T>() where T : new()
-         => Utils.Depersist<T>(GetPath(typeof(T)), out _);
+         => JsonNetUtils.Depersist<T>(GetPath(typeof(T)), out _);
 
     /// <summary>
     /// Persist an object to a file path which was keyed by its <see cref="Type"/> when this <see cref="SettingsFileManager"/> was constructed.
@@ -223,7 +222,7 @@ public class SettingsFileManager
     {
         if (obj is not null)
         {
-            Utils.Persist(obj, GetPath(typeof(T)));
+            JsonNetUtils.Persist(obj, GetPath(typeof(T)));
         }
     }
 }

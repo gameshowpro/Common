@@ -8,7 +8,7 @@ public class PingHostSettings(string? host, string? displayName, RemoteServiceSe
     { }
 
     private string _host = host ?? string.Empty;
-    [JsonProperty, DefaultValue("localhost")]
+    [DataMember, DefaultValue("localhost")]
     public string Host
     {
         get { return _host; }
@@ -20,14 +20,14 @@ public class PingHostSettings(string? host, string? displayName, RemoteServiceSe
     /// <summary>
     /// A name which can be used shown on the UI to distinguish this device instance from another of the same type.
     /// </summary>
-    [JsonProperty]
+    [DataMember]
     public string DisplayName
     {
         get { return _displayName; }
         set { SetProperty(ref _displayName, value); }
     }
 
-    [JsonProperty]
+    [DataMember]
     public IRemoteServiceSettings RemoteServiceSettings { get; } = remoteServiceSettings ?? new();
 }
 

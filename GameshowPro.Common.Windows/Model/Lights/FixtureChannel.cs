@@ -26,7 +26,7 @@ public class FixtureChannel : NotifyingClass
     }
 
     private byte _level;
-    [JsonProperty, DefaultValue(0)]
+    [DataMember, DefaultValue(0)]
     public byte Level
     {
         get { return _level; }
@@ -40,7 +40,7 @@ public class FixtureChannel : NotifyingClass
     }
 
     private int _id;
-    [JsonProperty, DefaultValue(0)]
+    [DataMember, DefaultValue(0)]
     public int Id
     {
         get { return _id; }
@@ -48,7 +48,7 @@ public class FixtureChannel : NotifyingClass
     }
 
     private int _universeIndex = 0;
-    [JsonProperty, DefaultValue(0)]
+    [DataMember, DefaultValue(0)]
     public int UniverseIndex
     {
         get { return _universeIndex; }

@@ -2,7 +2,6 @@
 
 namespace GameshowPro.Common.Model;
 
-[JsonObject(MemberSerialization.OptIn)]
 public class NotifyingClass : ObservableClass
 {
     protected readonly Dispatcher _dispatcher = Dispatcher.CurrentDispatcher;

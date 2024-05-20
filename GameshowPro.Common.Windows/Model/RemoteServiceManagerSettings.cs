@@ -8,7 +8,7 @@ public class RemoteServiceManagerSettings(ImmutableArray<RemoteServiceGroupSetti
     }
 
     private ImmutableArray<RemoteServiceGroupSettings> _groups = groups ?? [];
-    [JsonProperty]
+    [DataMember]
     public ImmutableArray<RemoteServiceGroupSettings> Groups
     {
         get => _groups;
@@ -25,7 +25,7 @@ public class RemoteServiceGroupSettings(string? name) : NotifyingClass, IIndexed
 
     public int Index { get; set; }
     private string? _name = name;
-    [JsonProperty]
+    [DataMember]
     public string Name
     {
         get => _name ?? $"Group {Index + 1}"; //This makes sense because Index is not set until after construction. If not changed before deserialization, this default will be serialized.

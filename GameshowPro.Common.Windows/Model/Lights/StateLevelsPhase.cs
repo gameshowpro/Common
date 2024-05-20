@@ -12,11 +12,11 @@ public class StateLevelsPhase : NotifyingClass
         Duration = duration ?? TimeSpan.Zero;
     }
 
-    [JsonProperty]
+    [DataMember]
     public ImmutableList<StatePresetChannel> Levels { get; internal set; }
 
     private TimeSpan _duration;
-    [JsonProperty]
+    [DataMember]
     public TimeSpan Duration
     {
         get => _duration;

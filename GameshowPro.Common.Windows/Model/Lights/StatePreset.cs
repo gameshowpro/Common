@@ -101,15 +101,15 @@ public class StateLevels : NotifyingClass
 
     }
 
-    [JsonProperty]
+    [DataMember]
     public string Key { get; }
 
-    [JsonProperty]
+    [DataMember]
     public ObservableCollectionEx<StateLevelsPhase> Phases { get; }
 
 
     private int _cycleStepCount = 0;
-    [JsonProperty, DefaultValue(0)]
+    [DataMember, DefaultValue(0)]
     public int CycleStepCount
     {
         get { return _cycleStepCount; }
@@ -117,7 +117,7 @@ public class StateLevels : NotifyingClass
     }
 
     private int _loopBackStep;
-    [JsonProperty]
+    [DataMember]
     public int LoopBackStep
     {
         get => _loopBackStep;

@@ -42,11 +42,11 @@ public class Fixture : NotifyingClass
         private set => SetProperty(ref _state, value);
     }
 
-    [JsonProperty, DefaultValue(null)]
+    [DataMember, DefaultValue(null)]
     public string Key { get; }
 
     private string _displayName;
-    [JsonProperty, DefaultValue("Light")]
+    [DataMember, DefaultValue("Light")]
     public string DisplayName
     {
         get { return _displayName; }
@@ -54,7 +54,7 @@ public class Fixture : NotifyingClass
     }
 
     private int _startId = 0;
-    [JsonProperty, DefaultValue(0)]
+    [DataMember, DefaultValue(0)]
     public int StartId
     {
         get => _startId;
