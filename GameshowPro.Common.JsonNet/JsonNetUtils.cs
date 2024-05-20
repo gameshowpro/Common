@@ -32,7 +32,8 @@ public static class JsonNetUtils
         JsonSerializer ser = new()
         {
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
-            DefaultValueHandling = DefaultValueHandling.Populate
+            DefaultValueHandling = DefaultValueHandling.Populate,
+            ContractResolver = new JsonNet.DefaultContractResolver()
         };
         if (serializationBinder is null)
         {
