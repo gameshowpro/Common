@@ -23,7 +23,7 @@ public class StateLevels : NotifyingClass
        string? key,
        ImmutableList<StatePresetChannel>? levels
     )
-    : this(key, ImmutableList.Create(new StateLevelsPhase(levels, null)), null, null)
+    : this(key, [new StateLevelsPhase(levels, null)], null, null)
     { }
 
 
@@ -75,7 +75,7 @@ public class StateLevels : NotifyingClass
     )
     {
         Key = key ?? throw new ArgumentNullException(nameof(key), "Can't create StateLevels without key");
-        Phases = new(phases == null || !phases.Any() ? ImmutableList.Create(new StateLevelsPhase()) : phases);
+        Phases = new(phases == null || !phases.Any() ? [new StateLevelsPhase()] : phases);
         
         _cycleStepCount = cycleStepCount ?? 0;
         _loopBackStep = loopBackStep ?? 0;

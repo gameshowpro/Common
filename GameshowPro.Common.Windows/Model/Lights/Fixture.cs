@@ -137,11 +137,7 @@ public class Fixture : NotifyingClass
         {
             throw new InvalidOperationException($"Can't set a {nameof(State)} without a {nameof(StateGroup)} already set.");
         }
-
-        if (stateLevels == null)
-        {
-            throw new ArgumentNullException(nameof(stateLevels));
-        }
+        ArgumentNullException.ThrowIfNull(stateLevels);
 
         if (!StateGroup.StatesLevels.Contains(stateLevels))
         {

@@ -4,7 +4,7 @@ namespace GameshowPro.Common.JsonNet.JsonConverters;
 /// <summary>
 /// A JsonConverter that serializes <see cref="Type"/> objects with just their assembly-scoped names, but tolerates fully qualified names for deserialization.
 /// </summary>
-public class TypeConverter : JsonConverter
+public partial class TypeConverter : JsonConverter
 {
     public override bool CanConvert(Type objectType)
         =>  objectType.IsTypeOrRuntimeType();
@@ -31,9 +31,11 @@ public class TypeConverter : JsonConverter
         return null;
     }
 
-    private static readonly Regex s_stripDownTypeNameRegex = new (@",\s*(Version|Culture|PublicKeyToken)=[^\],]*", RegexOptions.Compiled);
+
+    [GeneratedRegex(@",\s*(Version|Culture|PublicKeyToken)=[^\],]*", RegexOptions.Compiled)]
+    private static partial Regex StripDownTypeName();
 
     [return: NotNullIfNotNull(nameof(assemblyQualifiedName))]
     public static string? StripDownTypeName(string? assemblyQualifiedName)
-        => assemblyQualifiedName == null ? null : s_stripDownTypeNameRegex.Replace(assemblyQualifiedName, "");
+        => assemblyQualifiedName == null ? null : StripDownTypeName().Replace(assemblyQualifiedName, "");
 }
