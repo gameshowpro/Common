@@ -8,7 +8,7 @@ public abstract class VmBase : NotifyingClass
         BuildDate = buildDate ?? DateTime.MinValue;
         VersionString = versionString ?? Assembly.GetCallingAssembly().GetName().Version?.ToString() ?? "Unknown";
         _dataDir = dataDir;
-        _todUpdater = new DispatcherTimer(TimeSpan.FromSeconds(0.5), DispatcherPriority.SystemIdle, new EventHandler((o, e) =>
+        _ = new DispatcherTimer(TimeSpan.FromSeconds(0.5), DispatcherPriority.SystemIdle, new EventHandler((o, e) =>
         {
             NotifyPropertyChanged(nameof(TimeOfDay));
             DateTime now = DateTime.Now;
