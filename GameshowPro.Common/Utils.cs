@@ -1,4 +1,5 @@
 ﻿// (C) Barjonas LLC 2024
+using System.Text.RegularExpressions;
 using NLog;
 
 namespace GameshowPro.Common;
@@ -1711,6 +1712,15 @@ where T : IIndexed
     }
 
     /// <summary>
+    /// Run a task synchronously, returning the result.
+    /// </summary>
+    public static T SyncResult<T>(this Task<T> task)
+    {
+        task.RunSynchronously();
+        return task.Result;
+    }
+
+    /// <summary>
     /// Return a shuffled sequence of numbers, ensuring the first in the sequence does not equal the given number.
     /// </summary>
     /// <param name="sequenceLength">The length of the sequence.</param>
@@ -2035,5 +2045,21 @@ where T : IIndexed
             logger.LogInformation("System up time is {uptime}, so no need to wait", uptime.ToSentence());
         }
     }
+
+    [GeneratedRegex(@",\s*(Version|Culture|PublicKeyToken)=[^\],]*", RegexOptions.Compiled)]
+    private static partial Regex StripDownTypeName();
+
+    /// <summary>
+    /// Strip down an assembly qualified type name to leave only the assembly and type names, not the version, culture, or PublicKeyToken.
+    /// </summary>
+    [return: NotNullIfNotNull(nameof(assemblyQualifiedName))]
+    public static string? IsolateAssemblyAndTypeName(string? assemblyQualifiedName)
+        => assemblyQualifiedName == null ? null : StripDownTypeName().Replace(assemblyQualifiedName, "");
+
+    /// <summary>
+    /// Return a type name to containing only the assembly and type names, not the version, culture, or PublicKeyToken.
+    /// </summary>
+    public static string? IsolateAssemblyAndTypeName(Type? type)
+        => IsolateAssemblyAndTypeName(type?.AssemblyQualifiedName);
 }
 

@@ -110,10 +110,11 @@ public static class JsonNetUtils
             return;
         }
         EnsureDirectory(path);
-        var ser = new JsonSerializer()
+        JsonSerializer ser = new ()
         {
             Formatting = Formatting.Indented,
-            TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
+            TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
+            ContractResolver = new JsonNet.DefaultContractResolver()
         };
         if (serializationBinder is null)
         {

@@ -13,7 +13,7 @@ public partial class TypeConverter : JsonConverter
     {
         if (value is Type type)
         {
-            serializer.Serialize(writer, StripDownTypeName(type.AssemblyQualifiedName));
+            serializer.Serialize(writer, IsolateAssemblyAndTypeName(type));
         }
         else
         {
@@ -25,17 +25,9 @@ public partial class TypeConverter : JsonConverter
     {
         if (serializer.Deserialize(reader, typeof(string)) is string typeName)
         {
-            string name = StripDownTypeName(typeName);
+            string name = IsolateAssemblyAndTypeName(typeName);
             return Type.GetType(name);
         }
         return null;
     }
-
-
-    [GeneratedRegex(@",\s*(Version|Culture|PublicKeyToken)=[^\],]*", RegexOptions.Compiled)]
-    private static partial Regex StripDownTypeName();
-
-    [return: NotNullIfNotNull(nameof(assemblyQualifiedName))]
-    public static string? StripDownTypeName(string? assemblyQualifiedName)
-        => assemblyQualifiedName == null ? null : StripDownTypeName().Replace(assemblyQualifiedName, "");
 }
