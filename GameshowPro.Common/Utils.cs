@@ -2019,6 +2019,26 @@ where T : IIndexed
         return type == typeof(Type) || type == s_runtimeType;
     }
 
+    private static readonly Dictionary<Type, bool> s_isRecordTypeCache = [];
+
+    /// <summary>
+    /// Use reflection to determine whether the type is a record type. Results are cached in memory to improve future performance.
+    /// </summary>
+    public static bool IsRecordType(this Type? type)
+    {
+        if (type == null)
+        {
+            return false;
+        }
+        if (s_isRecordTypeCache.TryGetValue(type, out bool isRecord))
+        {
+            return isRecord;
+        }
+        isRecord = type.GetMethods().Any(m => m.Name == "<Clone>$");
+        s_isRecordTypeCache[type] = isRecord;
+        return isRecord;
+    }
+
     public static T[] ArrayRepeat<T>(T value, int count)
     {
         T[] array = new T[count];

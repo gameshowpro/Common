@@ -13,7 +13,7 @@ internal class DefaultContractResolver : Newtonsoft.Json.Serialization.DefaultCo
         ConstructorInfo constructorInfo;
         if (contract.OverrideCreator == null)
         {
-            IEnumerator<ConstructorInfo> en = 
+            IEnumerator<ConstructorInfo> en =
                 objectType
                     .GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                     .Where(c => c.IsDefined(typeof(System.Text.Json.Serialization.JsonConstructorAttribute), true))
@@ -35,7 +35,7 @@ internal class DefaultContractResolver : Newtonsoft.Json.Serialization.DefaultCo
     }
 
     /// <summary>
-    /// Override <see cref="Newtonsoft.Json.Serialization.DefaultContractResolver"/> to presume OptIn serialization.
+    /// Override <see cref="Newtonsoft.Json.Serialization.DefaultContractResolver"/> to presume OptIn serialization except for record types.
     /// </summary>
     protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
     {
@@ -44,10 +44,35 @@ internal class DefaultContractResolver : Newtonsoft.Json.Serialization.DefaultCo
             && !member.IsDefined(typeof(JsonPropertyAttribute), true)
             && !member.IsDefined(typeof(DataMemberAttribute), true)
             && !member.IsDefined(typeof(System.Text.Json.Serialization.JsonAttribute), true)
+            && !property.DeclaringType.IsRecordType()
         )
         {
             property.Ignored = true;
         }
+        property.Ignored = PropertyIgnoredEx(property, member);
         return property;
+
+
+        static bool PropertyIgnoredEx(JsonProperty propertyDefault, MemberInfo member)
+        {
+            if (propertyDefault.Ignored)
+            {
+                //Don't change existing ignore. It could be due to explicit opt out.
+                return true;
+            }
+            if (s_memberInfoPropertyIgnoreCache.TryGetValue(member, out bool result))
+            {
+                return result;
+            }
+            bool optedIn =
+                propertyDefault.DeclaringType.IsRecordType()                                    //Record types are presumed to be fully opted in by default.
+                || member.IsDefined(typeof(JsonPropertyAttribute), true)                        //Treat attribute as opted-in
+                || member.IsDefined(typeof(DataMemberAttribute), true)                          //Treat attribute as opted-in
+                || member.IsDefined(typeof(System.Text.Json.Serialization.JsonAttribute), true);//Treat attribute as opted-in
+            result = !optedIn;
+            s_memberInfoPropertyIgnoreCache.Add(member, result);
+            return result;
+        }
     }
+    private static readonly Dictionary<MemberInfo, bool> s_memberInfoPropertyIgnoreCache = [];
 }
