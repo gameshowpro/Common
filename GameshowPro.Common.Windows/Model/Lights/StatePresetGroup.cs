@@ -4,14 +4,13 @@ namespace GameshowPro.Common.Model.Lights;
 
 public class StatePresetGroup
 {
+    [DataMember]
     public string Name { get; }
 
-    public StatePresetGroup() : this(null, null, null) { }
-
     [JsonConstructor]
-    public StatePresetGroup(string? name, ImmutableList<FixtureChannelType>? channelColors, StatesLevels? statesLevels)
+    public StatePresetGroup(string name, ImmutableList<FixtureChannelType>? channelColors, StatesLevels? statesLevels)
     {
-        Name = name ?? "no name";
+        Name = name;
         StatesLevels = statesLevels ?? [];
         _channelColors = channelColors ?? [];
         Validate();

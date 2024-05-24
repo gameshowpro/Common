@@ -1,6 +1,5 @@
 ﻿namespace GameshowPro.Common.Model.Lights;
 
-
 internal record FixtureSettings
 (
     string Key,
