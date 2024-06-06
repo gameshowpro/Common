@@ -1812,26 +1812,26 @@ where T : IIndexed
     /// <summary>
     /// Return a list of items of a given length, each taken from a source pool. A minimum repeat distance is observed to ensure the matching results are not returned to close to each other.
     /// </summary>
-    /// <param name="sourcePool">The pool from which all items will be drawn.</param>
+    /// <param name="sourcePool">The number of values to choose from, including zero.</param>
     /// <param name="destinationLength">The length of the output array.</param>
     /// <param name="loopback">If true, items at the end out the sequence are also checked against items at the start.</param>
     /// <param name="minimumRepeatDistance">The minimum distance enforced between matching items.</param>
     /// <returns></returns>
-    public static ImmutableArray<int> RandomSequenceWithMinimumDistance(IList<int> sourcePool, int destinationLength, int minimumRepeatDistance, bool loopback, Random? rnd)
+    public static ImmutableArray<int> RandomSequenceWithMinimumDistance(int sourceLength, int destinationLength, int minimumRepeatDistance, bool loopback, Random? rnd)
     {
         if (minimumRepeatDistance < 0)
         {
             throw new ArgumentException("Minimum repeat distance must be a non-negative value.");
         }
-        if (minimumRepeatDistance > sourcePool.Count)
+        if (minimumRepeatDistance > sourceLength)
         {
             throw new ArgumentException("Minimum repeat distance cannot be longer than the sourcePool.");
         }
-        if (minimumRepeatDistance > sourcePool.Count)
+        if (minimumRepeatDistance > sourceLength)
         {
             throw new ArgumentException("Minimum repeat distance cannot be longer than the sourcePool.");
         }
-
+        int[] sourceValues = Enumerable.Range(0, sourceLength).ToArray();
         Random random = rnd ?? s_rnd;
         ImmutableArray<int>.Builder output = ImmutableArray.CreateBuilder<int>(destinationLength);
         HashSet<int> backWindow = [];
@@ -1849,10 +1849,10 @@ where T : IIndexed
                 backWindow.Remove(output[output.Count - minimumRepeatDistance - 1]);
             }
             //Testing shows this is faster than ensuring that the random index is within only valid items
-            if ((backWindow.Count + (forwardWindow?.Count ?? 0) > sourcePool.Count))
+            if ((backWindow.Count + (forwardWindow?.Count ?? 0) > sourceLength))
             {
                 //It's possible that finding a strictly valid item is impossible, causing an infinite loop, so use alternative method
-                int[] remaining = sourcePool.Where(i => backWindow.Contains(i) == false && forwardWindow?.Contains(i) != true).ToArray();
+                int[] remaining = sourceValues.Where(i => backWindow.Contains(i) == false && forwardWindow?.Contains(i) != true).ToArray();
                 if (remaining.Length == 0)
                 {
                     //no other options. We're going to have to break the rule
@@ -1871,7 +1871,7 @@ where T : IIndexed
             {
                 do
                 {
-                    randomIndex = random.Next(sourcePool.Count);
+                    randomIndex = random.Next(sourceLength);
                 } while (backWindow.Contains(randomIndex) || forwardWindow?.Contains(randomIndex) == true);
             }
             output.Add(randomIndex);
