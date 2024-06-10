@@ -1849,7 +1849,7 @@ where T : IIndexed
                 backWindow.Remove(output[output.Count - minimumRepeatDistance - 1]);
             }
             //Testing shows this is faster than ensuring that the random index is within only valid items
-            if ((backWindow.Count + (forwardWindow?.Count ?? 0) > sourceLength))
+            if ((backWindow.Count + (forwardWindow?.Count ?? 0) >= sourceLength))
             {
                 //It's possible that finding a strictly valid item is impossible, causing an infinite loop, so use alternative method
                 int[] remaining = sourceValues.Where(i => backWindow.Contains(i) == false && forwardWindow?.Contains(i) != true).ToArray();
