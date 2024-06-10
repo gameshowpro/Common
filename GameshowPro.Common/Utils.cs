@@ -1844,7 +1844,7 @@ where T : IIndexed
             {
                 forwardWindow?.Add(output[overshoot - 1]);
             }
-            if (backWindow.Count > minimumRepeatDistance || overshoot > 0)
+            if (backWindow.Count > minimumRepeatDistance || (overshoot > 0 && (output.Count - minimumRepeatDistance) >= 1))
             {
                 backWindow.Remove(output[output.Count - minimumRepeatDistance - 1]);
             }
