@@ -3,7 +3,7 @@
 public abstract class VmBase : NotifyingClass
 {
     private readonly string _dataDir;
-    public VmBase(string dataDir, Action persistAll, DateTime? buildDate = null, string? versionString = null)
+    public VmBase(string dataDir, Action persistAll, DateTime? buildDate = null, string? versionString = null, ICommand? launchLogCommand = null)
     {
         BuildDate = buildDate ?? DateTime.MinValue;
         VersionString = versionString ?? Assembly.GetCallingAssembly().GetName().Version?.ToString() ?? "Unknown";
@@ -16,7 +16,7 @@ public abstract class VmBase : NotifyingClass
         }), Dispatcher.CurrentDispatcher);
         _ = new DispatcherTimer(TimeSpan.FromMinutes(1), DispatcherPriority.SystemIdle, new EventHandler((o, e) => NotifyPropertyChanged(nameof(Today))), Dispatcher.CurrentDispatcher);
         ShowDataDirCommand = new RelayCommandSimple(() => ShowDataDir());
-        LaunchNLogLogCommand = new RelayCommand<string?>((string? targetKey) => LaunchCurrentNLogLog(targetKey ?? "f"));
+        LaunchLogCommand = launchLogCommand;
         PersistAllCommand = new RelayCommandSimple(persistAll);
     }
 
@@ -33,7 +33,7 @@ public abstract class VmBase : NotifyingClass
     public string VersionString { get; }
     public RelayCommandSimple PersistAllCommand { get; private set; }
     public RelayCommandSimple ShowDataDirCommand { get; private set; }
-    public RelayCommand<string?> LaunchNLogLogCommand { get; private set; }
+    public ICommand? LaunchLogCommand { get; private set; }
     protected virtual void ShowDataDir()
     {
         ProcessStartInfo info = new()

@@ -12,5 +12,8 @@ This library contains all classes and utilities that are dependent on WFP or Win
 ## GameshowPro.Common.JsonNet
 A library to contain all functionality that requires a reference to `Newtonsoft.Json`.
 
+## GameshowPro.Common.NLog
+A library to contain all functionality that requires a reference to `NLog`.
+
 # Publishing
 Publishing is implemented in a [GitHub workflow.](.github/workflows/build.yaml) All projects are built from the root solution. The command `dotnet pack -c Release` automatically creates three packages with the requisite dependency structure.

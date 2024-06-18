@@ -6,5 +6,3 @@ A collection of converters which are similar in purpose to `System.Windows.Data.
 Allows common types to define custom messagepack serialization.
 ### Microsoft.Extensions.Logging
 Allows logging to be injected into some functions.
-### NLog
-Allows some NLog-specific utilities.

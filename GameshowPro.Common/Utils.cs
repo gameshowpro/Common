@@ -1,9 +1,4 @@
 ﻿// (C) Barjonas LLC 2024
-using System.Numerics;
-using System.Text.RegularExpressions;
-using NLog;
-using NLog.LayoutRenderers.Wrappers;
-
 namespace GameshowPro.Common;
 
 public static partial class Utils
@@ -1282,60 +1277,6 @@ where T : IIndexed
             }
         }
         return false;
-    }
-
-    /// <summary>
-    /// Return the path of the NLog log file which is currently receiving events from the specified target.
-    /// </summary>
-    /// <param name="targetName"></param>
-    /// <returns></returns>
-    public static string? CurrentNLogLogPath(string targetName = "f")
-    {
-        NLog.Targets.Target target = LogManager.Configuration.FindTargetByName(targetName ?? "f");
-        switch (target)
-        {
-            case NLog.Targets.FileTarget ft:
-                return FileTargetToPath(ft);
-            case NLog.Targets.Wrappers.AsyncTargetWrapper atw:
-                if (atw.WrappedTarget is NLog.Targets.FileTarget wft)
-                {
-                    return FileTargetToPath(wft);
-                }
-                break;
-        }
-        return null;
-    }
-
-    private static string FileTargetToPath(NLog.Targets.FileTarget ft)
-    {
-        return Path.GetFullPath(ft.FileName.Render(new LogEventInfo { TimeStamp = DateTime.Now }));
-    }
-
-    public static bool LaunchCurrentNLogLog(string target = "f")
-    {
-        string? path = CurrentNLogLogPath(target);
-        if (!File.Exists(path))
-        {
-            return false;
-        }
-        UriBuilder uri = new("vscode", "file") { Path = path + ":999999:0" };
-
-        ProcessStartInfo info = new()
-        {
-            FileName = uri.Uri.AbsoluteUri,
-            //Arguments = "\"" + path + "\"",
-            WindowStyle = ProcessWindowStyle.Hidden,
-            UseShellExecute = true,
-            Verb = "open"
-        };
-        try
-        {
-            return Process.Start(info) != null;
-        }
-        catch
-        {
-            return false;
-        }
     }
 
     //Linear interpolation
