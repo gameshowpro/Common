@@ -24,7 +24,6 @@ jobs:
       DOTNET_NOLOGO: true
       BuildConfiguration: Release
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-      PROJECT_PATH: .\GameshowPro.Common.Windows\GameshowPro.Common.Windows.csproj
       PUBLISH_PATH: .\publish
       PACKAGE_GLOB: ./publish/*.nupkg
 
@@ -34,7 +33,7 @@ jobs:
         fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
     - name: Use .NET 8.0.x
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
         dotnet-quality: 'ga'
@@ -44,27 +43,28 @@ jobs:
       with:
         setAllVars: true
 
+    - name: Run tests
+      run: dotnet test --configuration Release
+
     - name: Build release packages
       run: |
-        dotnet restore $env:PROJECT_PATH
-        dotnet pack $env:PROJECT_PATH --output $env:PUBLISH_PATH
-      if:  ${{ success() && matrix.ChannelName  == 'Release' }}
+        dotnet pack $env:PROJECT_PATH --output $env:PUBLISH_PATH -p:Version='$env:NBGV_NuGetPackageVersion' -c Release
 
-    - name: Upload
-      uses: actions/upload-artifact@v3
-      with:
-        name: nuget packages
-        path: ${{ env.PACKAGE_GLOB }}
+    - name: Publish NuGet package
+      run: |
+        foreach($file in (Get-ChildItem "${{ env.PUBLISH_PATH }}" -Recurse -Include *.nupkg)) {
+            dotnet nuget push $file --api-key "${{ secrets.GSP_PACKAGE_PAT }}" --source https://nuget.pkg.github.com/gameshowpro/index.json --skip-duplicate
+      }
 
     - name: Add tags
       id: addTags
       shell: pwsh
       run: |
         nbgv tag 
-        git push origin "v$env:NBGV_ChocolateyPackageVersion"
+        git push origin "v$env:NBGV_NuGetPackageVersion"
 
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: v${{ env.NBGV_ChocolateyPackageVersion }}
+        tag_name: v${{ env.NBGV_NuGetPackageVersion }}
         files: ${{ env.PACKAGE_GLOB }}
