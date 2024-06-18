@@ -48,7 +48,7 @@ jobs:
 
     - name: Build release packages
       run: |
-        dotnet pack $env:PROJECT_PATH --output $env:PUBLISH_PATH -p:Version='$env:NBGV_NuGetPackageVersion' -c Release
+        dotnet pack $env:PROJECT_PATH --output $env:PUBLISH_PATH -c Release
 
     - name: Publish NuGet package
       run: |
