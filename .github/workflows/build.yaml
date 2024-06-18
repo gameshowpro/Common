@@ -54,7 +54,7 @@ jobs:
       run: |
         foreach($file in (Get-ChildItem "${{ env.PUBLISH_PATH }}" -Recurse -Include *.nupkg)) {
             dotnet nuget push $file --api-key "${{ secrets.GSP_PACKAGE_PAT }}" --source https://nuget.pkg.github.com/gameshowpro/index.json --skip-duplicate
-      }
+        }
 
     - name: Add tags
       id: addTags
