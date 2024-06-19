@@ -4,6 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <Company>Barjonas LLC</Company>
+    <Authors>Hamish Barjonas</Authors>
+    <Product>Gameshow Pro Common NLog utilities</Product>
+    <Copyright>Barjonas LLC 2024</Copyright>
+    <Description>Gameshow Pro utilities for NLog.</Description>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <RootNamespace>GameshowPro.Common</RootNamespace>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>

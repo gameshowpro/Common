@@ -24,6 +24,7 @@ jobs:
       DOTNET_NOLOGO: true
       BuildConfiguration: Release
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      SLN_PATH: .\src\GameshowPro.Common.sln
       PUBLISH_PATH: .\publish
       PACKAGE_GLOB: ./publish/*.nupkg
 
@@ -44,11 +45,11 @@ jobs:
         setAllVars: true
 
     - name: Run tests
-      run: dotnet test --configuration Release
+      run: dotnet test $env:SLN_PATH -c Release
 
     - name: Build release packages
       run: |
-        dotnet pack $env:PROJECT_PATH --output $env:PUBLISH_PATH -c Release
+        dotnet pack $env:SLN_PATH --output $env:PUBLISH_PATH -c Release
 
     - name: Publish NuGet package
       run: |
