@@ -129,15 +129,27 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
         }
     }
 
-    private static void UpdateKioskMode(Window window, int index)
+    private static void UpdateKioskMode(Window window, bool kioskMode, int index)
     {
-        if (s_kioskMode)
+        if (kioskMode)
         {
             window.SetAsKiosk(index, ref s_windowRestoreState);
         }
         else
         {
             s_windowRestoreState?.DoRestore(window);
+        }
+    }
+
+    private static void UpdateKioskMode(Window window, int index)
+        => UpdateKioskMode(window, s_kioskMode, index);
+
+    protected void UpdateKioskMode(int windowIndex, bool kioskMode, int index)
+    {
+        Window? window = s_windows?.ElementAtOrDefault(windowIndex);
+        if (window != null)
+        {
+            UpdateKioskMode(window, kioskMode, index);
         }
     }
 }
