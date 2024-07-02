@@ -13,6 +13,7 @@ public class Fixture : NotifyingClass
 {
     public event Action? FlashStarting;
     public event Action? FlashEnded;
+    [JsonConstructor]
     public Fixture(
         string key,
         string displayName,
@@ -27,6 +28,7 @@ public class Fixture : NotifyingClass
         StateGroup = group;
         State = group.StatesLevels.First();
         SetChannelsFromStartChannel(_startId, _channels);
+        DeserializationComplete();
     }
 
     public event EventHandler? ChannelIdsChanged;
