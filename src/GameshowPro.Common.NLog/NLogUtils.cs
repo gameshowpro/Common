@@ -2,7 +2,7 @@
 
 namespace GameshowPro.Common;
 
-public class NLogUtils
+public static class NLogUtils
 {
     /// <summary>
     /// Return the path of the NLog log file which is currently receiving events from the specified target.

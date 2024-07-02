@@ -1,6 +1,4 @@
-﻿using System.Collections.Specialized;
-
-namespace GameshowPro.Common.Model;
+﻿namespace GameshowPro.Common.Model;
 
 /// <summary>
 /// A list of incoming trigger devices of the same type.

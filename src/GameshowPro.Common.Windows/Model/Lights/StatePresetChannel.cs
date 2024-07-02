@@ -1,7 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Runtime.Serialization;
-
 namespace GameshowPro.Common.Model.Lights;
 
 /// <summary>

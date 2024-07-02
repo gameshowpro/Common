@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace GameshowPro.Common.Model;
+﻿namespace GameshowPro.Common.Model;
 
 public sealed class SignalRFilteredLogger(ILogger logger, bool allMessages) : ILogger
 {

@@ -1,5 +1,4 @@
-﻿using Microsoft.Xaml.Behaviors.Layout;
-using static GameshowPro.Common.Wpf.Utils;
+﻿using static GameshowPro.Common.Wpf.Utils;
 using Point = System.Windows.Point;
 using Size = System.Windows.Size;
 
