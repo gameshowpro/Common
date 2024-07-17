@@ -92,7 +92,7 @@ public class IncomingTriggerComposite : IncomingTrigger
         => Children.Where(TriggerIsEnabled).ToImmutableList();
 
     private static bool TriggerIsEnabled(IncomingTrigger trigger)
-        => trigger.Setting.IsEnabled && trigger.ParentDevice?.Settings.IsEnabled == true;
+        => trigger.Setting.IsEnabled && trigger.ParentDevice?.Settings.IsEnabled != false;
 
     public ImmutableList<IncomingTrigger> Children { get; }
 
