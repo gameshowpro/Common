@@ -45,3 +45,4 @@ public class ToIntConverter : BaseConverters.ToIntConverter, IValueConverter { }
 
 public class UpperCaseConverter : BaseConverters.UpperCaseConverter, IValueConverter { }
 public class PathPartConverter : BaseConverters.PathPartConverter, IValueConverter { }
+public class StringFormatConverter : BaseConverters.StringFormatConverter, IMultiValueConverter { }
