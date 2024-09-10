@@ -1033,6 +1033,47 @@ where T : IIndexed
     }
 
     /// <summary>
+    /// Find the index of the first item in the given ImmutableArray which matches the given predicate.
+    /// </summary>
+    /// <typeparam name="T">The type of the items.</typeparam>
+    /// <param name="array">The array to be searched.</param>
+    /// <param name="match">The predicate to match again.</param>
+    /// <returns>The index of the first item that matches the predicate.</returns>
+    public static int FindIndex<T>(this ImmutableArray<T> array, Predicate<T> match)
+        => FindIndex(array, 0, array.Length, match);
+
+    /// <summary>
+    /// Find the index of the first item in the given ImmutableArray which matches the given predicate.
+    /// </summary>
+    /// <typeparam name="T">The type of the items.</typeparam>
+    /// <param name="array">The array to be searched.</param>
+    /// <param name="startIndex">The index to start searching from.</param>
+    /// <param name="match">The predicate to match again.</param>
+    /// <returns>The index of the first item that matches the predicate.</returns>
+    public static int FindIndex<T>(this ImmutableArray<T> array, int startIndex, Predicate<T> match)
+        => FindIndex(array, startIndex, array.Length - startIndex, match);
+
+    /// <summary>
+    /// Find the index of the first item in the given ImmutableArray which matches the given predicate.
+    /// </summary>
+    /// <typeparam name="T">The type of the items.</typeparam>
+    /// <param name="array">The array to be searched.</param>
+    /// <param name="startIndex">The index to start searching from.</param>
+    /// <param name="count">The number of items to search.</param>
+    /// <param name="match">The predicate to match again.</param>
+    /// <returns>The index of the first item that matches the predicate.</returns>
+    public static int FindIndex<T>(this ImmutableArray<T> array, int startIndex, int count, Predicate<T> match)
+    {
+        int endIndex = startIndex + count;
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            if (match(array[i]))
+                return i;
+        }
+        return -1;
+    }
+
+    /// <summary>
     /// Nudge a given item in a given list by a given number of positions.
     /// </summary>
     public static void Nudge<T>(this IList<T>? list, T? item, int vector) where T : IIndexed
