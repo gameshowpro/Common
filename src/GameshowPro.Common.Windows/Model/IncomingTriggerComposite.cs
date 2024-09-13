@@ -31,7 +31,7 @@ public class IncomingTriggerComposite : IncomingTrigger
             };
             if (child.ParentDevice != null)
             {
-                child.ParentDevice.Settings.PropertyChanged += (s, e) =>
+                child.ParentDevice.BaseSettings.PropertyChanged += (s, e) =>
                 {
                     switch (e.PropertyName)
                     {
@@ -92,7 +92,7 @@ public class IncomingTriggerComposite : IncomingTrigger
         => Children.Where(TriggerIsEnabled).ToImmutableList();
 
     private static bool TriggerIsEnabled(IncomingTrigger trigger)
-        => trigger.Setting.IsEnabled && trigger.ParentDevice?.Settings.IsEnabled != false;
+        => trigger.Setting.IsEnabled && trigger.ParentDevice?.BaseSettings.IsEnabled != false;
 
     public ImmutableList<IncomingTrigger> Children { get; }
 

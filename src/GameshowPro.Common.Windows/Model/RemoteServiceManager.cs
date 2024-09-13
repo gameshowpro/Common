@@ -79,18 +79,18 @@ public class RemoteServiceManager : NotifyingClass
         // Unsubscribe from services that are no longer in the list
         foreach (IRemoteService service in _serviceChangeSubscriptions.Except(newList))
         {
-            if (service.Settings != null)
+            if (service.RemoteServiceSettings != null)
             {
-                service.Settings.MonitorUiGroupChanged -= Settings_MonitorUiGroupChanged;
+                service.RemoteServiceSettings.MonitorUiGroupChanged -= Settings_MonitorUiGroupChanged;
                 changed = true;
             }
         }
         // Subscribe to services that are new to the list
         foreach (IRemoteService service in newList.Except(_serviceChangeSubscriptions))
         {
-            if (service.Settings != null)
+            if (service.RemoteServiceSettings != null)
             {
-                service.Settings.MonitorUiGroupChanged += Settings_MonitorUiGroupChanged;
+                service.RemoteServiceSettings.MonitorUiGroupChanged += Settings_MonitorUiGroupChanged;
                 changed = true;
             }
         }
@@ -114,8 +114,8 @@ public class RemoteServiceManager : NotifyingClass
         _updatingGroups = true;
         MonitorUiGroups = [.. 
             _serviceChangeSubscriptions
-            .GroupBy(s => s.Settings?.MonitorUiGroup ?? -1)
-            .Select(g => new RemoteServiceGroup(g.Key, [.. g.OrderBy(s => s.Settings?.MonitorUiOrder)]))
+            .GroupBy(s => s.RemoteServiceSettings?.MonitorUiGroup ?? -1)
+            .Select(g => new RemoteServiceGroup(g.Key, [.. g.OrderBy(s => s.RemoteServiceSettings?.MonitorUiOrder)]))
             .OrderBy(g => g.Index)
         ];
         MonitorUiGroups.SetIndices();
@@ -127,9 +127,9 @@ public class RemoteServiceManager : NotifyingClass
         });
         static void SetMonitorUiOrder(IRemoteService service, int order)
         {
-            if (service.Settings != null)
+            if (service.RemoteServiceSettings != null)
             {  
-                service.Settings.MonitorUiOrder = order * 2;
+                service.RemoteServiceSettings.MonitorUiOrder = order * 2;
             }
         }
         _updatingGroups = false;

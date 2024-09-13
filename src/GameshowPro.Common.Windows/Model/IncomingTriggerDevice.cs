@@ -40,7 +40,6 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
     )
     {
         _propertyChangeFilters = new(GetType().Name);
-        BaseSettings = settings;
         ImmutableDictionary<TTriggerKey, TTrigger>.Builder dictBuilder = ImmutableDictionary.CreateBuilder<TTriggerKey, TTrigger>();
         Type thisType = GetType();
         if (settings.TriggerSettings != null)
@@ -77,7 +76,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
         settings.TriggerSettings?.RemoveUntouched();
         TriggersBase = Triggers.ToFrozenDictionary(kvp => kvp.Key, kvp => (IncomingTrigger)kvp.Value);
 
-        _propertyChangeFilters.AddFilter((s, e) => UpdateTriggerDict(), Triggers.Values.SelectMany(
+        _propertyChangeFilters.AddFilter((s, e) => UpdateTriggerDict(settings), Triggers.Values.SelectMany(
             t => 
             new PropertyChangeCondition[] { 
                 new (t.Setting, nameof(IncomingTriggerSetting.Id)), 
@@ -87,11 +86,6 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
         );
         _triggerDict ??= FrozenDictionary<int, ImmutableList<TTrigger>>.Empty;
     }
-
-    /// <summary>
-    /// A reference to the device settings object generalized to the base type. The subclass may define a more specific reference.
-    /// </summary>
-    public IncomingTriggerDeviceSettingsBase BaseSettings { get; }
 
     protected abstract TTrigger TriggerFactory(IncomingTriggerSetting triggerSetting, ILoggerFactory loggerFactory);
 
@@ -117,11 +111,11 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
     }
 
     [MemberNotNull(nameof(_triggerDict))]
-    private void UpdateTriggerDict()
+    private void UpdateTriggerDict(IncomingTriggerDeviceSettingsBase settings)
     {
         //Not using ImmutableDictionary.Builder because we have to transform the list at the end anyway
         Dictionary<int, ImmutableList<TTrigger>.Builder> newTriggerDict = [];
-        bool allowDuplicateTriggerIds = BaseSettings.AllowDuplicateTriggerIds;
+        bool allowDuplicateTriggerIds = settings.AllowDuplicateTriggerIds;
         foreach (TTrigger trigger in Triggers.Values)
         {
             if (trigger.Setting.IsEnabled)

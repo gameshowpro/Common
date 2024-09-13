@@ -23,13 +23,12 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
         NamePrefix = namePrefix;
         Index = index;
         ServiceState = serviceState;
-        Settings = settings;
         _changeFilters.AddFilter((s, e) => AnyIsEnabled = settings.TriggerSettings.Any(s => s.IsEnabled), settings.TriggerSettings.Select(s => new PropertyChangeCondition(s, nameof(s.IsEnabled))));
     }
 
     public ServiceState ServiceState { get; }
     public string NamePrefix { get; }
-    public IncomingTriggerDeviceSettingsBase Settings { get; }
+    public abstract IncomingTriggerDeviceSettingsBase BaseSettings { get; }
     public int Index { get; }
 
     /// <summary>
@@ -52,6 +51,6 @@ public interface IIncomingTriggerDeviceBase : IRemoteService
 {
     string NamePrefix { get; }
     int Index { get; }
-    new IncomingTriggerDeviceSettingsBase Settings { get; }
-    IRemoteServiceSettings IRemoteService.Settings => Settings.RemoteServiceSettings;
+    IncomingTriggerDeviceSettingsBase BaseSettings { get; }
+    IRemoteServiceSettings IRemoteService.RemoteServiceSettings => BaseSettings.RemoteServiceSettings;
 }

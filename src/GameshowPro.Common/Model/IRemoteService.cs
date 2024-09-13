@@ -18,7 +18,7 @@ public interface IRemoteService
     /// <summary>
     /// If grouping is to be supported, implementors should return an object that provides a grouping index.
     /// </summary>
-    IRemoteServiceSettings? Settings { get; }
+    IRemoteServiceSettings? RemoteServiceSettings { get; }
 }
 
 /// <summary>

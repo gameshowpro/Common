@@ -26,7 +26,7 @@ public class PingHost : ObservableClass, IRemoteService
         _ = Task.Run(UpdateLoop, cancellationToken);
     }
     public IPingHostSettings Settings { get; }
-    IRemoteServiceSettings IRemoteService.Settings => Settings.RemoteServiceSettings;
+    IRemoteServiceSettings IRemoteService.RemoteServiceSettings => Settings.RemoteServiceSettings;
 
     private async Task UpdateLoop()
     {
