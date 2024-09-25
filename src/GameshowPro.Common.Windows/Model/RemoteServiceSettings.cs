@@ -2,7 +2,7 @@
 namespace GameshowPro.Common.Model;
 
 /// <summary>
-/// A WPF-specific implementation for <see cref="IRemoteServiceSettings"/> to be used withing remote services' settings classes.
+/// A WPF-specific implementation for <see cref="IRemoteServiceSettings"/> to be used within remote services' settings classes.
 /// </summary>
 [method:JsonConstructor]
 public class RemoteServiceSettings(int? monitorUiGroup, int? monitorUiOrder) : NotifyingClass, IRemoteServiceSettings
