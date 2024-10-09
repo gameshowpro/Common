@@ -215,7 +215,7 @@ public static partial class UtilsWindows
         => $"#{color.R:x2}{color.G:x2}{color.B:x2}";
 
 
-    public static string? FileFromDialog(Uri basePath, string? startPath, string filters, string prompt)
+    public static string? FileFromDialog(Uri basePath, string? startPath, string filters, string prompt, bool save)
     {
         string absStartPath = startPath.MakePathAbsolute(basePath);
         string? absStartDir = Path.GetDirectoryName(absStartPath);
@@ -230,16 +230,27 @@ public static partial class UtilsWindows
             initDir = basePath.LocalPath;
             defaultFilename = "";
         }
-        using (var dlg = new CommonOpenFileDialog()
-        {
-            Title = prompt,
-            IsFolderPicker = false,
-            AddToMostRecentlyUsedList = true,
-            ShowPlacesList = true,
-            DefaultFileName = defaultFilename,
-            InitialDirectory = initDir,
+        using CommonFileDialog dlg = save ?
+            new CommonSaveFileDialog()
+            {
+                Title = prompt,
+                AddToMostRecentlyUsedList = true,
+                ShowPlacesList = true,
+                DefaultFileName = defaultFilename,
+                InitialDirectory = initDir,
 
-        })
+            }
+        : 
+            new CommonOpenFileDialog()
+            {
+                Title = prompt,
+                IsFolderPicker = false,
+                AddToMostRecentlyUsedList = true,
+                ShowPlacesList = true,
+                DefaultFileName = defaultFilename,
+                InitialDirectory = initDir,
+
+            };
         {
             string[] filter = filters.Split('|');
             dlg.Filters.Add(new CommonFileDialogFilter(filter[0], filter[1]));
