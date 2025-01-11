@@ -132,16 +132,27 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
             }
             else if (AssociatedObject.ItemsSource is IList items)
             {
-                //remove the source from the list
-                (AssociatedObject.ItemsSource as IList)?.Remove(_draggedItem);
-                //read this after removal in case removal caused a change
-                int targetIndex = items.IndexOf(targetItem);
-                //move source at the target's location
-                (AssociatedObject.ItemsSource as IList)?.Insert(targetIndex, _draggedItem);
-
+                bool removed;
+                try
+                {
+                    //remove the source from the list
+                    (AssociatedObject.ItemsSource as IList)?.Remove(_draggedItem);
+                    removed = true;
+                }
+                catch
+                {
+                    //Not all IList implementations support Remove
+                    removed = false;
+                }
+                if (removed)
+                {
+                    //read this after removal in case removal caused a change
+                    int targetIndex = items.IndexOf(targetItem);
+                    //move source at the target's location
+                    (AssociatedObject.ItemsSource as IList)?.Insert(targetIndex, _draggedItem);
+                }
                 //select the dropped item
                 AssociatedObject.SelectedItem = _draggedItem;
-
                 RaiseDragEndedEvent();
             }
         }
