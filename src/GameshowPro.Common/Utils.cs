@@ -515,7 +515,7 @@ public static partial class Utils
         return new string(chars);
     }
 
-    private static readonly HashSet<char> s_invalidFileNameChars = new(Path.GetInvalidFileNameChars());
+    private static readonly HashSet<char> s_invalidFileNameChars = [.. Path.GetInvalidFileNameChars()];
     public static string MakeValidFilename(this string input)
     {
         char[]? chars = input.ToCharArray();
@@ -643,10 +643,9 @@ public static partial class Utils
         }
         static string? getPart(double n, string s) => n > 0 ? PluralIfRequired(n, s) : null;
         TimeSpan timeVal = timespan.Value;
-        string[] dayParts = new[] { getPart(timeVal.Days, "day"), getPart(timeVal.Hours, "hour"), getPart(timeVal.Minutes, "minute") }
+        string[] dayParts = [.. new[] { getPart(timeVal.Days, "day"), getPart(timeVal.Hours, "hour"), getPart(timeVal.Minutes, "minute") }
             .Where(s => s != null)
-            .Select(s => s!)
-            .ToArray();
+            .Select(s => s!)];
 
         int numberOfParts = dayParts.Length;
 
@@ -1731,7 +1730,7 @@ where T : IIndexed
     /// <param name="rnd">The random number generator to use. If null, use default instance.</param>
     public static int[] ShuffledNumbers(int count, Random? rnd)
     {
-        int[] indices = Enumerable.Range(0, count).ToArray();
+        int[] indices = [.. Enumerable.Range(0, count)];
         Random random = rnd ?? s_rnd;
         for (int remaining = count; remaining > 0; --remaining)
         {
@@ -1813,7 +1812,7 @@ where T : IIndexed
         {
             throw new ArgumentException("Minimum repeat distance cannot be longer than the sourcePool.");
         }
-        int[] sourceValues = Enumerable.Range(0, sourceLength).ToArray();
+        int[] sourceValues = [.. Enumerable.Range(0, sourceLength)];
         Random random = rnd ?? s_rnd;
         ImmutableArray<int>.Builder output = ImmutableArray.CreateBuilder<int>(destinationLength);
         HashSet<int> backWindow = [];
@@ -1834,7 +1833,7 @@ where T : IIndexed
             if ((backWindow.Count + (forwardWindow?.Count ?? 0) >= sourceLength))
             {
                 //It's possible that finding a strictly valid item is impossible, causing an infinite loop, so use alternative method
-                int[] remaining = sourceValues.Where(i => backWindow.Contains(i) == false && forwardWindow?.Contains(i) != true).ToArray();
+                int[] remaining = [.. sourceValues.Where(i => backWindow.Contains(i) == false && forwardWindow?.Contains(i) != true)];
                 if (remaining.Length == 0)
                 {
                     //no other options. We're going to have to break the rule
@@ -1927,7 +1926,7 @@ where T : IIndexed
         {
             indexes[i] = 0;
         }
-        int[] items = Enumerable.Range(0, sequenceLength).ToArray();
+        int[] items = [.. Enumerable.Range(0, sequenceLength)];
         for (int permutationIndex = 0; permutationIndex < permutationCount; permutationIndex++)
         {
             for (int i = 1; i < sequenceLength;)

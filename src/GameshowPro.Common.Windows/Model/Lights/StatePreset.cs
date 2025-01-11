@@ -75,14 +75,14 @@ public class StateLevels : NotifyingClass
     )
     {
         Key = key ?? throw new ArgumentNullException(nameof(key), "Can't create StateLevels without key");
-        Phases = new(phases == null || !phases.Any() ? [new StateLevelsPhase()] : phases);
+        Phases = [.. phases == null || !phases.Any() ? [new StateLevelsPhase()] : phases];
         
         _cycleStepCount = cycleStepCount ?? 0;
         _loopBackStep = loopBackStep ?? 0;
         _flashTimer = new Timer((o) => DoFlash());
         AddPhaseCommand = new RelayCommandSimple(
             () => Phases.Add(
-                new(Phases.Last().Levels.Select(l => new StatePresetChannel(l.FixtureChannelType)).ToImmutableList(),
+                new([.. Phases.Last().Levels.Select(l => new StatePresetChannel(l.FixtureChannelType))],
                 TimeSpan.FromSeconds(1)))
         );
         RemovePhaseCommand = new RelayCommandSimple(

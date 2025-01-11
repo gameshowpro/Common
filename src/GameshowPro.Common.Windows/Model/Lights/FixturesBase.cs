@@ -115,7 +115,7 @@ public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
         {
             if (depersistedToDefault.TryGetValue(depG, out StatePresetGroup? value))
             {
-                List<string> levelsToRemove = depG.StatesLevels.Where(depL => !value.StatesLevels.Contains(depL.Key)).Select(depL => depL.Key).ToList();
+                List<string> levelsToRemove = [.. depG.StatesLevels.Where(depL => !value.StatesLevels.Contains(depL.Key)).Select(depL => depL.Key)];
                 foreach (string key in levelsToRemove)
                 {
                     //Depersisted state levels has a key that does not exist in corresponding group in default template

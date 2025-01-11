@@ -75,7 +75,7 @@ public class RemoteServiceManager : NotifyingClass
     private void RemoteServiceAddedOrRemoved()
     {
         bool changed = false;
-        HashSet<IRemoteService> newList = _serviceCollections.SelectMany(s => s.Services).ToHashSet();
+        HashSet<IRemoteService> newList = [.. _serviceCollections.SelectMany(s => s.Services)];
         // Unsubscribe from services that are no longer in the list
         foreach (IRemoteService service in _serviceChangeSubscriptions.Except(newList))
         {

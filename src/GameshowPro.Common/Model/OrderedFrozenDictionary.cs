@@ -31,7 +31,7 @@ public static class OrderedFrozenDictionary
     //     A GameshowPro.Common.Model.OrderedFrozenDictionary`2 that contains the specified keys
     //     and values.
     public static OrderedFrozenDictionary<TKey, TValue> ToOrderedFrozenDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, IEqualityComparer<TKey>? comparer = null) where TKey : notnull
-        => new(source.Select(kvp => kvp.Value).ToImmutableArray(), source.ToFrozenDictionary(comparer));
+        => new([.. source.Select(kvp => kvp.Value)], source.ToFrozenDictionary(comparer));
     //
     // Summary:
     //     Creates a GameshowPro.Common.Model.OrderedFrozenDictionary`2 from an System.Collections.Generic.IEnumerable`1
@@ -59,7 +59,7 @@ public static class OrderedFrozenDictionary
     //     A GameshowPro.Common.Model.OrderedFrozenDictionary`2 that contains the keys and values
     //     selected from the input sequence.
     public static OrderedFrozenDictionary<TKey, TSource> ToOrderedFrozenDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey>? comparer = null) where TKey : notnull
-            => new(source.ToImmutableArray(), source.ToFrozenDictionary(keySelector, comparer));
+            => new([.. source], source.ToFrozenDictionary(keySelector, comparer));
     //
     // Summary:
     //     Creates a GameshowPro.Common.Model.OrderedFrozenDictionary`2 from an System.Collections.Generic.IEnumerable`1
@@ -94,8 +94,8 @@ public static class OrderedFrozenDictionary
     //     selected from the input sequence.
     public static OrderedFrozenDictionary<TKey, TElement> ToOrderedFrozenDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector, IEqualityComparer<TKey>? comparer = null) where TKey : notnull
     {
-        KeyValuePair<TKey, TElement>[] pairs = source.Select(s => KeyValuePair.Create(keySelector(s), elementSelector(s))).ToArray();
-        return new(pairs.Select(kvp => kvp.Value).ToImmutableArray(), pairs.ToFrozenDictionary(comparer));
+        KeyValuePair<TKey, TElement>[] pairs = [.. source.Select(s => KeyValuePair.Create(keySelector(s), elementSelector(s)))];
+        return new([.. pairs.Select(kvp => kvp.Value)], pairs.ToFrozenDictionary(comparer));
     }
 }
 /// <summary>

@@ -8,7 +8,7 @@ public class PingHosts(IEnumerable<IPingHostSettings> settings, ILoggerFactory l
         remove => Items.CollectionChanged -= value;
     }
 
-    public ObservableCollection<PingHost> Items { get; } = new(settings.Select((s, i) => new PingHost(s, loggerFactory.CreateLogger($"{nameof(PingHost)}[{i}]"), cancellationToken)));
+    public ObservableCollection<PingHost> Items { get; } = [.. settings.Select((s, i) => new PingHost(s, loggerFactory.CreateLogger($"{nameof(PingHost)}[{i}]"), cancellationToken))];
 
     IEnumerable<IRemoteService> IRemoteServiceCollection.Services => Items;
 }

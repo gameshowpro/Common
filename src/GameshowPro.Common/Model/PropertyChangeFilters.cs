@@ -106,9 +106,9 @@ public class PropertyChangeFilter
             }
         }
         _itemSenders = itemSendersBuilder.ToImmutable();
-        _notifyItemConditions = notifyItemConditions.Select(c => c.ToFrozenSet()).ToImmutableList();
+        _notifyItemConditions = [.. notifyItemConditions.Select(c => c.ToFrozenSet())];
         _collectionSenders = collectionSendersBuilder.ToImmutable();
-        _notifyCollectionConditions = notifyCollectionConditions.Select(c => c.ToFrozenSet()).ToImmutableList();
+        _notifyCollectionConditions = [.. notifyCollectionConditions.Select(c => c.ToFrozenSet())];
         //Note the property handlers are hooked up last, otherwise they may fire before non-nullable lists they consume have been set.
         AddEventHandlers();
         if (invokeAfterConstruction)

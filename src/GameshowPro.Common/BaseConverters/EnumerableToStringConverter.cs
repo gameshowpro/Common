@@ -205,7 +205,7 @@ public abstract class EnumerableToStringConverter(object doNothing) : ICommonVal
         }
         else if (targetType.IsAssignableFrom(typeof(ObservableCollection<T>)))
         {
-            return source is null ? null : new ObservableCollection<T>(source.ToList());
+            return source is null ? null : new ObservableCollection<T>([.. source]);
         }
         else if (targetType.IsAssignableFrom(typeof(List<T>)))
         {

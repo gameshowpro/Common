@@ -11,7 +11,7 @@ public class IncomingTriggerComposite : IncomingTrigger
 
         }, null, logger)
     {
-        Children = children.ToImmutableList();
+        Children = [.. children];
         foreach (IncomingTrigger child in children)
         {
             child.Triggered += OnVerifiedTrigger;
@@ -89,7 +89,7 @@ public class IncomingTriggerComposite : IncomingTrigger
     }
 
     private ImmutableList<IncomingTrigger> CalculateEnabledChildren 
-        => Children.Where(TriggerIsEnabled).ToImmutableList();
+        => [.. Children.Where(TriggerIsEnabled)];
 
     private static bool TriggerIsEnabled(IncomingTrigger trigger)
         => trigger.Setting.IsEnabled && trigger.ParentDevice?.BaseSettings.IsEnabled != false;

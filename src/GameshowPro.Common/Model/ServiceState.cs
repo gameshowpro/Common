@@ -488,7 +488,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 
     public static string GetAggregateDetail(ServiceState state)
     {
-        List<ServiceState> notConnected = state.Children.Values.Where(s => s.AggregateState != RemoteServiceStates.Connected).ToList();
+        List<ServiceState> notConnected = [.. state.Children.Values.Where(s => s.AggregateState != RemoteServiceStates.Connected)];
         if (notConnected.Count != 0)
         {
 
@@ -597,7 +597,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             Children.Clear();
             return change;
         }
-        HashSet<string> remainingKeys = new(Children.Keys);
+        HashSet<string> remainingKeys = [.. Children.Keys];
         foreach (ServiceState child in children)
         {
             if (Children.TryGetValue(child.Key, out ServiceState? existingChild))
