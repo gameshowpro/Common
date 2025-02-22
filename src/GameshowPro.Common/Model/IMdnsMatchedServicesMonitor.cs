@@ -4,16 +4,18 @@
 /// Implementors use MDNS to maintain a list of other MDNS services with the same type as the current instance.
 /// This allows an interface to UIs to bring this to the attention of users.
 /// </summary>
-public interface IMdnsConflictMonitor
+public interface IMdnsMatchedServicesMonitor : INotifyPropertyChanged
 {
-    ImmutableArray<IMdnsConflictingService> ConflictingServices { get; }
+    event Action<IMdnsMatchedService>? ServiceWasSelected;
+    ImmutableArray<IMdnsMatchedService> Services { get; }
 }
 
 /// <summary>
 /// A single host on which a conflicting service was found, along with a list of advertised IP addresses.
 /// </summary>
-public interface IMdnsConflictingService
+public interface IMdnsMatchedService
 {
+    IMdnsMatchedServicesMonitor Parent { get;  }
     string HostName { get; }
-    ImmutableArray<IPAddress> Addresses { get; }
+    ImmutableArray<IPEndPoint> Endpoints { get; }
 }
