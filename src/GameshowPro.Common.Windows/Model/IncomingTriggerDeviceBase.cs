@@ -13,7 +13,6 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
         string namePrefix,
         int index,
         IncomingTriggerDeviceSettingsBase settings,
-        ServiceState serviceState,
         ILoggerFactory loggerFactory
     )
     {
@@ -22,7 +21,7 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
         _logger = loggerFactory.CreateLogger(GetType());
         NamePrefix = namePrefix;
         Index = index;
-        ServiceState = serviceState;
+        ServiceState = CreateServiceState();
         _changeFilters.AddFilter((s, e) => AnyIsEnabled = settings.TriggerSettings.Any(s => s.IsEnabled), settings.TriggerSettings.Select(s => new PropertyChangeCondition(s, nameof(s.IsEnabled))));
     }
 
@@ -45,6 +44,9 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : NotifyingClass, I
         get => _anyIsEnabled;
         private set => _ = SetProperty(ref _anyIsEnabled, value);
     }
+
+
+    protected abstract ServiceState CreateServiceState();
 }
 
 public interface IIncomingTriggerDeviceBase : IRemoteService

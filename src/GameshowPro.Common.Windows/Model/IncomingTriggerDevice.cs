@@ -27,7 +27,6 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
         string namePrefix,
         int index,
         IncomingTriggerDeviceSettingsBase settings,
-        ServiceState serviceState,
         ILoggerFactory loggerFactory
     )
     : base
@@ -35,7 +34,6 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
         namePrefix,
         index,
         settings,
-        serviceState,
         loggerFactory
     )
     {
