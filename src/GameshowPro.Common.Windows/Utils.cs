@@ -143,7 +143,7 @@ public static partial class UtilsWindows
 
     public static bool IsAdministrator()
     {
-        WindowsIdentity identity = WindowsIdentity.GetCurrent();
+        using WindowsIdentity identity = WindowsIdentity.GetCurrent();
 
         if (identity != null)
         {

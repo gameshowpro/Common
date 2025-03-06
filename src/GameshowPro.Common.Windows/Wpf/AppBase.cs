@@ -27,6 +27,12 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
         buildTime ??= entryAssembly?.GetBuildDate();
         string? process = assemblyName?.Name;
         Version? version = assemblyName?.Version;
+
+        if (IsAdministrator())
+        {
+            _ = MessageBox.Show($"{process} can not be run as administrator.", "Warning", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            return;
+        }
         if (process != null)
         {
             s_resourceLocator = new Uri($"/{process};component/{resourceLocater}", UriKind.Relative);
