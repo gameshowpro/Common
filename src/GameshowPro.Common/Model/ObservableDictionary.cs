@@ -63,19 +63,42 @@ public class ObservableDictionary<TKey, TValue> : ICollection<KeyValuePair<TKey,
     {
         if (value is not null)
         {
-            _dictionary.Add(key, value);
-            AttachItemChangeHandler(value);
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add,
-                new KeyValuePair<TKey, TValue>(key, value)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
+            bool added = false;
+            lock (_dictionary) //rudimentary thread safety
+            {
+                if (!_dictionary.ContainsKey(key))
+                {
+                    _dictionary.Add(key, value);
+                    added = true;
+                }
+            }
+            if (added)
+            {
+                AttachItemChangeHandler(value);
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add,
+                    new KeyValuePair<TKey, TValue>(key, value)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
+            }
         }
     }
 
     private bool RemoveWithNotification(TKey key)
     {
-        if (_dictionary.TryGetValue(key, out TValue? value) && _dictionary.Remove(key))
+        TValue? value;
+        lock (_dictionary)
+        {
+            if (_dictionary.TryGetValue(key, out value))
+            {
+                _dictionary.Remove(key);
+            }
+            else
+            {
+                value = default;
+            }
+        }
+        if (value is not null && !value.Equals(default))
         {
             DetatchItemChangeHandler(value);
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove,
@@ -97,13 +120,16 @@ public class ObservableDictionary<TKey, TValue> : ICollection<KeyValuePair<TKey,
             DetatchItemChangeHandler(existing);
             if (value is not null)
             {
-                _dictionary[key] = value;
+                lock (_dictionary)
+                {
+                    _dictionary[key] = value;
+                }
                 AttachItemChangeHandler(value);
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
                     new KeyValuePair<TKey, TValue>(key, value),
                     new KeyValuePair<TKey, TValue>(key, existing)));
             }
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Values"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
         }
         else
         {
@@ -228,7 +254,14 @@ public class ObservableDictionary<TKey, TValue> : ICollection<KeyValuePair<TKey,
 
     public void Clear()
     {
-        _dictionary.Clear();
+        lock (_dictionary)
+        {
+            foreach (TValue value in _dictionary.Values)
+            {
+                DetatchItemChangeHandler(value);
+            }
+            _dictionary.Clear();
+        }
 
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
