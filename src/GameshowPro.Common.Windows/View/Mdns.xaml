@@ -7,6 +7,7 @@
                     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"  
                     >
     <conv:GreaterThanToBooleanConverter FalseVisibility="Collapsed" x:Key="GreaterThanToBooleanConverter"/>
+    <conv:MultiValueConverter x:Key="MultiValueConverter"/>
     <DataTemplate DataType="{x:Type commodel:IMdnsMatchedServicesMonitor}" x:Key="IMdnsMatchedServicesMonitor.Warning">
         <controls:DropDownButton Width="25" Height="25" ItemsSource="{Binding Services}">
             <controls:DropDownButton.ItemTemplate>
@@ -54,7 +55,7 @@
         </controls:DropDownButton>
     </DataTemplate>
     <DataTemplate DataType="{x:Type commodel:IMdnsMatchedServicesMonitor}" x:Key="IMdnsMatchedServicesMonitor.Search">
-        <controls:DropDownButton Width="25" Height="25" ItemsSource="{Binding Services}" DisplayMemberPath="HostName">
+        <controls:DropDownButton Width="25" Height="25" ItemsSource="{Binding Services}" Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ContentControl}}" DisplayMemberPath="HostName">
             <controls:DropDownButton.Style>
                 <Style TargetType="controls:DropDownButton" BasedOn="{StaticResource CircleDropDownButton}">
                     <Setter Property="Icon" Value="{iconPacks:Material Kind=CloudSearch, Width=15, Height=15}" />
@@ -71,7 +72,14 @@
             <controls:DropDownButton.ItemContainerStyle>
                 <Style BasedOn="{StaticResource {x:Type MenuItem}}" TargetType="{x:Type MenuItem}">
                     <Setter Property="Command" Value="{Binding Parent.MatchedServiceSelectedCommand}" />
-                    <Setter Property="CommandParameter" Value="{Binding}" />
+                    <Setter Property="CommandParameter">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource MultiValueConverter}">
+                                <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType={x:Type controls:DropDownButton}}" />
+                                <Binding />
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
                 </Style>
             </controls:DropDownButton.ItemContainerStyle>
         </controls:DropDownButton>

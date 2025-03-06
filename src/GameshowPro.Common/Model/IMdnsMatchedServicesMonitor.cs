@@ -6,7 +6,11 @@
 /// </summary>
 public interface IMdnsMatchedServicesMonitor : INotifyPropertyChanged
 {
-    event Action<IMdnsMatchedService>? ServiceWasSelected;
+    /// <summary>
+    /// Raised whenever a matched service is selected from the UI. 
+    /// The object passed as a tag to the original button is passed to allow filtering when there are multiple items sharing the same monitor.
+    /// </summary>
+    event Action<object, IMdnsMatchedService>? ServiceWasSelected;
     ImmutableArray<IMdnsMatchedService> Services { get; }
 }
 
