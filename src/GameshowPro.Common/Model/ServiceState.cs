@@ -4,6 +4,7 @@ using MessagePack.Formatters;
 
 namespace GameshowPro.Common.Model;
 
+public record ServiceStateUpdate(RemoteServiceStates State, string? Detail, double? Progress);
 /// <summary>
 /// Record representing the state of a service.
 /// </summary>
@@ -19,11 +20,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     public event EventHandler? AllUpdated;
     public event EventHandler<bool>? IsConnectedChanged;
     [IgnoreMember]
-    private readonly Func<ServiceState, RemoteServiceStates>? _serviceStateAggregator;
-    [IgnoreMember]
-    private readonly Func<ServiceState, string>? _detailAggregator;
-    [IgnoreMember]
-    private readonly Func<ServiceState, double?>? _progressAggregator;
+    private readonly Func<ServiceState, ServiceStateUpdate>? _serviceStateAggregator;
     /// <summary>
     /// Delegate which may be used with dispatcher to ensure calls to <see cref="UpdateChildren(IEnumerable{ServiceState}?)" /> are invoked on the intended thread.
     /// </summary>
@@ -46,9 +43,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             RemoteServiceStates.Disconnected,
             "Unknown",
             0,
-            GetAggregateState,
-            GetAggregateDetail,
-            GetAggregateProgress
+            GetAggregateState
         );
 
     public static ServiceState CreateUnknown(string name)
@@ -73,9 +68,8 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             aggregateState ?? RemoteServiceStates.Disconnected,
             detail,
             progress,
-            null,
-            null,
-            null)
+            null
+        )
     {
     }
 
@@ -89,8 +83,6 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     /// <param name="progress"></param>
     /// <param name="children"></param>
     /// <param name="serviceStateAggregator"></param>
-    /// <param name="detailAggregator"></param>
-    /// <param name="progressAggregator"></param>
     public ServiceState(
         string key,
         string name,
@@ -98,9 +90,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         RemoteServiceStates aggregateState,
         string? detail,
         double? progress,
-        Func<ServiceState, RemoteServiceStates>? serviceStateAggregator,
-        Func<ServiceState, string>? detailAggregator,
-        Func<ServiceState, double?>? progressAggregator
+        Func<ServiceState, ServiceStateUpdate>? serviceStateAggregator
     )
     {
         UpdateChildrenDelegate = new(UpdateChildren);
@@ -119,43 +109,14 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             Children.CollectionChanged += (s, e) => _serviceStateAggregator.Invoke(this);
             serviceStateAggregator.Invoke(this);
         }
-        if (detailAggregator != null)
-        {
-            _detailAggregator = detailAggregator;
-            Children.ItemPropertyChanged += InvokeDetailAggregator;
-            Children.CollectionChanged += (s, e) => _detailAggregator.Invoke(this);
-            detailAggregator.Invoke(this);
-        }
-        if (progressAggregator != null)
-        {
-            _progressAggregator = progressAggregator;
-            Children.ItemPropertyChanged += InvokeProgressAggregator;
-            Children.CollectionChanged += (s, e) => _progressAggregator.Invoke(this);
-            _progressAggregator.Invoke(this);
-        }
     }
 
     private void InvokeServiceStateAggregator(object? sender, PropertyChangedEventArgs e)
     {
         if (_serviceStateAggregator != null && e.PropertyName == nameof(AggregateState))
         {
-            AggregateState = _serviceStateAggregator.Invoke(this);
-        }
-    }
-
-    private void InvokeDetailAggregator(object? sender, PropertyChangedEventArgs e)
-    {
-        if (_detailAggregator != null && e.PropertyName == nameof(Detail))
-        {
-            Detail = _detailAggregator.Invoke(this);
-        }
-    }
-
-    private void InvokeProgressAggregator(object? sender, PropertyChangedEventArgs e)
-    {
-        if (_progressAggregator != null && e.PropertyName == nameof(Progress))
-        {
-            Progress = _progressAggregator.Invoke(this);
+            ServiceStateUpdate update = _serviceStateAggregator.Invoke(this);
+            SetAll(update);
         }
     }
 
@@ -179,9 +140,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             aggregateState,
             detail,
             progress,
-            GetAggregateState,
-            GetAggregateDetail,
-            GetAggregateProgress
+            GetAggregateState
         )
     { }
 
@@ -224,9 +183,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         key,
         name,
         children,
-        GetAggregateState,
-        GetAggregateDetail,
-        GetAggregateProgress
+        GetAggregateState
     )
     { }
 
@@ -240,104 +197,6 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     )
     { }
 
-    public ServiceState(string key, string name, IEnumerable<ServiceState> children)
-    :
-    this
-    (
-        key,
-        name,
-        children,
-        GetAggregateState,
-        GetAggregateDetail,
-        GetAggregateProgress
-    )
-    { }
-
-    public ServiceState(string name, IEnumerable<ServiceState> children)
-    :
-    this
-    (
-        name,
-        name,
-        children
-    )
-    { }
-
-    /// <summary>
-    /// Create service state with key and named children in default states and automatic aggregation.
-    /// </summary>
-    public ServiceState
-        (
-            string key,
-            string name,
-            Func<ServiceState, RemoteServiceStates> serviceStateAggregator,
-            Func<ServiceState, string> detailAggregator,
-            Func<ServiceState, double?> progressAggregator
-        )
-        :
-        this
-        (
-            key,
-            name,
-            [],
-            RemoteServiceStates.Disconnected,
-            null,
-            0,
-            serviceStateAggregator,
-            detailAggregator,
-            progressAggregator
-        )
-    { }
-
-    /// <summary>
-    /// Create service state with key and named children in default states and automatic aggregation.
-    /// </summary>
-    public ServiceState
-        (
-            string key,
-            string name,
-            IEnumerable<ServiceState> children,
-            Func<ServiceState, RemoteServiceStates> serviceStateAggregator,
-            Func<ServiceState, string> detailAggregator,
-            Func<ServiceState, double?> progressAggregator
-        )
-        :
-        this
-        (
-            key,
-            name,
-            new ObservableDictionary<string, ServiceState>(children.ToDictionary(s => s.Key, s => s)),
-            RemoteServiceStates.Disconnected,
-            null,
-            0,
-            serviceStateAggregator,
-            detailAggregator,
-            progressAggregator
-      )
-    { }
-
-    /// <summary>
-    /// Create service state with key and named children in default states and automatic aggregation.
-    /// </summary>
-    public ServiceState
-        (
-            string name,
-            IEnumerable<ServiceState> children,
-            Func<ServiceState, RemoteServiceStates> serviceStateAggregator,
-            Func<ServiceState, string> detailAggregator,
-            Func<ServiceState, double?> progressAggregator
-        )
-        :
-        this
-        (
-            name,
-            name,
-            children,
-            serviceStateAggregator,
-            detailAggregator,
-            progressAggregator
-      )
-    { }
 
     /// <summary>
     /// Create service state with key and named children in default states and automatic aggregation.
@@ -347,19 +206,18 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             string key,
             string name,
             IEnumerable<string> children,
-            Func<ServiceState, RemoteServiceStates> serviceStateAggregator,
-            Func<ServiceState, string> detailAggregator,
-            Func<ServiceState, double?> progressAggregator
+            Func<ServiceState, ServiceStateUpdate> serviceStateAggregator
         )
         :
         this
         (
             key,
             name,
-            children.Select(s => new ServiceState(s)),
-            serviceStateAggregator,
-            detailAggregator,
-            progressAggregator
+            new ObservableDictionary<string, ServiceState>(children.Select(s => new ServiceState(s)).ToDictionary(s => s.Key)),
+            RemoteServiceStates.Disconnected,
+            null,
+            null,
+            serviceStateAggregator
       )
     { }
 
@@ -370,9 +228,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         (
             string name,
             IEnumerable<string> children,
-            Func<ServiceState, RemoteServiceStates> serviceStateAggregator,
-            Func<ServiceState, string> detailAggregator,
-            Func<ServiceState, double?> progressAggregator
+            Func<ServiceState, ServiceStateUpdate> serviceStateAggregator
         )
         :
         this
@@ -380,9 +236,67 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             name,
             name,
             children,
-            serviceStateAggregator,
-            detailAggregator,
-            progressAggregator
+            serviceStateAggregator
+      )
+    { }
+
+    /// <summary>
+    /// Create service state with key and pre-created children in default states and automatic aggregation.
+    /// </summary>
+    public ServiceState
+        (
+            string key,
+            string name,
+            IEnumerable<ServiceState> children,
+            Func<ServiceState, ServiceStateUpdate> serviceStateAggregator
+        )
+        :
+        this
+        (
+            key,
+            name,
+            new ObservableDictionary<string, ServiceState>(children.ToDictionary(s => s.Key)),
+            RemoteServiceStates.Disconnected,
+            null,
+            null,
+            serviceStateAggregator
+      )
+    { }
+
+    /// <summary>
+    /// Create service state with key and pre-created children in default states and specified aggregation.
+    /// </summary>
+    public ServiceState
+        (
+            string name,
+            IEnumerable<ServiceState> children,
+            Func<ServiceState, ServiceStateUpdate> serviceStateAggregator
+        )
+        :
+        this
+        (
+            name,
+            name,
+            children,
+            serviceStateAggregator
+      )
+    { }
+
+    /// <summary>
+    /// Create service state with key and pre-created children in default states and no default aggregation.
+    /// </summary>
+    public ServiceState
+        (
+            string name,
+            IEnumerable<ServiceState> children
+        )
+        :
+        this
+        (
+            name,
+            name,
+            children,
+            GetAggregateState
       )
     { }
 
@@ -448,6 +362,12 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     [Key(5), DataMember]
     public ObservableDictionary<string, ServiceState> Children { get; }
 
+    public ServiceStateUpdate AsUpdate()
+        => new(AggregateState, Detail, Progress);
+
+    public void SetAll(ServiceStateUpdate serviceStateUpdate)
+        => SetAll(serviceStateUpdate.State, serviceStateUpdate.Detail, serviceStateUpdate.Progress);
+
     public void SetAll(RemoteServiceStates aggregateState, string? detail = "", double? progress = 0)
     {
         List<string> changes = new(3);
@@ -470,53 +390,31 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         AllUpdated?.Invoke(this, new());
     }
 
-    public static RemoteServiceStates GetAggregateState(ServiceState state)
+    public static ServiceStateUpdate GetAggregateState(ServiceState state)
     {
+        double? progress = state.Children.Any(s => s.Value.Progress == null) ? null : state.Children.Average(s => s.Value.Progress) ?? 0;
+        
         if (state.Children.All(s => s.Value.AggregateState == RemoteServiceStates.Connected))
         {
-            return RemoteServiceStates.Connected;
+            return new(RemoteServiceStates.Connected, "OK", progress);
         }
         else if (state.Children.All(s => s.Value.AggregateState == RemoteServiceStates.Disconnected))
         {
-            return RemoteServiceStates.Disconnected;
+            return new(RemoteServiceStates.Disconnected, "Disconnected", progress);
         }
         else
         {
-            return RemoteServiceStates.Warning;
-        }
-    }
-
-    public static string GetAggregateDetail(ServiceState state)
-    {
-        List<ServiceState> notConnected = [.. state.Children.Values.Where(s => s.AggregateState != RemoteServiceStates.Connected)];
-        if (notConnected.Count != 0)
-        {
-
+            List<ServiceState> notConnected = [.. state.Children.Values.Where(s => s.AggregateState != RemoteServiceStates.Connected)];
+            string? message;
             if (notConnected.Count == 1)
             {
-                string? firstWarning = notConnected[0].Detail;
-                return firstWarning ?? "1 warning";
+                message = notConnected[0].Detail ?? "1 warning";
             }
             else
             {
-                return $"{notConnected.Count} warnings";
+                message = $"{notConnected.Count} warnings";
             }
-        }
-        else
-        {
-            return "OK";
-        }
-    }
-
-    public static double? GetAggregateProgress(ServiceState state)
-    {
-        if (state.Children.Any(s => s.Value.Progress == null))
-        {
-            return null;
-        }
-        else
-        {
-            return state.Children.Average(s => s.Value.Progress) ?? 0;
+            return new(RemoteServiceStates.Warning, message, progress);
         }
     }
 
