@@ -66,6 +66,9 @@
                             <Setter Property="IsEnabled" Value="True" />
                             <Setter Property="ToolTip" Value="Services discovered"/>
                         </DataTrigger>
+                        <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Mode=Self}}" Value="{x:Static DependencyProperty.UnsetValue}">
+                            <Setter Property="Visibility" Value="Hidden"/>
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </controls:DropDownButton.Style>
