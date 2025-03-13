@@ -1585,7 +1585,7 @@ where T : IIndexed
         {
             return null;
         }
-        string[] parts = delimited.Split(new string[] { delimiter }, StringSplitOptions.None);
+        string[] parts = delimited.Split([delimiter], StringSplitOptions.None);
         return parts.Select(p => p.Length > 1 && p.FirstOrDefault() == ' ' ? p.TrimStart() : p.ToString()).Select(p => string.IsNullOrEmpty(p) || p == nullStringPlaceholder ? null : p.ToString());
     }
 
@@ -1608,7 +1608,7 @@ where T : IIndexed
         {
             return null;
         }
-        string[] parts = delimited.Split(new string[] { delimiter.Trim() }, StringSplitOptions.None);
+        string[] parts = delimited.Split([delimiter.Trim()], StringSplitOptions.None);
         Type targetType = typeof(T);
         //Todo: special handling for strings, because they won't main it through constraint
         if (targetType.IsAssignableFrom(typeof(int)))
@@ -1628,7 +1628,7 @@ where T : IIndexed
         }
         else if (targetType.IsAssignableFrom(typeof(ulong)))
         {
-            IEnumerable<ulong?> result = parts.Select<string, ulong?>(s => ulong.TryParse(s.Trim(), out ulong i) ? i - (ulong)offset : null).ToList();
+            IEnumerable<ulong?> result = [.. parts.Select<string, ulong?>(s => ulong.TryParse(s.Trim(), out ulong i) ? i - (ulong)offset : null)];
             return (IEnumerable<T?>)result;
         }
         else if (targetType.IsAssignableFrom(typeof(bool)))
