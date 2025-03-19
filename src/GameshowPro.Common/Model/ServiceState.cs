@@ -554,67 +554,55 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         }
         return change;
     }
-    public class MsgPackResolver : IMessagePackFormatter<ServiceState>
+    public class MsgPackResolver : IMessagePackFormatter<ServiceState?>
     {
         private const int CurrentFieldCount = 6;
-        public ServiceState Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
+        public ServiceState? Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
-            int? fieldCount = reader.ReadArrayHeader();
+            int fieldCount = reader.ReadArrayHeader();
             if (fieldCount < CurrentFieldCount)
             {
+                if (fieldCount == 0)
+                {
+                    return null;
+                }
                 throw new MessagePackSerializationException($"Expected at least {CurrentFieldCount} fields. Only found {fieldCount}");
             }
             string name = reader.ReadString() ?? "Unknown";
             string? key = reader.ReadString();
             RemoteServiceStates state = (RemoteServiceStates)reader.ReadByte();
-            string? detail = reader.IsNil ? null : reader.ReadString();
-            double? progress = reader.IsNil ? null : reader.ReadDouble();
+            string? detail = reader.ReadNullableString();
+            double? progress = reader.ReadNullableDouble();
             ObservableDictionary<string, ServiceState> children = [];
             int childCount = reader.ReadArrayHeader();
             for (int i = 0; i < childCount; i++)
             {
-                ServiceState child = Deserialize(ref reader, options);
-                children.Add(child.Key, child);
+                ServiceState? child = Deserialize(ref reader, options);
+                if (child is not null)
+                {
+                    children.Add(child.Key, child);
+                }
             }
             return new ServiceState(name, key, state, detail, progress, children);
         }
 
-        public void Serialize(ref MessagePackWriter writer, ServiceState value, MessagePackSerializerOptions options)
+        public void Serialize(ref MessagePackWriter writer, ServiceState? value, MessagePackSerializerOptions options)
         {
+            if (value is null)
+            {
+                writer.WriteArrayHeader(0);
+                return;
+            }
             writer.WriteArrayHeader(CurrentFieldCount);
             writer.Write(value.Name);
-            WriteNullOrString(ref writer, value.Key);
+            writer.WriteNullableString(value.Key);
             writer.WriteUInt8((byte)value.AggregateState);
-            WriteNullOrString(ref writer, value.Detail);
-            WriteNullOrDouble(ref writer, value.Progress);
+            writer.WriteNullableString(value.Detail);
+            writer.WriteNullableDouble(value.Progress);
             writer.WriteArrayHeader(value.Children.Count);
             foreach (ServiceState child in value.Children.Values)
             {
                 Serialize(ref writer, child, options);
-            }
-        }
-
-        private static void WriteNullOrString(ref MessagePackWriter writer, string? value)
-        {
-            if (value is null)
-            {
-                writer.WriteNil();
-            }
-            else
-            {
-                writer.Write(value);
-            }
-        }
-
-        private static void WriteNullOrDouble(ref MessagePackWriter writer, double? value)
-        {
-            if (value.HasValue)
-            {
-                writer.Write(value.Value);
-            }
-            else
-            {
-                writer.WriteNil();
             }
         }
     }

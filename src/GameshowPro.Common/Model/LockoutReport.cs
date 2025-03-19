@@ -11,17 +11,13 @@ namespace GameshowPro.Common.Model;
 /// <param name="IsLockedOut">If the lockout is beginning then true. If the lockout is ending, then false.</param>
 [MessagePackObject, MessagePackFormatter(typeof(LockoutReportFormatter))]
 public record LockoutReport(int Version, int Index, TimeSpan TimeStamp, bool IsLockedOut);
-public class LockoutReportFormatter : IMessagePackFormatter<LockoutReport>
+public class LockoutReportFormatter : IMessagePackFormatter<LockoutReport?>
 {
     internal const byte MessagePackVersion = 1;
     public static readonly LockoutReportFormatter s_instance = new();
 
-    private LockoutReportFormatter()
-    {
-    }
-
     private const int CurrentFieldCount = 5;
-    public LockoutReport Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
+    public LockoutReport? Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
     {
         int fieldCount = reader.ReadArrayHeader();
         if (fieldCount < CurrentFieldCount)
@@ -33,22 +29,29 @@ public class LockoutReportFormatter : IMessagePackFormatter<LockoutReport>
         {
             throw new MessagePackSerializationException($"Expected at reported message pack version of at least 1");
         }
-        int version = reader.ReadInt32();
-        int index = reader.ReadInt32();
-        TimeSpan timeStamp = new(reader.ReadInt64());
-        bool isLockedOut = reader.ReadBoolean();
+        int? version = reader.ReadNullableInt32();
+        if (version.HasValue)
+        {
+            int index = reader.ReadInt32();
+            TimeSpan timeStamp = new(reader.ReadInt64());
+            bool isLockedOut = reader.ReadBoolean();
 
-        return new(version, index, timeStamp, isLockedOut);
+            return new(version.Value, index, timeStamp, isLockedOut);
+        }
+        return null;
     }
 
-    public void Serialize(ref MessagePackWriter writer, LockoutReport value, MessagePackSerializerOptions options)
+    public void Serialize(ref MessagePackWriter writer, LockoutReport? value, MessagePackSerializerOptions options)
     {
         writer.WriteArrayHeader(CurrentFieldCount);
         writer.Write(MessagePackVersion);
-        writer.Write(value.Version);
-        writer.Write(value.Index);
-        writer.Write(value.TimeStamp.Ticks);
-        writer.Write(value.IsLockedOut);
+        writer.WriteNullableInt32(value?.Version);
+        if (value != null)
+        {
+            writer.Write(value.Index);
+            writer.Write(value.TimeStamp.Ticks);
+            writer.Write(value.IsLockedOut);
+        }
     }
 }
 

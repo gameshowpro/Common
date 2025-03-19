@@ -1,5 +1,4 @@
-﻿
-using MessagePack.Formatters;
+﻿using MessagePack.Formatters;
 using MessagePack;
 
 namespace GameshowPro.Common.Model;
@@ -13,7 +12,7 @@ namespace GameshowPro.Common.Model;
 /// <param name="LockoutTimeRemaining">If this edge was treated as being locked out, the amount of time until the end of that lockout. Otherwise, null.</param>
 [MessagePackObject, MessagePackFormatter(typeof(EdgeReportFormatter))]
 public record EdgeReport(int Version, int Index, int? Ordinal, TimeSpan? TimeStamp, bool IsRising, bool IsTest, TimeSpan? LockoutTimeRemaining);
-public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport>
+public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport?>
 {
     internal const byte MessagePackVersion = 1;
 #pragma warning disable IDE1006 // Naming is required by MessagePack library
@@ -26,7 +25,7 @@ public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport>
 
     private const int MinFieldCount = 7;
     private const int CurrentFieldCount = 8;
-    public EdgeReport Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
+    public EdgeReport? Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
     {
         int fieldCount = reader.ReadArrayHeader();
         if (fieldCount < MinFieldCount)
@@ -38,51 +37,58 @@ public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport>
         {
             throw new MessagePackSerializationException($"Expected at reported message pack version of at least 1");
         }
-        int version = reader.ReadInt32();
-        int index = reader.ReadInt32();
-        int? ordinal = reader.TryReadNil() ? null : reader.ReadInt32();
-        TimeSpan? timeStamp = reader.TryReadNil() ? null : new TimeSpan(reader.ReadInt64());
-        bool isDown = reader.ReadBoolean();
-        bool isTest = reader.ReadBoolean();
-        TimeSpan? lockoutTimeRemaining =
-            fieldCount > 7 ?
-                reader.TryReadNil() ? null : new TimeSpan(reader.ReadInt64())
-            : null;
+        int? version = reader.ReadNullableInt32();
+        if (version.HasValue)
+        {
+            int index = reader.ReadInt32();
+            int? ordinal = reader.TryReadNil() ? null : reader.ReadInt32();
+            TimeSpan? timeStamp = reader.TryReadNil() ? null : new TimeSpan(reader.ReadInt64());
+            bool isDown = reader.ReadBoolean();
+            bool isTest = reader.ReadBoolean();
+            TimeSpan? lockoutTimeRemaining =
+                fieldCount > 7 ?
+                    reader.TryReadNil() ? null : new TimeSpan(reader.ReadInt64())
+                : null;
 
-        return new(version, index, ordinal, timeStamp, isDown, isTest, lockoutTimeRemaining);
+            return new(version.Value, index, ordinal, timeStamp, isDown, isTest, lockoutTimeRemaining);
+        }
+        return null;
     }
 
-    public void Serialize(ref MessagePackWriter writer, EdgeReport value, MessagePackSerializerOptions options)
+    public void Serialize(ref MessagePackWriter writer, EdgeReport? value, MessagePackSerializerOptions options)
     {
         writer.WriteArrayHeader(CurrentFieldCount);
         writer.Write(MessagePackVersion);
-        writer.Write(value.Version);
-        writer.Write(value.Index);
-        if (value.Ordinal.HasValue)
+        writer.WriteNullableInt32(value?.Version);
+        if (value != null)
         {
-            writer.Write(value.Ordinal.Value);
-        }
-        else
-        {
-            writer.WriteNil();
-        }
-        if (value.TimeStamp.HasValue)
-        {
-            writer.Write(value.TimeStamp.Value.Ticks);
-        }
-        else
-        {
-            writer.WriteNil();
-        }
-        writer.Write(value.IsRising);
-        writer.Write(value.IsTest);
-        if (value.LockoutTimeRemaining.HasValue)
-        {
-            writer.Write(value.LockoutTimeRemaining.Value.Ticks);
-        }
-        else
-        {
-            writer.WriteNil();
+            writer.Write(value.Index);
+            if (value.Ordinal.HasValue)
+            {
+                writer.Write(value.Ordinal.Value);
+            }
+            else
+            {
+                writer.WriteNil();
+            }
+            if (value.TimeStamp.HasValue)
+            {
+                writer.Write(value.TimeStamp.Value.Ticks);
+            }
+            else
+            {
+                writer.WriteNil();
+            }
+            writer.Write(value.IsRising);
+            writer.Write(value.IsTest);
+            if (value.LockoutTimeRemaining.HasValue)
+            {
+                writer.Write(value.LockoutTimeRemaining.Value.Ticks);
+            }
+            else
+            {
+                writer.WriteNil();
+            }
         }
     }
 }
