@@ -2166,5 +2166,16 @@ where T : IIndexed
     /// </summary>
     public static string? IsolateAssemblyAndTypeName(Type? type)
         => IsolateAssemblyAndTypeName(type?.AssemblyQualifiedName);
+
+    /// <summary>
+    /// Run the action only if the parameter is null. Useful in lambda expressions.
+    /// </summary>
+    public static void IfNotNull<T>(T? parameter, Action<T> action)
+    {
+        if (parameter != null)
+        {
+            action.Invoke(parameter);
+        }
+    }
 }
 
