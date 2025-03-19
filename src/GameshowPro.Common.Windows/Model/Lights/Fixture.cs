@@ -35,7 +35,7 @@ public class Fixture : NotifyingClass
     /// <summary>
     /// The group of states which may be applied to this fixture.
     /// </summary>
-    public StatePresetGroup? StateGroup { get; internal set; }
+    public StatePresetGroup StateGroup { get; internal set; }
 
     private StateLevels? _state;
     public StateLevels? State
