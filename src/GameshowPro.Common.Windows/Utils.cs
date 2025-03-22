@@ -215,6 +215,22 @@ public static partial class UtilsWindows
         => $"#{color.R:x2}{color.G:x2}{color.B:x2}";
 
 
+    /// <summary>
+    /// Create a <see cref="Windows.Media.Color"/> from an array of 4 bytes representing RGBW. The result will be visually similar to an RGBW LED set to the given values.
+    /// </summary>
+    public static System.Windows.Media.Color ColorFromRGBW(int[] rgbw)
+    {
+        if (rgbw.Length != 4)
+        {
+            throw new ArgumentException("The byte array must contain exactly 4 elements.", nameof(rgbw));
+        }
+        byte newR = (byte)Math.Min(255, rgbw[0] + rgbw[3]);
+        byte newG = (byte)Math.Min(255, rgbw[1] + rgbw[3]);
+        byte newB = (byte)Math.Min(255, rgbw[2] + rgbw[3]);
+
+        return System.Windows.Media.Color.FromRgb(newR, newG, newB);
+    }
+
     public static string? FileFromDialog(Uri basePath, string? startPath, string filters, string prompt, bool save)
     {
         string absStartPath = startPath.MakePathAbsolute(basePath);
