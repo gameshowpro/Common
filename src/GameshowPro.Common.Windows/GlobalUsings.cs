@@ -25,6 +25,7 @@ global using System.Drawing;
 global using System.IO;
 global using System.Security.Principal;
 global using System.Text.Json.Serialization;
+global using System.Threading.Tasks;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.WindowsAPICodePack.Dialogs;
 global using Microsoft.Xaml.Behaviors;

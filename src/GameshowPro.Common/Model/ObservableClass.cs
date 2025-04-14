@@ -69,6 +69,7 @@ public class ObservableClass : INotifyPropertyChanged
                 if (_suppressEvents && _isDirty)
                 {
                     //Something changed while events were suppressed
+                    PropertyChangedOnOriginalThread?.Invoke(this, new PropertyChangedEventArgs(""));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
                     _isDirty = false;
                 }

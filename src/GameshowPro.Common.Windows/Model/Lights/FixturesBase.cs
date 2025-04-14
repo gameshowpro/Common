@@ -4,16 +4,16 @@ namespace GameshowPro.Common.Model.Lights;
 public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
     where TSub : FixturesBase<TSub>, new()
 {
-    protected static void Persist(IPersistence persistence, TSub lights, IList<StatePresetGroup>? presetGroup, string? lightsPath, string? presetsPath)
+    protected static async Task Persist(IPersistence persistence, TSub lights, IList<StatePresetGroup>? presetGroup, string? lightsPath, string? presetsPath, ILogger? logger, CancellationToken? cancellationToken)
     {
-        persistence.Persist(lights.Select(FixtureSettings.FromFixture), lightsPath, true);
-        persistence.Persist(presetGroup, presetsPath, true);
+        await persistence.Persist(lights.Select(FixtureSettings.FromFixture), lightsPath, logger, cancellationToken);
+        await persistence.Persist(presetGroup, presetsPath, logger, cancellationToken);
     }
 
-    protected static TSub Depersist(IPersistence persistence, string? lightsPath, string? presetsPath, ILogger logger)
+    protected static async Task<TSub> Depersist(IPersistence persistence, string? lightsPath, string? presetsPath, ILogger logger, CancellationToken? cancellationToken)
     {
-        List<FixtureSettings> depersistedSettings = persistence.Depersist<List<FixtureSettings>>(lightsPath, out _);
-        StatePresetGroups depersistedGroups = persistence.Depersist<StatePresetGroups>(presetsPath, out _);
+        List<FixtureSettings> depersistedSettings = await persistence.Depersist<List<FixtureSettings>>(lightsPath, false, true, logger, cancellationToken) ?? [];
+        StatePresetGroups depersistedGroups = await persistence.Depersist<StatePresetGroups>(presetsPath, false, true, logger, cancellationToken) ?? [];
         TSub newFixtures = new();
         newFixtures.Create(depersistedGroups, depersistedSettings, logger);
         return newFixtures;

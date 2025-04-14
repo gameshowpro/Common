@@ -135,5 +135,5 @@ public static class JsonNetUtils
         ser.Serialize(writer, obj);
     }
 
-    public static Persistence Persistence { get; } = new();
+    public static JsonNet.Persistence Persistence { get; } = new();
 }

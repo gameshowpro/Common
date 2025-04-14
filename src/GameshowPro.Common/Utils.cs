@@ -20,7 +20,7 @@ public static partial class Utils
         IEnumerable<TSecond> second,
         TSecond secondFiller
     )
-        => ZipWithFill(first, firstFiller, second, secondFiller, (TFirst e1, TSecond e2) => (e1, e2));
+        => ZipWithFill(first, firstFiller, second, secondFiller, (e1, e2) => (e1, e2));
 
     /// <summary>
     /// Produces a sequence of results merged elements from the two specified sequences. 
@@ -477,7 +477,7 @@ public static partial class Utils
             }, null, defaultedTimeout, TimeSpan.FromMilliseconds(-1)))
         {
         }
-        logger?.LogDebug("Watchdog is waiting {0} for process to end.", defaultedTimeout);
+        logger?.LogDebug("Watchdog is waiting {defaultedTimeout0} for process to end.", defaultedTimeout);
     }
 
     private static readonly Dictionary<char, char> s_replacements = new()
@@ -981,7 +981,7 @@ where T : IIndexed
         }
         else if (diff < 0)
         {
-            return original.Remove(0 - diff);
+            return original[..(0 - diff)];
         }
         else
         {
@@ -1291,7 +1291,7 @@ where T : IIndexed
                     logger?.LogError(ex, "Exception while trying to rename broken file at {path}", path);
                     return;
                 }
-                logger?.LogInformation("Renamed broken file to {0}", newPath);
+                logger?.LogInformation("Renamed broken file to {newPath}", newPath);
                 return;
             }
         }

@@ -6,6 +6,7 @@ global using System.Linq;
 global using System.IO;
 global using System.Net;
 global using System.Reflection;
+global using System.Threading;
 global using Microsoft.Extensions.Logging;
 global using Newtonsoft.Json;
 global using Newtonsoft.Json.Serialization;

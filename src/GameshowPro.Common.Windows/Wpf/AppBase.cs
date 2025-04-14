@@ -2,7 +2,7 @@
 
 namespace GameshowPro.Common.Wpf;
 
-public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory) : Application, IComponentConnector where App : AppBase<App, Sys, MainWindow> where Sys : IDisposable where MainWindow : Window, new()
+public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory) : Application, IComponentConnector where App : AppBase<App, Sys, MainWindow> where MainWindow : Window, new()
 {
     private static Func<IEnumerable<Window>>? s_windowsFactory;
     private static IEnumerable<Window>? s_windows;
@@ -86,12 +86,22 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
         }
     }
 
-    protected virtual void MainWindow_Closed(object? sender, EventArgs e)
+    protected virtual async void MainWindow_Closed(object? sender, EventArgs e)
     {
         _logger.LogInformation("Main window closed");
         _cancellationTokenSource.Cancel();
         _logger.LogInformation("App cancellation token cancelled");
-        _sys?.Dispose();
+        if (_sys != null)
+        {
+            if (_sys is IAsyncDisposable asyncDisposable)
+            {
+                await asyncDisposable.DisposeAsync();
+            }
+            if (_sys is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
         _logger.LogInformation("Sys disposed");
         Current.Shutdown();
     }
