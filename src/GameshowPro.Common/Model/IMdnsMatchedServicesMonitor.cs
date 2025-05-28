@@ -21,5 +21,6 @@ public interface IMdnsMatchedService
 {
     IMdnsMatchedServicesMonitor Parent { get;  }
     string HostName { get; }
-    ImmutableArray<IPEndPoint> Endpoints { get; }
+    int Port { get; }
+    ImmutableArray<IPAddress> Addresses { get; }
 }

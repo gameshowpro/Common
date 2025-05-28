@@ -10,7 +10,7 @@ public enum StringConverterJoinType
     Bullet,
     Tilda
 }
-public abstract class EnumerableToStringConverter(object doNothing) : ICommonValueConverter
+public class EnumerableToStringConverter(object doNothing) : ICommonValueConverter
 {
     public string NullStringPlaceholder { get; set; } = "NullPlaceholder";
     public string NullNumberPlaceholder { get; set; } = "";
