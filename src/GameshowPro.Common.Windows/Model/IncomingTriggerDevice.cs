@@ -80,7 +80,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
                 new (t.Setting, nameof(IncomingTriggerSetting.Id)), 
                 new (t.Setting, nameof(IncomingTriggerSetting.IsEnabled)) 
             })
-            .Union(new PropertyChangeCondition(BaseSettings, nameof(IncomingTriggerDeviceSettingsBase.AllowDuplicateTriggerIds)))
+            .Union(new PropertyChangeCondition(settings, nameof(IncomingTriggerDeviceSettingsBase.AllowDuplicateTriggerIds)))
         );
         _triggerDict ??= FrozenDictionary<int, ImmutableList<TTrigger>>.Empty;
     }
