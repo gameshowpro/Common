@@ -21,6 +21,7 @@ global using System.Net;
 global using System.Windows.Input;
 global using System.Diagnostics;
 global using System.Reflection;
+global using System.Runtime.Serialization;
 global using GameshowPro.Common.Model;
 global using GameshowPro.Common;
 global using System.Collections.Concurrent;
