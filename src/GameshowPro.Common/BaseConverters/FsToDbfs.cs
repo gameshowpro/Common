@@ -17,7 +17,12 @@ public class FsToDbfs : ICommonValueConverter
     {
         double multiplier = ParameterToMultiplier(parameter);
         double db = 20 * Math.Log10(System.Convert.ToDouble(value) / multiplier);
-        return db.KeepInRange(-100, 0);
+        double inRange = db.KeepInRange(-100, 20);
+        if (targetType == typeof(string))
+        {
+            return inRange.ToString("N2");
+        }
+        return inRange;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
