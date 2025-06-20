@@ -21,7 +21,6 @@ jobs:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       SLN_PATH: .\src\GameshowPro.Common.sln
       PUBLISH_PATH: .\publish
-      PACKAGE_GLOB: ./publish/*.nupkg
 
     strategy:
       matrix:
