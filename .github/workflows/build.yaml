@@ -31,6 +31,10 @@ jobs:
           - name: Windows
             configuration: ReleaseWindows
 
+    outputs:
+      semver2_version: ${{ env.NBGV_SemVer2 }}      
+      nuget_version: ${{ env.NBGV_NuGetPackageVersion }}
+
     steps:
     - uses: actions/checkout@v4
       with:
@@ -87,13 +91,13 @@ jobs:
     - name: Add tags
       shell: pwsh
       run: |
-        nbgv tag
-        git push origin "v${{ needs.Build_And_Package.outputs.nuget_version }}"
+        nbgv tag ${{ needs.Build_And_Package.outputs.semver2_version }}
+        git push origin "v${{ needs.Build_And_Package.outputs.semver2_version }}"
     
     - name: Create GitHub release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: v${{ needs.Build_And_Package.outputs.version }}
+        tag_name: v${{ needs.Build_And_Package.outputs.semver2_version }}
         files: |
           ./all-packages/**/*.nupkg
           ./all-packages/**/*.snupkg
