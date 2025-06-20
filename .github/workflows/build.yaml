@@ -50,45 +50,17 @@ jobs:
     - name: Run tests
       run: dotnet test $env:SLN_PATH -c ${{ matrix.package.configuration }}
 
-    - name: Build release packages
+    - name: Build packages
       run: |
         dotnet pack $env:SLN_PATH --output ${{env.PUBLISH_PATH}} -c ${{ matrix.package.configuration }}
-        if ($?)
-        {
-          $searchPath = Join-Path -Path ${{env.PUBLISH_PATH}} -ChildPath "*.nupkg"
-          $packageFile = Get-ChildItem -Path $searchPath | Select-Object -First 1
-          $symbolSearchPath = Join-Path -Path ${{env.PUBLISH_PATH}} -ChildPath "*.snupkg"
-          $symbolFile = Get-ChildItem -Path $searchPath | Select-Object -First 1
-          if ($packageFile -and $symbolFile) 
-          {
-            $packagePath = $packageFile.FullName
-            Write-Output "PACKAGE_PATH=$packageFile.FullName" >> $env:GITHUB_OUTPUT
-            Write-Output "SYMBOLS_PATH=$symbolFile.FullName" >> $env:GITHUB_OUTPUT
-            exit 0
-          } 
-          else 
-          {
-            Write-Error "No package and symbol file pair found in ${{env.PUBLISH_PATH}}"
-            exit 1
-          }
-        }
-        else
-        {
-          Write-Error "Package creation failed"
-          exit 1
-        }
 
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: package-${{ matrix.package.name }}
-        path: ${{ steps.pack.outputs.PACKAGE_PATH }}
-
-    - name: Upload symbols
-      uses: actions/upload-artifact@v4
-      with:
-        name: symbols-${{ matrix.package.name }}
-        path: ${{ steps.pack.outputs.SYMBOLS_PATH }}
+        path: |
+          ${{ env.PUBLISH_PATH }}/*.nupkg
+          ${{ env.PUBLISH_PATH }}/*.snupkg
 
   Release_And_Push:
     name: Release and push packages
