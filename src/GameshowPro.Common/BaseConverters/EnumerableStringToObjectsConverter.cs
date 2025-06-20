@@ -14,7 +14,7 @@ public class EnumerableStringToObjectsConverter(object doNothing) : ICommonValue
         }
         if (value is IEnumerable<string> strings)
         {
-            return strings.Select(s => new ViewModel.StringItem(s));
+            return strings.Select(s => new StringItem(s));
         }
         
         return null;

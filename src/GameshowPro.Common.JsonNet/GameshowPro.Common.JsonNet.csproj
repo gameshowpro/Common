@@ -1,21 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Choose>
+    <When Condition="'$(Configuration)' == 'ReleaseWindows' OR '$(Configuration)' == 'DebugWindows'">
+      <PropertyGroup>
+        <TargetFrameworks>net8.0-windows;net9.0-windows</TargetFrameworks>
+        <DefineConstants>$(DefineConstants);WPF</DefineConstants>
+        <Title>Gameshow Pro utilities for Json.NET - Windows version</Title>
+        <PackageTags>GameshowPro Common Json.NET Windows</PackageTags>
+        <UseWpf>true</UseWpf>
+        <UseWindowsForms>true</UseWindowsForms>
+        <PackageId>GameshowPro.Common.JsonNet.Windows</PackageId>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+        <Title>Gameshow Pro utilities for Json.NET - cross-platform</Title>
+        <PackageTags>GameshowPro Common  Json.NET </PackageTags>
+        <PackageId>GameshowPro.Common.JsonNet</PackageId>
+    </PropertyGroup>
+    </Otherwise>
+  </Choose>
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <RootNamespace>GameshowPro.Common</RootNamespace>
     <ImplicitUsings>disable</ImplicitUsings>
     <Platforms>AnyCPU;x64;ARM64;ARM32</Platforms>
     <LangVersion>preview</LangVersion>
     <Company>Barjonas LLC</Company>
     <Authors>Hamish Barjonas</Authors>
-    <Product>Gameshow Pro Common - cross-platform</Product>
-    <PackageTags>GameshowPro Common</PackageTags>
-    <Copyright>Barjonas LLC 2024</Copyright>
-    <Description>Gameshow Pro utilities for Json.NET.</Description>
+    <Copyright>Barjonas LLC 2025</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <RootNamespace>GameshowPro.Common</RootNamespace>
+    <Product>Gameshow Pro utilities for Json.NET</Product>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-    <Configurations>Debug;Release</Configurations>
     <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;ReleaseWindows;DebugWindows</Configurations>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <OutputPath>bin\$(Configuration)</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.5" />

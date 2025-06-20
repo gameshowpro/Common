@@ -1,12 +1,20 @@
 ﻿// (C) Barjonas LLC 2022
 
-
-using System.Runtime.Serialization;
-
 namespace GameshowPro.Common.Model;
 
 public class ObservableClass : INotifyPropertyChanged
 {
+#if WPF
+    protected readonly System.Windows.Threading.Dispatcher _dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
+    protected readonly Action<PropertyChangedEventArgs> NotifyPropertyChangedAction;
+
+    public ObservableClass()
+    {
+        NotifyPropertyChangedAction = new(NotifyPropertyChanged);
+    }
+#endif
+
+
     /// <summary>
     /// A subclass of PropertyChangedEventArgs that <see cref="PropertyChangedOnOriginalThread"/> has already been raised and should not be raised again.
     /// Only created and consumed within this <see cref="ObservableClass"/>.
@@ -53,7 +61,19 @@ public class ObservableClass : INotifyPropertyChanged
             //This execution was not chained from OnPropertyChanged fired from SetProperty within this class, so we still haven't raised PropertyChangedOnOriginalThread.
             PropertyChangedOnOriginalThread?.Invoke(this, args);
         }
+#if WPF
+        if (_dispatcher?.CheckAccess() != false)
+        {
+            PropertyChanged?.Invoke(this, args);
+        }
+        else
+        {
+            _dispatcher.BeginInvoke(NotifyPropertyChangedAction, args);
+        }
+#else
         PropertyChanged?.Invoke(this, args);
+#endif
+
     }
 
     [IgnoreDataMember]

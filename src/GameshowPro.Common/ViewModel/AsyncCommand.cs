@@ -44,7 +44,7 @@ public class AsyncCommand<T>(
     {
         if (_canExecute != null)
         {
-            throw new InvalidOperationException($"{nameof(SetCanExecute)} cannot be used in instances instantiated with a ${nameof(Predicate<T?>)}");
+            throw new InvalidOperationException($"{nameof(SetCanExecute)} cannot be used in instances instantiated with a ${nameof(Predicate<>)}");
         }
         if (_canExecuteBool != canExecute)
         {
@@ -63,7 +63,7 @@ public class AsyncCommand<T>(
     {
         if (_canExecute == null)
         {
-            throw new InvalidOperationException($"{nameof(RequeryCanExecute)} can only be used in instances instantiated with a ${nameof(Predicate<T?>)}");
+            throw new InvalidOperationException($"{nameof(RequeryCanExecute)} can only be used in instances instantiated with a ${nameof(Predicate<>)}");
         }
         RaiseCanExecuteChanged();
     }

@@ -1,0 +1,179 @@
+﻿<ResourceDictionary x:Class="GameshowPro.Common.View.RemoteService"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:commodel="clr-namespace:GameshowPro.Common.Model"
+             xmlns:commodelwindows="clr-namespace:GameshowPro.Common.Model"
+             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:conv="clr-namespace:GameshowPro.Common.Converters"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             mc:Ignorable="d" >
+    <conv:ToOneBasedConverter x:Key="ToOneBased"/>
+    <DataTemplate x:Key="ServiceStateMax">
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top">
+                <ContentControl Content="{Binding}" DockPanel.Dock="Left" />
+                <DockPanel DockPanel.Dock="Left">
+                    <TextBlock Text="{Binding Name}" FontWeight="Bold" DockPanel.Dock="Top"/>
+                    <TextBlock Text="{Binding Detail}" DockPanel.Dock="Top" />
+                </DockPanel>
+            </DockPanel>
+            <ItemsControl ItemsSource="{Binding Children.Values}" ItemTemplate="{DynamicResource ServiceStateMax}" DockPanel.Dock="Top" Margin="{StaticResource ControlSmallMargin}" />
+        </DockPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="ServiceStatus">
+        <!--Only intended for compatbility with old projects specifying this template key for IRemoteService instances. Better to specify DataType="commodel:ServiceState" directly -->
+        <ContentControl Content="{Binding ServiceState}">
+            <ContentControl.ToolTip>
+                <ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                    <DockPanel DockPanel.Dock="Left" DataContext="{Binding ServiceState}">
+                        <TextBlock Text="{Binding Name}" Style="{StaticResource Header}"  DockPanel.Dock="Top" />
+                        <TextBlock Text="{Binding Detail}" DockPanel.Dock="Top" />
+                        <ItemsControl ItemsSource="{Binding Children.Values}" ItemTemplate="{StaticResource ServiceStateMax}" DockPanel.Dock="Top" />
+                    </DockPanel>
+                </ToolTip>
+            </ContentControl.ToolTip>
+            <ContentControl.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Layout">
+                        <StackPanel>
+                            <controls:NumericUpDown Value="{Binding Settings.RemoteServiceSettings.MonitorUiOrder}" controls:TextBoxHelper.Watermark="Monitoring order" Interval="3" Minimum="-3" Style="{StaticResource NumericUpDownNoText}"/>
+                            <controls:NumericUpDown Value="{Binding Settings.RemoteServiceSettings.MonitorUiGroup, Converter={StaticResource ToOneBased}}" controls:TextBoxHelper.Watermark="Monitoring group" Style="{StaticResource NumericUpDownNoText}"/>
+                        </StackPanel>
+                    </MenuItem>
+                </ContextMenu>
+            </ContentControl.ContextMenu>
+        </ContentControl>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type commodel:ServiceState}">
+        <Grid>
+            <Ellipse Width="20" Height="20">
+                <Ellipse.Fill>
+                    <RadialGradientBrush >
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#005500"/>
+                            <GradientStop Color="#002200" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+            <Ellipse Width="20" Height="20">
+                <Ellipse.Style>
+                    <Style TargetType="Ellipse">
+                        <Setter Property="RenderTransform">
+                            <Setter.Value>
+                                <ScaleTransform ScaleX="0" ScaleY="0" CenterX="10" CenterY="10"/>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding AggregateState, Converter={StaticResource MatchToBooleanConverter}, ConverterParameter={x:Static commodel:RemoteServiceStates.Disconnected}}" Value="{conv:Bool False}">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard x:Name="Warning">
+                                        <Storyboard>
+                                            <DoubleAnimation 
+                                        Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                        To="1"/>
+                                            <DoubleAnimation 
+                                            Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                            To="1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <StopStoryboard BeginStoryboardName="Warning"/>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation 
+                                            Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                            To="0"/>
+                                            <DoubleAnimation 
+                                            Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                            To="0"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Ellipse.Style>
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#FFFF00"/>
+                            <GradientStop Color="#666600" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+            <Ellipse Width="20" Height="20">
+                <Ellipse.Style>
+                    <Style TargetType="Ellipse">
+                        <Setter Property="RenderTransform">
+                            <Setter.Value>
+                                <ScaleTransform ScaleX="0" ScaleY="0" CenterX="10" CenterY="10"/>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding AggregateState}" Value="{x:Static commodel:RemoteServiceStates.Connected}">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard x:Name="Connected">
+                                        <Storyboard>
+                                            <DoubleAnimation 
+                                        Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                        To="1"/>
+                                            <DoubleAnimation 
+                                            Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                            To="1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <StopStoryboard BeginStoryboardName="Connected"/>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation 
+                                        Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                        To="0"/>
+                                            <DoubleAnimation 
+                                            Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                            To="0"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Ellipse.Style>
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#00FF00"/>
+                            <GradientStop Color="#006600" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+            <controls:ProgressRing IsActive="{Binding Progress, Converter={StaticResource MatchToBooleanConverter}, ConverterParameter={x:Null}}" IsHitTestVisible="False" Width="20" Height="20" Foreground="White"/>
+        </Grid>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type commodelwindows:RemoteServiceManager}">
+        <ItemsControl ItemsSource="{Binding MonitorUiGroups}" DockPanel.Dock="Top" Grid.IsSharedSizeScope="True">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type commodelwindows:RemoteServiceGroup}">
+                    <GroupBox Header="{Binding Settings.Name}">
+                        <ItemsControl ItemsSource="{Binding Items}" ItemTemplateSelector="{Binding DataContext.DataTemplateSelector, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}"/>
+                    </GroupBox>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type commodelwindows:RemoteServiceManager}" x:Key="RemoteServiceManager_GroupSettings">
+        <DataGrid ItemsSource="{Binding MonitorUiGroups}" HeadersVisibility="None" FrozenColumnCount="1">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Index, Converter={StaticResource ToOneBased}}" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Settings.Name}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DataTemplate>
+</ResourceDictionary>

@@ -39,6 +39,7 @@ public static class JsonNetUtils
         {
             ser.TypeNameHandling = TypeNameHandling.Auto;
             ser.Converters.Add(new JsonNet.JsonConverters.TypeConverter());
+            ser.SerializationBinder = DefaultSerializationBinder.Instance;
         }
         else
         {

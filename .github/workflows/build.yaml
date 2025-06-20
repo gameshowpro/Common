@@ -13,30 +13,33 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
-    strategy:
-      matrix:
-        ChannelName:
-        - Release
 
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
       DOTNET_NOLOGO: true
-      BuildConfiguration: Release
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       SLN_PATH: .\src\GameshowPro.Common.sln
       PUBLISH_PATH: .\publish
       PACKAGE_GLOB: ./publish/*.nupkg
+
+    strategy:
+      matrix:
+        package:
+          - name: Cross-platform
+            configuration: Release
+          - name: Windows
+            configuration: ReleaseWindows
 
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
-    - name: Use .NET 8.0.x
+    - name: Use .NET 9.0.x
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '9.0.x'
         dotnet-quality: 'ga'
 
     - name: Nerdbank.GitVersioning
@@ -45,27 +48,92 @@ jobs:
         setAllVars: true
 
     - name: Run tests
-      run: dotnet test $env:SLN_PATH -c Release
+      run: dotnet test $env:SLN_PATH -c ${{ matrix.package.configuration }}
 
     - name: Build release packages
       run: |
-        dotnet pack $env:SLN_PATH --output $env:PUBLISH_PATH -c Release
-
-    - name: Publish NuGet package
-      run: |
-        foreach($file in (Get-ChildItem "${{ env.PUBLISH_PATH }}" -Recurse -Include *.nupkg)) {
-            dotnet nuget push $file --api-key "${{ secrets.GSP_PACKAGE_PAT }}" --source https://nuget.pkg.github.com/gameshowpro/index.json --skip-duplicate
+        dotnet pack $env:SLN_PATH --output ${{env.PUBLISH_PATH}} -c ${{ matrix.package.configuration }}
+        if ($?)
+        {
+          $searchPath = Join-Path -Path ${{env.PUBLISH_PATH}} -ChildPath "*.nupkg"
+          $packageFile = Get-ChildItem -Path $searchPath | Select-Object -First 1
+          $symbolSearchPath = Join-Path -Path ${{env.PUBLISH_PATH}} -ChildPath "*.snupkg"
+          $symbolFile = Get-ChildItem -Path $searchPath | Select-Object -First 1
+          if ($packageFile -and $symbolFile) 
+          {
+            $packagePath = $packageFile.FullName
+            Write-Output "PACKAGE_PATH=$packageFile.FullName" >> $env:GITHUB_OUTPUT
+            Write-Output "SYMBOLS_PATH=$symbolFile.FullName" >> $env:GITHUB_OUTPUT
+            exit 0
+          } 
+          else 
+          {
+            Write-Error "No package and symbol file pair found in ${{env.PUBLISH_PATH}}"
+            exit 1
+          }
+        }
+        else
+        {
+          Write-Error "Package creation failed"
+          exit 1
         }
 
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: package-${{ matrix.package.name }}
+        path: ${{ steps.pack.outputs.PACKAGE_PATH }}
+
+    - name: Upload symbols
+      uses: actions/upload-artifact@v4
+      with:
+        name: symbols-${{ matrix.package.name }}
+        path: ${{ steps.pack.outputs.SYMBOLS_PATH }}
+
+  Release_And_Push:
+    name: Release and push packages
+    needs: Build_And_Package
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # For tag creation
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./all-packages
+    
+    - name: Nerdbank.GitVersioning
+      uses: dotnet/nbgv@v0.4.1
+      with:
+        setAllVars: true
+    
     - name: Add tags
-      id: addTags
       shell: pwsh
       run: |
-        nbgv tag 
-        git push origin "v$env:NBGV_NuGetPackageVersion"
-
-    - name: Release
+        nbgv tag
+        git push origin "v${{ needs.Build_And_Package.outputs.nuget_version }}"
+    
+    - name: Create GitHub release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: v${{ env.NBGV_NuGetPackageVersion }}
-        files: ${{ env.PACKAGE_GLOB }}
+        tag_name: v${{ needs.Build_And_Package.outputs.version }}
+        files: |
+          ./all-packages/**/*.nupkg
+          ./all-packages/**/*.snupkg
+
+    - name: Publish NuGet packages
+      run: |
+        $packages = Get-ChildItem -Path "./all-packages" -Recurse -Filter "*.nupkg"
+        foreach ($package in $packages) {
+          Write-Host "Pushing package: $package.FullName"
+          dotnet nuget push $package.FullName --api-key "${{ secrets.GSP_PACKAGE_PAT }}" --source ${{ vars.NUGET_URL }} --skip-duplicate
+          if (-not $?) {
+            Write-Error "Failed to push package: $($package.Name)"
+            exit 1
+          }
+        }

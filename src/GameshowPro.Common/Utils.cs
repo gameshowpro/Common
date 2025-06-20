@@ -2177,5 +2177,47 @@ where T : IIndexed
             action.Invoke(parameter);
         }
     }
+
+    /// <summary>
+    /// Invoke the given action if it is not null. Useful when raising events that return a Task.
+    /// </summary>
+    public static Task InvokeUnlessNull(this Task? Action)
+        => Action ?? Task.CompletedTask;
+
+    public static FrozenDictionary<TTriggerKey, IncomingTriggerComposite> ComposeDevicesIntoTriggerDictionary<TTriggerKey>(
+        IEnumerable<IncomingTriggerDeviceBase<TTriggerKey>> devices,
+        ILoggerFactory loggerFactory)
+            where TTriggerKey : struct, Enum
+        => Enum.GetValues<TTriggerKey>().ToFrozenDictionary(
+                t => t,
+                t => new IncomingTriggerComposite(
+                    devices.Select(d => d.TriggersBase[t]),
+                    t.ToString(),
+                    GetTriggerParameters(t.GetType().GetField(t.ToString()))?.Name ?? "No name",
+                    loggerFactory.CreateLogger($"{nameof(IncomingTriggerComposite)}({t})")
+                )
+            );
+
+    internal static TriggerParameters? GetTriggerParameters(MemberInfo? enumMemberInfo)
+    {
+        object[]? attrs = enumMemberInfo?.GetCustomAttributes(typeof(TriggerParameters), false);
+        if (attrs?.FirstOrDefault() is not TriggerParameters attr)
+        {
+            return null;
+        }
+        return attr;
+    }
+
+    internal static ITriggerDefaultSpecification? GetTriggerDefaultSpecification<TTriggerDevice>(MemberInfo? enumMemberInfo, int deviceInstanceIndex)
+        where TTriggerDevice : IIncomingTriggerDeviceBase
+    {
+        return enumMemberInfo?.GetCustomAttributes(typeof(TriggerDefaultSpecification<TTriggerDevice>))?
+            .Select(a => a as TriggerDefaultSpecification<TTriggerDevice>)
+            .Where(s =>
+                s is not null &&
+                s.ParentDeviceInstanceIndex == deviceInstanceIndex
+            )
+            .FirstOrDefault();
+    }
 }
 

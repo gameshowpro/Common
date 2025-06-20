@@ -1,12 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
+  <Choose>
+    <When Condition="'$(Configuration)' == 'ReleaseWindows' OR '$(Configuration)' == 'DebugWindows'">
+      <PropertyGroup>
+        <TargetFrameworks>net8.0-windows;net9.0-windows</TargetFrameworks>
+        <DefineConstants>$(DefineConstants);WPF</DefineConstants>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <Configurations>Debug;Release;DebugWindows;ReleaseWindows</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +29,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GameshowPro.Common.JsonNet\GameshowPro.Common.JsonNet.csproj" />
-    <ProjectReference Include="..\GameshowPro.Common.Windows\GameshowPro.Common.Windows.csproj" />
     <ProjectReference Include="..\GameshowPro.Common\GameshowPro.Common.csproj" />
   </ItemGroup>
 

@@ -13,3 +13,7 @@ global using Newtonsoft.Json.Serialization;
 global using Newtonsoft.Json.Linq;
 global using static GameshowPro.Common.Utils;
 global using GameshowPro.Common.JsonNet;
+
+#if WPF
+using System.Windows.Input;
+#endif

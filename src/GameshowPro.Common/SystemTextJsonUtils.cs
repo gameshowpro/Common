@@ -1,4 +1,6 @@
-﻿namespace GameshowPro.Common;
+﻿using GameshowPro.Common.JsonConverters;
+
+namespace GameshowPro.Common;
 
 public class Persistence : IPersistence
 {
@@ -25,6 +27,7 @@ public static class SystemTextJsonUtils
     {
         s_jsonSerializerOptions.Converters.Add(new JsonConverters.TypeConverter());
         s_jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        s_jsonSerializerOptions.Converters.Add(new IpAddressConverter());
     }
 
     /// <summary>
