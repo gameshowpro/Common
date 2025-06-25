@@ -1,12 +1,11 @@
-﻿using System.Runtime.Serialization;
-using System.Text.Json.Serialization.Metadata;
+﻿using System.Text.Json.Serialization.Metadata;
 
 namespace GameshowPro.Common;
 
 /// <summary>
-/// Custom Type resolver that only includes properties which are marked with the <see cref="DataMemberAttribute"/>.
+/// Custom Type resolver that only includes properties which are marked with the <see cref="TDataMemberAttribute"/>.
 /// </summary>
-public class OptInResolver : DefaultJsonTypeInfoResolver
+public class OptInResolver<TDataMemberAttribute> : DefaultJsonTypeInfoResolver
 {
     public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
     {
@@ -15,7 +14,7 @@ public class OptInResolver : DefaultJsonTypeInfoResolver
         if (typeInfo.Kind == JsonTypeInfoKind.Object)
         {
             var properties = typeInfo.Properties
-                .Where(prop => prop.AttributeProvider?.GetCustomAttributes(typeof(DataMemberAttribute), true).Length > 0)
+                .Where(prop => prop.AttributeProvider?.GetCustomAttributes(typeof(TDataMemberAttribute), true).Length > 0)
                 .ToList();
 
             typeInfo.Properties.Clear();
