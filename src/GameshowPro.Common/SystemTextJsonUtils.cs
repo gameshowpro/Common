@@ -17,7 +17,7 @@ public static class SystemTextJsonUtils
     /// <summary>
     /// The default <see cref="JsonSerializerOptions"/> used for serialization and deserialization. This can also be used as the basis of custom options.
     /// </summary>
-    private static JsonSerializerOptions DefaultJsonSerializerOptions { get; } = new()
+    public static JsonSerializerOptions DefaultJsonSerializerOptions { get; } = new()
     {
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
