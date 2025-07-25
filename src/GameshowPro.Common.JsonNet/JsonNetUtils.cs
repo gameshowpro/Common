@@ -111,7 +111,40 @@ public static class JsonNetUtils
             return;
         }
         EnsureDirectory(path);
-        JsonSerializer ser = new ()
+        using var sw = new StreamWriter(path);
+        Persist(obj, serializationBinder, sw, enumsAsStrings);
+    }
+
+    /// <summary>
+    /// Persist any type to a JSON string.
+    /// </summary>
+    /// <typeparam name="T">The type of object to be persisted.</typeparam>
+    /// <param name="path">Path to the JSON file.</param>
+    /// <param name="obj">Object to be persisted.</param>
+    public static string? Persist<T>(T obj, ISerializationBinderEx? serializationBinder, bool enumsAsStrings = true)
+    {
+        if (obj is null)
+        {
+            return null;
+        }
+        using var sw = new StringWriter();
+        Persist(obj, serializationBinder, sw, enumsAsStrings);
+        return sw.ToString();
+    }
+
+    /// <summary>
+    /// Persist any type to a JSON TextWriter.
+    /// </summary>
+    /// <typeparam name="T">The type of object to be persisted.</typeparam>
+    /// <param name="path">Path to the JSON file.</param>
+    /// <param name="obj">Object to be persisted.</param>
+    private static void Persist<T>(T obj, ISerializationBinderEx? serializationBinder, TextWriter textWriter, bool enumsAsStrings = true)
+    {
+        if (obj is null)
+        {
+            return;
+        }
+        JsonSerializer ser = new()
         {
             Formatting = Formatting.Indented,
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
@@ -131,8 +164,7 @@ public static class JsonNetUtils
         {
             ser.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
         }
-        using var sw = new StreamWriter(path);
-        using JsonWriter writer = new JsonTextWriter(sw);
+        using JsonWriter writer = new JsonTextWriter(textWriter);
         ser.Serialize(writer, obj);
     }
 
