@@ -26,7 +26,7 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="InstanceName"/>
             </Grid.ColumnDefinitions>
             <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ServiceStatus}" VerticalAlignment="Center" DockPanel.Dock="Left" Grid.Column="0" />
-            <TextBox VerticalAlignment="Center" Margin="{StaticResource ControlSmallMargin}" controls:TextBoxHelper.Watermark="Ping host" Text="{Binding Settings.Host}" Grid.Column="1"/>
+            <TextBox VerticalAlignment="Center" Margin="{StaticResource ControlSmallMargin}" controls:TextBoxHelper.Watermark="Ping host" Text="{Binding Settings.Host}" controls:TextBoxHelper.ClearTextButton="True" Grid.Column="1"/>
             <TextBox Text="{Binding Settings.DisplayName}" controls:TextBoxHelper.Watermark="Instance name" Grid.Column="2"  />
         </Grid>
     </DataTemplate>
