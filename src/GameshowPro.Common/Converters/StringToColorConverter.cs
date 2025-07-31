@@ -1,7 +1,7 @@
 ﻿using System.Windows.Media;
 using Color = System.Windows.Media.Color;
 
-namespace GameshowPro.Common.Windows.Converters;
+namespace GameshowPro.Common.Converters;
 
 public class StringToColorConverter : IValueConverter
 {
