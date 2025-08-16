@@ -24,14 +24,17 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     /// <summary>
     /// Delegate which may be used with dispatcher to ensure calls to <see cref="UpdateChildren(IEnumerable{ServiceState}?)" /> are invoked on the intended thread.
     /// </summary>
+    [IgnoreMember, IgnoreDataMember]
     public Func<IEnumerable<ServiceState>?, bool> UpdateChildrenDelegate { get; }
     /// <summary>
     /// Delegate which may be used with dispatcher to ensure calls to <see cref="UpdateFrom(ServiceState)" /> are invoked on the intended thread.
     /// </summary>
+    [IgnoreMember, IgnoreDataMember]
     public Func<ServiceState, bool> UpdateFromDelegate { get; }
     /// <summary>
     /// Delegate which may be used with dispatcher to ensure calls to <see cref="SetAll(RemoteServiceStates, string?, double?)" /> are invoked on the intended thread.
     /// </summary>
+    [IgnoreMember, IgnoreDataMember]
     public Action<RemoteServiceStates, string?, double?> SetAllDelegate { get; }
 
     public static ServiceState CreateUnknown(string key, string name)
