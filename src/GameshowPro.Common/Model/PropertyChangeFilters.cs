@@ -13,7 +13,7 @@ public record PropertyChangeCondition
     /// A condition dependent on <seealso cref="INotifyPropertyChanged.PropertyChanged"/> property changing on a sender with the given property name.
     /// </summary>
     /// <param name="sender">The sender to monitor for the change. If null, this condition will be ignored.</param>
-    /// <param name="property">The name of the property which must change.</param>
+    /// <param name="property">The name of the property which must change. If <see cref="string.Empty"/>, the condition will be met regardless of the property name in the change notification</param>
     public PropertyChangeCondition(INotifyPropertyChanged? sender, string property)
     {
         Sender = sender;
@@ -202,7 +202,12 @@ public class PropertyChangeFilter
             if (sender is INotifyPropertyChanged itemSender)
             {
                 int senderIndex = _itemSenders.IndexOf(itemSender);
-                if (senderIndex >= 0 && e.PropertyName is not null && _notifyItemConditions[senderIndex].Contains(e.PropertyName))
+                if (senderIndex >= 0 && 
+                    (
+                        _notifyItemConditions[senderIndex].Contains(string.Empty) || 
+                        (e.PropertyName is not null && _notifyItemConditions[senderIndex].Contains(e.PropertyName))
+                    )
+                )
                 {
                     InvokeOrEnqueue(sender, e);
                 }
