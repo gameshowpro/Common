@@ -3,12 +3,23 @@
 namespace GameshowPro.Common.Converters;
 
 /// <summary>
-/// Return a visibility or boolean depending on whether one value is greater than the other.
+/// Returns a Visibility or bool depending on whether one value is greater than the other.
+/// <remarks>Docs added by AI.</remarks>
 /// </summary>
 public class GreaterThanToBooleanConverter : IValueConverter, IMultiValueConverter
 {
+    /// <summary>When true, greater-than-or-equal counts as true.</summary>
+    /// <remarks>Docs added by AI.</remarks>
     public bool AllowEqual { get; } = false;
+    /// <summary>The Visibility value to use when the result is false.</summary>
+    /// <remarks>Docs added by AI.</remarks>
     public Visibility FalseVisibility { get; set; } = Visibility.Hidden;
+    /// <summary>Compare two bound values and return a boolean/Visibility.</summary>
+    /// <param name="values">Array of two values to compare.</param>
+    /// <param name="targetType">Target type to return (bool or Visibility).</param>
+    /// <param name="parameter">Ignored.</param>
+    /// <param name="culture">Culture info.</param>
+    /// <remarks>Docs added by AI.</remarks>
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
         if (values.Length > 1 && double.TryParse(values[0]?.ToString(), out double a) && double.TryParse(values[1]?.ToString(), out double b))
@@ -18,6 +29,12 @@ public class GreaterThanToBooleanConverter : IValueConverter, IMultiValueConvert
         return BooleanToType(false, targetType);
     }
 
+    /// <summary>Compare a value against the supplied parameter.</summary>
+    /// <param name="value">The value to check.</param>
+    /// <param name="targetType">Target type to return (bool or Visibility).</param>
+    /// <param name="parameter">The value to compare against.</param>
+    /// <param name="culture">Culture info.</param>
+    /// <remarks>Docs added by AI.</remarks>
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is double dValue && parameter is double dParam)
@@ -39,6 +56,8 @@ public class GreaterThanToBooleanConverter : IValueConverter, IMultiValueConvert
         throw new InvalidOperationException("Invalid combination of parameter and value types");
     }
 
+    /// <summary>Convert a boolean result to the requested target type (Visibility or bool).</summary>
+    /// <remarks>Docs added by AI.</remarks>
     private object BooleanToType(bool value, Type type)
     {
         if (type != typeof(Visibility))
@@ -56,11 +75,13 @@ public class GreaterThanToBooleanConverter : IValueConverter, IMultiValueConvert
     }
 
 
+    /// <inheritdoc/>
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
     {
         return [Binding.DoNothing, Binding.DoNothing];
     }
 
+    /// <inheritdoc/>
     public object ConvertBack(object value, Type targetType, object parameter,
         CultureInfo culture)
     {

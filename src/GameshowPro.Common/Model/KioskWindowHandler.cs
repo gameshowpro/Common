@@ -1,28 +1,48 @@
 ﻿namespace GameshowPro.Common.Model;
 
+/// <summary>
+/// Manages a WPF window in kiosk or normal mode and tracks persisted settings.
+/// </summary>
+/// <remarks>Docs added by AI.</remarks>
 public class KioskWindowHandler : ObservableClass
 {
+    /// <summary>
+    /// Persisted window settings for kiosk behavior and screen selection.
+    /// </summary>
+    /// <remarks>Docs added by AI.</remarks>
     public class Settings : ObservableClass
     {
         private int _displayIndex = 0;
-        [DataMember, DefaultValue(0)]
-        public int DisplayIndex
+    [DataMember, DefaultValue(0)]
+    /// <summary>
+    /// The target display index for the window.
+    /// </summary>
+    /// <remarks>Docs added by AI.</remarks>
+    public int DisplayIndex
         {
             get { return _displayIndex; }
             set { SetProperty(ref _displayIndex, value); }
         }
 
         private bool _isKiosk = false;
-        [DataMember, DefaultValue(true)]
-        public bool IsKiosk
+    [DataMember, DefaultValue(true)]
+    /// <summary>
+    /// Whether the window is presented in kiosk mode.
+    /// </summary>
+    /// <remarks>Docs added by AI.</remarks>
+    public bool IsKiosk
         {
             get { return _isKiosk; }
             set { SetProperty(ref _isKiosk, value); }
         }
 
         private bool _isVisible = true;
-        [DataMember, DefaultValue(true)]
-        public bool IsVisible
+    [DataMember, DefaultValue(true)]
+    /// <summary>
+    /// Whether the window is currently shown.
+    /// </summary>
+    /// <remarks>Docs added by AI.</remarks>
+    public bool IsVisible
         {
             get { return _isVisible; }
             set { SetProperty(ref _isVisible, value); }
@@ -32,6 +52,12 @@ public class KioskWindowHandler : ObservableClass
     private readonly double _originalWidth;
     private readonly double _originalHeight;
 
+    /// <summary>
+    /// Creates a handler for the specified window and settings.
+    /// </summary>
+    /// <param name="window">The WPF window to manage.</param>
+    /// <param name="settings">The persisted settings to apply.</param>
+    /// <remarks>Docs added by AI.</remarks>
     public KioskWindowHandler(Window window, Settings settings)
     {
         Window = window;
@@ -49,7 +75,15 @@ public class KioskWindowHandler : ObservableClass
         CurrentSettings.IsVisible = false;
     }
 
+    /// <summary>
+    /// The managed window.
+    /// </summary>
+    /// <remarks>Docs added by AI.</remarks>
     public Window Window { get; }
+    /// <summary>
+    /// The current settings backing this handler.
+    /// </summary>
+    /// <remarks>Docs added by AI.</remarks>
     public Settings CurrentSettings { get; }
 
     private void _settings_PropertyChanged(object? sender, PropertyChangedEventArgs e)

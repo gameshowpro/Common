@@ -1,8 +1,13 @@
 ﻿namespace GameshowPro.Common.BaseConverters;
 
+/// <summary>
+/// Maps null to -1 (or 0 if one-based) for ints/doubles and vice versa on ConvertBack.
+/// <remarks>Docs added by AI.</remarks>
+/// </summary>
 public class NullToMinusOneConverter : ICommonValueConverter
 {
     public bool DisplayIsOneBased { get; set; }
+    /// <inheritdoc/>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (targetType == typeof(double))
@@ -29,6 +34,7 @@ public class NullToMinusOneConverter : ICommonValueConverter
         }
     }
 
+    /// <inheritdoc/>
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         switch (value)

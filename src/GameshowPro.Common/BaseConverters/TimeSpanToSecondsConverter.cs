@@ -2,11 +2,16 @@
 
 namespace GameshowPro.Common.BaseConverters;
 
+/// <summary>
+/// Converts TimeSpan to seconds (double or int via IntCeiling) and parses back from numeric input.
+/// <remarks>Docs added by AI.</remarks>
+/// </summary>
 public class TimeSpanToSecondsConverter(object unsetValue) : ICommonValueConverter
 {
     private readonly object _unsetValue = unsetValue;
 
     public bool IntCeiling { get; set; }
+    /// <inheritdoc/>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is TimeSpan span)
@@ -26,6 +31,7 @@ public class TimeSpanToSecondsConverter(object unsetValue) : ICommonValueConvert
         }
     }
 
+    /// <inheritdoc/>
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null)

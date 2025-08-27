@@ -5,6 +5,7 @@
 /// </summary>
 public class StringFormatConverter : ICommonMultiValueConverter
 {
+    /// <inheritdoc/>
     public object? Convert(object?[] values, Type targetType, object? parameter, CultureInfo culture)
     {
         if (values.Length < 2 || values[1] is not string format)
@@ -14,6 +15,7 @@ public class StringFormatConverter : ICommonMultiValueConverter
         return string.Format($"{{0:{format}}}", values[0]);
     }
 
+    /// <inheritdoc/>
     public object?[] ConvertBack(object? value, Type[] targetTypes, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();

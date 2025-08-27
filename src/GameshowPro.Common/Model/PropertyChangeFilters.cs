@@ -1,6 +1,12 @@
 ﻿// (C) Barjonas LLC 2022
 namespace GameshowPro.Common.Model;
 
+/// <summary>
+/// Represents a queued filter trigger consisting of the sender and property change args.
+/// </summary>
+/// <param name="sender">The event sender.</param>
+/// <param name="args">The property changed event args.</param>
+/// <remarks>Docs added by AI.</remarks>
 public record FilterTriggerInstance(object sender, PropertyChangedEventArgs args);
 public record PropertyChangeCondition
 {
@@ -245,13 +251,13 @@ public class PropertyChangeFilter
     public bool Paused { get; private set; }
 
     /// <summary>
-    /// Stop firing the handler until after <see cref="Resume"> is called.
+    /// Stop firing the handler until after <see cref="Resume"/> is called.
     /// </summary>
     public void Pause()
         => Paused = true;
 
     /// <summary>
-    /// Return all triggers held back from handler since <see cref="Pause"> was called, then resume firing the handler.
+    /// Return all triggers held back from handler since <see cref="Pause"/> was called, then resume firing the handler.
     /// </summary>
     public ImmutableList<FilterTriggerInstance> Resume()
     {
@@ -262,9 +268,18 @@ public class PropertyChangeFilter
     }
 }
 
+/// <summary>
+/// Manages a set of <see cref="PropertyChangeFilter"/> instances and provides convenience methods.
+/// </summary>
+/// <remarks>Docs added by AI.</remarks>
 public class PropertyChangeFilters
 {
     private static ILoggerFactory? s_loggerFactory;
+    /// <summary>
+    /// Assigns the static logger factory used by default constructors.
+    /// </summary>
+    /// <param name="loggerFactory">The logger factory to use.</param>
+    /// <remarks>Docs added by AI.</remarks>
     public static void AssignLoggerFactory(ILoggerFactory loggerFactory)
     {
         if (s_loggerFactory != null)
@@ -275,10 +290,11 @@ public class PropertyChangeFilters
     }
 
     /// <summary>
-    /// Create a <see cref="PropertyChangeFilters"/> instance using a new <see cref="ILogger"> from the <see cref="ILoggerFactory"/> instance previously assigned using the static function <see cref="AssignLoggerFactory(ILoggerFactory)"/>.
+    /// Creates a new instance using a logger from the assigned factory.
     /// </summary>
-    /// <param name="loggerNamePrefix">The first part of the name of the new logger, to distinguish it from any other instance of <see cref="PropertyChangeFilters"/></param>
-    /// <exception cref="InvalidOperationException"><see cref="AssignLoggerFactory(ILoggerFactory)"/> must be called before calling this constructor</exception>
+    /// <param name="loggerNamePrefix">The first part of the logger name to distinguish this instance.</param>
+    /// <exception cref="InvalidOperationException">Thrown if no logger factory has been assigned via <see cref="AssignLoggerFactory(ILoggerFactory)"/>.</exception>
+    /// <remarks>Docs added by AI.</remarks>
     public PropertyChangeFilters(string loggerNamePrefix)
     {
         if (s_loggerFactory is null)
@@ -289,9 +305,10 @@ public class PropertyChangeFilters
     }
 
     /// <summary>
-    /// Create a <see cref="PropertyChangeFilters"/> instance using a pre-created <see cref="ILogger"/>. This may be preferable for parent objects with a high volume of instances.
+    /// Creates a new instance using the provided logger.
     /// </summary>
-    /// <param name="logger">A pre-created logger.</param>
+    /// <param name="logger">The logger to use.</param>
+    /// <remarks>Docs added by AI.</remarks>
     public PropertyChangeFilters(ILogger logger)
     {
         _logger = logger;
@@ -301,39 +318,47 @@ public class PropertyChangeFilters
     private readonly List<PropertyChangeFilter> _filters = [];
 
     /// <summary>
-    /// Add a new filter and optionally invoke the handler immediately after construction.
+    /// Adds a new filter and optionally invokes the handler immediately after construction.
     /// </summary>
-    /// <param name="handler">A delegate to handle the notifications when the filter yields and output.</param>
-    /// <param name="invokeAfterConstruction">If true, the handler will be invoked immediately after construction</param>
-    /// <param name="conditions">A parameter array of conditions under which the handler should be fired.</param>
+    /// <param name="handler">The delegate to invoke when conditions are met.</param>
+    /// <param name="invokeAfterConstruction">Whether to invoke the handler immediately.</param>
+    /// <param name="conditions">The conditions that must be met.</param>
+    /// <returns>The created filter.</returns>
+    /// <remarks>Docs added by AI.</remarks>
     [return: NotNullIfNotNull(nameof(conditions))]
     public PropertyChangeFilter AddFilter(PropertyChangedEventHandler handler, bool invokeAfterConstruction, params PropertyChangeCondition[] conditions)
         => AddFilter(handler, invokeAfterConstruction, (IEnumerable<PropertyChangeCondition>)conditions);
 
     /// <summary>
-    /// Add a new filter and invoke the handler immediately after construction.
+    /// Adds a new filter and invokes the handler immediately after construction.
     /// </summary>
-    /// <param name="handler">A delegate to handle the notifications when the filter yields and output.</param>
-    /// <param name="conditions">A parameter array of conditions under which the handler should be fired.</param>
+    /// <param name="handler">The delegate to invoke when conditions are met.</param>
+    /// <param name="conditions">The conditions that must be met.</param>
+    /// <returns>The created filter.</returns>
+    /// <remarks>Docs added by AI.</remarks>
     [return: NotNullIfNotNull(nameof(conditions))]
     public PropertyChangeFilter AddFilter(PropertyChangedEventHandler handler, params PropertyChangeCondition[] conditions)
         => AddFilter(handler, (IEnumerable<PropertyChangeCondition>)conditions);
 
     /// <summary>
-    /// Add a new filter and invoke the handler immediately after construction.
+    /// Adds a new filter and invokes the handler immediately after construction.
     /// </summary>
-    /// <param name="handler">A delegate to handle the notifications when the filter yields and output.</param>
-    /// <param name="conditions">The conditions under which the handler should be fired.</param>
+    /// <param name="handler">The delegate to invoke when conditions are met.</param>
+    /// <param name="conditions">The conditions that must be met, or null to skip.</param>
+    /// <returns>The created filter or null if conditions is null.</returns>
+    /// <remarks>Docs added by AI.</remarks>
     [return: NotNullIfNotNull(nameof(conditions))]
     public PropertyChangeFilter? AddFilter(PropertyChangedEventHandler handler, IEnumerable<PropertyChangeCondition>? conditions)
         => AddFilter(handler, true, conditions);
 
     /// <summary>
-    /// Add a new filter and optionally invoke the handler immediately after construction.
+    /// Adds a new filter and optionally invokes the handler immediately after construction.
     /// </summary>
-    /// <param name="handler">A delegate to handle the notifications when the filter yields and output.</param>
-    /// <param name="invokeAfterConstruction">If true, the handler will be invoked immediately after construction</param>
-    /// <param name="conditions">The conditions under which the handler should be fired.</param>
+    /// <param name="handler">The delegate to invoke when conditions are met.</param>
+    /// <param name="invokeAfterConstruction">Whether to invoke the handler immediately.</param>
+    /// <param name="conditions">The conditions that must be met, or null to skip.</param>
+    /// <returns>The created filter or null if conditions is null.</returns>
+    /// <remarks>Docs added by AI.</remarks>
     [return:NotNullIfNotNull(nameof(conditions))]
     public PropertyChangeFilter? AddFilter(PropertyChangedEventHandler handler, bool invokeAfterConstruction, IEnumerable<PropertyChangeCondition>? conditions)
     {
@@ -346,6 +371,10 @@ public class PropertyChangeFilters
         return null;
     }
 
+    /// <summary>
+    /// Removes and releases all filters.
+    /// </summary>
+    /// <remarks>Docs added by AI.</remarks>
     public void ClearFilters()
     {
         foreach (PropertyChangeFilter f in _filters)
@@ -355,11 +384,19 @@ public class PropertyChangeFilters
         _filters.Clear();
     }
 
+    /// <summary>
+    /// Invokes all filters' handlers regardless of state.
+    /// </summary>
+    /// <remarks>Docs added by AI.</remarks>
     public void InvokeAll()
     {
         _filters.ForEach(f => f.InvokeAll());
     }
 
+    /// <summary>
+    /// Indicates whether any filters are registered.
+    /// </summary>
+    /// <remarks>Docs added by AI.</remarks>
     public bool Any() => _filters.Count != 0;
 }
 

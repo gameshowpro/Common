@@ -8,6 +8,7 @@ namespace GameshowPro.Common.Model;
 /// <typeparam name="TTriggerKey">The type of the enum defining all possible trigger keys. 
 /// Each of its members must have a description field from which the corresponding trigger's name can be derived.</typeparam>
 /// <typeparam name="TTrigger">The type of the <see cref="IncomingTrigger"/> used by this subclass</typeparam>
+/// <typeparam name="TSubclass">The subclass type used for attribute lookups.</typeparam>
 public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : IncomingTriggerDeviceBase<TTriggerKey>
     where TTriggerKey : notnull, Enum
     where TTrigger : IncomingTrigger
@@ -17,10 +18,10 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
     /// <summary>
     /// Base constructor.
     /// </summary>
-    /// <param name="namePrefix">The root of the name given to instance of this subclass of <see cref="IncomingTriggerDevice{TTriggerKey, TTrigger}"/>.</param>
-    /// <param name="settings">An object containing the settings for each <see cref="TTriggerKey"/> within this <see cref="IncomingTriggerDevice{TTriggerKey, TTrigger}"/>.</param>
+    /// <param name="namePrefix">The root of the name given to instance of this subclass.</param>
+    /// <param name="settings">An object containing the settings for each trigger key within this device.</param>
     /// <param name="index">The of index this device to be cross-referenced with default trigger specifications.</param>
-    /// <param name="serviceState">A <see cref="ServiceState"/> object which will be maintained by the subclass.</param>
+    /// <param name="loggerFactory">Factory used to create a logger.</param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="MissingMemberException"></exception>
     protected IncomingTriggerDevice(
@@ -88,12 +89,12 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
     protected abstract TTrigger TriggerFactory(IncomingTriggerSetting triggerSetting, ILoggerFactory loggerFactory);
 
     /// <summary>
-    /// A dictionary containing a list of all triggers belonging to this object, keyed by <see cref="TTriggerKey"/>, strongly typed as <see cref="TTrigger"/>.
+    /// A dictionary containing a list of all triggers belonging to this object, keyed by the trigger key type, strongly typed as the trigger type.
     /// </summary>
     public FrozenDictionary<TTriggerKey, TTrigger> Triggers { get; }
 
     /// <summary>
-    /// A dictionary containing a list of all triggers belonging to this object, keyed by <see cref="TTriggerKey"/>, widely typed as <see cref="IncomingTrigger"/>.
+    /// A dictionary containing a list of all triggers belonging to this object, keyed by the trigger key type, widely typed as <see cref="IncomingTrigger"/>.
     /// </summary>
     public override FrozenDictionary<TTriggerKey, IncomingTrigger> TriggersBase { get; }
     /// <summary>

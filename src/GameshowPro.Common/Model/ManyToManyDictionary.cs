@@ -1,5 +1,12 @@
 ﻿namespace GameshowPro.Common.Model;
 
+/// <summary>
+/// Maintains a bidirectional mapping between two key spaces with many-to-many relationships.
+/// </summary>
+/// <typeparam name="TKeyA">The first key type.</typeparam>
+/// <typeparam name="TKeyB">The second key type.</typeparam>
+/// <typeparam name="TPair">The tuple type that contains both keys.</typeparam>
+/// <remarks>Docs added by AI.</remarks>
 public abstract class ManyToManyDictionary<TKeyA, TKeyB, TPair>
     where TKeyA : notnull
     where TKeyB : notnull
@@ -93,12 +100,28 @@ public abstract class ManyToManyDictionary<TKeyA, TKeyB, TPair>
         return false;
     }
 
+    /// <summary>
+    /// Removes all pairs that include the specified key from the A side.
+    /// </summary>
+    /// <param name="key">The key to remove.</param>
+    /// <returns>True if any entries were removed; otherwise false.</returns>
+    /// <remarks>Docs added by AI.</remarks>
     public bool TryRemove(TKeyA key)
         => TryRemove(key, _pairsByTKeyA, _pairsByTKeyB, GetKeyB);
 
+    /// <summary>
+    /// Removes all pairs that include the specified key from the B side.
+    /// </summary>
+    /// <param name="key">The key to remove.</param>
+    /// <returns>True if any entries were removed; otherwise false.</returns>
+    /// <remarks>Docs added by AI.</remarks>
     public bool TryRemove(TKeyB key)
         => TryRemove(key, _pairsByTKeyB, _pairsByTKeyA, GetKeyA);
 
+    /// <summary>
+    /// Clears all pairs from both sides.
+    /// </summary>
+    /// <remarks>Docs added by AI.</remarks>
     public void Clear()
     {
         foreach (Dictionary<TKeyB, TPair> byKeyB in _pairsByTKeyA.Values)

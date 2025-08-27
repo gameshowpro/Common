@@ -4,21 +4,33 @@ using System.Windows.Markup;
 
 namespace GameshowPro.Common.Converters;
 
+/// <summary>
+/// Converts an enum Type or sequence of enum values to a list of items for binding.
+/// <remarks>Docs added by AI.</remarks>
+/// </summary>
 public class EnumToObjectArray : MarkupExtension, IValueConverter
 {
+    /// <summary>Optional binding to an enum value source when used as a markup extension.</summary>
+    /// <remarks>Docs added by AI.</remarks>
     public BindingBase? SourceEnum { get; set; }
 
     private readonly Type? _type;
 
+    /// <summary>Create a converter instance.</summary>
+    /// <remarks>Docs added by AI.</remarks>
     public EnumToObjectArray()
     {
     }
 
+    /// <summary>Create a converter for a specific enum type.</summary>
+    /// <param name="type">The enum Type to convert.</param>
+    /// <remarks>Docs added by AI.</remarks>
     public EnumToObjectArray(Type type)
     {
         _type = type;
     }
 
+    /// <inheritdoc/>
     public override object? ProvideValue(IServiceProvider serviceProvider)
     {
         Type typeToUse;
@@ -57,6 +69,7 @@ public class EnumToObjectArray : MarkupExtension, IValueConverter
                         .Select(e => new { Value = e, Name = e.ToString(), DisplayName = e.Description(), Underlying = e.UnderlyingValue() });
     }
 
+    /// <inheritdoc/>
     public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is Type type)
@@ -72,6 +85,7 @@ public class EnumToObjectArray : MarkupExtension, IValueConverter
         return null;
     }
 
+    /// <inheritdoc/>
     public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
         throw new NotImplementedException();

@@ -2,9 +2,32 @@
 
 namespace GameshowPro.Common.Model;
 
+/// <summary>
+/// Aggregated ping results for a set of host names.
+/// </summary>
+/// <param name="MinimumRoundtripTime">The minimum roundtrip time across all host names.</param>
+/// <param name="HostNameResults">The per-host results.</param>
+/// <remarks>Docs added by AI.</remarks>
 public record PingHostNamesResult(TimeSpan? MinimumRoundtripTime, ImmutableArray<PingHostNameResult> HostNameResults);
+/// <summary>
+/// Aggregated ping results for a single host name possibly resolving to multiple addresses.
+/// </summary>
+/// <param name="HostName">The host name queried.</param>
+/// <param name="MinimumRoundtripTime">The minimum roundtrip time across all resolved addresses.</param>
+/// <param name="AddressResults">The results per IP address.</param>
+/// <remarks>Docs added by AI.</remarks>
 public record PingHostNameResult(string HostName, TimeSpan? MinimumRoundtripTime, ImmutableArray<PingAddressResult> AddressResults);
+/// <summary>
+/// The result of pinging a single IP address.
+/// </summary>
+/// <param name="IpAddress">The IP address that was pinged.</param>
+/// <param name="RoundtripTime">The measured roundtrip time, or null if the ping failed.</param>
+/// <remarks>Docs added by AI.</remarks>
 public record PingAddressResult(IPAddress IpAddress, TimeSpan? RoundtripTime);
+/// <summary>
+/// Utility methods to send ICMP echo requests and aggregate their results.
+/// </summary>
+/// <remarks>Docs added by AI.</remarks>
 public static class PingClient
 {
     private static readonly PingOptions s_pingOptions = new()
@@ -13,6 +36,14 @@ public static class PingClient
     };
     private static readonly byte[] s_buffer = Encoding.ASCII.GetBytes(Enumerable.Repeat('a', 32).ToArray().ToString()!);
     private static readonly TimeSpan s_timeout = TimeSpan.FromMilliseconds(120);
+    /// <summary>
+    /// Sends a ping to the specified IP address.
+    /// </summary>
+    /// <param name="ipAddress">The address to ping.</param>
+    /// <param name="logger">Logger for diagnostics.</param>
+    /// <param name="cancellationToken">Token to cancel the ping.</param>
+    /// <returns>The result including the measured roundtrip time, or null if the ping failed.</returns>
+    /// <remarks>Docs added by AI.</remarks>
     public static async Task<PingAddressResult> SendPing(IPAddress ipAddress, ILogger logger, CancellationToken cancellationToken)
     {
         Ping _pingSender = new(); //Create a new instance each time in case concurrency is required.
@@ -38,6 +69,14 @@ public static class PingClient
         }
     }
 
+    /// <summary>
+    /// Resolves a host name and pings all resolved addresses, returning an aggregate result.
+    /// </summary>
+    /// <param name="hostName">The host name or IP string to ping.</param>
+    /// <param name="logger">Logger for diagnostics.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <returns>Aggregated results including the minimum roundtrip time across all addresses.</returns>
+    /// <remarks>Docs added by AI.</remarks>
     public static async Task<PingHostNameResult> SendPing(string hostName, ILogger logger, CancellationToken cancellationToken)
     {
         ImmutableArray<PingAddressResult> results;
@@ -63,6 +102,14 @@ public static class PingClient
         return new(hostName, results.Select(r => r.RoundtripTime).MinOrDefault(), results);
     }
 
+    /// <summary>
+    /// Pings multiple host names in parallel and aggregates the results.
+    /// </summary>
+    /// <param name="hostNames">The host names to ping.</param>
+    /// <param name="logger">Logger for diagnostics.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <returns>An aggregate with the minimum roundtrip across all hosts and their individual results.</returns>
+    /// <remarks>Docs added by AI.</remarks>
     public static async Task<PingHostNamesResult> SendPing(IEnumerable<string> hostNames, ILogger logger, CancellationToken cancellationToken)
     {
         ImmutableArray<PingHostNameResult> results = [.. await Task.WhenAll(hostNames.Select(hostName => SendPing(hostName, logger, cancellationToken)))];

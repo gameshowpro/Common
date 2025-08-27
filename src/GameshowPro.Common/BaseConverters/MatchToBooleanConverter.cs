@@ -10,7 +10,7 @@ public abstract class MatchToBooleanConverter(object doNothing) : ICommonValueCo
     private readonly object _doNothing = doNothing;
 
     /// <summary>
-    /// Return a <see cref="bool"/> or equivalent depending on whether the first element in <paramref name="value"/> equal the second element.
+    /// Return a <see cref="bool"/> or equivalent depending on whether the first element in <paramref name="values"/> equals the second element.
     /// </summary>
     /// <param name="values">An array containing two values, each supplied from a binding</param>
     /// <param name="targetType">The type to return. Either <see cref="bool"/> or equivalent visibility</param>
@@ -33,6 +33,7 @@ public abstract class MatchToBooleanConverter(object doNothing) : ICommonValueCo
     /// <param name="value">The value supplied by a binding.</param>
     /// <param name="targetType">The type to return. Either <see cref="bool"/> or equivalent visibility</param>
     /// <param name="parameter">The value to compare to or an array of values to compare to</param>
+    /// <param name="culture">The culture to use in the converter.</param>
     /// <returns></returns>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {

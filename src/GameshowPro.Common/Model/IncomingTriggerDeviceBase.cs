@@ -1,7 +1,7 @@
 ﻿namespace GameshowPro.Common.Model;
 
 /// <summary>
-/// A base for <see cref="IncomingTriggerDevice{TTriggerKey, TTrigger}"/> which is common to all <see cref="IncomingTrigger"/> subclasses.
+/// A base for incoming trigger device implementations which is common to all <see cref="IncomingTrigger"/> subclasses.
 /// </summary>
 public abstract class IncomingTriggerDeviceBase<TTriggerKey> : ObservableClass, IIncomingTriggerDeviceBase
     where TTriggerKey : notnull, Enum
@@ -30,7 +30,7 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : ObservableClass, 
     public int Index { get; }
 
     /// <summary>
-    /// A dictionary containing a list of all triggers belonging to this object, keyed by <see cref="TTriggerKey"/>, widely typed as <see cref="IncomingTrigger"/>.
+    /// A dictionary containing a list of all triggers belonging to this object, keyed by the trigger key type, widely typed as <see cref="IncomingTrigger"/>.
     /// </summary>
     public abstract FrozenDictionary<TTriggerKey, IncomingTrigger> TriggersBase { get; }
 

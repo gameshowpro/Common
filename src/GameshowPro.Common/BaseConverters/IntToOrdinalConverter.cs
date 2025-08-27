@@ -2,8 +2,13 @@
 
 namespace GameshowPro.Common.BaseConverters;
 
+/// <summary>
+/// Converts an integer to its ordinal string (e.g., 1 -> 1st). Optional parameter toggles superscript.
+/// <remarks>Docs added by AI.</remarks>
+/// </summary>
 public class IntToOrdinalConverter : ICommonValueConverter
 {
+    /// <inheritdoc/>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null)
@@ -25,6 +30,7 @@ public class IntToOrdinalConverter : ICommonValueConverter
         }
     }
 
+    /// <inheritdoc/>
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();

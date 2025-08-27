@@ -28,6 +28,7 @@ public static partial class Utils
     /// </summary>
     /// <typeparam name="TFirst">The type of the elements of the first input sequence.</typeparam>
     /// <typeparam name="TSecond">The type of the elements of the second input sequence.</typeparam>
+    /// <typeparam name="TResult">The type of the elements produced by <paramref name="resultSelector"/>.</typeparam>
     /// <param name="first">The first sequence to merge.</param>
     /// <param name="firstFiller">The filler value to use if the first sequence runs out of elements first.</param>
     /// <param name="second">The second sequence to merge.</param>
@@ -663,7 +664,8 @@ public static partial class Utils
     /// </summary>
     /// <param name="timeSpan">The timespan to be serialized.</param>
     /// <param name="includeHour">If false, the hour data will be rolled into the minutes.</param>
-    /// <param name="minuteMinimumDigits">The minimum number of digits to include in the hour portion.</param>
+    /// <param name="minuteMinimumDigits">The minimum number of digits to include in the minutes portion.</param>
+    /// <param name="decimalPlaces">The number of decimal places for the seconds portion.</param>
     public static string ToString(this TimeSpan timeSpan, bool includeHour, int minuteMinimumDigits, int decimalPlaces)
     {
         StringBuilder stringBuilder = new(32);
@@ -735,7 +737,7 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Ensure the given generic list contains the specified number of entries.
+    /// Ensure the given generic list contains at least <paramref name="minCount"/> entries.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
@@ -778,7 +780,8 @@ public static partial class Utils
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
-    /// <param name="count">The number of entries required.</param>
+    /// <param name="minCount">The minimum number of entries required.</param>
+    /// <param name="maxCount">The maximum number of entries allowed.</param>
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureListCount<T>(this ObservableCollection<T> list, int minCount, int maxCount, Func<int, T> factory)
     {
@@ -787,11 +790,12 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Ensure the given generic list contains the specified number of entries.
+    /// Ensure the given generic list contains at least <paramref name="minCount"/> and at most <paramref name="maxCount"/> entries.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
-    /// <param name="count">The number of entries required.</param>
+    /// <param name="minCount">The minimum number of entries required.</param>
+    /// <param name="maxCount">The maximum number of entries allowed.</param>
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureOrCreateListCount<T>(ref ObservableCollection<T> list, int minCount, int maxCount, Func<int, T> factory)
     {
@@ -800,11 +804,12 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Ensure the given generic list contains the specified number of entries.
+    /// Ensure the given generic list contains at least <paramref name="minCount"/> and at most <paramref name="maxCount"/> entries.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
-    /// <param name="count">The number of entries required.</param>
+    /// <param name="minCount">The minimum number of entries required.</param>
+    /// <param name="maxCount">The maximum number of entries allowed.</param>
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureListCount<T>(this ObservableCollectionEx<T> list, int minCount, int maxCount, Func<int, T> factory) where T : INotifyPropertyChanged
     {
@@ -813,11 +818,12 @@ public static partial class Utils
     }
 
     /// <summary>
-    /// Ensure the given generic list contains the specified number of entries.
+    /// Ensure the given generic list contains at least <paramref name="minCount"/> and at most <paramref name="maxCount"/> entries.
     /// </summary>
     /// <typeparam name="T">The type of the generic list.</typeparam>
     /// <param name="list">The list to be checked.</param>
-    /// <param name="count">The number of entries required.</param>
+    /// <param name="minCount">The minimum number of entries required.</param>
+    /// <param name="maxCount">The maximum number of entries allowed.</param>
     /// <param name="factory">A function which will create a new list entry given the current count of the list.</param>
     public static void EnsureOrCreateListCount<T>(ref ObservableCollectionEx<T> list, int minCount, int maxCount, Func<int, T> factory) where T : INotifyPropertyChanged
     {
@@ -1007,9 +1013,10 @@ where T : IIndexed
     }
 
     /// <summary>
-    /// Performs the specified action on each element of the <see cref="IEnumerable{T}">, making the element's positional index available to the action.
+    /// Performs the specified action on each element of the <see cref="IEnumerable{T}"/>, making the element's positional index available to the action.
     /// </summary>
-    /// <param name="action">The <see cref="Action{T, int}"/> delegate to perform on each element of the list.</param>
+    /// <param name="list">The source sequence.</param>
+    /// <param name="action">The <c>Action&lt;T,int&gt;</c> delegate to perform on each element of the list.</param>
     public static void ForEachWithIndex<T>(this IEnumerable<T> list, Action<T, int> action)
     {
         int index = 0;
@@ -1020,8 +1027,9 @@ where T : IIndexed
     }
 
     /// <summary>
-    /// Performs the specified action on each element of the <see cref="IEnumerable{T}">.
+    /// Performs the specified action on each element of the <see cref="IEnumerable{T}"/>.
     /// </summary>
+    /// <param name="list">The source sequence.</param>
     /// <param name="action">The <see cref="Action{T}"/> delegate to perform on each element of the list.</param>
     public static void ForEach<T>(this IEnumerable<T> list, Action<T> action)
     {
@@ -1104,7 +1112,7 @@ where T : IIndexed
         => index.IsInRange(0, source.Length, false) ? source[index] : null;
 
     /// <summary>
-    /// A custom version of <see cref="Enumerable.ElementAtOrDefault"/> for value types which will return null if the index is out of range or the source is null.
+    /// A custom version of ElementAtOrDefault for value types which will return null if the index is out of range or the source is null.
     /// </summary>
     /// <typeparam name="T">The non-nullable value type</typeparam>
     public static T? ElementAtOrNull<T>(this IEnumerable<T> source, int index) where T : struct
@@ -1138,14 +1146,14 @@ where T : IIndexed
     }
 
     /// <summary>
-    /// A custom version of <see cref="Enumerable.FirstOrDefault"/> for value types which will return null if the source is null or empty.
+    /// A custom version of FirstOrDefault for value types which will return null if the source is null or empty.
     /// </summary>
     /// <typeparam name="TSource">The non-nullable value type</typeparam>
     public static TSource? FirstOrNull<TSource>(this IReadOnlyList<TSource>? source) where TSource : struct
         => source == null || source.Count == 0 ? null : source[0];
 
     /// <summary>
-    /// A custom version of <see cref="Enumerable.FirstOrDefault"/> for value types which will return null if the source is null or empty.
+    /// A custom version of FirstOrDefault for value types which will return null if the source is null or empty.
     /// </summary>
     /// <typeparam name="TSource">The non-nullable value type</typeparam>
     public static TSource? LastOrNull<TSource>(this IReadOnlyList<TSource>? source) where TSource : struct
@@ -1215,7 +1223,7 @@ where T : IIndexed
 
 
     /// <summary>
-    /// Safely filter out null values from a <see cref="IEnumerable{TSource}"/> where <see cref="TSource"/> is a nullable value type, returning a sequence of non-nullable <see cref="TSource"/> types.
+    /// Safely filter out null values from a <see cref="IEnumerable{TSource}"/> where <typeparamref name="TSource"/> is a nullable value type, returning a sequence of non-nullable <typeparamref name="TSource"/> values.
     /// </summary>
     /// <typeparam name="TSource">The item type from when nullability is to be removed.</typeparam>
     /// <param name="source">The source sequence</param>
@@ -1224,7 +1232,7 @@ where T : IIndexed
         => source.Where(o => o.HasValue).Select(o => o!.Value);
 
     /// <summary>
-    /// Safely filter out null values from a <see cref="IEnumerable{TSource}"/> where <see cref="TSource"/> is a nullable reference type, returning a sequence of non-nullable <see cref="TSource"/> types.
+    /// Safely filter out null values from a <see cref="IEnumerable{TSource}"/> where <typeparamref name="TSource"/> is a nullable reference type, returning a sequence of non-nullable <typeparamref name="TSource"/> values.
     /// </summary>
     /// <typeparam name="TSource">The item type from when nullability is to be removed.</typeparam>
     /// <param name="source">The source sequence</param>
@@ -1723,9 +1731,8 @@ where T : IIndexed
     }
 
     /// <summary>
-    /// Return a shuffled sequence of numbers.
+    /// Return a shuffled sequence of numbers in the range [0, <paramref name="count"/>).
     /// </summary>
-    /// <param name="start">The lowest number in the sequence.</param>
     /// <param name="count">The length of the sequence.</param>
     /// <param name="rnd">The random number generator to use. If null, use default instance.</param>
     public static int[] ShuffledNumbers(int count, Random? rnd)
@@ -1745,7 +1752,7 @@ where T : IIndexed
     /// </summary>
     /// <param name="sequenceLength">The length of the sequence.</param>
     /// <param name="rnd">The random number generator to use. If null, use default instance.</param>
-    /// <param name="preventedResults">A <see cref="HashSet"/> return valued to be disallowed./param>
+    /// <param name="preventedResults">A set of result arrays that should be disallowed.</param>
     public static int[] ShuffledNumbers(int sequenceLength, Random? rnd, HashSet<int[]> preventedResults)
     {
         //There are more efficient ways to do this, but none simpler.
@@ -1791,12 +1798,13 @@ where T : IIndexed
     }
 
     /// <summary>
-    /// Return a list of items of a given length, each taken from a source pool. A minimum repeat distance is observed to ensure the matching results are not returned to close to each other.
+    /// Return a list of items of a given length, each taken from a source pool. A minimum repeat distance is observed to ensure matching results are not returned too close to each other.
     /// </summary>
-    /// <param name="sourcePool">The number of values to choose from, including zero.</param>
+    /// <param name="sourceLength">The number of values to choose from, including zero.</param>
     /// <param name="destinationLength">The length of the output array.</param>
     /// <param name="loopback">If true, items at the end out the sequence are also checked against items at the start.</param>
     /// <param name="minimumRepeatDistance">The minimum distance enforced between matching items.</param>
+    /// <param name="rnd">The random number generator to use. If null, use default instance.</param>
     /// <returns></returns>
     public static ImmutableArray<int> RandomSequenceWithMinimumDistance(int sourceLength, int destinationLength, int minimumRepeatDistance, bool loopback, Random? rnd)
     {
@@ -2001,7 +2009,7 @@ where T : IIndexed
     }
 
     /// <summary>
-    /// Alternative to <see cref="IDictionary<TKey, TValue>.TryGetValue"/> better suited to inlining when key is value type.
+    /// Alternative to <c>IDictionary&lt;TKey,TValue&gt;.TryGetValue</c> better suited to inlining when key is value type.
     /// </summary>
     public static TValue? TryGetValueOrNull<TKey, TValue>(this IDictionary<TKey, TValue>? dictionary, TKey? key)
         where TKey : struct
@@ -2014,7 +2022,7 @@ where T : IIndexed
     }
 
     /// <summary>
-    /// Alternative to <see cref="IDictionary<TKey, TValue>.TryGetValue"/> better suited to inlining when key is reference type.
+    /// Alternative to <c>IDictionary&lt;TKey,TValue&gt;.TryGetValue</c> better suited to inlining when key is reference type.
     /// </summary>
     public static TValue? TryGetValueOrNull<TKey, TValue>(this IDictionary<TKey, TValue>? dictionary, TKey key)
     {
@@ -2062,7 +2070,7 @@ where T : IIndexed
     }
 
     /// <summary>
-    /// Return true and output safe reference to <see cref="ToCheck"/> if it's not null.
+    /// Return true and output safe reference to the object if it's not null.
     /// </summary>
     /// <typeparam name="T">The type of object to check.</typeparam>
     /// <param name="toCheck">The object to check.</param>
@@ -2079,7 +2087,7 @@ where T : IIndexed
     }
 
     /// <summary>
-    /// Return true and output safe reference to <see cref="ToCheck"/> if it's not null.
+    /// Return true and output safe reference to the object if it's not null.
     /// </summary>
     /// <typeparam name="T">The type of object to check.</typeparam>
     /// <param name="toCheck">The object to check.</param>
@@ -2097,7 +2105,7 @@ where T : IIndexed
 
     private static readonly Type s_runtimeType = typeof(Type).GetType(); //Trick to get and instance of an internal object.
     /// <summary>
-    /// Returns true if supplied <see cref="Type"/> is either <see cref="Type"/> or <see cref="System.RuntimeType"/>.
+    /// Returns true if supplied type is either Type or the runtime Type implementation.
     /// </summary>
     public static bool IsTypeOrRuntimeType(this Type type)
     {

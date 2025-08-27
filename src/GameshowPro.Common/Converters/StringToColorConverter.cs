@@ -3,8 +3,13 @@ using Color = System.Windows.Media.Color;
 
 namespace GameshowPro.Common.Converters;
 
+/// <summary>
+/// Converts a string (e.g., #RRGGBB or named color) to a Color; supports a fallback Color via parameter.
+/// <remarks>Docs added by AI.</remarks>
+/// </summary>
 public class StringToColorConverter : IValueConverter
 {
+    /// <inheritdoc/>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         Color? fallback = null;
@@ -43,6 +48,7 @@ public class StringToColorConverter : IValueConverter
         return null;
     }
 
+    /// <inheritdoc/>
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();

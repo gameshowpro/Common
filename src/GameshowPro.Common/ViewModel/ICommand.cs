@@ -1,7 +1,7 @@
 ﻿namespace GameshowPro.Common.ViewModel;
 
 /// <summary>
-/// Defines a command in a cross-platform application. This is equivalent to the <see cref="Windows.Input.ICommand"/> interface that is used in Windows builds.
+/// Defines a command in a cross-platform application. This mirrors the ICommand pattern used by many UI frameworks.
 /// </summary>
 public interface ICommand
 {

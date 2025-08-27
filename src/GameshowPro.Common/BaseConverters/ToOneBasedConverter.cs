@@ -2,8 +2,13 @@
 
 namespace GameshowPro.Common.BaseConverters;
 
+/// <summary>
+/// Offsets zero-based numeric values by +1 for display and parses back to zero-based.
+/// <remarks>Docs added by AI.</remarks>
+/// </summary>
 public class ToOneBasedConverter : ICommonValueConverter
 {
+    /// <inheritdoc/>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null)
@@ -18,6 +23,7 @@ public class ToOneBasedConverter : ICommonValueConverter
         };
     }
 
+    /// <inheritdoc/>
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null)

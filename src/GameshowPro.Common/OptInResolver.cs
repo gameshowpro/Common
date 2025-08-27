@@ -3,7 +3,7 @@
 namespace GameshowPro.Common;
 
 /// <summary>
-/// Custom Type resolver that only includes properties which are marked with the <see cref="TDataMemberAttribute"/>.
+/// Custom Type resolver that only includes properties which are marked with the <typeparamref name="TDataMemberAttribute"/>.
 /// </summary>
 public class OptInResolver<TDataMemberAttribute> : DefaultJsonTypeInfoResolver
 {
