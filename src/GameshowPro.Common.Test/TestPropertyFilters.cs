@@ -14,10 +14,14 @@ namespace GameshowPro.Common.Test;
 public class TestPropertyFilters
 {
     private readonly PropertyChangeFilters _filters;
-
+    private static bool _loggerAssigned = false;
     public TestPropertyFilters()
     {
-        PropertyChangeFilters.AssignLoggerFactory(NullLoggerFactory.Instance);
+        if (!_loggerAssigned)
+        {
+            PropertyChangeFilters.AssignLoggerFactory(NullLoggerFactory.Instance);
+            _loggerAssigned = true;
+        }
         _filters = new("test");
     }
 
