@@ -3,7 +3,7 @@
 /// <summary>
 /// Some controls, particularly the data grid, mark mousewheel events as handled, even if they don't have scrolling enabled.
 /// This behavior is a workaround, making the ScrollViewer respond to preview events, which are not swallowed.
-/// Usage looks like: <ScrollViewer comview:ScrollViewerCustomizeBehavior.UsePreviewEvents="True">
+/// Usage looks like: <c>&lt;ScrollViewer comview:ScrollViewerCustomizeBehavior.UsePreviewEvents="True" /&gt;</c>
 /// </summary>
 public static class ScrollViewerCustomizeBehavior
 {

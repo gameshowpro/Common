@@ -8,11 +8,12 @@ namespace GameshowPro.Common.View;
 /// This is a decorator for WPF comboboxes. It ensures that selected values survive an update of an items source, contrary to default behavior.
 /// </summary>
 /// <example>
-///            <ComboBox 
-///             SelectedValue = "{Binding SelectedCaptureDevice}" 
-///             SelectedValuePath = "guid" 
-///             comview:ComboBoxValueHoldDecorator.ItemsSource = "{Binding CaptureDeviceList}">
-///            <ComboBox>
+/// <code>
+/// &lt;ComboBox
+///     SelectedValue="{Binding SelectedCaptureDevice}"
+///     SelectedValuePath="guid"
+///     comview:ComboBoxValueHoldDecorator.ItemsSource="{Binding CaptureDeviceList}" /&gt;
+/// </code>
 /// </example>
 public static class ComboBoxValueHoldDecorator
 {
