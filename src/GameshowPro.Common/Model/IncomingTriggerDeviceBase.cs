@@ -17,7 +17,7 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : ObservableClass, 
     {
         _loggerFactory = loggerFactory;
         _changeFilters = new(GetType().Name);
-        _logger = loggerFactory.CreateLogger(GetType());
+        _logger = loggerFactory.CreateLogger($"{GetType().Name}[{index}]");
         NamePrefix = namePrefix;
         Index = index;
         ServiceState = CreateServiceState();
