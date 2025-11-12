@@ -5,7 +5,7 @@ public record SettingsFileSpecification(object Key, string FileName, bool IsWith
 /// <summary>
 /// A standardized way to store and retrieve a set of settings file names against consistent keys.
 /// If the key is a <see cref="Type"/>, additional functionality is available.
-/// This is the legacy implementation of <see cref="ISettingsFileManager"/>, based on <see cref="Newtonsoft.Json"/>.
+/// This is a legacy implementation based on Newtonsoft.Json.
 /// </summary>
 public class SettingsFileManager
 {
@@ -19,7 +19,8 @@ public class SettingsFileManager
     /// <param name="rootFolder">The system folder in which the data directory will be rooted.</param>
     /// <param name="organization">The name of the first level of folder within the system folder.</param>
     /// <param name="project">The name of the second level of folder within the system folder.</param>
-    /// <param name="fileNames">A dictionary of file names keyed by their associated <see cref="Type"/> or more complex identifier (in the case of multiple files for one type)</param>
+    /// <param name="logger">Logger instance used for status and warnings.</param>
+    /// <param name="fileSpecifications">A list of file names keyed by their associated <see cref="Type"/> or more complex identifier (in the case of multiple files for one type)</param>
     public SettingsFileManager(
         Environment.SpecialFolder rootFolder,
         string? organization,
@@ -37,7 +38,9 @@ public class SettingsFileManager
     /// <param name="legacyFolder">A system folder in which the data directory may have been previously rooted and be in need of migration.</param>
     /// <param name="organization">The name of the first level of folder within the system folder.</param>
     /// <param name="project">The name of the second level of folder within the system folder.</param>
-    /// <param name="fileNames">A dictionary of file names keyed by their associated <see cref="Type"/> or more complex identifier (in the case of multiple files for one type)</param>
+    /// <param name="persistence">The persistence provider used for serialization.</param>
+    /// <param name="logger">Logger instance used for status and warnings.</param>
+    /// <param name="fileSpecifications">A list of file names keyed by their associated <see cref="Type"/> or more complex identifier (in the case of multiple files for one type)</param>
     public SettingsFileManager(
         Environment.SpecialFolder rootFolder,
         Environment.SpecialFolder legacyFolder,
@@ -83,6 +86,7 @@ public class SettingsFileManager
     /// </summary>
     /// <param name="current">The destination</param>
     /// <param name="legacy">The possible original</param>
+    /// <param name="logger">Logger instance used for status and warnings.</param>
     private static void MigrateDirectory(string current, string legacy, ILogger logger)
     {
         DirectoryInfo? legacyDir = new(legacy);
@@ -160,6 +164,7 @@ public class SettingsFileManager
     /// Try to get the absolute path associated with the given key, which is most commonly a <see cref="Type"/>.
     /// </summary>
     /// <param name="key">The key associated with the path, which is most commonly a <see cref="Type"/></param>
+    /// <param name="path">The resolved absolute path, if found.</param>
     public bool TryGetPath(object key, [NotNullWhen(true)] out string? path)
     {
         if (_fileNames.TryGetValue(key, out SettingsFileSpecification? settingsFile))
@@ -190,6 +195,7 @@ public class SettingsFileManager
     /// </summary>
     /// <param name="key">The key which was associated with this object's file.</param>
     /// <typeparam name="T">The type of the object being depersisted.</typeparam>
+    /// <param name="cancellationToken">An optional cancellation token.</param>
     public async Task<T?> DepersistAsync<T>(object key, CancellationToken? cancellationToken) where T : new()
         => await _persistence.Depersist<T>(GetPath(key), false, true, _logger, cancellationToken);
 
@@ -206,6 +212,7 @@ public class SettingsFileManager
     /// </summary>
     /// <param name="key">The key which was associated with this object's file.</param>
     /// <typeparam name="T">The type of the object being depersisted.</typeparam>
+    /// <param name="cancellationToken">An optional cancellation token.</param>
     public async Task<T> DepersistAsyncOrCreate<T>(object key, CancellationToken? cancellationToken) where T : new()
     {
         T? result = await _persistence.Depersist<T>(GetPath(key), false, true, _logger, cancellationToken);
@@ -233,6 +240,7 @@ public class SettingsFileManager
     /// </summary>
     /// <typeparam name="T">The type of the object being persisted</typeparam>
     /// <param name="obj">The object being persisted. If null, there will be no exception and no operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token.</param>
     public async Task PersistAsync<T>(T? obj, CancellationToken? cancellationToken) where T : new()
     {
         if (obj is not null)

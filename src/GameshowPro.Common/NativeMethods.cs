@@ -80,7 +80,7 @@ public static class NativeMethods
     /// <summary>
     /// Represents the different types of scaling.
     /// </summary>
-    /// <seealso cref="https://msdn.microsoft.com/en-us/library/windows/desktop/dn280511.aspx"/>
+    /// <seealso href="https://msdn.microsoft.com/en-us/library/windows/desktop/dn280511.aspx">MSDN: GetDpiForMonitor</seealso>
     public enum DpiType
     {
         Effective = 0,

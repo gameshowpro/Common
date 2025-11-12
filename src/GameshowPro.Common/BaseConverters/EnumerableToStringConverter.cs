@@ -10,6 +10,10 @@ public enum StringConverterJoinType
     Bullet,
     Tilda
 }
+/// <summary>
+/// Converts enumerable values to a single delimited string and back to collections.
+/// <remarks>Docs added by AI.</remarks>
+/// </summary>
 public class EnumerableToStringConverter(object doNothing) : ICommonValueConverter
 {
     public string NullStringPlaceholder { get; set; } = "NullPlaceholder";
@@ -20,6 +24,7 @@ public class EnumerableToStringConverter(object doNothing) : ICommonValueConvert
     public int IntUiOffset { get; set; } = 1;
     private readonly object _doNothing = doNothing;
 
+    /// <inheritdoc/>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null)
@@ -101,6 +106,7 @@ public class EnumerableToStringConverter(object doNothing) : ICommonValueConvert
         }
     }
 
+    /// <inheritdoc/>
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         Type? itemType = null;

@@ -2,6 +2,10 @@
 
 namespace GameshowPro.Common.BaseConverters;
 
+/// <summary>
+/// Converts a full-scale value to dBFS using 20*log10(value/parameter). Parameter is multiplier.
+/// <remarks>Docs added by AI.</remarks>
+/// </summary>
 public class FsToDbfs : ICommonValueConverter
 {
     private static double ParameterToMultiplier(object? parameter)
@@ -13,6 +17,7 @@ public class FsToDbfs : ICommonValueConverter
         return 1d;
     }
 
+    /// <inheritdoc/>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         double multiplier = ParameterToMultiplier(parameter);
@@ -25,6 +30,7 @@ public class FsToDbfs : ICommonValueConverter
         return inRange;
     }
 
+    /// <inheritdoc/>
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         double multiplier = ParameterToMultiplier(parameter);

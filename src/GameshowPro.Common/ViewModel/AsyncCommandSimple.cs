@@ -23,10 +23,10 @@ public class AsyncCommandSimple(
     #endregion
     #region Constructors
     /// <summary>
-    /// Initializes a new instance of <see cref="AsyncCommandSimple"/> without predefined <seealso cref="CanExecute"/> logic or an <see cref="Action{Exception}"/> to handle errors.
+    /// Initializes a new instance of <see cref="AsyncCommandSimple"/> without predefined <seealso cref="CanExecute()"/> logic or an <see cref="Action{Exception}"/> to handle errors.
     /// </summary>
     /// <param name="execute">Delegate to execute when Execute is called on the command.</param>
-    /// <remarks><seealso cref="CanExecute"/> will always return true unless changed using <see cref="SetCanExecute(bool)"/>.</remarks>
+    /// <remarks><seealso cref="CanExecute()"/> will always return true unless changed using <see cref="SetCanExecute(bool)"/>.</remarks>
     public AsyncCommandSimple(Func<Task> execute)
         : this(execute, null, null)
     {
@@ -38,7 +38,7 @@ public class AsyncCommandSimple(
     /// Set the CanExecute flag using external logic, raising <see cref="CanExecuteChanged"/> as appropriate.
     /// </summary>
     /// <param name="canExecute">The new value.</param>
-    /// <exception cref="InvalidOperationException">Raised if <see cref="Func{bool}"/> was supplied in constructor.</exception>
+    /// <exception cref="InvalidOperationException">Raised if <c>Func&lt;bool&gt;</c> was supplied in constructor.</exception>
     public void SetCanExecute(bool canExecute)
     {
         if (_canExecute != null)
@@ -55,7 +55,7 @@ public class AsyncCommandSimple(
     /// <summary>
     /// Run pre-defined CanExecute logic and raise <see cref="CanExecuteChanged"/> if this results in a change. Since this <see cref="ICommand"/> does not support parameters, this is only one possible result.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Raised if <see cref="Func{bool}"/> was not supplied in constructor.</exception>
+    /// <exception cref="InvalidOperationException">Raised if <c>Func&lt;bool&gt;</c> was not supplied in constructor.</exception>
     public void RequeryCanExecute()
     {
         if (_canExecute == null)

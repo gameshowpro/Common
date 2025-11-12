@@ -4,35 +4,33 @@ using System.Windows.Media;
 namespace GameshowPro.Common.View;
 
 /// <summary>
-/// Usage example:
-/// <ComboBox x:Name="MyComboBox"
+/// Usage examples:
+/// <para>Specify only SelectedItemTemplate:</para>
+/// <code>
+/// &lt;ComboBox x:Name="MyComboBox"
 ///     ItemsSource="{Binding Items}"
-///     ItemTemplateSelector="{comview:ComboBoxTemplateSelector
-///         SelectedItemTemplate={StaticResource MyTemplate} />
-///         
-/// Specify both templates:
-/// <ComboBox x:Name="MyComboBox"
+///     ItemTemplateSelector="{comview:ComboBoxTemplateSelector SelectedItemTemplate={StaticResource MyTemplate}}" /&gt;
+/// </code>
+/// <para>Specify both templates:</para>
+/// <code>
+/// &lt;ComboBox x:Name="MyComboBox"
 ///     ItemsSource="{Binding Items}"
-///     ItemTemplateSelector="{comview:ComboBoxTemplateSelector
-///         SelectedItemTemplate={StaticResource MySelectedItemTemplate},
-///         DropdownItemsTemplate ={StaticResource MyDropDownItemTemplate}}" />
-///         
-/// Or with DataTemplateSelectors:     
-/// <ComboBox x:Name="MyComboBox"
+///     ItemTemplateSelector="{comview:ComboBoxTemplateSelector SelectedItemTemplate={StaticResource MySelectedItemTemplate}, DropdownItemsTemplate={StaticResource MyDropDownItemTemplate}}" /&gt;
+/// </code>
+/// <para>With DataTemplateSelectors:</para>
+/// <code>
+/// &lt;ComboBox x:Name="MyComboBox"
 ///     ItemsSource="{Binding Items}"
-///     ItemTemplateSelector="{comview:ComboBoxTemplateSelector
-///         SelectedItemTemplateSelector={StaticResource MySelectedItemTemplateSelector},
-///         DropdownItemsTemplateSelector={StaticResource MyDropDownItemTemplateSelector}}" />
-///         
-/// Or mixed:
-/// <ComboBox x:Name="MyComboBox"
+///     ItemTemplateSelector="{comview:ComboBoxTemplateSelector SelectedItemTemplateSelector={StaticResource MySelectedItemTemplateSelector}, DropdownItemsTemplateSelector={StaticResource MyDropDownItemTemplateSelector}}" /&gt;
+/// </code>
+/// <para>Mixed:</para>
+/// <code>
+/// &lt;ComboBox x:Name="MyComboBox"
 ///     ItemsSource="{Binding Items}"
-///     ItemTemplateSelector="{comview:ComboBoxTemplateSelector
-///         SelectedItemTemplate={StaticResource MySelectedItemTemplate},
-///         DropdownItemsTemplateSelector={StaticResource MyDropDownItemTemplateSelector}}" />
-/// 
+///     ItemTemplateSelector="{comview:ComboBoxTemplateSelector SelectedItemTemplate={StaticResource MySelectedItemTemplate}, DropdownItemsTemplateSelector={StaticResource MyDropDownItemTemplateSelector}}" /&gt;
+/// </code>
 /// See https://stackoverflow.com/a/33421573/6671381
-/// 
+/// <remarks>Docs added by AI.</remarks>
 /// </summary>
 public class ComboBoxTemplateSelector : DataTemplateSelector
 {

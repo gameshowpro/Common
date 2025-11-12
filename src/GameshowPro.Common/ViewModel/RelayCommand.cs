@@ -34,7 +34,7 @@ public class RelayCommand<T>(Action<T?> execute, Predicate<T?>? canExecute) : IC
     /// Set the CanExecute flag using external logic, raising <see cref="CanExecuteChanged"/> as appropriate.
     /// </summary>
     /// <param name="canExecute">The new value.</param>
-    /// <exception cref="InvalidOperationException">Raised if <see cref="Predicate'1"/> was supplied in constructor.</exception>
+    /// <exception cref="InvalidOperationException">Raised if <c>Predicate&lt;T&gt;</c> was supplied in constructor.</exception>
     public void SetCanExecute(bool canExecute)
     {
         if (_canExecute != null)
@@ -51,9 +51,9 @@ public class RelayCommand<T>(Action<T?> execute, Predicate<T?>? canExecute) : IC
     private bool _canExecuteBool = true;
 
     /// <summary>
-    /// Raise <see cref="CanExecuteChanged"/> so that consumers can rerun <see cref="CanExecute"/> with their own parameters.
+    /// Raise <see cref="CanExecuteChanged"/> so that consumers can rerun <see cref="CanExecute(object?)"/> with their own parameters.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Raised if <see cref="Predicate'1"/> was not supplied in constructor.</exception>
+    /// <exception cref="InvalidOperationException">Raised if <c>Predicate&lt;T&gt;</c> was not supplied in constructor.</exception>
     public void RequeryCanExecute()
     {
         if (_canExecute == null)

@@ -2,6 +2,10 @@
 
 namespace GameshowPro.Common.Model;
 
+/// <summary>
+/// Base class that implements property change notification with optional UI-thread dispatching.
+/// <remarks>Docs added by AI.</remarks>
+/// </summary>
 public class ObservableClass : INotifyPropertyChanged
 {
 #if WPF
@@ -19,7 +23,7 @@ public class ObservableClass : INotifyPropertyChanged
     /// A subclass of PropertyChangedEventArgs that <see cref="PropertyChangedOnOriginalThread"/> has already been raised and should not be raised again.
     /// Only created and consumed within this <see cref="ObservableClass"/>.
     /// </summary>
-    /// <param name="propertyName"></param>
+    /// <remarks>Docs added by AI.</remarks>
     private class PropertyChangeEventArgsAlreadyRaisedOnOriginalThread(string propertyName) : PropertyChangedEventArgs(propertyName)
     {
     }
@@ -35,6 +39,10 @@ public class ObservableClass : INotifyPropertyChanged
     /// Raised when property on the subclass is changed.  This event is always raised on the thread that set the property, so should not be used for UI binding.
     /// </summary>
     public event PropertyChangedEventHandler? PropertyChangedOnOriginalThread;
+    /// <summary>
+    /// When true, enumerable properties are compared by their contents instead of reference equality when determining change.
+    /// </summary>
+    /// <remarks>Docs added by AI.</remarks>
     [IgnoreDataMember]
     protected virtual bool CompareEnumerablesByContent { get => false; }
 
@@ -76,6 +84,10 @@ public class ObservableClass : INotifyPropertyChanged
 
     }
 
+    /// <summary>
+    /// When set, suppresses event emission; a single empty change will be raised when re-enabled if changes occurred.
+    /// </summary>
+    /// <remarks>Docs added by AI.</remarks>
     [IgnoreDataMember]
     public bool SuppressEvents
     {
@@ -100,6 +112,8 @@ public class ObservableClass : INotifyPropertyChanged
     /// <summary>
     /// Set a property, if it has changed, and raise event as appropriate.  Return boolean indicated whether any change was made.
     /// </summary>
+    /// <param name="field">The backing field to update when the new value differs.</param>
+    /// <param name="value">The proposed new value.</param>
     /// <param name="memberName">The name of the member to set, to be used in event invocations. Automatically set to CallerMemberName.</param>
     /// <param name="forceEvent">If true, event is raised regardless of whether there was a change.</param>
     /// <param name="beforeChangeDelegate">If a pending change is detected, this delegate will be invoked before the change is applied. This is the last chance to access the old value. Note: the delegate is run on the calling thread rather than any dispatcher.</param>
@@ -141,8 +155,15 @@ public class ObservableClass : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Set a property which is backed by an item from an array. If it has changed, and throw event as appropriate.  Return boolean indicated whether any change was made.
+    /// Sets a property value that is stored in a list at a specific index, raising change events if the value changes.
     /// </summary>
+    /// <typeparam name="F">The element type.</typeparam>
+    /// <param name="fieldList">The list that backs the property.</param>
+    /// <param name="fieldIndex">The index of the element in the list.</param>
+    /// <param name="value">The new value to set.</param>
+    /// <param name="memberName">Caller-provided member name; defaults automatically.</param>
+    /// <returns>True if the value changed; otherwise false.</returns>
+    /// <remarks>Docs added by AI.</remarks>
     protected bool SetProperty<F>(IList<F> fieldList, int fieldIndex, F value, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "")
     {
         F field = fieldList[fieldIndex];
@@ -154,6 +175,15 @@ public class ObservableClass : INotifyPropertyChanged
         return false;
     }
 
+    /// <summary>
+    /// Determines whether two values are different, with optional enumerable content comparison.
+    /// </summary>
+    /// <typeparam name="F">The value type.</typeparam>
+    /// <param name="compareEnumerablesByContent">When true, compares enumerable contents element-by-element.</param>
+    /// <param name="field">The current value.</param>
+    /// <param name="value">The new value.</param>
+    /// <returns>True if the values differ; otherwise false.</returns>
+    /// <remarks>Docs added by AI.</remarks>
     protected static bool HasChanged<F>(bool compareEnumerablesByContent, F field, F value)
     {
         if (field == null)
@@ -174,6 +204,13 @@ public class ObservableClass : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Compares two non-generic enumerables for sequence equality, optimized for common collection types.
+    /// </summary>
+    /// <param name="first">The first sequence.</param>
+    /// <param name="second">The second sequence.</param>
+    /// <returns>True if sequences are equal; otherwise false.</returns>
+    /// <remarks>Docs added by AI.</remarks>
     public static bool SequenceEqual(IEnumerable first, IEnumerable second)
     {
         if (first is ICollection firstCol && second is ICollection secondCol)

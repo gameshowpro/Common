@@ -5,8 +5,14 @@ using System.Windows.Media;
 
 namespace GameshowPro.Common.AttachedProperties;
 
+/// <summary>
+/// Attached property that selects all text in a TextBox when it receives focus.
+/// <remarks>Docs added by AI.</remarks>
+/// </summary>
 public class SelectTextOnFocus : DependencyObject
 {
+    /// <summary>Attached property that enables the select-on-focus behavior.</summary>
+    /// <remarks>Docs added by AI.</remarks>
     public static readonly DependencyProperty s_activeProperty = DependencyProperty.RegisterAttached(
         "Active",
         typeof(bool),
@@ -68,11 +74,18 @@ public class SelectTextOnFocus : DependencyObject
 
     [AttachedPropertyBrowsableForChildren(IncludeDescendants = false)]
     [AttachedPropertyBrowsableForType(typeof(TextBox))]
+    /// <summary>Get the Active value from the attached property.</summary>
+    /// <param name="object">The dependency object.</param>
+    /// <remarks>Docs added by AI.</remarks>
     public static bool GetActive(DependencyObject @object)
     {
         return (bool)@object.GetValue(s_activeProperty);
     }
 
+    /// <summary>Set the Active value on the attached property.</summary>
+    /// <param name="object">The dependency object.</param>
+    /// <param name="value">True to enable select-on-focus; false to disable.</param>
+    /// <remarks>Docs added by AI.</remarks>
     public static void SetActive(DependencyObject @object, bool value)
     {
         @object.SetValue(s_activeProperty, value);

@@ -31,7 +31,7 @@ public class RelayCommandSimple(Action execute, Func<bool>? canExecute) : IComma
     /// Set the CanExecute flag using external logic, raising <see cref="CanExecuteChanged"/> as appropriate.
     /// </summary>
     /// <param name="canExecute">The new value.</param>
-    /// <exception cref="InvalidOperationException">Raised if <see cref="Func{bool}"/> was supplied in constructor.</exception>
+    /// <exception cref="InvalidOperationException">Raised if <c>Func&lt;bool&gt;</c> was supplied in constructor.</exception>
     public void SetCanExecute(bool canExecute)
     {
         if (_canExecute != null)
@@ -46,7 +46,7 @@ public class RelayCommandSimple(Action execute, Func<bool>? canExecute) : IComma
     /// <summary>
     /// Run pre-defined CanExecute logic and raise <see cref="CanExecuteChanged"/> if this results in a change. Since this <see cref="ICommand"/> does not support parameters, this is only one possible result.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Raised if <see cref="Func{bool}"/> was not supplied in constructor.</exception>
+    /// <exception cref="InvalidOperationException">Raised if <c>Func&lt;bool&gt;</c> was not supplied in constructor.</exception>
     public void RequeryCanExecute()
     {
         if (_canExecute == null)

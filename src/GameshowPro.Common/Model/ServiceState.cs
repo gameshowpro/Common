@@ -4,6 +4,13 @@ using MessagePack.Formatters;
 
 namespace GameshowPro.Common.Model;
 
+/// <summary>
+/// Data describing a service state update.
+/// <remarks>Docs added by AI.</remarks>
+/// </summary>
+/// <param name="State">The new aggregate state of the service.</param>
+/// <param name="Detail">Optional detail text.</param>
+/// <param name="Progress">Optional progress from 0 to 1, or null for indeterminate.</param>
 public record ServiceStateUpdate(RemoteServiceStates State, string? Detail, double? Progress);
 /// <summary>
 /// Record representing the state of a service.
@@ -12,7 +19,6 @@ public record ServiceStateUpdate(RemoteServiceStates State, string? Detail, doub
 /// Useful for transferring state details between services.
 /// Subclasses may extend ServiceState to add a list of sub-services to give a more detailed report of the current state, e.g. Sounds are OK, GPI card not found.
 /// </remarks>
-/// <param name="Progress">Any progress associated with the state. If finished, value should be 1. If not started, value should be 0. If indeterminate, value should be null. This is represented by a constant spinner.</param>
 [MessagePackObject, MessagePackFormatter(typeof(MsgPackResolver))]
 public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 {

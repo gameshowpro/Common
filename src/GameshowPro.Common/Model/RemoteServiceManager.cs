@@ -1,8 +1,9 @@
 ﻿namespace GameshowPro.Common.Model;
 
 /// <summary>
-/// An object that monitors a collection of remote services. Initially, it will provide dynamic grouping for monitoring UI purposes.
+/// Monitors a collection of remote services and provides dynamic grouping for monitoring UI purposes.
 /// </summary>
+/// <remarks>Docs added by AI.</remarks>
 public class RemoteServiceManager : ObservableClass
 {
     private readonly UngroupedServiceCollection _orphanServices;
@@ -10,6 +11,14 @@ public class RemoteServiceManager : ObservableClass
     private HashSet<IRemoteService> _serviceChangeSubscriptions = [];
     private HashSet<IRemoteServiceCollection> _serviceCollectionChangeSubscriptions = [];
 
+    /// <summary>
+    /// Creates a new manager over services and collections.
+    /// </summary>
+    /// <param name="settings">User-configurable settings.</param>
+    /// <param name="remoteServices">Loose services not initially in a collection.</param>
+    /// <param name="remoteServiceCollections">Pre-existing service collections.</param>
+    /// <param name="uiTemplatesByType">WPF template resource keys by type.</param>
+    /// <remarks>Docs added by AI.</remarks>
     public RemoteServiceManager(RemoteServiceManagerSettings settings, IEnumerable<IRemoteService> remoteServices, IEnumerable<IRemoteServiceCollection> remoteServiceCollections, IEnumerable<KeyValuePair<Type, string>> uiTemplatesByType)
     {
         _settings = settings;
@@ -23,6 +32,8 @@ public class RemoteServiceManager : ObservableClass
     }
 
     private RemoteServiceManagerSettings _settings;
+    /// <summary>The current settings; updating triggers regrouping.</summary>
+    /// <remarks>Docs added by AI.</remarks>
     public RemoteServiceManagerSettings Settings
     {
         get => _settings;
@@ -38,11 +49,15 @@ public class RemoteServiceManager : ObservableClass
 #if WPF
     public DataTemplateSelector DataTemplateSelector { get; }
 #endif
+    /// <summary>Adds a single service to the ungrouped collection.</summary>
+    /// <remarks>Docs added by AI.</remarks>
     public void AddService(IRemoteService service)
     {
         _orphanServices.Add(service);
     }
 
+    /// <summary>Adds a service collection and subscribes to its changes.</summary>
+    /// <remarks>Docs added by AI.</remarks>
     public void AddServices(IRemoteServiceCollection services)
     {
         _serviceCollections.Add(services);
@@ -142,6 +157,8 @@ public class RemoteServiceManager : ObservableClass
         => UpdateGroups(); 
 
     private ImmutableArray<RemoteServiceGroup> _monitorUiGroups;
+    /// <summary>Computed UI groups for monitoring.</summary>
+    /// <remarks>Docs added by AI.</remarks>
     public ImmutableArray<RemoteServiceGroup> MonitorUiGroups
     {
         get => _monitorUiGroups;
