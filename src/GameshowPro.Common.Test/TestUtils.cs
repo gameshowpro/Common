@@ -1,5 +1,5 @@
 using System.Diagnostics;
-
+[assembly: Parallelize]
 namespace GameshowPro.Common.Test;
 
 [TestClass]
@@ -21,7 +21,7 @@ public class TestUtils
                 // Act
                 ImmutableArray<int> result = Utils.RandomSequenceWithMinimumDistance(sourcePool, destinationLength, minimumRepeatDistance, true, s_rnd);
                 // Assert
-                Assert.AreEqual(destinationLength, result.Length);
+                Assert.HasCount(destinationLength, result);
                 if (sourcePool > (minimumRepeatDistance * 2))
                 {
                     ImmutableArray<int> resultRepeated = [.. result, .. result];
@@ -49,7 +49,7 @@ public class TestUtils
         var minimumRepeatDistance = -1;
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentException>(() =>
+        Assert.Throws<ArgumentException>(() =>
         {
             Utils.RandomSequenceWithMinimumDistance(sourcePool, destinationLength, minimumRepeatDistance, false, s_rnd);
         });
@@ -64,7 +64,7 @@ public class TestUtils
         var minimumRepeatDistance = 11;
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentException>(() =>
+        Assert.Throws<ArgumentException>(() =>
         {
             Utils.RandomSequenceWithMinimumDistance(sourcePool, destinationLength, minimumRepeatDistance, false, s_rnd);
         });
