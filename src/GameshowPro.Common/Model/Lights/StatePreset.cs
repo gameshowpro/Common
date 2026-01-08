@@ -36,6 +36,8 @@ public class StateLevels : ObservableClass
     /// <param name="flashOnDuration">Time duration to wait after setting on color.</param>
     /// <param name="flashOffDuration">Time duration to wait after setting off color.</param>
     /// <param name="flashCount">The number of times to cycle between on and off. Zero or null denotes unlimited. This number is double to calculate the <see cref="CycleStepCount"/></param>
+    /// <param name="phases">A list of all phases of this <see cref="StateLevels"/>, each of which can have a duration associated with it, in case cycling is required.</param>
+    /// <param name="cycleStepCount">The number of times to cycle between the phases of this <see cref="StateLevels"/>. Zero or null denotes unlimited. The final color is dictated by <paramref name="cycleStepCount"/> modulus <paramref name="phases"/>.Count.</param>
     [JsonConstructor, Obsolete("For JSON use only")]
     public StateLevels(
         string? key,
@@ -67,6 +69,7 @@ public class StateLevels : ObservableClass
     /// <param name="key">The name by which this StateLevels will be known within the <see cref="StatePresetGroup"/></param>
     /// <param name="phases">A list of all phases of this <see cref="StateLevels"/>, each of which can have a duration associated with it, in case cycling is required.</param>
     /// <param name="cycleStepCount">The number of times to cycle between the phases of this <see cref="StateLevels"/>. Zero or null denotes unlimited. The final color is dictated by <paramref name="cycleStepCount"/> modulus <paramref name="phases"/>.Count.</param>
+    /// <param name="loopBackStep">The phase index to return to after reaching the final phase.</param>
     public StateLevels(
         string? key,
         IList<StateLevelsPhase>? phases,

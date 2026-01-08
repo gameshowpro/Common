@@ -6,9 +6,6 @@ namespace GameshowPro.Common.Model.Lights;
 /// Wrapper for a channel level preset which includes iNotifyPropertyChanged
 /// </summary>
 [method: JsonConstructor]
-/// <summary>
-/// Wrapper for a channel level preset which includes iNotifyPropertyChanged
-/// </summary>
 public class StatePresetChannel(FixtureChannelType? fixtureChannelType) : ObservableClass
 {
     public StatePresetChannel() : this(null)

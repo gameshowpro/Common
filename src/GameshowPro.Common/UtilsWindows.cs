@@ -9,6 +9,7 @@ public static partial class Utils
     /// </summary>
     /// <param name="wnd">The Window to size.</param>
     /// <param name="index">The index of the target screen, where zero is always the primary.</param>
+    /// <param name="prevState">The previous state of the window, to allow restoring it later.</param>
     public static void SetAsKiosk(this Window wnd, int index, ref WindowRestoreState? prevState)
     {
         WindowRestoreState? restoreTo = prevState;
@@ -181,7 +182,7 @@ public static partial class Utils
 
 
     /// <summary>
-    /// Create a <see cref="Windows.Media.Color"/> from an array of 4 bytes representing RGBW. The result will be visually similar to an RGBW LED set to the given values.
+    /// Create a <see cref="System.Windows.Media.Color"/> from an array of 4 bytes representing RGBW. The result will be visually similar to an RGBW LED set to the given values.
     /// </summary>
     public static System.Windows.Media.Color ColorFromRGBW(int[] rgbw)
     {

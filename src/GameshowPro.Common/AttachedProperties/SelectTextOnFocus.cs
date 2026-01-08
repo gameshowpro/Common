@@ -72,11 +72,11 @@ public class SelectTextOnFocus : DependencyObject
         }
     }
 
-    [AttachedPropertyBrowsableForChildren(IncludeDescendants = false)]
-    [AttachedPropertyBrowsableForType(typeof(TextBox))]
     /// <summary>Get the Active value from the attached property.</summary>
     /// <param name="object">The dependency object.</param>
     /// <remarks>Docs added by AI.</remarks>
+    [AttachedPropertyBrowsableForChildren(IncludeDescendants = false)]
+    [AttachedPropertyBrowsableForType(typeof(TextBox))]
     public static bool GetActive(DependencyObject @object)
     {
         return (bool)@object.GetValue(s_activeProperty);

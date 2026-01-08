@@ -13,36 +13,36 @@ public class KioskWindowHandler : ObservableClass
     public class Settings : ObservableClass
     {
         private int _displayIndex = 0;
-    [DataMember, DefaultValue(0)]
-    /// <summary>
-    /// The target display index for the window.
-    /// </summary>
-    /// <remarks>Docs added by AI.</remarks>
-    public int DisplayIndex
+        /// <summary>
+        /// The target display index for the window.
+        /// </summary>
+        /// <remarks>Docs added by AI.</remarks>
+        [DataMember, DefaultValue(0)]
+        public int DisplayIndex
         {
             get { return _displayIndex; }
             set { SetProperty(ref _displayIndex, value); }
         }
 
         private bool _isKiosk = false;
-    [DataMember, DefaultValue(true)]
-    /// <summary>
-    /// Whether the window is presented in kiosk mode.
-    /// </summary>
-    /// <remarks>Docs added by AI.</remarks>
-    public bool IsKiosk
+        /// <summary>
+        /// Whether the window is presented in kiosk mode.
+        /// </summary>
+        /// <remarks>Docs added by AI.</remarks>
+        [DataMember, DefaultValue(true)]
+        public bool IsKiosk
         {
             get { return _isKiosk; }
             set { SetProperty(ref _isKiosk, value); }
         }
 
         private bool _isVisible = true;
-    [DataMember, DefaultValue(true)]
-    /// <summary>
-    /// Whether the window is currently shown.
-    /// </summary>
-    /// <remarks>Docs added by AI.</remarks>
-    public bool IsVisible
+        /// <summary>
+        /// Whether the window is currently shown.
+        /// </summary>
+        /// <remarks>Docs added by AI.</remarks>
+        [DataMember, DefaultValue(true)]
+        public bool IsVisible
         {
             get { return _isVisible; }
             set { SetProperty(ref _isVisible, value); }
