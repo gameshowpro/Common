@@ -45,7 +45,7 @@
     <LangVersion>preview</LangVersion>
     <Company>Barjonas LLC</Company>
     <Authors>Hamish Barjonas</Authors>
-    <Copyright>Barjonas LLC 2025</Copyright>
+    <Copyright>Barjonas LLC 2026</Copyright>
     <Description>Gameshow Pro common class library.</Description>
     <NeutralLanguage>en-US</NeutralLanguage>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
@@ -61,7 +61,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MessagePack" Version="3.1.4" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.1" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.9.50">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

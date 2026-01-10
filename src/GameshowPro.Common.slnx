@@ -1,0 +1,24 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="DebugWindows" />
+    <BuildType Name="Release" />
+    <BuildType Name="ReleaseWindows" />
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM32" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="GameshowPro.Common.JsonNet/GameshowPro.Common.JsonNet.csproj">
+    <Platform Solution="*|ARM32" Project="ARM32" />
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
+  <Project Path="GameshowPro.Common.NLog/GameshowPro.Common.NLog.csproj" />
+  <Project Path="GameshowPro.Common.Test/GameshowPro.Common.Test.csproj" />
+  <Project Path="GameshowPro.Common/GameshowPro.Common.csproj">
+    <Platform Solution="*|ARM32" Project="ARM32" />
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
+</Solution>
