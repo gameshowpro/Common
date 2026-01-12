@@ -43,7 +43,7 @@ public class RandomTriggerer
 
         foreach (TriggerDefinition i in triggerRandomRequest.Inputs)
         {
-            TimeSpan time = TimeSpan.FromMilliseconds((s_rnd.NextDouble() * (triggerRandomRequest.MaximumTime - triggerRandomRequest.MinimumTime).TotalMilliseconds)) + triggerRandomRequest.MinimumTime;
+            TimeSpan time = TimeSpan.FromMilliseconds(s_rnd.NextDouble() * (triggerRandomRequest.MaximumTime - triggerRandomRequest.MinimumTime).TotalMilliseconds) + triggerRandomRequest.MinimumTime;
             inputTimes.Add(new InputTime(i.Input, time, time, i.RisingEdge));
             inputTimes.Add(new InputTime(i.Input, time + TimeSpan.FromSeconds(0.2), time, !i.RisingEdge));
         }

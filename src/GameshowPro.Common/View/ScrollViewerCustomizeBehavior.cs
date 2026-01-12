@@ -41,7 +41,7 @@ public static class ScrollViewerCustomizeBehavior
         }
     }
 
-    private static void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+    private static void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {
         var scrollViewer = (ScrollViewer)sender;
         scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta);

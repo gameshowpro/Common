@@ -208,9 +208,9 @@ public class PropertyChangeFilter
             if (sender is INotifyPropertyChanged itemSender)
             {
                 int senderIndex = _itemSenders.IndexOf(itemSender);
-                if (senderIndex >= 0 && 
+                if (senderIndex >= 0 &&
                     (
-                        _notifyItemConditions[senderIndex].Contains(string.Empty) || 
+                        _notifyItemConditions[senderIndex].Contains(string.Empty) ||
                         (e.PropertyName is not null && _notifyItemConditions[senderIndex].Contains(e.PropertyName))
                     )
                 )

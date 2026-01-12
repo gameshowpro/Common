@@ -89,8 +89,8 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     /// <param name="name"></param>
     /// <param name="aggregateState"></param>
     /// <param name="detail"></param>
-    /// <param name="progress"></param>
     /// <param name="children"></param>
+    /// <param name="progress"></param>
     /// <param name="serviceStateAggregator"></param>
     public ServiceState(
         string key,
@@ -331,7 +331,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
                 {
                     IsConnectedChanged?.Invoke(this, isConnected);
                 }
-                PropertyChanged?.Invoke(this, new(nameof(AggregateState)));               
+                PropertyChanged?.Invoke(this, new(nameof(AggregateState)));
             }
         }
     }
@@ -402,7 +402,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     public static ServiceStateUpdate GetAggregateState(ServiceState state)
     {
         double? progress = state.Children.Any(s => s.Value.Progress == null) ? null : state.Children.Average(s => s.Value.Progress) ?? 0;
-        
+
         if (state.Children.All(s => s.Value.AggregateState == RemoteServiceStates.Connected))
         {
             return new(RemoteServiceStates.Connected, "OK", progress);

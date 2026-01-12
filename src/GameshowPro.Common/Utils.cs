@@ -4,7 +4,7 @@ namespace GameshowPro.Common;
 public static partial class Utils
 {
     /// <summary>
-    /// Produces a sequence of tuples with elements from the two specified sequences. 
+    /// Produces a sequence of tuples with elements from the two specified sequences.
     /// If one sequence contains more elements than the other, its missing elements will be filled with the specified value.
     /// </summary>
     /// <typeparam name="TFirst">The type of the elements of the first input sequence.</typeparam>
@@ -23,7 +23,7 @@ public static partial class Utils
         => ZipWithFill(first, firstFiller, second, secondFiller, (e1, e2) => (e1, e2));
 
     /// <summary>
-    /// Produces a sequence of results merged elements from the two specified sequences. 
+    /// Produces a sequence of results merged elements from the two specified sequences.
     /// If one sequence contains more elements than the other, its missing elements will be filled with the specified value.
     /// </summary>
     /// <typeparam name="TFirst">The type of the elements of the first input sequence.</typeparam>
@@ -103,11 +103,11 @@ public static partial class Utils
     {
         if (maxIsInclusive)
         {
-            return (input <= max && input >= min);
+            return input <= max && input >= min;
         }
         else
         {
-            return (input < max && input >= min);
+            return input < max && input >= min;
         }
     }
 
@@ -125,11 +125,11 @@ public static partial class Utils
     {
         if (maxIsInclusive)
         {
-            return (input <= max && input >= min);
+            return input <= max && input >= min;
         }
         else
         {
-            return (input < max && input >= min);
+            return input < max && input >= min;
         }
     }
 
@@ -147,11 +147,11 @@ public static partial class Utils
     {
         if (maxIsInclusive)
         {
-            return (input <= max && input >= min);
+            return input <= max && input >= min;
         }
         else
         {
-            return (input < max && input >= min);
+            return input < max && input >= min;
         }
     }
 
@@ -169,11 +169,11 @@ public static partial class Utils
     {
         if (maxIsInclusive)
         {
-            return (input <= max && input >= min);
+            return input <= max && input >= min;
         }
         else
         {
-            return (input < max && input >= min);
+            return input < max && input >= min;
         }
     }
 
@@ -191,11 +191,11 @@ public static partial class Utils
     {
         if (maxIsInclusive)
         {
-            return (input <= max && input >= min);
+            return input <= max && input >= min;
         }
         else
         {
-            return (input < max && input >= min);
+            return input < max && input >= min;
         }
     }
 
@@ -213,11 +213,11 @@ public static partial class Utils
     {
         if (maxIsInclusive)
         {
-            return (input <= max && input >= min);
+            return input <= max && input >= min;
         }
         else
         {
-            return (input < max && input >= min);
+            return input < max && input >= min;
         }
     }
 
@@ -395,7 +395,9 @@ public static partial class Utils
     public static ulong Factorial(this ulong number)
     {
         if (number < 2)
+        {
             return 1;
+        }
 
         checked
         {
@@ -419,8 +421,8 @@ public static partial class Utils
         {
             return string.Empty;
         }
-        string oneBased = ((value.Value) + (fromZeroBased ? 1 : 0)).ToString();
-        string suffix = (oneBased.Last()) switch
+        string oneBased = (value.Value + (fromZeroBased ? 1 : 0)).ToString();
+        string suffix = oneBased[^1] switch
         {
             '1' => "st",
             '2' => "nd",
@@ -443,7 +445,7 @@ public static partial class Utils
         if (value != null)
         {
             object[]? attrs = value.GetType().GetField(value.ToString())?.GetCustomAttributes(typeof(DescriptionAttribute), false);
-            if (attrs?.Length > 0 && attrs.First() is DescriptionAttribute attr)
+            if (attrs?.Length > 0 && attrs[0] is DescriptionAttribute attr)
             {
                 return attr.Description;
             }
@@ -470,8 +472,8 @@ public static partial class Utils
     public static void StartProcessTerminateWatchdog(ILogger? logger = null, TimeSpan? timeout = null)
     {
         TimeSpan defaultedTimeout = timeout ?? TimeSpan.FromSeconds(2);
-        using (var nuker = new System.Threading.Timer(
-            o =>
+        using (var nuker = new Timer(
+            _ =>
             {
                 logger?.LogError("Process timed out and was terminated");
                 Process.GetCurrentProcess().Kill();
@@ -573,7 +575,7 @@ public static partial class Utils
         }
         int upperCount = 0;
         int lowerCount = 0;
-        foreach (char c in input.ToCharArray())
+        foreach (char c in input)
         {
             if (char.IsUpper(c))
             {
@@ -622,10 +624,15 @@ public static partial class Utils
         for (int i = 1; i < text.Length; i++)
         {
             if (char.IsUpper(text[i]))
+            {
                 if ((text[i - 1] != ' ' && !char.IsUpper(text[i - 1])) ||
                     (preserveAcronyms && char.IsUpper(text[i - 1]) &&
                      i < text.Length - 1 && !char.IsUpper(text[i + 1])))
+                {
                     newText.Append(' ');
+                }
+            }
+
             newText.Append(text[i]);
         }
         return newText.ToString();
@@ -673,7 +680,7 @@ public static partial class Utils
         if (includeHour)
         {
             double hours = (timeSpan.Days * 24) + timeSpan.Hours;
-            stringBuilder.Append(string.Format($"{{0:D1}}", hours));
+            stringBuilder.AppendFormat("{0:D1}", hours);
             stringBuilder.Append(':');
             minutes = timeSpan.Minutes;
         }
@@ -682,7 +689,7 @@ public static partial class Utils
             minutes = (timeSpan.Days * 1440) + (timeSpan.Hours * 60) + timeSpan.Minutes;
         }
         double seconds = Math.Round(timeSpan.Seconds + ((double)timeSpan.Milliseconds / 1000), decimalPlaces);
-        stringBuilder.Append(string.Format($"{{0:D{minuteMinimumDigits}}}:{(seconds < 10 ? "0" : "")}{{1:F{decimalPlaces}}}", minutes, seconds));
+        stringBuilder.AppendFormat($"{{0:D{minuteMinimumDigits}}}:{(seconds < 10 ? "0" : "")}{{1:F{decimalPlaces}}}", minutes, seconds);
         return stringBuilder.ToString();
     }
 
@@ -1075,7 +1082,9 @@ where T : IIndexed
         for (int i = startIndex; i < endIndex; i++)
         {
             if (match(array[i]))
+            {
                 return i;
+            }
         }
         return -1;
     }
@@ -1106,8 +1115,8 @@ where T : IIndexed
     /// <summary>
     /// Return the element at the given index. If it is out of range, return null.
     /// </summary>
-    /// <param name="index">The index of the character within the <see cref="StringBuilder"/>.</param>
     /// <param name="source">The <see cref="StringBuilder"/> to containing the character.</param>
+    /// <param name="index">The index of the character within the <see cref="StringBuilder"/>.</param>
     public static char? ElementAtOrNull(this StringBuilder source, int index)
         => index.IsInRange(0, source.Length, false) ? source[index] : null;
 
@@ -1331,13 +1340,13 @@ where T : IIndexed
     public static double Lerp(double start, double end, double progress)
     {
         progress = progress.KeepInRange(0, 1);
-        return (float)(start * (1 - progress) + end * progress);
+        return (float)((start * (1 - progress)) + (end * progress));
     }
 
     //Scale in a similar way to Ventuz
     public static double Scale(this double input, double minIn, double maxIn, double minOut, double maxOut)
     {
-        double scaled = minOut + (double)(input - minIn) / (maxIn - minIn) * (maxOut - minOut);
+        double scaled = minOut + ((double)(input - minIn) / (maxIn - minIn) * (maxOut - minOut));
         return scaled.KeepInRange(Math.Min(minOut, maxOut), Math.Max(minOut, maxOut));
     }
 
@@ -1594,7 +1603,7 @@ where T : IIndexed
             return null;
         }
         string[] parts = delimited.Split([delimiter], StringSplitOptions.None);
-        return parts.Select(p => p.Length > 1 && p.FirstOrDefault() == ' ' ? p.TrimStart() : p.ToString()).Select(p => string.IsNullOrEmpty(p) || p == nullStringPlaceholder ? null : p.ToString());
+        return parts.Select(p => p.Length > 1 && p.FirstOrDefault() == ' ' ? p.TrimStart() : p).Select(p => string.IsNullOrEmpty(p) || p == nullStringPlaceholder ? null : p);
     }
 
 
@@ -1675,7 +1684,19 @@ where T : IIndexed
         return default;
     }
 
-    public static bool IsMulticast(this System.Net.IPAddress address)
+    /// <summary>
+    /// Get the product version of the assembly containing the given type. This is a string which may contain non-numeric characters.
+    /// </summary>
+    public static string GetProductVersion<T>()
+        => GetProductVersion(typeof(T).Assembly);
+
+    /// <summary>
+    /// Get the product version of the given assembly. This is a string which may contain non-numeric characters.
+    /// </summary>
+    public static string GetProductVersion(this Assembly assembly)
+        =>  FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion ?? assembly.GetName().Version?.ToString() ?? "unknown";
+
+    public static bool IsMulticast(this IPAddress address)
     {
         if (address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
         {
@@ -1802,8 +1823,8 @@ where T : IIndexed
     /// </summary>
     /// <param name="sourceLength">The number of values to choose from, including zero.</param>
     /// <param name="destinationLength">The length of the output array.</param>
-    /// <param name="loopback">If true, items at the end out the sequence are also checked against items at the start.</param>
     /// <param name="minimumRepeatDistance">The minimum distance enforced between matching items.</param>
+    /// <param name="loopback">If true, items at the end out the sequence are also checked against items at the start.</param>
     /// <param name="rnd">The random number generator to use. If null, use default instance.</param>
     /// <returns></returns>
     public static ImmutableArray<int> RandomSequenceWithMinimumDistance(int sourceLength, int destinationLength, int minimumRepeatDistance, bool loopback, Random? rnd)
@@ -1828,7 +1849,7 @@ where T : IIndexed
         int randomIndex;
         while (output.Count < destinationLength)
         {
-            int overshoot = (output.Count + minimumRepeatDistance) - destinationLength;
+            int overshoot = output.Count + minimumRepeatDistance - destinationLength;
             if (overshoot > 0)
             {
                 forwardWindow?.Add(output[overshoot - 1]);
@@ -1838,10 +1859,10 @@ where T : IIndexed
                 backWindow.Remove(output[output.Count - minimumRepeatDistance - 1]);
             }
             //Testing shows this is faster than ensuring that the random index is within only valid items
-            if ((backWindow.Count + (forwardWindow?.Count ?? 0) >= sourceLength))
+            if (backWindow.Count + (forwardWindow?.Count ?? 0) >= sourceLength)
             {
                 //It's possible that finding a strictly valid item is impossible, causing an infinite loop, so use alternative method
-                int[] remaining = [.. sourceValues.Where(i => backWindow.Contains(i) == false && forwardWindow?.Contains(i) != true)];
+                int[] remaining = [.. sourceValues.Where(i => !backWindow.Contains(i) && forwardWindow?.Contains(i) != true)];
                 if (remaining.Length == 0)
                 {
                     //no other options. We're going to have to break the rule
@@ -1961,8 +1982,7 @@ where T : IIndexed
                 }
             }
         }
-        
-        
+
         return [.. permutations];
 
         static void Swap(ref int a, ref int b)
@@ -2082,7 +2102,7 @@ where T : IIndexed
             valueNotNull = null;
             return false;
         }
-        valueNotNull = toCheck; 
+        valueNotNull = toCheck;
         return true;
     }
 
@@ -2143,7 +2163,7 @@ where T : IIndexed
      (relativePath == null ? basePath : new Uri(basePath, relativePath)).LocalPath;
 
 
-    public static void EnforceMinimumUptime(TimeSpan minimum, Microsoft.Extensions.Logging.ILogger logger, CancellationToken cancellationToken)
+    public static void EnforceMinimumUptime(TimeSpan minimum, ILogger logger, CancellationToken cancellationToken)
     {
         TimeSpan uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
         TimeSpan waitTime = minimum - uptime;
@@ -2221,11 +2241,10 @@ where T : IIndexed
     {
         return enumMemberInfo?.GetCustomAttributes(typeof(TriggerDefaultSpecification<TTriggerDevice>))?
             .Select(a => a as TriggerDefaultSpecification<TTriggerDevice>)
-            .Where(s =>
+            .FirstOrDefault(s =>
                 s is not null &&
                 s.ParentDeviceInstanceIndex == deviceInstanceIndex
-            )
-            .FirstOrDefault();
+            );
     }
 }
 

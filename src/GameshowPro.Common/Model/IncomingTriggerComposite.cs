@@ -88,7 +88,7 @@ public class IncomingTriggerComposite : IncomingTrigger
         IsDown = _enabledChildren.Any(t => t.IsDown == t.Setting.TriggerEdge);
     }
 
-    private ImmutableList<IncomingTrigger> CalculateEnabledChildren 
+    private ImmutableList<IncomingTrigger> CalculateEnabledChildren
         => [.. Children.Where(TriggerIsEnabled)];
 
     private static bool TriggerIsEnabled(IncomingTrigger trigger)

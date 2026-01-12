@@ -35,7 +35,7 @@ public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport?>
         byte messagePackVersion = reader.ReadByte();
         if (messagePackVersion <= 0)
         {
-            throw new MessagePackSerializationException($"Expected at reported message pack version of at least 1");
+            throw new MessagePackSerializationException("Expected at reported message pack version of at least 1");
         }
         int? version = reader.ReadNullableInt32();
         if (version.HasValue)

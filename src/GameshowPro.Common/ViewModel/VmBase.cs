@@ -3,18 +3,18 @@
 public abstract class VmBase : ObservableClass
 {
     private readonly string _dataDir;
-    public VmBase(string dataDir, Func<Task> persistAll, DateTime? buildDate = null, string? versionString = null, ICommand? launchLogCommand = null)
+    protected VmBase(string dataDir, Func<Task> persistAll, DateTime? buildDate = null, string? versionString = null, ICommand? launchLogCommand = null)
     {
         BuildDate = buildDate ?? DateTime.MinValue;
-        VersionString = versionString ?? Assembly.GetCallingAssembly().GetName().Version?.ToString() ?? "Unknown";
+        VersionString = versionString ?? Assembly.GetCallingAssembly().GetProductVersion();
         _dataDir = dataDir;
-        _ = new DispatcherTimer(TimeSpan.FromSeconds(0.5), DispatcherPriority.SystemIdle, new EventHandler((o, e) =>
+        _ = new DispatcherTimer(TimeSpan.FromSeconds(0.5), DispatcherPriority.SystemIdle, new EventHandler((_, _) =>
         {
             NotifyPropertyChanged(nameof(TimeOfDay));
             DateTime now = DateTime.Now;
             TimeOfDayMinute = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, now.Kind);
         }), Dispatcher.CurrentDispatcher);
-        _ = new DispatcherTimer(TimeSpan.FromMinutes(1), DispatcherPriority.SystemIdle, new EventHandler((o, e) => NotifyPropertyChanged(nameof(Today))), Dispatcher.CurrentDispatcher);
+        _ = new DispatcherTimer(TimeSpan.FromMinutes(1), DispatcherPriority.SystemIdle, new EventHandler((_, _) => NotifyPropertyChanged(nameof(Today))), Dispatcher.CurrentDispatcher);
         ShowDataDirCommand = new RelayCommandSimple(() => ShowDataDir());
         LaunchLogCommand = launchLogCommand;
         PersistAllCommand = new AsyncCommandSimple(persistAll);
@@ -31,9 +31,9 @@ public abstract class VmBase : ObservableClass
     public DateTime Today => DateTime.Now;
     public DateTime BuildDate { get; }
     public string VersionString { get; }
-    public AsyncCommandSimple PersistAllCommand { get; private set; }
-    public RelayCommandSimple ShowDataDirCommand { get; private set; }
-    public ICommand? LaunchLogCommand { get; private set; }
+    public AsyncCommandSimple PersistAllCommand { get; }
+    public RelayCommandSimple ShowDataDirCommand { get; }
+    public ICommand? LaunchLogCommand { get; }
     protected virtual void ShowDataDir()
     {
         ProcessStartInfo info = new()

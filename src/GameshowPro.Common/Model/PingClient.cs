@@ -52,7 +52,7 @@ public static class PingClient
         {
             reply = await _pingSender.SendPingAsync(ipAddress, s_timeout, s_buffer, s_pingOptions, cancellationToken);
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             logger.LogError(ex, "Exception while pinging {address}", ipAddress);
             return new(ipAddress, null);

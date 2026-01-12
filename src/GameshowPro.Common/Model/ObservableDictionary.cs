@@ -26,7 +26,7 @@ public class ObservableDictionary<TKey, TValue> : ICollection<KeyValuePair<TKey,
     }
 
     /// <summary>
-    /// Initializes an instance of the class using another dictionary as 
+    /// Initializes an instance of the class using another dictionary as
     /// the key/value store.
     /// </summary>
     public ObservableDictionary(IDictionary<TKey, TValue> dictionary)

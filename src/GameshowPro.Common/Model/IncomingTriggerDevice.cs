@@ -5,7 +5,7 @@ namespace GameshowPro.Common.Model;
 /// <summary>
 /// A base implementation of a trigger device which includes a list of triggers, but can be subclassed to add device-specific logic.
 /// </summary>
-/// <typeparam name="TTriggerKey">The type of the enum defining all possible trigger keys. 
+/// <typeparam name="TTriggerKey">The type of the enum defining all possible trigger keys.
 /// Each of its members must have a description field from which the corresponding trigger's name can be derived.</typeparam>
 /// <typeparam name="TTrigger">The type of the <see cref="IncomingTrigger"/> used by this subclass</typeparam>
 /// <typeparam name="TSubclass">The subclass type used for attribute lookups.</typeparam>
@@ -19,8 +19,8 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
     /// Base constructor.
     /// </summary>
     /// <param name="namePrefix">The root of the name given to instance of this subclass.</param>
-    /// <param name="settings">An object containing the settings for each trigger key within this device.</param>
     /// <param name="index">The of index this device to be cross-referenced with default trigger specifications.</param>
+    /// <param name="settings">An object containing the settings for each trigger key within this device.</param>
     /// <param name="loggerFactory">Factory used to create a logger.</param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="MissingMemberException"></exception>
@@ -56,14 +56,14 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
                     FieldInfo? field = t.GetField(valueString);
                     TriggerParameters? triggerParams = GetTriggerParameters(field) ?? throw new MissingMemberException($"{t} must contain a {nameof(TriggerParameters)} attribute on every member.");
                     ITriggerDefaultSpecification? triggerDefault = GetTriggerDefaultSpecification<TSubclass>(field, index);
-                    
-                    TTrigger trigger = 
+
+                    TTrigger trigger =
                         TriggerFactory(
                             settings.TriggerSettings.GetOrCreate(
-                                value.ToString(), 
-                                triggerParams.Name, 
-                                triggerDefault?.TriggerId, 
-                                triggerParams.TriggerFilter, 
+                                value.ToString(),
+                                triggerParams.Name,
+                                triggerDefault?.TriggerId,
+                                triggerParams.TriggerFilter,
                                 triggerParams.DebounceInterval
                             ),
                             loggerFactory);
@@ -76,10 +76,10 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
         TriggersBase = Triggers.ToFrozenDictionary(kvp => kvp.Key, kvp => (IncomingTrigger)kvp.Value);
 
         _propertyChangeFilters.AddFilter((s, e) => UpdateTriggerDict(settings), Triggers.Values.SelectMany(
-            t => 
-            new PropertyChangeCondition[] { 
-                new (t.Setting, nameof(IncomingTriggerSetting.Id)), 
-                new (t.Setting, nameof(IncomingTriggerSetting.IsEnabled)) 
+            t =>
+            new PropertyChangeCondition[] {
+                new (t.Setting, nameof(IncomingTriggerSetting.Id)),
+                new (t.Setting, nameof(IncomingTriggerSetting.IsEnabled))
             })
             .Union(new PropertyChangeCondition(settings, nameof(IncomingTriggerDeviceSettingsBase.AllowDuplicateTriggerIds)))
         );

@@ -93,7 +93,7 @@ public class RelayCommand<T>(Action<T?> execute, Predicate<T?>? canExecute) : IC
     ///Occurs when changes occur that affect whether or not the command should execute.
     ///</summary>
     public event EventHandler? CanExecuteChanged;
-    
+
     ///<summary>
     ///Executes the delegate defined when this command was created.
     ///</summary>

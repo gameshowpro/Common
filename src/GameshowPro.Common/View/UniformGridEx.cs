@@ -7,7 +7,7 @@ namespace GameshowPro.Common.View;
 
 /// <summary>
 /// A <see cref="Grid"/> which can be used as an ItemsPanel, as long as all the children have explicit <see cref="Grid.RowProperty"/> properties. 
-/// Instead of defining <see cref="Grid.ColumnDefinitions"/> and <see cref="Grid.RowDefinitions"/>, set <see cref="UniformGridEx.Rows"/> and <see cref="UniformGridEx.Columns"/>
+/// Instead of defining <see cref="Grid.ColumnDefinitions"/> and <see cref="Grid.RowDefinitions"/>, set <see cref="Rows"/> and <see cref="Columns"/>
 /// </summary>    
 public class UniformGridEx : Grid
 {

@@ -54,7 +54,7 @@ public sealed class SignalRFilteredLogger(ILogger logger, bool allMessages) : IL
 
 
 /// <summary>
-/// A custom ILoggerProvider which passes very specific log messages from SignalR to a given NLog logger. 
+/// A custom ILoggerProvider which passes very specific log messages from SignalR to a given NLog logger.
 /// In particular, it's the only known way to log the invocation ID on the client end for comparison with the server without swamping the log with lots of other messages.
 /// </summary>
 [ProviderAlias(nameof(SignalRFilteredLogger))]

@@ -27,7 +27,7 @@ public class IncomingTriggerSetting : ObservableClass, INotifyDataErrorInfo
 
     private bool _triggerEdge = true;
     /// <summary>
-    /// The direction of the edge which should cause a trigger. 
+    /// The direction of the edge which should cause a trigger.
     /// If true, trigger on rising edge, otherwise trigger on falling edge.
     /// </summary>
     [DataMember]

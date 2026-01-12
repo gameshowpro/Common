@@ -26,7 +26,7 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
         AssemblyName? assemblyName = entryAssembly?.GetName();
         buildTime ??= entryAssembly?.GetBuildDate();
         string? process = assemblyName?.Name;
-        Version? version = assemblyName?.Version;
+        string? version = entryAssembly?.GetProductVersion();
 
         if (IsAdministrator())
         {

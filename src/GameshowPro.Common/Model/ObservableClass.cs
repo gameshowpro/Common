@@ -9,7 +9,7 @@ namespace GameshowPro.Common.Model;
 public class ObservableClass : INotifyPropertyChanged
 {
 #if WPF
-    protected readonly System.Windows.Threading.Dispatcher _dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
+    protected readonly Dispatcher _dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
     protected readonly Action<PropertyChangedEventArgs> NotifyPropertyChangedAction;
 
     public ObservableClass()

@@ -52,7 +52,7 @@ public static class OrderedFrozenDictionary
 /// </summary>
 public class OrderedFrozenDictionary<TKey, TValue> where TKey : notnull
 {
-    internal OrderedFrozenDictionary(ImmutableArray<TValue> values, FrozenDictionary<TKey, TValue> dictionary) 
+    internal OrderedFrozenDictionary(ImmutableArray<TValue> values, FrozenDictionary<TKey, TValue> dictionary)
     {
         Values = values;
         Dictionary = dictionary;

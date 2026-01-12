@@ -5,10 +5,10 @@
 /// </summary>
 public class IncomingTriggerDevices<TDevice, TSettings>(
     IEnumerable<TSettings> settings,
-    Func<TSettings, int, TDevice> deviceFactory) 
+    Func<TSettings, int, TDevice> deviceFactory)
     : IRemoteServiceCollection where TDevice : IIncomingTriggerDeviceBase, IRemoteService
 {
-    public ImmutableArray<TDevice> Items { get; private set; } = [.. settings.Select(deviceFactory.Invoke)];
+    public ImmutableArray<TDevice> Items { get; } = [.. settings.Select(deviceFactory.Invoke)];
 
     IEnumerable<IRemoteService> IRemoteServiceCollection.Services => Items.Cast<IRemoteService>();
 

@@ -8,7 +8,7 @@ public class ColorToSolidBrushConverter : IValueConverter
 {
     /// <inheritdoc/>
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        => new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)value);
+        => new SolidColorBrush((System.Windows.Media.Color)value);
 
     /// <inheritdoc/>
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -46,6 +46,6 @@ public class TriggerComposite : ITrigger
     /// Simulates a trigger event with an optional toggle value.
     /// </summary>
     /// <remarks>Docs added by AI.</remarks>
-    public RelayCommand<bool?> SimulateTriggerCommand { get; private set; }
+    public RelayCommand<bool?> SimulateTriggerCommand { get; }
 #endif
 }

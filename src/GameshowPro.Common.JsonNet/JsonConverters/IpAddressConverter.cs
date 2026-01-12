@@ -10,7 +10,7 @@ public class IPAddressConverter : JsonConverter
     /// <remarks>Docs added by AI.</remarks>
     public override bool CanConvert(Type objectType)
     {
-        return (objectType == typeof(IPAddress));
+        return objectType == typeof(IPAddress);
     }
 
     /// <inheritdoc />

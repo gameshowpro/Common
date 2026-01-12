@@ -104,15 +104,15 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
         }
     }
 
-    /// <summary> 
+    /// <summary>
     /// Adds the elements of the specified collection to the end of the ObservableCollectionEx.
-    /// </summary> 
+    /// </summary>
     public void AddRange(IEnumerable<T> collection)
         => AddRange(collection, false);
 
-    /// <summary> 
+    /// <summary>
     /// Adds the elements of the specified collection to the end of the ObservableCollectionEx.
-    /// </summary> 
+    /// </summary>
     public void AddRange(IEnumerable<T> collection, bool clearFirst)
     {
         _batchChangeSuppressed = true;

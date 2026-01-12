@@ -1,7 +1,7 @@
 ﻿namespace GameshowPro.Common;
 
 /// <summary>
-/// Default implementation of <see cref="JsonNet.ISerializationBinderEx"/> that resolves types across
+/// Default implementation of <see cref="ISerializationBinderEx"/> that resolves types across
 /// GameshowPro assemblies and prefers <see cref="TypeNameHandling.Auto"/> for type metadata.
 /// </summary>
 /// <remarks>Docs added by AI.</remarks>
@@ -47,7 +47,9 @@ public class DefaultSerializationBinder : ISerializationBinderEx
             {
                 var type = Type.GetType($"{typeName}, {assemblyName}", throwOnError: false);
                 if (type != null)
+                {
                     return type;
+                }
             }
             catch { }
         }
@@ -57,7 +59,9 @@ public class DefaultSerializationBinder : ISerializationBinderEx
         {
             var type = Type.GetType(typeName, throwOnError: false);
             if (type != null)
+            {
                 return type;
+            }
         }
 
         throw new JsonSerializationException($"Cannot find type: {typeName}, assembly: {assemblyName}");

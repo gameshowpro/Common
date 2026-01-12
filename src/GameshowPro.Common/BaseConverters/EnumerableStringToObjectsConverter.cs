@@ -21,7 +21,7 @@ public class EnumerableStringToObjectsConverter(object doNothing) : ICommonValue
         {
             return strings.Select(s => new StringItem(s));
         }
-        
+
         return null;
     }
 

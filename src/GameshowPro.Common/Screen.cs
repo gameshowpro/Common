@@ -63,7 +63,7 @@ public static class Screen
     /// </summary>
     /// <param name="window">The Window to size.</param>
     /// <param name="index">The index of the target screen, where zero is always the primary.</param>
-    public static bool SizeWindowToScreen(this System.Windows.Window window, int index)
+    public static bool SizeWindowToScreen(this Window window, int index)
     {
         var target = new MonitorInfoEx();
         List<MonitorInfoEx> disps = GetDisplays();
@@ -100,7 +100,7 @@ public static class Screen
         }
     }
 
-    public static void SizeWindowToRect(this System.Windows.Window window, Rect target)
+    public static void SizeWindowToRect(this Window window, Rect target)
     {
         window.Left = target.left;
         window.Top = target.top;

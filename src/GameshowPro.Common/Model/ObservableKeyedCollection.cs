@@ -74,7 +74,7 @@ public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<T
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     /// <summary>
-    /// Method to add a new object to the collection, or to replace an existing one if there is 
+    /// Method to add a new object to the collection, or to replace an existing one if there is
     /// already an object with the same key in the collection.
     /// </summary>
     public void AddOrReplace(TItem item)
@@ -91,7 +91,7 @@ public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<T
     }
 
     /// <summary>
-    /// Method to replace an existing object in the collection, i.e., an object with the same key. 
+    /// Method to replace an existing object in the collection, i.e., an object with the same key.
     /// An exception is thrown if there is no existing object with the same key.
     /// </summary>
     public void Replace(TItem item)
@@ -108,7 +108,7 @@ public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<T
     }
 
     /// <summary>
-    /// Method to get the index into the List{} in the base collection for an item that may or may 
+    /// Method to get the index into the List{} in the base collection for an item that may or may
     /// not be in the collection. Returns -1 if not found.
     /// </summary>
     private int GetItemIndex(TItem item)

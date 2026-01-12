@@ -28,7 +28,7 @@ public abstract class MatchToBooleanConverter(object doNothing) : ICommonValueCo
 
     /// <summary>
     /// Return a <see cref="bool"/> or equivalent depending on whether <paramref name="value"/> matches the <paramref name="parameter"/>.
-    /// If <paramref name="parameter"/> is an array, return a bool depending on whether any of its elements equal <paramref name="value"/> 
+    /// If <paramref name="parameter"/> is an array, return a bool depending on whether any of its elements equal <paramref name="value"/>
     /// </summary>
     /// <param name="value">The value supplied by a binding.</param>
     /// <param name="targetType">The type to return. Either <see cref="bool"/> or equivalent visibility</param>
@@ -40,7 +40,7 @@ public abstract class MatchToBooleanConverter(object doNothing) : ICommonValueCo
         return BooleanToType(GetRawResult(value, parameter), targetType);
         bool GetRawResult(object? value, object? parameter)
             =>
-            (parameter is IEnumerable paramList && AnyElementMatches(value, paramList)) 
+            (parameter is IEnumerable paramList && AnyElementMatches(value, paramList))
             ||
             parameter switch
             {

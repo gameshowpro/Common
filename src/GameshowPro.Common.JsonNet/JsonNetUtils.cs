@@ -93,8 +93,8 @@ public static class JsonNetUtils
     /// Persist any type to a JSON file.
     /// </summary>
     /// <typeparam name="T">The type of object to be persisted.</typeparam>
-    /// <param name="path">Path to the JSON file.</param>
     /// <param name="obj">Object to be persisted.</param>
+    /// <param name="path">Path to the JSON file.</param>
     /// <param name="enumsAsStrings">If true, enums will be persisted as strings. Otherwise they will be persisted as integers.</param>
     public static void Persist<T>(T obj, string? path, bool enumsAsStrings = true)
         => Persist(obj, null, path, enumsAsStrings);
@@ -103,9 +103,9 @@ public static class JsonNetUtils
     /// Persist any type to a JSON file.
     /// </summary>
     /// <typeparam name="T">The type of object to be persisted.</typeparam>
-    /// <param name="path">Path to the JSON file.</param>
     /// <param name="obj">Object to be persisted.</param>
     /// <param name="serializationBinder">A custom serialization binder to use, if required.</param>
+    /// <param name="path">Path to the JSON file.</param>
     /// <param name="enumsAsStrings">If true, enums will be persisted as strings. Otherwise they will be persisted as integers.</param>
 
     public static void Persist<T>(T obj, ISerializationBinderEx? serializationBinder, string? path, bool enumsAsStrings = true)

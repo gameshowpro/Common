@@ -37,7 +37,7 @@ public class RemoteServiceManager : ObservableClass
     public RemoteServiceManagerSettings Settings
     {
         get => _settings;
-        set 
+        set
         {
             if (SetProperty(ref _settings, value))
             {
@@ -130,7 +130,7 @@ public class RemoteServiceManager : ObservableClass
             return;
         }
         _updatingGroups = true;
-        MonitorUiGroups = [.. 
+        MonitorUiGroups = [..
             _serviceChangeSubscriptions
             .GroupBy(s => s.RemoteServiceSettings?.MonitorUiGroup ?? -1)
             .Select(g => new RemoteServiceGroup(g.Key, [.. g.OrderBy(s => s.RemoteServiceSettings?.MonitorUiOrder)]))
@@ -146,7 +146,7 @@ public class RemoteServiceManager : ObservableClass
         static void SetMonitorUiOrder(IRemoteService service, int order)
         {
             if (service.RemoteServiceSettings != null)
-            {  
+            {
                 service.RemoteServiceSettings.MonitorUiOrder = order * 2;
             }
         }
@@ -154,7 +154,7 @@ public class RemoteServiceManager : ObservableClass
     }
 
     private void Settings_MonitorUiGroupChanged(object? sender, EventArgs args)
-        => UpdateGroups(); 
+        => UpdateGroups();
 
     private ImmutableArray<RemoteServiceGroup> _monitorUiGroups;
     /// <summary>Computed UI groups for monitoring.</summary>

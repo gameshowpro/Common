@@ -47,7 +47,7 @@ public static partial class Utils
         private readonly WindowStyle _style;
         private readonly bool _useNone;
         private readonly ResizeMode _mode;
-        private readonly System.Windows.Input.Cursor _cursor;
+        private readonly Cursor _cursor;
         private readonly bool _topMost;
         private readonly bool _taskBar;
         internal WindowRestoreState(Window wnd)
@@ -245,7 +245,7 @@ public static partial class Utils
         return startPath;
     }
 
-    public static void WaitForServices(ImmutableList<string> services, TimeSpan serviceRunTimeout, Microsoft.Extensions.Logging.ILogger logger)
+    public static void WaitForServices(ImmutableList<string> services, TimeSpan serviceRunTimeout, ILogger logger)
     {
         if (services.IsEmpty)
         {

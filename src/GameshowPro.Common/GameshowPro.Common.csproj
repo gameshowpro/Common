@@ -72,7 +72,7 @@
     <PackageReference Include="MahApps.Metro" Version="2.4.11" />
     <PackageReference Include="MahApps.Metro.IconPacks" Version="6.2.1" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-    <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.1" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Docs\README.md" Pack="true" PackagePath="\" />

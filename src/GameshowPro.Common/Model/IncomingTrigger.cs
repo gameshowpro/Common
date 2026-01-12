@@ -145,7 +145,7 @@ public abstract class IncomingTrigger : ObservableClass, ITrigger
         protected set { SetProperty(ref _lastLockoutDateTime, value); }
     }
 #if WPF
-    public RelayCommand<bool?> SimulateTriggerCommand { get; private set; }
-    public RelayCommandSimple ToggleIsEnabledCommand { get; private set; }
+    public RelayCommand<bool?> SimulateTriggerCommand { get; }
+    public RelayCommandSimple ToggleIsEnabledCommand { get; }
 #endif
 }
