@@ -5,8 +5,9 @@ public abstract class VmBase : ObservableClass
     private readonly string _dataDir;
     protected VmBase(string dataDir, Func<Task> persistAll, DateTime? buildDate = null, string? versionString = null, ICommand? launchLogCommand = null)
     {
-        BuildDate = buildDate ?? DateTime.MinValue;
-        VersionString = versionString ?? Assembly.GetCallingAssembly().GetProductVersion();
+        (string assemblyVersionString, DateTime? assemblyBuildDate) = Assembly.GetCallingAssembly().GetVersionAndBuildDate();
+        BuildDate = buildDate ?? assemblyBuildDate ?? DateTime.MinValue;
+        VersionString = versionString ?? assemblyVersionString;
         _dataDir = dataDir;
         _ = new DispatcherTimer(TimeSpan.FromSeconds(0.5), DispatcherPriority.SystemIdle, new EventHandler((_, _) =>
         {

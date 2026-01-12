@@ -1658,11 +1658,20 @@ where T : IIndexed
 
     /// <summary>
     /// Get the build data of an assembly which has been built with a SourceRevisionID formatted in a standardized way (see remarks).
+    /// If you also need to get the version number, consider using <seealso cref="GetVersionAndBuildDate"></seealso> instead.
     /// </summary>
-    /// <param name="assembly"></param>
     /// <remarks>Required in project file: <![CDATA[<SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("O"))</SourceRevisionId>]]>
     /// </remarks>
     public static DateTime GetBuildDate(this Assembly assembly)
+        => GetVersionAndBuildDate(assembly).Item2 ?? default;
+
+
+    /// <summary>
+    /// Get the product version and build date of the assembly containing the given type. The build date is only available if the assembly was built with a SourceRevisionID formatted in a standardized way (see remarks).
+    /// </summary>
+    /// <remarks>Required in project file: <![CDATA[<SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("O"))</SourceRevisionId>]]>
+    /// </remarks>
+    public static (string, DateTime?) GetVersionAndBuildDate(this Assembly assembly)
     {
         const string BuildVersionMetadataPrefix = "+build";
 
@@ -1673,28 +1682,30 @@ where T : IIndexed
             int index = value.IndexOf(BuildVersionMetadataPrefix);
             if (index > 0)
             {
+                string versionPart = value[..index];
                 value = value[(index + BuildVersionMetadataPrefix.Length)..];
                 if (DateTime.TryParseExact(value, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
                 {
-                    return result;
+                    return (versionPart, result);
                 }
+                return (versionPart, null);
             }
+            return (value, null);
         }
-
-        return default;
+        return (assembly.GetName().Version?.ToString() ?? "unknown", null);
     }
 
     /// <summary>
-    /// Get the product version of the assembly containing the given type. This is a string which may contain non-numeric characters.
+    /// Get the product version of the assembly containing the given type. This is a string which may contain non-numeric characters. Any build date information is stripped out.
     /// </summary>
     public static string GetProductVersion<T>()
         => GetProductVersion(typeof(T).Assembly);
 
     /// <summary>
-    /// Get the product version of the given assembly. This is a string which may contain non-numeric characters.
+    /// Get the product version of the given assembly. This is a string which may contain non-numeric characters. Any build date information is stripped out.
     /// </summary>
     public static string GetProductVersion(this Assembly assembly)
-        =>  FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion ?? assembly.GetName().Version?.ToString() ?? "unknown";
+        =>  GetVersionAndBuildDate(assembly).Item1;
 
     public static bool IsMulticast(this IPAddress address)
     {

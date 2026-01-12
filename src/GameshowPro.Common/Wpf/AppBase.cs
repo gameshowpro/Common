@@ -24,9 +24,10 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
         s_kioskMode = kioskMode;
         Assembly? entryAssembly = Assembly.GetEntryAssembly();
         AssemblyName? assemblyName = entryAssembly?.GetName();
-        buildTime ??= entryAssembly?.GetBuildDate();
+        (string, DateTime?)? assemblyVersion = entryAssembly?.GetVersionAndBuildDate();
+        buildTime ??= assemblyVersion?.Item2;
         string? process = assemblyName?.Name;
-        string? version = entryAssembly?.GetProductVersion();
+        string? version = assemblyVersion?.Item1;
 
         if (IsAdministrator())
         {
