@@ -19,7 +19,7 @@ jobs:
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
       DOTNET_NOLOGO: true
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-      SLN_PATH: .\src\GameshowPro.Common.sln
+      SLN_PATH: .\src\GameshowPro.Common.slnx
       PUBLISH_PATH: .\publish
 
     strategy:
