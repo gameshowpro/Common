@@ -70,7 +70,25 @@ public class PropertyChangeFilter
     private readonly ImmutableList<FrozenSet<string?>> _notifyCollectionConditions;
     private readonly List<FilterTriggerInstance> _pausedQueue = [];
 
-    internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions, bool invokeAfterConstruction, ILogger logger)
+    /// <summary>
+    /// Legacy overload
+    /// </summary>
+    /// <param name="action">The action to execute when a property changes.</param>
+    /// <param name="conditions">A list of conditions to monitor for property changes.</param>
+    /// <param name="invokeAfterConstruction">If true, the action will be invoked immediately after construction.</param>
+    /// <param name="logger">The logger to use for logging.</param>
+    internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions, bool invokeAfterConstruction, ILogger logger) : this(action, conditions, invokeAfterConstruction, false, logger)
+    { }
+
+    /// <summary>
+    /// Full constructor
+    /// </summary>
+    /// <param name="action">The action to execute when a property changes.</param>
+    /// <param name="conditions">A list of conditions to monitor for property changes.</param>
+    /// <param name="invokeAfterConstruction">If true, the action will be invoked immediately after construction.</param>
+    /// <param name="useOriginalThread">If true, PropertyChangeOnOriginalThread events will be used where possible.</param>
+    /// <param name="logger">The logger to use for logging.</param>
+    internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions, bool invokeAfterConstruction, bool useOriginalThread, ILogger logger)
     {
         _logger = logger;
         _handler = action;
