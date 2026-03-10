@@ -102,12 +102,11 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
     /// </summary>
     protected FrozenDictionary<int, ImmutableList<TTrigger>> _triggerDict;
 
-    private double _progress = 0;
     public double Progress
     {
-        get => _progress;
-        protected set => _ = SetProperty(ref _progress, value);
-    }
+        get;
+        protected set => _ = SetProperty(ref field, value);
+    } = 0;
 
     [MemberNotNull(nameof(_triggerDict))]
     private void UpdateTriggerDict(IncomingTriggerDeviceSettingsBase settings)

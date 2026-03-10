@@ -28,8 +28,6 @@ public class ObservableClass : INotifyPropertyChanged
     {
     }
     [IgnoreDataMember]
-    protected bool _suppressEvents;
-    [IgnoreDataMember]
     protected bool _isDirty;
     /// <summary>
     /// Raised when property on the subclass is changed.  This event is intended for UI binding and is always dispatched onto the UI thread.
@@ -92,13 +90,13 @@ public class ObservableClass : INotifyPropertyChanged
     public bool SuppressEvents
     {
         get
-        { return _suppressEvents; }
+        { return field; }
         set
         {
-            if (_suppressEvents != value)
+            if (field != value)
             {
-                _suppressEvents = value;
-                if (_suppressEvents && _isDirty)
+                field = value;
+                if (field && _isDirty)
                 {
                     //Something changed while events were suppressed
                     PropertyChangedOnOriginalThread?.Invoke(this, new PropertyChangedEventArgs(""));
@@ -134,7 +132,7 @@ public class ObservableClass : INotifyPropertyChanged
                 beforeChangeDelegate?.Invoke();
                 field = value;
                 afterChangeDelegate?.Invoke();
-                if (_suppressEvents)
+                if (SuppressEvents)
                 {
                     _isDirty = true;
                 }
@@ -145,7 +143,7 @@ public class ObservableClass : INotifyPropertyChanged
                 field = value;
             }
         }
-        if (forceEvent || (changed && !_suppressEvents))
+        if (forceEvent || (changed && !SuppressEvents))
         {
             PropertyChangeEventArgsAlreadyRaisedOnOriginalThread args = new(memberName);
             PropertyChangedOnOriginalThread?.Invoke(this, args);

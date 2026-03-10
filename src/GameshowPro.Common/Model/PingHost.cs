@@ -75,11 +75,9 @@ public class PingHost : ObservableClass, IRemoteService
     }
 
     public ServiceState ServiceState { get; }
-
-    private DateTime _lastPingTime;
     public DateTime LastPingTime
     {
-        get => _lastPingTime;
-        private set => _ = SetProperty(ref _lastPingTime, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 }

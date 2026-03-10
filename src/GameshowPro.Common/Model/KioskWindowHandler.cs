@@ -12,7 +12,6 @@ public class KioskWindowHandler : ObservableClass
     /// <remarks>Docs added by AI.</remarks>
     public class Settings : ObservableClass
     {
-        private int _displayIndex = 0;
         /// <summary>
         /// The target display index for the window.
         /// </summary>
@@ -20,11 +19,10 @@ public class KioskWindowHandler : ObservableClass
         [DataMember, DefaultValue(0)]
         public int DisplayIndex
         {
-            get { return _displayIndex; }
-            set { SetProperty(ref _displayIndex, value); }
-        }
+            get;
+            set { SetProperty(ref field, value); }
+        } = 0;
 
-        private bool _isKiosk = false;
         /// <summary>
         /// Whether the window is presented in kiosk mode.
         /// </summary>
@@ -32,11 +30,10 @@ public class KioskWindowHandler : ObservableClass
         [DataMember, DefaultValue(true)]
         public bool IsKiosk
         {
-            get { return _isKiosk; }
-            set { SetProperty(ref _isKiosk, value); }
-        }
+            get;
+            set { SetProperty(ref field, value); }
+        } = false;
 
-        private bool _isVisible = true;
         /// <summary>
         /// Whether the window is currently shown.
         /// </summary>
@@ -44,9 +41,9 @@ public class KioskWindowHandler : ObservableClass
         [DataMember, DefaultValue(true)]
         public bool IsVisible
         {
-            get { return _isVisible; }
-            set { SetProperty(ref _isVisible, value); }
-        }
+            get;
+            set { SetProperty(ref field, value); }
+        } = true;
     }
 
     private readonly double _originalWidth;

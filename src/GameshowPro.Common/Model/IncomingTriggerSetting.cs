@@ -7,25 +7,23 @@ public class IncomingTriggerSetting : ObservableClass, INotifyDataErrorInfo
     internal bool _wasTouched;
     public TriggerFilter TriggerFilter { get; set; }
 
-    private string _key = "";
     [DataMember, DefaultValue("")]
     public string Key
     {
-        get { return _key; }
+        get;
         set
         {
-            if (_key == "")
+            if (field == "")
             {
-                _key = value;
+                field = value;
             }
             else
             {
                 throw new InvalidOperationException("Key can only be set once, never changed.");
             }
         }
-    }
+    } = "";
 
-    private bool _triggerEdge = true;
     /// <summary>
     /// The direction of the edge which should cause a trigger.
     /// If true, trigger on rising edge, otherwise trigger on falling edge.
@@ -33,50 +31,44 @@ public class IncomingTriggerSetting : ObservableClass, INotifyDataErrorInfo
     [DataMember]
     public bool TriggerEdge
     {
-        get => _triggerEdge;
-        set => _ = SetProperty(ref _triggerEdge, value);
-    }
+        get;
+        set => _ = SetProperty(ref field, value);
+    } = true;
 
-    private int _id = -1;
     [DataMember, DefaultValue(-1)]
     public int Id
     {
-        get { return _id; }
-        set { SetProperty(ref _id, value); }
-    }
+        get;
+        set { SetProperty(ref field, value); }
+    } = -1;
 
-    private string _name = "";
     [DataMember, DefaultValue("")]
     public string Name
     {
-        get { return _name; }
-        set { SetProperty(ref _name, value); }
-    }
+        get;
+        set { SetProperty(ref field, value); }
+    } = "";
 
-    private bool _isEnabled = true;
     [DataMember, DefaultValue(true)]
     public bool IsEnabled
     {
-        get { return _isEnabled; }
-        set { SetProperty(ref _isEnabled, value); }
-    }
+        get;
+        set { SetProperty(ref field, value); }
+    } = true;
 
-    private TimeSpan? _debounceInterval = null;
     [DataMember, DefaultValue(null)]
     public TimeSpan? DebounceInterval
     {
-        get { return _debounceInterval; }
-        set { SetProperty(ref _debounceInterval, value); }
-    }
+        get;
+        set { SetProperty(ref field, value); }
+    } = null;
 
-    private bool _idIsValid;
     public bool IdIsValid
     {
-        get
-        { return _idIsValid; }
+        get;
         set
         {
-            if (SetProperty(ref _idIsValid, value))
+            if (SetProperty(ref field, value))
             {
                 ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(Id)));
             }
@@ -89,7 +81,7 @@ public class IncomingTriggerSetting : ObservableClass, INotifyDataErrorInfo
 
     public IEnumerable GetErrors(string? propertyName)
     {
-        if (!_idIsValid && propertyName == nameof(Id))
+        if (!IdIsValid && propertyName == nameof(Id))
         {
             return new List<string>() { "ID is duplicated" };
         }

@@ -10,33 +10,27 @@ public class RemoteServiceSettings : ObservableClass, IRemoteServiceSettings
     /// To be raised whenever <see cref="MonitorUiGroup"/> changes, so that <see cref="IRemoteService"/> may respond to it.
     /// </summary>
     public event EventHandler? MonitorUiGroupChanged;
-    /// <summary>
-    /// The visual group in which this service should be displayed on the monitoring UI.
-    /// </summary>
-    private int _monitorUiGroup;
+
     [DataMember]
     public int MonitorUiGroup
     {
-        get => _monitorUiGroup;
+        get;
         set
         {
-            if (SetProperty(ref _monitorUiGroup, value))
+            if (SetProperty(ref field, value))
             {
                 MonitorUiGroupChanged?.Invoke(this, new());
             }
         }
     }
-    /// <summary>
-    /// Order in which this service should be shown on the monitoring UI.
-    /// </summary>
-    private int _monitorUiOrder;
+
     [DataMember]
     public int MonitorUiOrder
     {
-        get => _monitorUiOrder;
+        get;
         set
         {
-            if (SetProperty(ref _monitorUiOrder, value))
+            if (SetProperty(ref field, value))
             {
                 MonitorUiGroupChanged?.Invoke(this, new());
             }

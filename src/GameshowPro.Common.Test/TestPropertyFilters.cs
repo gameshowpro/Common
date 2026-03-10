@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 using GameshowPro.Common.Model;
-using MessagePack.Resolvers;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace GameshowPro.Common.Test;
@@ -67,17 +61,16 @@ public class TestPropertyFilters
 
     public class TestObject(string property1, int property2) : ObservableClass
     {
-        private string _property1 = property1;
         public string Property1
         {
-            get => _property1;
-            set => SetProperty(ref _property1, value);
-        }
-        private int _property2 = property2;
+            get;
+            set => SetProperty(ref field, value);
+        } = property1;
+
         public int Property2
         {
-            get => _property2;
-            set => SetProperty(ref _property2, value);
-        }
+            get;
+            set => SetProperty(ref field, value);
+        } = property2;
     }
 }

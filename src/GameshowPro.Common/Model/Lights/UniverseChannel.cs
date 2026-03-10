@@ -14,26 +14,22 @@ public class UniverseChannel : INotifyPropertyChanged
     /// <param name="index">The zero-based index of this channel.</param>
     internal UniverseChannel(Universe universe, int index)
     {
-        _index = index;
+        Index = index;
         _universe = universe;
     }
 
-    private readonly int _index;
     /// <summary>
     /// Zero-based channel index.
     /// </summary>
-    public int Index
-    {
-        get { return _index; }
-    }
+    public int Index { get; }
 
     public byte Level
     {
-        get { return _universe._data[_index + 1]; }
+        get { return _universe._data[Index + 1]; }
         set
         {
             //Note that all notifications are triggered by the parent universe.  This is just a view model.
-            _universe.SetData(_index, value);
+            _universe.SetData(Index, value);
         }
     }
 
@@ -47,31 +43,26 @@ public class UniverseChannel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MasterChannel)));
     }
 
-    private FixtureChannel? _masterChannel;
     /// <summary>
     /// This is a abstract lighting channel bound into a client object model.  If set, the Dmx.Channel class will act as a slave to the master's values.
     /// </summary>
-    public FixtureChannel? MasterChannel
-    {
-        get { return _masterChannel; }
-        set
+    public FixtureChannel? MasterChannel { get; set
         {
-            if (_masterChannel != value)
+            if (field != value)
             {
-                if (_masterChannel != null)
+                if (field != null)
                 {
-                    _masterChannel.LevelChanged -= MasterChannel_LevelChanged;
+                    field.LevelChanged -= MasterChannel_LevelChanged;
                 }
-                _masterChannel = value;
-                Level = _masterChannel?.Level ?? 0;
-                if (_masterChannel != null)
+                field = value;
+                Level = field?.Level ?? 0;
+                if (field != null)
                 {
-                    _masterChannel.LevelChanged += MasterChannel_LevelChanged;
+                    field.LevelChanged += MasterChannel_LevelChanged;
                 }
                 MasterChanged();
             }
-        }
-    }
+        } }
 
     private void MasterChannel_LevelChanged(object? sender, byte e)
     {

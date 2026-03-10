@@ -7,13 +7,12 @@ public class RemoteServiceManagerSettings(ImmutableArray<RemoteServiceGroupSetti
     {
     }
 
-    private ImmutableArray<RemoteServiceGroupSettings> _groups = groups ?? [];
     [DataMember]
     public ImmutableArray<RemoteServiceGroupSettings> Groups
     {
-        get => _groups;
-        set => _ = SetProperty(ref _groups, value);
-    }
+        get;
+        set => _ = SetProperty(ref field, value);
+    } = groups ?? [];
 }
 
 [method: JsonConstructor]
@@ -24,11 +23,10 @@ public class RemoteServiceGroupSettings(string? name) : ObservableClass, IIndexe
     }
 
     public int Index { get; set; }
-    private string? _name = name;
     [DataMember]
     public string Name
     {
-        get => _name ?? $"Group {Index + 1}"; //This makes sense because Index is not set until after construction. If not changed before deserialization, this default will be serialized.
-        set => _ = SetProperty(ref _name, value);
-    }
+        get => field ?? $"Group {Index + 1}"; //This makes sense because Index is not set until after construction. If not changed before deserialization, this default will be serialized.
+        set => _ = SetProperty(ref field, value);
+    } = name;
 }

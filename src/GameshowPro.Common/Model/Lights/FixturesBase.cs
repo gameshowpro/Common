@@ -25,11 +25,11 @@ public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
     private void Create(StatePresetGroups depersistedGroups, List<FixtureSettings> depersistedSettings, ILogger logger)
     {
         IEnumerable<StatePresetGroup> defaultPresetGroups = BuildPresetGroups();
-        _presetGroups = depersistedGroups;
-        SyncPresetGroups(ref _presetGroups, defaultPresetGroups);
-        _presetGroups.AddChannelTypes();
+        PresetGroups = depersistedGroups;
+        SyncPresetGroups(ref depersistedGroups, defaultPresetGroups);
+        PresetGroups.AddChannelTypes();
         bool startIdsAreInvalid = this.Count(f => f.StartId == 0) > 1;
-        IEnumerable<Fixture> template = BuildTemplate(_presetGroups);
+        IEnumerable<Fixture> template = BuildTemplate(PresetGroups);
         Dictionary<string, FixtureSettings> settings = SettingsToDictionary(depersistedSettings, logger);
         foreach (Fixture templateFixture in template)
         {
@@ -143,20 +143,19 @@ public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
     protected abstract IEnumerable<Fixture> BuildTemplate(IEnumerable<StatePresetGroup> presetGroups);
     protected abstract IEnumerable<StatePresetGroup> BuildPresetGroups();
 
-    private StatePresetGroups? _presetGroups;
     public StatePresetGroups? PresetGroups
     {
         get
         {
-            return _presetGroups;
+            return field;
         }
         set
         {
-            if (_presetGroups != null)
+            if (field != null)
             {
                 throw new InvalidOperationException($"Once {nameof(PresetGroups)} is set, it is immutable.");
             }
-            _presetGroups = value;
+            field = value;
         }
     }
 

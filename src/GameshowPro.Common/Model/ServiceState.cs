@@ -108,9 +108,9 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         Key = key;
         Name = name;
         Children = children;
-        _aggregateState = aggregateState;
-        _detail = detail;
-        _progress = progress;
+        AggregateState = aggregateState;
+        Detail = detail;
+        Progress = progress;
         if (serviceStateAggregator != null)
         {
             _serviceStateAggregator = serviceStateAggregator;
@@ -314,19 +314,17 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     [Key(1), DataMember]
     public string Name { get; }
 
-    [IgnoreMember]
-    private RemoteServiceStates _aggregateState;
     [Key(2), DataMember]
     public RemoteServiceStates AggregateState
     {
-        get => _aggregateState;
+        get => field;
         set
         {
-            if (_aggregateState != value)
+            if (field != value)
             {
                 bool isConnected = value == RemoteServiceStates.Connected;
-                bool wasConnected = _aggregateState == RemoteServiceStates.Connected;
-                _aggregateState = value;
+                bool wasConnected = field == RemoteServiceStates.Connected;
+                field = value;
                 if (wasConnected != isConnected)
                 {
                     IsConnectedChanged?.Invoke(this, isConnected);
@@ -336,33 +334,29 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         }
     }
 
-    [IgnoreMember]
-    private string? _detail;
     [Key(3), DataMember]
     public string? Detail
     {
-        get => _detail;
+        get => field;
         set
         {
-            if (_detail != value)
+            if (field != value)
             {
-                _detail = value;
+                field = value;
                 PropertyChanged?.Invoke(this, new(nameof(Detail)));
             }
         }
     }
 
-    [IgnoreMember]
-    private double? _progress = 0;
     [Key(4), DataMember]
     public double? Progress
     {
-        get => _progress;
+        get => field;
         set
         {
-            if (_progress != value)
+            if (field != value)
             {
-                _progress = value;
+                field = value;
                 PropertyChanged?.Invoke(this, new(nameof(Progress)));
             }
         }
@@ -380,19 +374,19 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     public void SetAll(RemoteServiceStates aggregateState, string? detail = "", double? progress = 0)
     {
         List<string> changes = new(3);
-        if (_aggregateState != aggregateState)
+        if (AggregateState != aggregateState)
         {
-            _aggregateState = aggregateState;
+            AggregateState = aggregateState;
             changes.Add(nameof(AggregateState));
         }
-        if (_detail != detail)
+        if (Detail != detail)
         {
-            _detail = detail;
+            Detail = detail;
             changes.Add(nameof(Detail));
         }
-        if (_progress != progress)
+        if (Progress != progress)
         {
-            _progress = progress;
+            Progress = progress;
             changes.Add(nameof(Progress));
         }
         changes.ForEach(s => PropertyChanged?.Invoke(this, new(s)));

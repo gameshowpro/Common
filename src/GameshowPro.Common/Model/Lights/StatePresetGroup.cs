@@ -12,7 +12,7 @@ public class StatePresetGroup
     {
         Name = name;
         StatesLevels = statesLevels ?? [];
-        _channelColors = channelColors ?? [];
+        ChannelColors = channelColors ?? [];
         Validate();
     }
 
@@ -32,31 +32,30 @@ public class StatePresetGroup
         }
     }
 
-    private ImmutableList<FixtureChannelType> _channelColors;
     [DataMember]
     public ImmutableList<FixtureChannelType> ChannelColors
     {
         get
         {
-            return _channelColors;
+            return field;
         }
         set
         {
-            _channelColors = value;
+            field = value;
             Validate();
         }
     }
 
     private void Validate()
     {
-        int primCount = _channelColors.Count;
+        int primCount = ChannelColors.Count;
         foreach (StateLevels v in StatesLevels)
         {
             foreach (StateLevelsPhase p in v.Phases)
             {
                 if (p.Levels.Count != primCount)
                 {
-                    p.Levels = p.Levels.EnsureListCount(primCount, primCount, (i) => new(_channelColors[i]));
+                    p.Levels = p.Levels.EnsureListCount(primCount, primCount, (i) => new(ChannelColors[i]));
                 }
             }
         }

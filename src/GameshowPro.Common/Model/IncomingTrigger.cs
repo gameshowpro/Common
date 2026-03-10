@@ -25,7 +25,7 @@ public abstract class IncomingTrigger : ObservableClass, ITrigger
         _lastTrigger.Start();
         Setting = setting;
 #if WPF
-        SimulateTriggerCommand = new RelayCommand<bool?>((latch) => { if (latch == true) { IsDown = !_isDown; } else { OnConfiguredEdge(); } });
+        SimulateTriggerCommand = new RelayCommand<bool?>((latch) => { if (latch == true) { IsDown = !IsDown; } else { OnConfiguredEdge(); } });
         ToggleIsEnabledCommand = new(() => { Setting.IsEnabled = !Setting.IsEnabled; });
 #endif
     }
@@ -48,13 +48,12 @@ public abstract class IncomingTrigger : ObservableClass, ITrigger
 
     public IncomingTriggerSetting Setting { get; }
 
-    protected bool _isDown;
     public virtual bool IsDown
     {
-        get { return _isDown; }
+        get { return field; }
         protected set
         {
-            if (SetProperty(ref _isDown, value))
+            if (SetProperty(ref field, value))
             {
                 _logger.LogTrace("IsDown changed to {value}", value);
                 OnIsDownChanged(value);
@@ -101,49 +100,44 @@ public abstract class IncomingTrigger : ObservableClass, ITrigger
     /// </summary>
     public virtual bool BaseClassDetectsEdges => true;
 
-    private int? _ordinal;
     /// <summary>
     /// The ordinal which was specified by the most recent triggerer.
     /// </summary>
     public int? Ordinal
     {
-        get { return _ordinal; }
-        set { SetProperty(ref _ordinal, value); }
+        get;
+        set { SetProperty(ref field, value); }
     }
 
-    private TimeSpan? _time;
     /// <summary>
     /// The time which was specified by the most recent triggerer.
     /// </summary>
     public TimeSpan? Time
     {
-        get { return _time; }
-        set { SetProperty(ref _time, value); }
+        get;
+        set { SetProperty(ref field, value); }
     }
 
-    private bool _isTest;
     /// <summary>
     /// The IsTest decoration which was specified by the most recent triggerer.  Primarily intended for to help log clarification.
     /// </summary>
     public bool IsTest
     {
-        get { return _isTest; }
-        set { SetProperty(ref _isTest, value); }
+        get;
+        set { SetProperty(ref field, value); }
     }
 
-    private DateTime _lastTriggerDateTime = DateTime.MinValue;
     public DateTime LastTriggerDateTime
     {
-        get { return _lastTriggerDateTime; }
-        protected set { SetProperty(ref _lastTriggerDateTime, value); }
-    }
+        get;
+        protected set { SetProperty(ref field, value); }
+    } = DateTime.MinValue;
 
-    private DateTime _lastLockoutDateTime = DateTime.MinValue;
     public DateTime LastLockoutDateTime
     {
-        get { return _lastLockoutDateTime; }
-        protected set { SetProperty(ref _lastLockoutDateTime, value); }
-    }
+        get;
+        protected set { SetProperty(ref field, value); }
+    } = DateTime.MinValue;
 #if WPF
     public RelayCommand<bool?> SimulateTriggerCommand { get; }
     public RelayCommandSimple ToggleIsEnabledCommand { get; }

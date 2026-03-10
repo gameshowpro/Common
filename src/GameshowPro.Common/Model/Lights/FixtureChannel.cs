@@ -15,50 +15,45 @@ public class FixtureChannel : ObservableClass
     [JsonConstructor]
     public FixtureChannel(FixtureChannelType? fixtureChannelType)
     {
-        _fixtureChannelType = fixtureChannelType ?? new() { Primary = Colors.White };
+        FixtureChannelType = fixtureChannelType ?? new() { Primary = Colors.White };
     }
 
-    private FixtureChannelType _fixtureChannelType;
     public FixtureChannelType FixtureChannelType
     {
-        get { return _fixtureChannelType; }
-        set { SetProperty(ref _fixtureChannelType, value); }
+        get { return field; }
+        set { SetProperty(ref field, value); }
     }
 
-    private byte _level;
     [DataMember, DefaultValue(0)]
     public byte Level
     {
-        get { return _level; }
+        get;
         set
         {
-            if (SetProperty(ref _level, value))
+            if (SetProperty(ref field, value))
             {
-                LevelChanged?.Invoke(this, _level);
+                LevelChanged?.Invoke(this, field);
             }
         }
     }
 
-    private int _id;
     [DataMember, DefaultValue(0)]
     public int Id
     {
-        get { return _id; }
-        set { SetProperty(ref _id, value); }
+        get;
+        set { SetProperty(ref field, value); }
     }
 
-    private int _universeIndex = 0;
     [DataMember, DefaultValue(0)]
     public int UniverseIndex
     {
-        get { return _universeIndex; }
-        set { SetProperty(ref _universeIndex, value); }
-    }
+        get;
+        set { SetProperty(ref field, value); }
+    } = 0;
 
-    private Fixture? _parent;
     public Fixture? Parent
     {
-        get { return _parent; }
-        set { SetProperty(ref _parent, value); }
+        get;
+        set { SetProperty(ref field, value); }
     }
 }

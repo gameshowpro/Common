@@ -34,14 +34,13 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : ObservableClass, 
     /// </summary>
     public abstract FrozenDictionary<TTriggerKey, IncomingTrigger> TriggersBase { get; }
 
-    private bool _anyIsEnabled;
     /// <summary>
     /// True if any <see cref="IncomingTrigger"/> in <see cref="TriggersBase"/> is set to be enabled.
     /// </summary>
     public bool AnyIsEnabled
     {
-        get => _anyIsEnabled;
-        private set => _ = SetProperty(ref _anyIsEnabled, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
 

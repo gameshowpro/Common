@@ -31,11 +31,10 @@ public abstract class VmBase : ObservableClass
         PersistAllCommand = new AsyncCommandSimple(persistAll);
     }
 
-    private DateTime _timeOfDayMinute;
     public DateTime TimeOfDayMinute
     {
-        get { return _timeOfDayMinute; }
-        set { SetProperty(ref _timeOfDayMinute, value); }
+        get;
+        set { SetProperty(ref field, value); }
     }
 
     public DateTime TimeOfDay => DateTime.Now;

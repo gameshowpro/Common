@@ -21,7 +21,7 @@ public class RemoteServiceManager : ObservableClass
     /// <remarks>Docs added by AI.</remarks>
     public RemoteServiceManager(RemoteServiceManagerSettings settings, IEnumerable<IRemoteService> remoteServices, IEnumerable<IRemoteServiceCollection> remoteServiceCollections, IEnumerable<KeyValuePair<Type, string>> uiTemplatesByType)
     {
-        _settings = settings;
+        Settings = settings;
         _serviceCollections = [.. remoteServiceCollections];
         _orphanServices = new(remoteServices);
         _serviceCollections.Add(_orphanServices);
@@ -31,15 +31,14 @@ public class RemoteServiceManager : ObservableClass
 #endif
     }
 
-    private RemoteServiceManagerSettings _settings;
     /// <summary>The current settings; updating triggers regrouping.</summary>
     /// <remarks>Docs added by AI.</remarks>
     public RemoteServiceManagerSettings Settings
     {
-        get => _settings;
+        get => field;
         set
         {
-            if (SetProperty(ref _settings, value))
+            if (SetProperty(ref field, value))
             {
                UpdateGroups();
             }
@@ -156,13 +155,12 @@ public class RemoteServiceManager : ObservableClass
     private void Settings_MonitorUiGroupChanged(object? sender, EventArgs args)
         => UpdateGroups();
 
-    private ImmutableArray<RemoteServiceGroup> _monitorUiGroups;
     /// <summary>Computed UI groups for monitoring.</summary>
     /// <remarks>Docs added by AI.</remarks>
     public ImmutableArray<RemoteServiceGroup> MonitorUiGroups
     {
-        get => _monitorUiGroups;
-        private set => _ = SetProperty(ref _monitorUiGroups, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     private class UngroupedServiceCollection(IEnumerable<IRemoteService> remoteServices) : IRemoteServiceCollection

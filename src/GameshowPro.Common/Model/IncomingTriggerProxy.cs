@@ -35,7 +35,7 @@ public class IncomingTriggerProxy<TKey> : ObservableClass, ITrigger
     }
 
     private bool _firstSetIsDone = false; //If TKey is an enum, the source key will already be set to default, but the source will not be set
-    private TKey? _currentSourceKey;
+
     /// <summary>
     /// Gets or sets the key for the active source trigger. Setting this updates <see cref="Source"/>.
     /// </summary>
@@ -43,10 +43,10 @@ public class IncomingTriggerProxy<TKey> : ObservableClass, ITrigger
     [DisallowNull]
     public TKey? CurrentSourceKey
     {
-        get => _currentSourceKey;
+        get;
         set
         {
-            if ((SetProperty(ref _currentSourceKey, value) || !_firstSetIsDone) && Options.TryGetValue(value, out IncomingTrigger? newSource))
+            if ((SetProperty(ref field, value) || !_firstSetIsDone) && Options.TryGetValue(value, out IncomingTrigger? newSource))
             {
                 Source = newSource;
                 _firstSetIsDone = true;
@@ -64,26 +64,25 @@ public class IncomingTriggerProxy<TKey> : ObservableClass, ITrigger
     public bool TryGetOption(TKey key, out IncomingTrigger? option)
         => Options.TryGetValue(key, out option);
 
-    private IncomingTrigger? _source;
     /// <summary>
     /// Gets the currently active source trigger.
     /// </summary>
     /// <remarks>Docs added by AI.</remarks>
     public IncomingTrigger? Source
     {
-        get => _source;
+        get;
         private set
         {
-            IncomingTrigger? previous = _source;
-            if (SetProperty(ref _source, value))
+            IncomingTrigger? previous = field;
+            if (SetProperty(ref field, value))
             {
                 if (previous is not null)
                 {
                     previous.Triggered -= RelayTrigger;
                 }
-                if (_source is not null)
+                if (field is not null)
                 {
-                    _source.Triggered += RelayTrigger;
+                    field.Triggered += RelayTrigger;
                 }
             }
         }

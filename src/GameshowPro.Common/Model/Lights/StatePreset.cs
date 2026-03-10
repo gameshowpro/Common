@@ -80,8 +80,8 @@ public class StateLevels : ObservableClass
         Key = key ?? throw new ArgumentNullException(nameof(key), "Can't create StateLevels without key");
         Phases = [.. phases == null || !phases.Any() ? [new StateLevelsPhase()] : phases];
         
-        _cycleStepCount = cycleStepCount ?? 0;
-        _loopBackStep = loopBackStep ?? 0;
+        CycleStepCount = cycleStepCount ?? 0;
+        LoopBackStep = loopBackStep ?? 0;
         _flashTimer = new Timer((o) => DoFlash());
         AddPhaseCommand = new RelayCommandSimple(
             () => Phases.Add(
@@ -110,44 +110,38 @@ public class StateLevels : ObservableClass
     [DataMember]
     public ObservableCollectionEx<StateLevelsPhase> Phases { get; }
 
-
-    private int _cycleStepCount = 0;
     [DataMember, DefaultValue(0)]
     public int CycleStepCount
     {
-        get { return _cycleStepCount; }
-        set { SetProperty(ref _cycleStepCount, value); }
+        get { return field; }
+        set { SetProperty(ref field, value); }
     }
 
-    private int _loopBackStep;
     [DataMember]
     public int LoopBackStep
     {
-        get => _loopBackStep;
-        set => _ = SetProperty(ref _loopBackStep, value);
+        get => field;
+        set => _ = SetProperty(ref field, value);
     }
 
     private void SetPhaseCyclingIsEnabled()
     {
         HasMultiplePhases = Phases.Count > 1;
-        PhaseCyclingIsEnabled = _hasMultiplePhases && _cycleStepCount != 1 && Phases.Count(p => p.Duration > TimeSpan.Zero) > 1;
-        RemovePhaseCommand.SetCanExecute(_hasMultiplePhases);
+        PhaseCyclingIsEnabled = HasMultiplePhases && CycleStepCount != 1 && Phases.Count(p => p.Duration > TimeSpan.Zero) > 1;
+        RemovePhaseCommand.SetCanExecute(HasMultiplePhases);
     }
 
-    private bool _phaseCyclingIsEnabled;
     [JsonIgnore]
     public bool PhaseCyclingIsEnabled
     {
-        get => _phaseCyclingIsEnabled;
-        private set => _ = SetProperty(ref _phaseCyclingIsEnabled, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
-
-    private bool _hasMultiplePhases;
     [JsonIgnore]
     public bool HasMultiplePhases
     {
-        get => _hasMultiplePhases;
-        private set => _ = SetProperty(ref _hasMultiplePhases, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     private readonly Timer _flashTimer;
@@ -158,14 +152,14 @@ public class StateLevels : ObservableClass
         _cycleStepCounter++;
         if ((_cycleStep + 1) >= Phases.Count)
         {
-            _cycleStep = _loopBackStep.KeepInRange(0, Phases.Count - 1);
+            _cycleStep = LoopBackStep.KeepInRange(0, Phases.Count - 1);
         }
         else
         {
             _cycleStep++;
         }
         Flash?.Invoke(this, thisPhase.Levels);
-        if (_cycleStepCount <= 0 || _cycleStepCounter < _cycleStepCount)
+        if (CycleStepCount <= 0 || _cycleStepCounter < CycleStepCount)
         {
             if (thisPhase.Duration > TimeSpan.Zero)
             {

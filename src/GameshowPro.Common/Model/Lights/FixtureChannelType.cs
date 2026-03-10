@@ -10,11 +10,10 @@ namespace GameshowPro.Common.Model.Lights;
 /// </summary>
 public class FixtureChannelType : ObservableClass
 {
-    private Color _primary;
     [DataMember, DefaultValue("#00000000")]
     public Color Primary
     {
-        get { return _primary; }
-        set { SetProperty(ref _primary, value); }
+        get { return field; }
+        set { SetProperty(ref field, value); }
     }
 }

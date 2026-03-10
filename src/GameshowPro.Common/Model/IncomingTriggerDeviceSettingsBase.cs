@@ -17,13 +17,12 @@ public abstract class IncomingTriggerDeviceSettingsBase : ObservableClass
     public IncomingTriggerDeviceSettingsBase(IncomingTriggerSettings incomingTriggerSettings, bool? allowDuplicateTriggerIds, string nameSuffix, bool? isEnabled, RemoteServiceSettings? remoteServiceSettings)
     {
         TriggerSettings = incomingTriggerSettings ?? [];
-        _allowDuplicateTriggerIds = allowDuplicateTriggerIds ?? false;
-        _nameSuffix = nameSuffix ?? string.Empty;
-        _isEnabled = isEnabled ?? true;
+        AllowDuplicateTriggerIds = allowDuplicateTriggerIds ?? false;
+        NameSuffix = nameSuffix ?? string.Empty;
+        IsEnabled = isEnabled ?? true;
         RemoteServiceSettings = remoteServiceSettings ?? new RemoteServiceSettings();
     }
 
-    private bool _allowDuplicateTriggerIds;
     /// <summary>
     /// By default, triggers must have unique IDs. If this property is true, multiple triggers may share an ID,
     /// so that they will all be triggered when a remote trigger is received with that ID.
@@ -31,32 +30,29 @@ public abstract class IncomingTriggerDeviceSettingsBase : ObservableClass
     [DataMember]
     public bool AllowDuplicateTriggerIds
     {
-        get { return _allowDuplicateTriggerIds; }
-        set { SetProperty(ref _allowDuplicateTriggerIds, value); }
+        get { return field; }
+        set { SetProperty(ref field, value); }
     }
 
-    private string _nameSuffix = "";
     /// <summary>
     /// A name which can be used shown on the UI to distinguish this device instance from another of the same type.
     /// </summary>
     [DataMember]
     public string NameSuffix
     {
-        get { return _nameSuffix; }
-        set { SetProperty(ref _nameSuffix, value); }
-    }
+        get { return field; }
+        set { SetProperty(ref field, value); }
+    } = "";
 
     [DataMember]
     public virtual IncomingTriggerSettings TriggerSettings { get; } = [];
 
-    private bool _isEnabled = true;
     [DataMember]
     public bool IsEnabled
     {
-        get => _isEnabled;
-        set => _ = SetProperty(ref _isEnabled, value);
-    }
-
+        get => field;
+        set => _ = SetProperty(ref field, value);
+    } = true;
     [DataMember]
     public RemoteServiceSettings RemoteServiceSettings { get; } = new();
 }

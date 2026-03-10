@@ -22,12 +22,12 @@ public class Fixture : ObservableClass
         StatePresetGroup group)
     {
         Key = key;
-        _displayName = displayName;
-        _startId = startId;
-        _channels = channels;
+        DisplayName = displayName;
+        StartId = startId;
+        Channels = channels;
         StateGroup = group;
         State = group.StatesLevels.First();
-        SetChannelsFromStartChannel(_startId, _channels);
+        SetChannelsFromStartChannel(StartId, Channels);
         DeserializationComplete();
     }
 
@@ -36,49 +36,44 @@ public class Fixture : ObservableClass
     /// The group of states which may be applied to this fixture.
     /// </summary>
     public StatePresetGroup StateGroup { get; internal set; }
-
-    private StateLevels? _state;
     public StateLevels? State
     {
-        get => _state;
-        private set => SetProperty(ref _state, value);
+        get;
+        private set => SetProperty(ref field, value);
     }
 
     [DataMember, DefaultValue(null)]
     public string Key { get; }
 
-    private string _displayName;
     [DataMember, DefaultValue("Light")]
     public string DisplayName
     {
-        get { return _displayName; }
-        set { _ = SetProperty(ref _displayName, value); }
+        get { return field; }
+        set { _ = SetProperty(ref field, value); }
     }
 
-    private int _startId = 0;
     [DataMember, DefaultValue(0)]
     public int StartId
     {
-        get => _startId;
+        get => field;
         set
         {
-            if (SetProperty(ref _startId, value))
+            if (SetProperty(ref field, value))
             {
-                SetChannelsFromStartChannel(_startId, _channels);
+                SetChannelsFromStartChannel(field, Channels);
             }
         }
     }
 
-    private List<FixtureChannel> _channels;
     [DefaultValue(null)]
     public List<FixtureChannel> Channels
     {
-        get { return _channels; }
+        get { return field; }
         set
         {
-            RemoveChannelHandlers(_channels, Channel_PropertyChanged);
-            _ = SetProperty(ref _channels, value);
-            SetChannelsFromStartChannel(_startId, _channels);
+            RemoveChannelHandlers(field, Channel_PropertyChanged);
+            _ = SetProperty(ref field, value);
+            SetChannelsFromStartChannel(StartId, field);
             DeserializationComplete(); //Mainly for backwards compatibility. If really deserializing, this should be called explicitly later
         }
     }
@@ -126,7 +121,7 @@ public class Fixture : ObservableClass
     private void ApplyStatePreset(IEnumerable<StatePresetChannel>? preset)
     {
         var i = 0;
-        foreach (FixtureChannel chan in _channels)
+        foreach (FixtureChannel chan in Channels)
         {
             chan.Level = preset?.ElementAtOrDefault(i)?.Level ?? 0;
             i++;
@@ -184,14 +179,14 @@ public class Fixture : ObservableClass
 
     public void DeserializationComplete()
     {
-        if (_channels?.Any(c => c.FixtureChannelType == null) != false)
+        if (Channels?.Any(c => c.FixtureChannelType == null) != false)
         {
             //Not ready yet
             return;
         }
         FixChannelIds();
         UpdateMixedColor();
-        AddChannelHandlers(_channels, Channel_PropertyChanged, this);
+        AddChannelHandlers(Channels, Channel_PropertyChanged, this);
     }
 
     private static void AddChannelHandlers(IList<FixtureChannel> channels, PropertyChangedEventHandler handler, Fixture fixture)
@@ -227,7 +222,7 @@ public class Fixture : ObservableClass
     /// </summary>
     private void FixChannelIds()
     {
-        foreach (FixtureChannel channel in _channels)
+        foreach (FixtureChannel channel in Channels)
         {
             if (channel.Id >= 512)
             {
@@ -240,19 +235,17 @@ public class Fixture : ObservableClass
     private void UpdateMixedColor()
     {
         Color color = Colors.Black;
-        foreach (FixtureChannel ch in _channels)
+        foreach (FixtureChannel ch in Channels)
         {
             color += Color.Multiply(ch.FixtureChannelType.Primary, ch.Level / 255f);
         }
         MixedColor = color;
     }
 
-
-    private Color _mixedColor;
     [DefaultValue("#00000000")]
     public Color MixedColor
     {
-        get { return _mixedColor; }
-        private set { _ = SetProperty(ref _mixedColor, value); }
+        get { return field; }
+        private set { _ = SetProperty(ref field, value); }
     }
 }

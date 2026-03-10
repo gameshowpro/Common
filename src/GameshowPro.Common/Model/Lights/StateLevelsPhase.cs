@@ -14,12 +14,10 @@ public class StateLevelsPhase : ObservableClass
 
     [DataMember]
     public ImmutableList<StatePresetChannel> Levels { get; internal set; }
-
-    private TimeSpan _duration;
     [DataMember]
     public TimeSpan Duration
     {
-        get => _duration;
-        set => _ = SetProperty(ref _duration, value);
+        get;
+        set => _ = SetProperty(ref field, value);
     }
 }

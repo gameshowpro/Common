@@ -12,50 +12,37 @@ public class Universe
 
     public Universe(UniverseSettings settings, int universeSize)
     {
-        _settings = settings;
+        Settings = settings;
         _data = new byte[universeSize + 1]; //First byte is DMX start code
-        _channels = [];
+        Channels = [];
         for (var i = 1; i <= universeSize; i++)
         {
-            _channels.Add(new UniverseChannel(this, i - 1));
+            Channels.Add(new UniverseChannel(this, i - 1));
         }
     }
 
-    private readonly UniverseSettings _settings;
-    public UniverseSettings Settings
-    {
-        get { return _settings; }
-    }
+    public UniverseSettings Settings { get; }
 
-    private readonly List<UniverseChannel> _channels;
-    public List<UniverseChannel> Channels
-    {
-        get { return _channels; }
-    }
+    public List<UniverseChannel> Channels { get; }
 
     private bool _isDirty;
 
-    private bool _sendUpdates = true;
     /// <summary>
     /// If true, updates will be sent immediately on change.  Otherwise state will be held internally until SendUpdates is set to true.
     /// In other words, this allows changes to be batched.
     /// </summary>
-    public bool SendUpdates
-    {
-        get { return _sendUpdates; }
-        set
+    public bool SendUpdates { get; set
         {
-            if (_sendUpdates != value)
+            if (field != value)
             {
-                _sendUpdates = value;
-                if (_sendUpdates & _isDirty)
+                field = value;
+                if (field & _isDirty)
                 {
                     _isDirty = false;
                     SendUpdate?.Invoke(_data);
                 }
             }
-        }
-    }
+        } } = true;
 
     /// <summary>
     /// Set a block of data in a single operation.
@@ -74,7 +61,7 @@ public class Universe
         Array.Copy(_data, startOneBased, oldData, 0, oldData.Length);
         //Apply new values
         Array.Copy(sourceData, 0, _data, startOneBased, sourceData.Length);
-        if (_sendUpdates)
+        if (SendUpdates)
         {
             SendUpdate?.Invoke(_data);
         }
@@ -87,7 +74,7 @@ public class Universe
         {
             if (sourceData[i] != oldData[i])
             {
-                _channels[i].LevelChanged();
+                Channels[i].LevelChanged();
             }
         }
     }
@@ -107,7 +94,7 @@ public class Universe
         if (_data[channelOneBased] != level)
         {
             _data[channelOneBased] = level;
-            if (_sendUpdates)
+            if (SendUpdates)
             {
                 SendUpdate?.Invoke(_data);
             }
@@ -115,7 +102,7 @@ public class Universe
             {
                 _isDirty = true;
             }
-            _channels[channel].LevelChanged();
+            Channels[channel].LevelChanged();
         }
     }
 
