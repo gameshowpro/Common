@@ -3,6 +3,16 @@
 public abstract class VmBase : ObservableClass
 {
     private readonly string _dataDir;
+    /// <summary>
+    /// Modern overload - build date and version string are automatically obtained from the calling assembly, and build date is converted to local time
+    /// </summary>
+    protected VmBase(string dataDir, Func<Task> persistAll, DateTimeOffset? buildDate = null, ICommand? launchLogCommand = null)
+    : this(dataDir, persistAll, buildDate?.LocalDateTime, null, launchLogCommand)
+    { }
+
+    /// <summary>
+    /// Legacy overload
+    /// </summary>
     protected VmBase(string dataDir, Func<Task> persistAll, DateTime? buildDate = null, string? versionString = null, ICommand? launchLogCommand = null)
     {
         (string assemblyVersionString, DateTime? assemblyBuildDate) = Assembly.GetCallingAssembly().GetVersionAndBuildDate();
