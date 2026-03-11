@@ -40,6 +40,12 @@ internal class DefaultContractResolver : Newtonsoft.Json.Serialization.DefaultCo
     protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
     {
         JsonProperty property = base.CreateProperty(member, memberSerialization);
+        // System.Text.Json's JsonIgnoreAttribute inherits from JsonAttribute, so it must be
+        // checked before the general JsonAttribute opt-in check to avoid treating it as opt-in.
+        if (member.IsDefined(typeof(System.Text.Json.Serialization.JsonIgnoreAttribute), true))
+        {
+            property.Ignored = true;
+        }
         if (!property.Ignored
             && !member.IsDefined(typeof(JsonPropertyAttribute), true)
             && !member.IsDefined(typeof(DataMemberAttribute), true)
@@ -64,11 +70,15 @@ internal class DefaultContractResolver : Newtonsoft.Json.Serialization.DefaultCo
             {
                 return result;
             }
+            // System.Text.Json's JsonIgnoreAttribute inherits from JsonAttribute, so it must be
+            // excluded before the general JsonAttribute opt-in check below.
+            bool optedOut = member.IsDefined(typeof(System.Text.Json.Serialization.JsonIgnoreAttribute), true);
             bool optedIn =
-                propertyDefault.DeclaringType.IsRecordType()                                    //Record types are presumed to be fully opted in by default.
-                || member.IsDefined(typeof(JsonPropertyAttribute), true)                        //Treat attribute as opted-in
-                || member.IsDefined(typeof(DataMemberAttribute), true)                          //Treat attribute as opted-in
-                || member.IsDefined(typeof(System.Text.Json.Serialization.JsonAttribute), true);//Treat attribute as opted-in
+                !optedOut
+                && (propertyDefault.DeclaringType.IsRecordType()                                    //Record types are presumed to be fully opted in by default.
+                    || member.IsDefined(typeof(JsonPropertyAttribute), true)                        //Treat attribute as opted-in
+                    || member.IsDefined(typeof(DataMemberAttribute), true)                          //Treat attribute as opted-in
+                    || member.IsDefined(typeof(System.Text.Json.Serialization.JsonAttribute), true));//Treat attribute as opted-in
             result = !optedIn;
             s_memberInfoPropertyIgnoreCache.Add(member, result);
             return result;
