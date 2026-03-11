@@ -15,7 +15,7 @@ public abstract class VmBase : ObservableClass
     /// </summary>
     protected VmBase(string dataDir, Func<Task> persistAll, DateTime? buildDate = null, string? versionString = null, ICommand? launchLogCommand = null)
     {
-        (string assemblyVersionString, DateTime? assemblyBuildDate) = Assembly.GetCallingAssembly().GetVersionAndBuildDate();
+        (string assemblyVersionString, DateTime? assemblyBuildDate) = Assembly.GetEntryAssembly()?.GetVersionAndBuildDate() ?? (string.Empty, null);
         BuildDate = buildDate ?? assemblyBuildDate ?? DateTime.MinValue;
         VersionString = versionString ?? assemblyVersionString;
         _dataDir = dataDir;
