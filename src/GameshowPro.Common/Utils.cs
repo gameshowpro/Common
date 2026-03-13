@@ -93,11 +93,11 @@ public static partial class Utils
 
 
     /// <summary>
-    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
+    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the maximum bound can also result in a true result.
     /// </summary>
     /// <param name="input">The number to be compared.</param>
     ///  <param name="min">The minimum value of the number.</param>
-    ///  <param name="max">The maximum value of the number.</param>
+    ///  <param name="max">The maximum value of the number (inclusive or exclusive, depending on <paramref name="maxIsInclusive"/>).</param>
     ///  <param name="maxIsInclusive">Specifies whether numbers equal to the maximum should give a true result.</param>
     public static bool IsInRange(this int input, int min, int max, bool maxIsInclusive = true)
     {
@@ -115,11 +115,11 @@ public static partial class Utils
         => input.HasValue && IsInRange(input.Value, min, max, maxIsInclusive);
 
     /// <summary>
-    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
+    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the maximum bound can also result in a true result.
     /// </summary>
     /// <param name="input">The number to be compared.</param>
     ///  <param name="min">The minimum value of the number.</param>
-    ///  <param name="max">The maximum value of the number.</param>
+    ///  <param name="max">The maximum value of the number (inclusive or exclusive, depending on <paramref name="maxIsInclusive"/>).</param>
     ///  <param name="maxIsInclusive">Specifies whether numbers equal to the maximum should give a true result.</param>
     public static bool IsInRange(this byte input, byte min, byte max, bool maxIsInclusive = true)
     {
@@ -137,11 +137,11 @@ public static partial class Utils
         => input.HasValue && IsInRange(input.Value, min, max, maxIsInclusive);
 
     /// <summary>
-    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
+    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the maximum bound can also result in a true result.
     /// </summary>
     /// <param name="input">The number to be compared.</param>
     ///  <param name="min">The minimum value of the number.</param>
-    ///  <param name="max">The maximum value of the number.</param>
+    ///  <param name="max">The maximum value of the number (inclusive or exclusive, depending on <paramref name="maxIsInclusive"/>).</param>
     ///  <param name="maxIsInclusive">Specifies whether numbers equal to the maximum should give a true result.</param>
     public static bool IsInRange(this long input, long min, long max, bool maxIsInclusive = true)
     {
@@ -159,11 +159,11 @@ public static partial class Utils
         => input.HasValue && IsInRange(input.Value, min, max, maxIsInclusive);
 
     /// <summary>
-    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
+    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the maximum bound can also result in a true result.
     /// </summary>
     /// <param name="input">The number to be compared.</param>
     ///  <param name="min">The minimum value of the number.</param>
-    ///  <param name="max">The maximum value of the number.</param>
+    ///  <param name="max">The maximum value of the number (inclusive or exclusive, depending on <paramref name="maxIsInclusive"/>).</param>
     ///  <param name="maxIsInclusive">Specifies whether numbers equal to the maximum should give a true result.</param>
     public static bool IsInRange(this float input, float min, float max, bool maxIsInclusive = true)
     {
@@ -181,11 +181,11 @@ public static partial class Utils
         => input.HasValue && IsInRange(input.Value, min, max, maxIsInclusive);
 
     /// <summary>
-    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the bounds can also result in a true result.
+    /// Returns a Boolean indicating whether the given number falls between the other two.  Optionally, numbers equal to the maximum bound can also result in a true result.
     /// </summary>
     /// <param name="input">The number to be compared.</param>
     ///  <param name="min">The minimum value of the number.</param>
-    ///  <param name="max">The maximum value of the number.</param>
+    ///  <param name="max">The maximum value of the number (inclusive or exclusive, depending on <paramref name="maxIsInclusive"/>).</param>
     ///  <param name="maxIsInclusive">Specifies whether numbers equal to the maximum should give a true result.</param>
     public static bool IsInRange(this double input, double min, double max, bool maxIsInclusive = true)
     {
@@ -203,12 +203,12 @@ public static partial class Utils
         => input.HasValue && IsInRange(input.Value, min, max, maxIsInclusive);
 
     /// <summary>
-    /// Returns a Boolean indicating whether the given timespan falls between the other two.  Optionally, timespans equal to the bounds can also result in a true result.
+    /// Returns a Boolean indicating whether the given timespan falls between the other two.  Optionally, timespans equal to the maximum bound can also result in a true result.
     /// </summary>
-    /// <param name="input">The number to be compared.</param>
+    /// <param name="input">The timespan to be compared.</param>
     ///  <param name="min">The minimum value of the timespan.</param>
-    ///  <param name="max">The maximum value of the timespan.</param>
-    ///  <param name="maxIsInclusive">Specifies whether numbers equal to the maximum should give a true result.</param>
+    ///  <param name="max">The maximum value of the timespan (inclusive or exclusive, depending on <paramref name="maxIsInclusive"/>).</param>
+    ///  <param name="maxIsInclusive">Specifies whether timespans equal to the maximum should give a true result.</param>
     public static bool IsInRange(this TimeSpan input, TimeSpan min, TimeSpan max, bool maxIsInclusive = true)
     {
         if (maxIsInclusive)
@@ -221,6 +221,13 @@ public static partial class Utils
         }
     }
 
+    /// <summary>
+    /// Returns a Boolean indicating whether the given timespan is non-null and falls between the other two.  Optionally, timespans equal to the maximum bound can also result in a true result.
+    /// </summary>
+    /// <param name="input">The timespan to be compared.</param>
+    ///  <param name="min">The minimum value of the timespan.</param>
+    ///  <param name="max">The maximum value of the timespan (inclusive or exclusive, depending on <paramref name="maxIsInclusive"/>).</param>
+    ///  <param name="maxIsInclusive">Specifies whether timespans equal to the maximum should give a true result.</param>
     public static bool IsInRange(this TimeSpan? input, TimeSpan min, TimeSpan max, bool maxIsInclusive = true)
         => input.HasValue && IsInRange(input.Value, min, max, maxIsInclusive);
 
