@@ -1,7 +1,8 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Windows.Media;
+#if WPF
 using Color = System.Windows.Media.Color;
+#endif
 
 namespace GameshowPro.Common.Model.Lights;
 

@@ -1,7 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Windows.Media;
-
 namespace GameshowPro.Common.Model.Lights;
 
 /// <summary>

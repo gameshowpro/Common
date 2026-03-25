@@ -12,6 +12,7 @@
       </PropertyGroup>
       <ItemGroup>
         <Compile Remove="ViewModel/ICommand.cs" />
+        <Compile Remove="Model/Color.cs" />
       </ItemGroup>
     </When>
     <Otherwise>
@@ -25,7 +26,6 @@
         <Compile Remove="Converters/*" />
         <Compile Remove="View/*" />
         <Compile Remove="Wpf/*" />
-        <Compile Remove="Model/Lights/*" />
         <Compile Remove="AttachedProperties/*" />
         <Compile Remove="NativeMethods.cs" />
         <Compile Remove="Screen.cs" />

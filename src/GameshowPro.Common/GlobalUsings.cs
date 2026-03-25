@@ -10,6 +10,9 @@ global using System.ServiceProcess;
 global using System.Security.Principal;
 global using Microsoft.Xaml.Behaviors;
 global using Microsoft.WindowsAPICodePack.Dialogs;
+#else
+global using Color = GameshowPro.Common.Model.Color;
+global using Colors = GameshowPro.Common.Model.Colors;
 #endif
 
 global using System;
