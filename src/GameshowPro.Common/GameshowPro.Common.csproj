@@ -31,7 +31,6 @@
         <Compile Remove="Screen.cs" />
         <Compile Remove="UtilsWindows.cs" />
         <Compile Remove="Model/KioskWindowHandler.cs" />
-        <Compile Remove="Model/TriggerBinder.cs" />
         <Compile Remove="ViewModel/IncomingTriggerDeviceHeaderTemplateSelector.cs" />
         <Compile Remove="ViewModel/VmBase.cs" />
       </ItemGroup>
@@ -61,7 +60,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MessagePack" Version="3.1.4" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.5" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.9.50">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -72,7 +71,7 @@
     <PackageReference Include="MahApps.Metro" Version="2.4.11" />
     <PackageReference Include="MahApps.Metro.IconPacks" Version="6.2.1" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-    <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.1" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.5" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Docs\README.md" Pack="true" PackagePath="\" />
