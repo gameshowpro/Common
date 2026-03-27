@@ -23,9 +23,9 @@ The IDs of each channel are not stored individually, but are set every time the 
 
 It's up to the subclass of `FixturesBase` to generate the list of `StatePresetGroup` and assign them to the applicable `Fixture` objects.
 
-## Deserializeation
+## Deserialization
 
-`Fixtures` instances are created using the `Depersist()` method. This will cause the template to be generated and the depersisted settigns to be applied to it.
+`Fixtures` instances are created using the `Depersist()` method. This will cause the template to be generated and the depersisted settings to be applied to it.
 
 ## Integration with sACN
 After deserialization, a list of `UniverseSettings` objects is available is each instance of `SacnSettings`. The default size of each universe is the maximum (512) but lower powers of 2 may be specified in client code before passing the `SacnSettings` to the `Sacn` constructor. In many cases, it makes sense to calculate highest channel in use and set the universe size to the smallest power of 2 possible.

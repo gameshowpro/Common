@@ -48,6 +48,8 @@ public static class SystemTextJsonUtils
 
     static SystemTextJsonUtils()
     {
+        DefaultJsonSerializerOptions.Converters.Add(new FlexibleJsonConstructorConverterFactory());
+        DefaultJsonSerializerOptions.Converters.Add(new TypedObjectConverter());
         DefaultJsonSerializerOptions.Converters.Add(new JsonConverters.TypeConverter());
         DefaultJsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         DefaultJsonSerializerOptions.Converters.Add(new IpAddressConverter());
