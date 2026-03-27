@@ -74,6 +74,6 @@
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.5" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Docs\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\docs\GameshowPro.Common\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
