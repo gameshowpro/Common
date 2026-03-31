@@ -1,41 +1,22 @@
-﻿// (C) Barjonas LLC 2022
+﻿// (C) Barjonas LLC 2026
 
 namespace GameshowPro.Common.Model;
 
 /// <summary>
-/// Base class that implements property change notification with optional UI-thread dispatching.
-/// <remarks>Docs added by AI.</remarks>
+/// Base class that implements property change notification.
 /// </summary>
 public class ObservableClass : INotifyPropertyChanged
 {
-#if WPF
-    protected readonly Dispatcher _dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
-    protected readonly Action<PropertyChangedEventArgs> NotifyPropertyChangedAction;
-
-    public ObservableClass()
-    {
-        NotifyPropertyChangedAction = new(NotifyPropertyChanged);
-    }
-#endif
-
-
-    /// <summary>
-    /// A subclass of PropertyChangedEventArgs that <see cref="PropertyChangedOnOriginalThread"/> has already been raised and should not be raised again.
-    /// Only created and consumed within this <see cref="ObservableClass"/>.
-    /// </summary>
-    /// <remarks>Docs added by AI.</remarks>
-    private class PropertyChangeEventArgsAlreadyRaisedOnOriginalThread(string propertyName) : PropertyChangedEventArgs(propertyName)
-    {
-    }
     [IgnoreDataMember]
     protected bool _isDirty;
     /// <summary>
-    /// Raised when property on the subclass is changed.  This event is intended for UI binding and is always dispatched onto the UI thread.
+    /// Raised when a property on the subclass is changed.
     /// </summary>
     public event PropertyChangedEventHandler? PropertyChanged;
     /// <summary>
-    /// Raised when property on the subclass is changed.  This event is always raised on the thread that set the property, so should not be used for UI binding.
+    /// Obsolete. Now behaves identically to <see cref="PropertyChanged"/>. Use <see cref="PropertyChanged"/> instead.
     /// </summary>
+    [Obsolete($"Now behaves identically to {nameof(PropertyChanged)}. Use that instead.")]
     public event PropertyChangedEventHandler? PropertyChangedOnOriginalThread;
     /// <summary>
     /// When true, enumerable properties are compared by their contents instead of reference equality when determining change.
@@ -45,8 +26,7 @@ public class ObservableClass : INotifyPropertyChanged
     protected virtual bool CompareEnumerablesByContent { get => false; }
 
     /// <summary>
-    /// Subclasses can override this method to insert their own logic before raising an event to subscribers.
-    /// For example, dispatching the event to the UI thread.
+    /// Subclasses can override this method to insert their own logic before raising events to subscribers.
     /// </summary>
     protected virtual void OnPropertyChanged(PropertyChangedEventArgs args)
         => NotifyPropertyChanged(args);
@@ -62,24 +42,8 @@ public class ObservableClass : INotifyPropertyChanged
     /// </summary>
     protected void NotifyPropertyChanged(PropertyChangedEventArgs args)
     {
-        if (args is not PropertyChangeEventArgsAlreadyRaisedOnOriginalThread)
-        {
-            //This execution was not chained from OnPropertyChanged fired from SetProperty within this class, so we still haven't raised PropertyChangedOnOriginalThread.
-            PropertyChangedOnOriginalThread?.Invoke(this, args);
-        }
-#if WPF
-        if (_dispatcher?.CheckAccess() != false)
-        {
-            PropertyChanged?.Invoke(this, args);
-        }
-        else
-        {
-            _dispatcher.BeginInvoke(NotifyPropertyChangedAction, args);
-        }
-#else
+        PropertyChangedOnOriginalThread?.Invoke(this, args);
         PropertyChanged?.Invoke(this, args);
-#endif
-
     }
 
     /// <summary>
@@ -99,8 +63,7 @@ public class ObservableClass : INotifyPropertyChanged
                 if (field && _isDirty)
                 {
                     //Something changed while events were suppressed
-                    PropertyChangedOnOriginalThread?.Invoke(this, new PropertyChangedEventArgs(""));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
+                    NotifyPropertyChanged(new PropertyChangedEventArgs(""));
                     _isDirty = false;
                 }
             }
@@ -145,9 +108,7 @@ public class ObservableClass : INotifyPropertyChanged
         }
         if (forceEvent || (changed && !SuppressEvents))
         {
-            PropertyChangeEventArgsAlreadyRaisedOnOriginalThread args = new(memberName);
-            PropertyChangedOnOriginalThread?.Invoke(this, args);
-            OnPropertyChanged(args);
+            OnPropertyChanged(new PropertyChangedEventArgs(memberName));
         }
         return changed;
     }

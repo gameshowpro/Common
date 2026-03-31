@@ -148,15 +148,7 @@ public class PropertyChangeFilter
     {
         foreach (INotifyPropertyChanged sender in _itemSenders)
         {
-            if (sender is ObservableClass observable)
-            {
-               //avoid dispatcher
-               observable.PropertyChangedOnOriginalThread += Sender_PropertyChanged;
-            }
-            else
-            {
-                sender.PropertyChanged += Sender_PropertyChanged;
-            }
+            sender.PropertyChanged += Sender_PropertyChanged;
         }
         int senderIndex = 0;
         foreach (INotifyCollectionChanged sender in _collectionSenders)
@@ -174,14 +166,7 @@ public class PropertyChangeFilter
     {
         foreach (INotifyPropertyChanged sender in _itemSenders)
         {
-            if (sender is ObservableClass observable)
-            {
-                observable.PropertyChangedOnOriginalThread -= Sender_PropertyChanged;
-            }
-            else
-            {
-                sender.PropertyChanged -= Sender_PropertyChanged;
-            }
+            sender.PropertyChanged -= Sender_PropertyChanged;
         }
         int senderIndex = 0;
         foreach (INotifyCollectionChanged sender in _collectionSenders)
