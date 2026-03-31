@@ -17,6 +17,11 @@ An implementation-independent object model for defining lighing fixtures, preset
 # Triggers
 Classes and interfaces to provide a unified interface to triggering systems.
 
+# ObservableUiProxy
+A lightweight proxy that re-raises `INotifyPropertyChanged` events on the correct UI thread, enabling singleton models to be safely observed from Blazor Server circuits, WPF windows, or any other UI context.
+
+[Details](ui-proxy.md).
+
 ## BaseConverters
 A collection of converters which are similar in purpose to `System.Windows.Data.IValueConverter` but not dependent on WPF. These can easily be subclassed by platform-specific implementations, e.g. WPF, MAUI.
 ## Package references
