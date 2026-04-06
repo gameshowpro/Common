@@ -89,6 +89,7 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
 
     protected virtual async void MainWindow_Closed(object? sender, EventArgs e)
     {
+        Application application = Current;
         _logger.LogInformation("Main window closed");
         _cancellationTokenSource.Cancel();
         _logger.LogInformation("App cancellation token cancelled");
@@ -96,7 +97,7 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
         {
             if (_sys is IAsyncDisposable asyncDisposable)
             {
-                await asyncDisposable.DisposeAsync();
+                await asyncDisposable.DisposeAsync().ConfigureAwait(false); // Could return on a non-UI thread
             }
             if (_sys is IDisposable disposable)
             {
@@ -104,7 +105,7 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
             }
         }
         _logger.LogInformation("Sys disposed");
-        Current.Shutdown();
+        Current.Dispatcher.Invoke(application.Shutdown); // Ensure shutdown happens on the UI thread.
     }
 
     [System.Diagnostics.DebuggerNonUserCodeAttribute()]
