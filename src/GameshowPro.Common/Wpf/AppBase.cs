@@ -105,7 +105,7 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
             }
         }
         _logger.LogInformation("Sys disposed");
-        Current.Dispatcher.Invoke(application.Shutdown); // Ensure shutdown happens on the UI thread.
+        application.Dispatcher.Invoke(application.Shutdown); // Ensure shutdown happens on the UI thread.
     }
 
     [System.Diagnostics.DebuggerNonUserCodeAttribute()]
