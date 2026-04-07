@@ -58,6 +58,11 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.xml</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' OR '$(Configuration)' == 'DebugWindows'">
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MessagePack" Version="3.1.4" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.5" />
