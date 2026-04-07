@@ -145,15 +145,9 @@ public class Fixture : ObservableClass
         bool changed = State != stateLevels;
         if (changed)
         {
-            if (State != null)
-            {
-                State.Flash -= CurrentState_Flash;
-            }
+            State?.Flash -= CurrentState_Flash;
             State = stateLevels;
-            if (State != null)
-            {
-                State.Flash += CurrentState_Flash;
-            }
+            State?.Flash += CurrentState_Flash;
         }
         if (changed)
         {

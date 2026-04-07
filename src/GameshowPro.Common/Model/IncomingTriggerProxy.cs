@@ -76,14 +76,8 @@ public class IncomingTriggerProxy<TKey> : ObservableClass, ITrigger
             IncomingTrigger? previous = field;
             if (SetProperty(ref field, value))
             {
-                if (previous is not null)
-                {
-                    previous.Triggered -= RelayTrigger;
-                }
-                if (field is not null)
-                {
-                    field.Triggered += RelayTrigger;
-                }
+                previous?.Triggered -= RelayTrigger;
+                field?.Triggered += RelayTrigger;
             }
         }
     }

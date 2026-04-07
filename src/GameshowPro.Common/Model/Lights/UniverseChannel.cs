@@ -50,16 +50,10 @@ public class UniverseChannel : INotifyPropertyChanged
         {
             if (field != value)
             {
-                if (field != null)
-                {
-                    field.LevelChanged -= MasterChannel_LevelChanged;
-                }
+                field?.LevelChanged -= MasterChannel_LevelChanged;
                 field = value;
                 Level = field?.Level ?? 0;
-                if (field != null)
-                {
-                    field.LevelChanged += MasterChannel_LevelChanged;
-                }
+                field?.LevelChanged += MasterChannel_LevelChanged;
                 MasterChanged();
             }
         } }

@@ -60,10 +60,7 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
         {
             foreach (T item in e.NewItems.NeverNull())
             {
-                if (item != null)
-                {
-                    item.PropertyChanged += ChildPropertyChanged;
-                }
+                item?.PropertyChanged += ChildPropertyChanged;
             }
         }
         OnBatchChange();
@@ -84,10 +81,7 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
     {
         foreach (T item in Items)
         {
-            if (item != null)
-            {
-                item.PropertyChanged -= ChildPropertyChanged;
-            }
+            item?.PropertyChanged -= ChildPropertyChanged;
         }
 
         base.ClearItems();
@@ -97,10 +91,7 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
     {
         foreach (T item in Items)
         {
-            if (item != null)
-            {
-                item.PropertyChanged += ChildPropertyChanged;
-            }
+            item?.PropertyChanged += ChildPropertyChanged;
         }
     }
 

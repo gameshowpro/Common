@@ -59,10 +59,7 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
     protected override void OnAttached()
     {
         base.OnAttached();
-        if (Popup != null)
-        {
-            Popup.PlacementTarget = AssociatedObject;
-        }
+        Popup?.PlacementTarget = AssociatedObject;
         AssociatedObject.BeginningEdit += OnBeginEdit;
         AssociatedObject.CellEditEnding += OnEndEdit;
         AssociatedObject.MouseLeftButtonUp += OnMouseLeftButtonUp;
@@ -164,10 +161,7 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
     private void ResetDragDrop()
     {
         _isDragging = false;
-        if (Popup is not null)
-        {
-            Popup.IsOpen = false;
-        }
+        Popup?.IsOpen = false;
         AssociatedObject.IsReadOnly = false;
     }
 

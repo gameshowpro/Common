@@ -29,9 +29,7 @@ public class IncomingTriggerComposite : IncomingTrigger
                         break;
                 }
             };
-            if (child.ParentDevice != null)
-            {
-                child.ParentDevice.BaseSettings.PropertyChanged += (s, e) =>
+            child.ParentDevice?.BaseSettings.PropertyChanged += (s, e) =>
                 {
                     switch (e.PropertyName)
                     {
@@ -41,7 +39,6 @@ public class IncomingTriggerComposite : IncomingTrigger
                             break;
                     }
                 };
-            }
             child.PropertyChanged += (s, e) =>
             {
                 switch (e.PropertyName)

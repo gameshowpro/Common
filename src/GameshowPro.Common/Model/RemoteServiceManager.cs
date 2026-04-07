@@ -144,10 +144,7 @@ public class RemoteServiceManager : ObservableClass
         });
         static void SetMonitorUiOrder(IRemoteService service, int order)
         {
-            if (service.RemoteServiceSettings != null)
-            {
-                service.RemoteServiceSettings.MonitorUiOrder = order * 2;
-            }
+            service.RemoteServiceSettings?.MonitorUiOrder = order * 2;
         }
         _updatingGroups = false;
     }
