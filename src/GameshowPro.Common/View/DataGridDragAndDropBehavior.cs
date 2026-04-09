@@ -101,7 +101,7 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
         if (!_isEditing && sender is UIElement senderElement)
         {
             DataGridRow? row = TryFindFromPoint<DataGridRow>(senderElement, e.GetPosition(AssociatedObject));
-            if (row == null || row.IsEditing || row.DataContext == CollectionView.NewItemPlaceholder)
+            if (row?.IsEditing != false || row.DataContext == CollectionView.NewItemPlaceholder)
             {
                 return;
             }

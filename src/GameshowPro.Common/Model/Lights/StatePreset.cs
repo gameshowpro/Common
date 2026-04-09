@@ -78,7 +78,7 @@ public class StateLevels : ObservableClass
     )
     {
         Key = key ?? throw new ArgumentNullException(nameof(key), "Can't create StateLevels without key");
-        Phases = [.. phases == null || !phases.Any() ? [new StateLevelsPhase()] : phases];
+        Phases = [.. phases?.Any() != true ? [new StateLevelsPhase()] : phases];
         
         CycleStepCount = cycleStepCount ?? 0;
         LoopBackStep = loopBackStep ?? 0;
