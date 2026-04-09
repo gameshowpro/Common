@@ -2,7 +2,7 @@
   <Choose>
     <When Condition="'$(Configuration)' == 'ReleaseWindows' OR '$(Configuration)' == 'DebugWindows'">
       <PropertyGroup>
-        <TargetFrameworks>net8.0-windows;net9.0-windows;net10.0-windows</TargetFrameworks>
+        <TargetFrameworks>net10.0-windows</TargetFrameworks>
         <DefineConstants>$(DefineConstants);WPF</DefineConstants>
         <Title>Gameshow Pro utilities for Json.NET - Windows version</Title>
         <PackageTags>GameshowPro Common Json.NET Windows</PackageTags>
@@ -13,7 +13,7 @@
     </When>
     <Otherwise>
       <PropertyGroup>
-        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+        <TargetFrameworks>net10.0</TargetFrameworks>
         <Title>Gameshow Pro utilities for Json.NET - cross-platform</Title>
         <PackageTags>GameshowPro Common  Json.NET </PackageTags>
         <PackageId>GameshowPro.Common.JsonNet</PackageId>
