@@ -115,8 +115,34 @@ public static class JsonNetUtils
             return;
         }
         EnsureDirectory(path);
-        using var sw = new StreamWriter(path);
-        Persist(obj, serializationBinder, sw, enumsAsStrings);
+
+        string tempPath = $"{path}.{Guid.NewGuid():N}.tmp";
+        try
+        {
+            using (var fs = new FileStream(tempPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (var sw = new StreamWriter(fs))
+            {
+                Persist(obj, serializationBinder, sw, enumsAsStrings);
+                sw.Flush();
+                fs.Flush(true);
+            }
+
+            if (File.Exists(path))
+            {
+                File.Replace(tempPath, path, null);
+            }
+            else
+            {
+                File.Move(tempPath, path);
+            }
+        }
+        finally
+        {
+            if (File.Exists(tempPath))
+            {
+                File.Delete(tempPath);
+            }
+        }
     }
 
     /// <summary>
@@ -173,7 +199,10 @@ public static class JsonNetUtils
         {
             ser.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
         }
-        using JsonWriter writer = new JsonTextWriter(textWriter);
+        using JsonWriter writer = new JsonTextWriter(textWriter)
+        {
+            CloseOutput = false
+        };
         ser.Serialize(writer, obj);
     }
 
