@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization.Metadata;
+using GameshowPro.Common.JsonConverters;
 
 namespace GameshowPro.Common;
 
@@ -13,9 +14,12 @@ public class OptInResolver<TDataMemberAttribute> : DefaultJsonTypeInfoResolver
 
         if (typeInfo.Kind == JsonTypeInfoKind.Object)
         {
-            List<JsonPropertyInfo> properties = typeInfo.Properties
-                .Where(prop => prop.AttributeProvider?.GetCustomAttributes(typeof(TDataMemberAttribute), true).Length > 0)
-                .ToList();
+            List<JsonPropertyInfo> properties = [.. typeInfo.Properties.Where(prop => prop.AttributeProvider?.GetCustomAttributes(typeof(TDataMemberAttribute), true).Length > 0)];
+
+            foreach (JsonPropertyInfo property in properties)
+            {
+                ApplyTypedObjectConstraints(property, property.AttributeProvider);
+            }
 
             // Add [DataMember]-annotated non-public properties.
             BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -36,6 +40,7 @@ public class OptInResolver<TDataMemberAttribute> : DefaultJsonTypeInfoResolver
                 {
                     info.Set = (obj, value) => property.SetValue(obj, value);
                 }
+                ApplyTypedObjectConstraints(info, property);
                 properties.Add(info);
             }
 
@@ -51,6 +56,7 @@ public class OptInResolver<TDataMemberAttribute> : DefaultJsonTypeInfoResolver
                 JsonPropertyInfo info = typeInfo.CreateJsonPropertyInfo(field.FieldType, ToJsonName(fieldName, options.PropertyNamingPolicy));
                 info.Get = obj => field.GetValue(obj);
                 info.Set = (obj, value) => field.SetValue(obj, value);
+                ApplyTypedObjectConstraints(info, field);
                 properties.Add(info);
             }
 
@@ -68,4 +74,24 @@ public class OptInResolver<TDataMemberAttribute> : DefaultJsonTypeInfoResolver
 
     private static string ToJsonName(string name, JsonNamingPolicy? namingPolicy)
         => namingPolicy?.ConvertName(name) ?? name;
+
+    private static void ApplyTypedObjectConstraints(JsonPropertyInfo propertyInfo, ICustomAttributeProvider? attributeProvider)
+    {
+        if (propertyInfo.PropertyType != typeof(object) || attributeProvider is null)
+        {
+            return;
+        }
+
+        TypedObjectTypeConstraintAttribute? constraint = attributeProvider
+            .GetCustomAttributes(typeof(TypedObjectTypeConstraintAttribute), true)
+            .OfType<TypedObjectTypeConstraintAttribute>()
+            .FirstOrDefault();
+
+        if (constraint is null)
+        {
+            return;
+        }
+
+        propertyInfo.CustomConverter = new TypedObjectConverter(constraint.EnforceRegistryAliases, constraint.AllowedTypes);
+    }
 }

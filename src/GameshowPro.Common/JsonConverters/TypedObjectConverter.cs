@@ -8,6 +8,19 @@ public class TypedObjectConverter : JsonConverter<object?>
     private const string TypeProperty = "$type";
     private const string ValueProperty = "value";
 
+    private readonly bool _enforceRegistryAliases;
+    private readonly FrozenSet<Type> _allowedTypes;
+
+    public TypedObjectConverter() : this(false, null)
+    {
+    }
+
+    internal TypedObjectConverter(bool enforceRegistryAliases, IEnumerable<Type>? allowedTypes)
+    {
+        _enforceRegistryAliases = enforceRegistryAliases;
+        _allowedTypes = (allowedTypes ?? []).ToFrozenSet();
+    }
+
     public override object? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Null)
@@ -33,7 +46,8 @@ public class TypedObjectConverter : JsonConverter<object?>
         }
 
         string typeName = typeElement.GetString() ?? throw new JsonException("$type cannot be null.");
-        Type resolvedType = Type.GetType(typeName) ?? throw new JsonException($"Could not resolve type '{typeName}'.");
+        Type resolvedType = TypeAliasRegistry.ResolveType(typeName);
+        EnsureTypeAllowed(resolvedType, "$type");
 
         if (resolvedType.IsTypeOrRuntimeType())
         {
@@ -46,7 +60,7 @@ public class TypedObjectConverter : JsonConverter<object?>
                 throw new JsonException("Type values must serialize as strings.");
             }
             string valueTypeName = valueElement.GetString() ?? throw new JsonException("Type value cannot be null.");
-            return Type.GetType(valueTypeName) ?? throw new JsonException($"Could not resolve type '{valueTypeName}'.");
+            return TypeAliasRegistry.ResolveType(valueTypeName);
         }
 
         object? result = valueElement.Deserialize(resolvedType, options);
@@ -67,14 +81,16 @@ public class TypedObjectConverter : JsonConverter<object?>
         }
 
         Type runtimeType = value.GetType();
+        Type taggedType = runtimeType.IsTypeOrRuntimeType() ? typeof(Type) : runtimeType;
+        EnsureTypeAllowed(taggedType, "runtime value");
 
         writer.WriteStartObject();
-        writer.WriteString(TypeProperty, IsolateAssemblyAndTypeName(runtimeType));
+        writer.WriteString(TypeProperty, TypeAliasRegistry.GetTypeAlias(taggedType));
         writer.WritePropertyName(ValueProperty);
 
         if (runtimeType.IsTypeOrRuntimeType())
         {
-            writer.WriteStringValue(IsolateAssemblyAndTypeName((Type)value));
+            writer.WriteStringValue(TypeAliasRegistry.GetTypeAlias((Type)value));
         }
         else
         {
@@ -82,5 +98,18 @@ public class TypedObjectConverter : JsonConverter<object?>
         }
 
         writer.WriteEndObject();
+    }
+
+    private void EnsureTypeAllowed(Type runtimeType, string context)
+    {
+        if (_enforceRegistryAliases && !TypeAliasRegistry.IsKnownSupportedType(runtimeType))
+        {
+            throw new JsonException($"Type '{runtimeType.FullName}' in {context} is not part of the known supported alias set.");
+        }
+
+        if (_allowedTypes.Count != 0 && !_allowedTypes.Contains(runtimeType))
+        {
+            throw new JsonException($"Type '{runtimeType.FullName}' in {context} is not in the configured allow-list.");
+        }
     }
 }

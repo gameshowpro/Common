@@ -93,19 +93,45 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
         _logger.LogInformation("Main window closed");
         _cancellationTokenSource.Cancel();
         _logger.LogInformation("App cancellation token cancelled");
-        if (_sys != null)
+        try
         {
-            if (_sys is IAsyncDisposable asyncDisposable)
+            if (_sys != null)
             {
-                await asyncDisposable.DisposeAsync().ConfigureAwait(false); // Could return on a non-UI thread
+                if (_sys is IAsyncDisposable asyncDisposable)
+                {
+                    await asyncDisposable.DisposeAsync().ConfigureAwait(false); // Could return on a non-UI thread
+                }
+                if (_sys is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
             }
-            if (_sys is IDisposable disposable)
+            _logger.LogInformation("Sys disposed");
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogDebug("Sys disposal canceled during shutdown");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Exception while disposing sys");
+        }
+
+        try
+        {
+            if (application.Dispatcher.CheckAccess())
             {
-                disposable.Dispose();
+                application.Shutdown();
+            }
+            else
+            {
+                await application.Dispatcher.InvokeAsync(application.Shutdown);
             }
         }
-        _logger.LogInformation("Sys disposed");
-        application.Dispatcher.Invoke(application.Shutdown); // Ensure shutdown happens on the UI thread.
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Exception while shutting down application");
+        }
     }
 
     [System.Diagnostics.DebuggerNonUserCodeAttribute()]

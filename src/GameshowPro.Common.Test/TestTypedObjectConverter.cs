@@ -2,6 +2,7 @@ using System.Collections;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using GameshowPro.Common.JsonConverters;
 
 namespace GameshowPro.Common.Test;
 
@@ -120,6 +121,33 @@ public class TestTypedObjectConverter
         Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
     }
 
+    [TestMethod]
+    public void TypedObjectConverter_ShouldEnforceKnownAliasTypes_WhenConfiguredByAttribute()
+    {
+        RegistryConstrainedContainer input = new()
+        {
+            Value = new CustomPayload { Number = 7 }
+        };
+
+        Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Serialize(input, SystemTextJsonUtils.DefaultJsonSerializerOptions));
+    }
+
+    [TestMethod]
+    public void TypedObjectConverter_ShouldAllowExplicitCustomTypes_WhenConfiguredByAttribute()
+    {
+        AllowListConstrainedContainer input = new()
+        {
+            Value = new CustomPayload { Number = 12 }
+        };
+
+        string json = JsonSerializer.Serialize(input, SystemTextJsonUtils.DefaultJsonSerializerOptions);
+        AllowListConstrainedContainer? output = JsonSerializer.Deserialize<AllowListConstrainedContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions);
+
+        Assert.IsNotNull(output);
+        Assert.IsInstanceOfType<CustomPayload>(output!.Value);
+        Assert.AreEqual(12, ((CustomPayload)output.Value!).Number);
+    }
+
     private static void AssertObjectEquivalent(object? expected, object? actual)
     {
         if (expected is null)
@@ -167,5 +195,25 @@ public class TestTypedObjectConverter
         {
             Value = value;
         }
+    }
+
+    private sealed class RegistryConstrainedContainer
+    {
+        [DataMember]
+        [TypedObjectTypeConstraint(EnforceRegistryAliases = true)]
+        public object? Value { get; set; }
+    }
+
+    private sealed class AllowListConstrainedContainer
+    {
+        [DataMember]
+        [TypedObjectTypeConstraint(typeof(CustomPayload))]
+        public object? Value { get; set; }
+    }
+
+    private sealed class CustomPayload
+    {
+        [DataMember]
+        public int Number { get; set; }
     }
 }
