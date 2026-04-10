@@ -158,4 +158,4 @@ Implemented tests cover:
 - malformed literal JSON inputs that this serializer would not emit, with expected exceptions
 - unresolvable type names and nullability violations
 
-All tests pass across net8.0, net9.0, and net10.0 targets.
+All tests pass across all defined net10.0 targets.

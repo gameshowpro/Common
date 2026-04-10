@@ -1,5 +1,5 @@
 ﻿# GameshowPro Common libraries
-This is a set of .NET 8.0/9.0/10.0 libraries which are used across other GameshowPro projects and many closed-source projects.
+This is a set of .NET 10.0 libraries which are used across other GameshowPro projects and many closed-source projects.
 
 ## Builds
 The default builds and packages do not include Windows-specific parts of the framework.
