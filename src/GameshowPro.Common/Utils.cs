@@ -2062,9 +2062,10 @@ where T : IIndexed
     /// <summary>
     /// Alternative to <c>IDictionary&lt;TKey,TValue&gt;.TryGetValue</c> better suited to inlining when key is reference type.
     /// </summary>
-    public static TValue? TryGetValueOrNull<TKey, TValue>(this IDictionary<TKey, TValue>? dictionary, TKey key)
+    public static TValue? TryGetValueOrNull<TKey, TValue>(this IDictionary<TKey, TValue>? dictionary, TKey? key)
+        where TKey : class
     {
-        if (dictionary?.TryGetValue(key, out TValue? value) == true)
+        if (key != null && dictionary?.TryGetValue(key, out TValue? value) == true)
         {
             return value!;
         }
