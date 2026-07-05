@@ -1,3 +1,6 @@
-﻿namespace GameshowPro.Common.Model;
+using MessagePack;
 
-public record TriggerDefinition(int Input, bool RisingEdge);
+namespace GameshowPro.Common.Model;
+
+[MessagePackObject]
+public record TriggerDefinition([property: Key(0)] int Input, [property: Key(1)] bool RisingEdge);
