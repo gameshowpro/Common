@@ -1,8 +1,10 @@
-﻿using MessagePack.Formatters;
+using MessagePack.Formatters;
 using MessagePack;
 
 namespace GameshowPro.Common.Model;
 
+
+/// <summary>Represents a report of an edge event on a general-purpose input (GPI) pin.</summary>
 /// <param name="Version">The version of this object, to aid backwards compatibility implementation if the type changes.</param>
 /// <param name="Index">The zero-based index on the GPI which changed state.</param>
 /// <param name="Ordinal">In the case of a faceoff, the zero-based ordinal of this trigger. 0 = 1st.</param>
@@ -50,7 +52,17 @@ public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport?>
                     reader.TryReadNil() ? null : new TimeSpan(reader.ReadInt64())
                 : null;
 
+            for (int i = CurrentFieldCount; i < fieldCount; i++)
+            {
+                reader.Skip();
+            }
+
             return new(version.Value, index, ordinal, timeStamp, isDown, isTest, lockoutTimeRemaining);
+        }
+        
+        for (int i = 2; i < fieldCount; i++)
+        {
+            reader.Skip();
         }
         return null;
     }

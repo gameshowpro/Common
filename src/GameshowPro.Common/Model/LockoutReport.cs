@@ -1,4 +1,4 @@
-﻿
+
 using MessagePack.Formatters;
 using MessagePack;
 
@@ -36,7 +36,17 @@ public class LockoutReportFormatter : IMessagePackFormatter<LockoutReport?>
             TimeSpan timeStamp = new(reader.ReadInt64());
             bool isLockedOut = reader.ReadBoolean();
 
+            for (int i = CurrentFieldCount; i < fieldCount; i++)
+            {
+                reader.Skip();
+            }
+
             return new(version.Value, index, timeStamp, isLockedOut);
+        }
+        
+        for (int i = 2; i < fieldCount; i++)
+        {
+            reader.Skip();
         }
         return null;
     }

@@ -1,4 +1,4 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
 using MessagePack;
 using MessagePack.Formatters;
 
@@ -115,14 +115,17 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         {
             _serviceStateAggregator = serviceStateAggregator;
             Children.ItemPropertyChanged += InvokeServiceStateAggregator;
-            Children.CollectionChanged += (s, e) => _serviceStateAggregator.Invoke(this);
+            Children.CollectionChanged += (s, e) => SetAll(_serviceStateAggregator.Invoke(this));
             serviceStateAggregator.Invoke(this);
         }
     }
 
     private void InvokeServiceStateAggregator(object? sender, PropertyChangedEventArgs e)
     {
-        if (_serviceStateAggregator != null && e.PropertyName == nameof(AggregateState))
+        if (_serviceStateAggregator != null &&
+            (e.PropertyName == nameof(AggregateState) ||
+             e.PropertyName == nameof(Detail) ||
+             e.PropertyName == nameof(Progress)))
         {
             ServiceStateUpdate update = _serviceStateAggregator.Invoke(this);
             SetAll(update);
@@ -310,9 +313,9 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     { }
 
     [Key(0), DataMember]
-    public string Key { get; }
-    [Key(1), DataMember]
-    public string Name { get; }
+        public string Key { get; }
+        [Key(1), DataMember]
+        public string Name { get; }
 
     [Key(2), DataMember]
     public RemoteServiceStates AggregateState
@@ -532,7 +535,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     public bool UpdateFrom(ServiceState other, bool includeChildren)
     {
         bool change = false;
-        if (AggregateState != other.AggregateState)
+                if (AggregateState != other.AggregateState)
         {
             change = true;
             AggregateState = other.AggregateState;
@@ -586,6 +589,12 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
                     children.Add(child.Key, child);
                 }
             }
+
+            for (int i = CurrentFieldCount; i < fieldCount; i++)
+            {
+                reader.Skip();
+            }
+
             return new ServiceState(name, key, state, detail, progress, children);
         }
 
