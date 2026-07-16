@@ -1,7 +1,6 @@
+using System.Buffers;
 using MessagePack;
 using MessagePack.Formatters;
-using System.Buffers;
-using System.Net;
 
 namespace GameshowPro.Common.MessagePack;
 
@@ -60,11 +59,8 @@ public sealed class IPAddressFormatter : IMessagePackFormatter<IPAddress?>
             offset += segment.Length;
         }
 
-        if (offset != length)
-        {
-            throw new MessagePackSerializationException("Failed to read IPAddress bytes.");
-        }
-
-        return new IPAddress(addressBuffer[..length]);
+        return offset != length
+            ? throw new MessagePackSerializationException("Failed to read IPAddress bytes.")
+            : new IPAddress(addressBuffer[..length]);
     }
 }

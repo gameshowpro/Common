@@ -13,14 +13,7 @@ public class IncomingTriggerSetting : ObservableClass, INotifyDataErrorInfo
         get;
         set
         {
-            if (field == "")
-            {
-                field = value;
-            }
-            else
-            {
-                throw new InvalidOperationException("Key can only be set once, never changed.");
-            }
+            field = field == "" ? value : throw new InvalidOperationException("Key can only be set once, never changed.");
         }
     } = "";
 
@@ -39,28 +32,28 @@ public class IncomingTriggerSetting : ObservableClass, INotifyDataErrorInfo
     public int Id
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     } = -1;
 
     [DataMember, DefaultValue("")]
     public string Name
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     } = "";
 
     [DataMember, DefaultValue(true)]
     public bool IsEnabled
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     } = true;
 
     [DataMember, DefaultValue(null)]
     public TimeSpan? DebounceInterval
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     } = null;
 
     public bool IdIsValid
@@ -81,13 +74,6 @@ public class IncomingTriggerSetting : ObservableClass, INotifyDataErrorInfo
 
     public IEnumerable GetErrors(string? propertyName)
     {
-        if (!IdIsValid && propertyName == nameof(Id))
-        {
-            return new List<string>() { "ID is duplicated" };
-        }
-        else
-        {
-            return new List<string>();
-        }
+        return !IdIsValid && propertyName == nameof(Id) ? new List<string>() { "ID is duplicated" } : new List<string>();
     }
 }

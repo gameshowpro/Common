@@ -32,11 +32,8 @@ public static class NullableFormatterExtensions
         }
 
         IMessagePackFormatter<T>? formatter = options.Resolver.GetFormatter<T>();
-        if (formatter is null)
-        {
-            throw new MessagePackSerializationException($"No MessagePack formatter found for {typeof(T)}.");
-        }
-
-        return formatter.Deserialize(ref reader, options);
+        return formatter is null
+            ? throw new MessagePackSerializationException($"No MessagePack formatter found for {typeof(T)}.")
+            : (T?)formatter.Deserialize(ref reader, options);
     }
 }

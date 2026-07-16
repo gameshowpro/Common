@@ -19,7 +19,7 @@ public interface IMdnsMatchedServicesMonitor : INotifyPropertyChanged
 /// </summary>
 public interface IMdnsMatchedService
 {
-    IMdnsMatchedServicesMonitor Parent { get;  }
+    IMdnsMatchedServicesMonitor Parent { get; }
     string HostName { get; }
     int Port { get; }
     ImmutableArray<IPAddress> Addresses { get; }

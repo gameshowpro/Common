@@ -1,7 +1,6 @@
-using System.Runtime.Serialization;
+using GameshowPro.Common.MessagePack;
 using MessagePack;
 using MessagePack.Formatters;
-using GameshowPro.Common.MessagePack;
 
 namespace GameshowPro.Common.Model;
 
@@ -117,7 +116,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             _serviceStateAggregator = serviceStateAggregator;
             Children.ItemPropertyChanged += InvokeServiceStateAggregator;
             Children.CollectionChanged += (s, e) => SetAll(_serviceStateAggregator.Invoke(this));
-            serviceStateAggregator.Invoke(this);
+            _ = serviceStateAggregator.Invoke(this);
         }
     }
 
@@ -226,7 +225,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         (
             key,
             name,
-            new ObservableDictionary<string, ServiceState>(children.Select(s => new ServiceState(s)).ToDictionary(s => s.Key)),
+            new ObservableDictionary<string, ServiceState>(children.Select(static s => new ServiceState(s)).ToDictionary(static s => s.Key)),
             RemoteServiceStates.Disconnected,
             null,
             null,
@@ -268,7 +267,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         (
             key,
             name,
-            new ObservableDictionary<string, ServiceState>(children.ToDictionary(s => s.Key)),
+            new ObservableDictionary<string, ServiceState>(children.ToDictionary(static s => s.Key)),
             RemoteServiceStates.Disconnected,
             null,
             null,
@@ -314,9 +313,9 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     { }
 
     [Key(0), DataMember]
-        public string Key { get; }
-        [Key(1), DataMember]
-        public string Name { get; }
+    public string Key { get; }
+    [Key(1), DataMember]
+    public string Name { get; }
 
     [Key(2), DataMember]
     public RemoteServiceStates AggregateState
@@ -399,28 +398,20 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 
     public static ServiceStateUpdate GetAggregateState(ServiceState state)
     {
-        double? progress = state.Children.Any(s => s.Value.Progress == null) ? null : state.Children.Average(s => s.Value.Progress) ?? 0;
+        double? progress = state.Children.Any(static s => s.Value.Progress == null) ? null : state.Children.Average(static s => s.Value.Progress) ?? 0;
 
-        if (state.Children.All(s => s.Value.AggregateState == RemoteServiceStates.Connected))
+        if (state.Children.All(static s => s.Value.AggregateState == RemoteServiceStates.Connected))
         {
             return new(RemoteServiceStates.Connected, "OK", progress);
         }
-        else if (state.Children.All(s => s.Value.AggregateState == RemoteServiceStates.Disconnected))
+        else if (state.Children.All(static s => s.Value.AggregateState == RemoteServiceStates.Disconnected))
         {
             return new(RemoteServiceStates.Disconnected, "Disconnected", progress);
         }
         else
         {
-            List<ServiceState> notConnected = [.. state.Children.Values.Where(s => s.AggregateState != RemoteServiceStates.Connected)];
-            string? message;
-            if (notConnected.Count == 1)
-            {
-                message = notConnected[0].Detail ?? "1 warning";
-            }
-            else
-            {
-                message = $"{notConnected.Count} warnings";
-            }
+            List<ServiceState> notConnected = [.. state.Children.Values.Where(static s => s.AggregateState != RemoteServiceStates.Connected)];
+            string? message = notConnected.Count == 1 ? notConnected[0].Detail ?? "1 warning" : $"{notConnected.Count} warnings";
             return new(RemoteServiceStates.Warning, message, progress);
         }
     }
@@ -435,12 +426,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         {
             return false;
         }
-        if (obj2 is null)
-        {
-            return false;
-        }
-
-        return obj1.Equals(obj2);
+        return obj2 is null ? false : obj1.Equals(obj2);
     }
 
     public static bool operator !=(ServiceState obj1, ServiceState obj2)
@@ -454,12 +440,9 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         {
             return false;
         }
-        if (ReferenceEquals(this, other))
-        {
-            return true;
-        }
-
-        return other.Name == Name &&
+        return ReferenceEquals(this, other)
+            ? true
+            : other.Name == Name &&
         other.Detail == Detail &&
         other.AggregateState == AggregateState &&
         other.Progress == Progress &&
@@ -508,7 +491,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             if (Children.TryGetValue(child.Key, out ServiceState? existingChild))
             {
                 change = existingChild.UpdateFrom(child) || change;
-                remainingKeys.Remove(child.Key);
+                _ = remainingKeys.Remove(child.Key);
             }
             else
             {
@@ -536,7 +519,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     public bool UpdateFrom(ServiceState other, bool includeChildren)
     {
         bool change = false;
-                if (AggregateState != other.AggregateState)
+        if (AggregateState != other.AggregateState)
         {
             change = true;
             AggregateState = other.AggregateState;
@@ -569,11 +552,9 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             int fieldCount = reader.ReadArrayHeader();
             if (fieldCount < CurrentFieldCount)
             {
-                if (fieldCount == 0)
-                {
-                    return null;
-                }
-                throw new MessagePackSerializationException($"Expected at least {CurrentFieldCount} fields. Only found {fieldCount}");
+                return fieldCount == 0
+                    ? null
+                    : throw new MessagePackSerializationException($"Expected at least {CurrentFieldCount} fields. Only found {fieldCount}");
             }
             string name = reader.ReadString() ?? "Unknown";
             string? key = reader.ReadNullable<string>(options);

@@ -2,5 +2,5 @@
 
 public interface IMdnsServiceFinder
 {
-    public IReadOnlyDictionary<IMdnsServiceSearchProfile, IMdnsMatchedServicesMonitor> Services { get; }
+    IReadOnlyDictionary<IMdnsServiceSearchProfile, IMdnsMatchedServicesMonitor> Services { get; }
 }

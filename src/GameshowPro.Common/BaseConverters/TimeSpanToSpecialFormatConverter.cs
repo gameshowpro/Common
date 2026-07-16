@@ -28,14 +28,7 @@ public class TimeSpanToSpecialFormatConverter(object unsetValue) : ICommonValueC
                 case 1:
                     return ts.ToString(false, 0, 4);
                 default:
-                    if (ts < s_switchPoint)
-                    {
-                        return ts.ToString(@"%s");
-                    }
-                    else
-                    {
-                        return ts.ToString(@"%m\:ss");
-                    }
+                    return ts < s_switchPoint ? ts.ToString(@"%s") : ts.ToString(@"%m\:ss");
             }
         }
         else
@@ -46,10 +39,6 @@ public class TimeSpanToSpecialFormatConverter(object unsetValue) : ICommonValueC
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not null && TimeSpan.TryParse(value.ToString(), out TimeSpan result))
-        {
-            return result;
-        }
-        return _unsetValue;
+        return value is not null && TimeSpan.TryParse(value.ToString(), out TimeSpan result) ? result : _unsetValue;
     }
 }

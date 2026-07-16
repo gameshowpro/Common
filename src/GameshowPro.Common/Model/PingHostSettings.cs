@@ -1,7 +1,7 @@
 ﻿
 namespace GameshowPro.Common.Model;
 
-[method:JsonConstructor]
+[method: JsonConstructor]
 public class PingHostSettings(string? host, string? displayName, RemoteServiceSettings? remoteServiceSettings) : ObservableClass, IPingHostSettings
 {
     public PingHostSettings() : this(null, null, null)
@@ -11,7 +11,7 @@ public class PingHostSettings(string? host, string? displayName, RemoteServiceSe
     public string Host
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     } = host ?? string.Empty;
 
     /// <summary>
@@ -21,7 +21,7 @@ public class PingHostSettings(string? host, string? displayName, RemoteServiceSe
     public string DisplayName
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     } = displayName ?? string.Empty;
 
     [DataMember]

@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace GameshowPro.Common;
+﻿namespace GameshowPro.Common;
 
 public static class NLogUtils
 {
@@ -53,7 +51,7 @@ public static class NLogUtils
         }
         UriBuilder uri = new("vscode", "file") { Path = path + ":999999:0" };
 
-    ProcessStartInfo info = new()
+        ProcessStartInfo info = new()
         {
             FileName = uri.Uri.AbsoluteUri,
             //Arguments = "\"" + path + "\"",

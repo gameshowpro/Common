@@ -9,11 +9,7 @@ public class ToIntConverter : ICommonValueConverter
     /// <inheritdoc/>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is int valueInt)
-        {
-            return valueInt;
-        }
-        return 0;
+        return value is int valueInt ? valueInt : 0;
     }
 
     /// <inheritdoc/>

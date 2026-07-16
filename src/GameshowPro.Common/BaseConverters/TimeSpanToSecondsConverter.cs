@@ -16,14 +16,7 @@ public class TimeSpanToSecondsConverter(object unsetValue) : ICommonValueConvert
     {
         if (value is TimeSpan span)
         {
-            if (IntCeiling)
-            {
-                return (int)Math.Ceiling(span.TotalSeconds);
-            }
-            else
-            {
-                return span.TotalSeconds;
-            }
+            return IntCeiling ? (int)Math.Ceiling(span.TotalSeconds) : (object)span.TotalSeconds;
         }
         else
         {
@@ -42,13 +35,9 @@ public class TimeSpanToSecondsConverter(object unsetValue) : ICommonValueConvert
         {
             return TimeSpan.FromSeconds((double)value);
         }
-        else if (double.TryParse(value?.ToString(), out var valDouble))
-        {
-            return TimeSpan.FromSeconds(valDouble);
-        }
         else
         {
-            return _unsetValue;
+            return double.TryParse(value?.ToString(), out var valDouble) ? TimeSpan.FromSeconds(valDouble) : _unsetValue;
         }
     }
 }

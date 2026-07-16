@@ -67,7 +67,7 @@ public abstract class ManyToManyDictionary<TKeyA, TKeyB, TPair>
         where TPrimary : notnull
         where TForeign : notnull
     {
-        if (primaryDictionary.TryGetValue(key, out Dictionary<TForeign,TPair>? commandsForTrigger))
+        if (primaryDictionary.TryGetValue(key, out Dictionary<TForeign, TPair>? commandsForTrigger))
         {
             foreach (TPair pair in commandsForTrigger.Values)
             {

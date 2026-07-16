@@ -1,6 +1,5 @@
 using MessagePack;
 using MessagePack.Formatters;
-using System.Collections.Concurrent;
 
 namespace GameshowPro.Common.MessagePack;
 

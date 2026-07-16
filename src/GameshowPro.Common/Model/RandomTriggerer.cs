@@ -1,4 +1,5 @@
 ﻿namespace GameshowPro.Common.Model;
+
 public class RandomTriggerer
 {
     private const int ReportVersion = 1;
@@ -49,7 +50,7 @@ public class RandomTriggerer
         }
         TimeSpan previous = TimeSpan.Zero;
         int ordinal = 0;
-        foreach (InputTime inputTime in inputTimes.OrderBy(i => i.FireTime))
+        foreach (InputTime inputTime in inputTimes.OrderBy(static i => i.FireTime))
         {
             EdgeReport newReport = new(ReportVersion, inputTime.Input, inputTime.Rising ? ordinal++ : null, inputTime.ReportedTime, inputTime.Rising, true, null);
 
@@ -89,14 +90,9 @@ public class RandomTriggerer
 
     private void SetTimerForNextStep()
     {
-        if (_testSteps.TryPeek(out TriggerTestStep? nextStep))
-        {
-            _testStepper.Change(nextStep.Time, Timeout.InfiniteTimeSpan);
-        }
-        else
-        {
-            _testStepper.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
-        }
+        _ = _testSteps.TryPeek(out TriggerTestStep? nextStep)
+            ? _testStepper.Change(nextStep.Time, Timeout.InfiniteTimeSpan)
+            : _testStepper.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
     }
 }
 

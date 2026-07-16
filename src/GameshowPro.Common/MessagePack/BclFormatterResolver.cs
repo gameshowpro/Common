@@ -1,9 +1,6 @@
+using System.Text.Json.Nodes;
 using MessagePack;
 using MessagePack.Formatters;
-using System.Net;
-using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace GameshowPro.Common.MessagePack;
 
@@ -69,12 +66,7 @@ public sealed class BclFormatterResolver : IFormatterResolver
                 return AssemblyNameFormatter.Instance;
             }
 
-            if (type == typeof(Exception))
-            {
-                return ExceptionFormatter.Instance;
-            }
-
-            return null;
+            return type == typeof(Exception) ? ExceptionFormatter.Instance : (object?)null;
         }
     }
 }

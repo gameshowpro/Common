@@ -21,7 +21,7 @@ public abstract class IncomingTriggerDeviceBase<TTriggerKey> : ObservableClass, 
         NamePrefix = namePrefix;
         Index = index;
         ServiceState = CreateServiceState();
-        _changeFilters.AddFilter((s, e) => AnyIsEnabled = settings.TriggerSettings.Any(s => s.IsEnabled), settings.TriggerSettings.Select(s => new PropertyChangeCondition(s, nameof(s.IsEnabled))));
+        _ = _changeFilters.AddFilter((s, e) => AnyIsEnabled = settings.TriggerSettings.Any(s => s.IsEnabled), settings.TriggerSettings.Select(s => new PropertyChangeCondition(s, nameof(s.IsEnabled))));
     }
 
     public ServiceState ServiceState { get; }

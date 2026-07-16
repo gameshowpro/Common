@@ -40,7 +40,7 @@ public class RemoteServiceManager : ObservableClass
         {
             if (SetProperty(ref field, value))
             {
-               UpdateGroups();
+                UpdateGroups();
             }
         }
     }
@@ -73,8 +73,8 @@ public class RemoteServiceManager : ObservableClass
         // Unsubscribe from collections that are no longer in the list
         foreach (IRemoteServiceCollection collection in _serviceCollectionChangeSubscriptions.Except(newList))
         {
-           collection.RemoteServiceCollectionChanged -= Collection_RemoteServiceCollectionChanged;
-           changed = true;
+            collection.RemoteServiceCollectionChanged -= Collection_RemoteServiceCollectionChanged;
+            changed = true;
         }
         // Subscribe to collections that are new to the list
         foreach (IRemoteServiceCollection collection in newList.Except(_serviceCollectionChangeSubscriptions))
@@ -92,7 +92,7 @@ public class RemoteServiceManager : ObservableClass
     private void RemoteServiceAddedOrRemoved()
     {
         bool changed = false;
-        HashSet<IRemoteService> newList = [.. _serviceCollections.SelectMany(s => s.Services)];
+        HashSet<IRemoteService> newList = [.. _serviceCollections.SelectMany(static s => s.Services)];
         // Unsubscribe from services that are no longer in the list
         foreach (IRemoteService service in _serviceChangeSubscriptions.Except(newList))
         {

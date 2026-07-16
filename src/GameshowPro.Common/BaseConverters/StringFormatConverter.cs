@@ -8,11 +8,7 @@ public class StringFormatConverter : ICommonMultiValueConverter
     /// <inheritdoc/>
     public object? Convert(object?[] values, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (values.Length < 2 || values[1] is not string format)
-        {
-            return values[0]?.ToString();
-        }
-        return string.Format($"{{0:{format}}}", values[0]);
+        return values.Length < 2 || values[1] is not string format ? (values[0]?.ToString()) : (object)string.Format($"{{0:{format}}}", values[0]);
     }
 
     /// <inheritdoc/>

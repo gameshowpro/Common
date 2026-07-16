@@ -64,12 +64,9 @@ public class TypedObjectConverter : JsonConverter<object?>
         }
 
         object? result = valueElement.Deserialize(resolvedType, options);
-        if (result is null && resolvedType.IsValueType && Nullable.GetUnderlyingType(resolvedType) is null)
-        {
-            throw new JsonException($"Type '{resolvedType.FullName}' cannot be null.");
-        }
-
-        return result;
+        return result is null && resolvedType.IsValueType && Nullable.GetUnderlyingType(resolvedType) is null
+            ? throw new JsonException($"Type '{resolvedType.FullName}' cannot be null.")
+            : result;
     }
 
     public override void Write(Utf8JsonWriter writer, object? value, JsonSerializerOptions options)

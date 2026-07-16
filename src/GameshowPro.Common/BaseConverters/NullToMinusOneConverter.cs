@@ -12,25 +12,11 @@ public class NullToMinusOneConverter : ICommonValueConverter
     {
         if (targetType == typeof(double))
         {
-            if (value == null)
-            {
-                return DisplayIsOneBased ? 0d : -1d;
-            }
-            else
-            {
-                return (double)value + (DisplayIsOneBased ? 1d : 0d);
-            }
+            return value == null ? DisplayIsOneBased ? 0d : -1d : (double)value + (DisplayIsOneBased ? 1d : 0d);
         }
         else
         {
-            if (value == null)
-            {
-                return DisplayIsOneBased ? 0 : -1;
-            }
-            else
-            {
-                return (int)value + (DisplayIsOneBased ? 1 : 0);
-            }
+            return value == null ? DisplayIsOneBased ? 0 : -1 : (int)value + (DisplayIsOneBased ? 1 : 0);
         }
     }
 
@@ -40,23 +26,9 @@ public class NullToMinusOneConverter : ICommonValueConverter
         switch (value)
         {
             case int valInt:
-                if (DisplayIsOneBased)
-                {
-                    return valInt == 0 ? null : valInt - 1;
-                }
-                else
-                {
-                    return valInt == -1 ? null : valInt;
-                }
+                return DisplayIsOneBased ? valInt == 0 ? null : valInt - 1 : valInt == -1 ? null : valInt;
             case double valDouble:
-                if (DisplayIsOneBased)
-                {
-                    return valDouble == 0d ? null : valDouble - 1d;
-                }
-                else
-                {
-                    return valDouble == -1d ? null : valDouble;
-                }
+                return DisplayIsOneBased ? valDouble == 0d ? null : valDouble - 1d : valDouble == -1d ? null : valDouble;
             default:
                 return null;
         }

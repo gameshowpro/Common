@@ -46,7 +46,9 @@ public class UniverseChannel : INotifyPropertyChanged
     /// <summary>
     /// This is a abstract lighting channel bound into a client object model.  If set, the Dmx.Channel class will act as a slave to the master's values.
     /// </summary>
-    public FixtureChannel? MasterChannel { get; set
+    public FixtureChannel? MasterChannel
+    {
+        get; set
         {
             if (field != value)
             {
@@ -56,7 +58,8 @@ public class UniverseChannel : INotifyPropertyChanged
                 field?.LevelChanged += MasterChannel_LevelChanged;
                 MasterChanged();
             }
-        } }
+        }
+    }
 
     private void MasterChannel_LevelChanged(object? sender, byte e)
     {

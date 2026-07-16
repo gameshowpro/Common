@@ -106,7 +106,7 @@ public abstract class IncomingTrigger : ObservableClass, ITrigger
     public int? Ordinal
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ public abstract class IncomingTrigger : ObservableClass, ITrigger
     public TimeSpan? Time
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     }
 
     /// <summary>
@@ -124,19 +124,19 @@ public abstract class IncomingTrigger : ObservableClass, ITrigger
     public bool IsTest
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     }
 
     public DateTime LastTriggerDateTime
     {
         get;
-        protected set { SetProperty(ref field, value); }
+        protected set { _ = SetProperty(ref field, value); }
     } = DateTime.MinValue;
 
     public DateTime LastLockoutDateTime
     {
         get;
-        protected set { SetProperty(ref field, value); }
+        protected set { _ = SetProperty(ref field, value); }
     } = DateTime.MinValue;
 #if WPF
     public RelayCommand<bool?> SimulateTriggerCommand { get; }

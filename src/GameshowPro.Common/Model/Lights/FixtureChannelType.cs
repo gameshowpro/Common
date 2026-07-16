@@ -16,6 +16,6 @@ public class FixtureChannelType : ObservableClass
     public Color Primary
     {
         get { return field; }
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     }
 }

@@ -13,20 +13,12 @@ public class AddConverter(object doNothing) : ICommonValueConverter
     /// <inheritdoc/>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is int valueInt && parameter is int valueParameter)
-        {
-            return valueInt + valueParameter;
-        }
-        return _doNothing;
+        return value is int valueInt && parameter is int valueParameter ? valueInt + valueParameter : _doNothing;
     }
 
     /// <inheritdoc/>
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is int valueInt && parameter is int valueParameter)
-        {
-            return valueInt - valueParameter;
-        }
-        return _doNothing;
+        return value is int valueInt && parameter is int valueParameter ? valueInt - valueParameter : _doNothing;
     }
 }

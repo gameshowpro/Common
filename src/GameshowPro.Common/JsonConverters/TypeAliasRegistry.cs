@@ -189,12 +189,7 @@ public static class TypeAliasRegistry
             return IsKnownSupportedType(args[0]);
         }
 
-        if (genericDefinition == typeof(ImmutableDictionary<,>))
-        {
-            return IsKnownSupportedType(args[0]) && IsKnownSupportedType(args[1]);
-        }
-
-        return false;
+        return genericDefinition == typeof(ImmutableDictionary<,>) ? IsKnownSupportedType(args[0]) && IsKnownSupportedType(args[1]) : false;
     }
 
     private static bool TryParseAlias(string input, [NotNullWhen(true)] out Type? type)
@@ -253,10 +248,10 @@ public static class TypeAliasRegistry
                 return false;
             }
 
-                if (type == null)
-                {
-                    return false;
-                }
+            if (type == null)
+            {
+                return false;
+            }
 
             index++; // consume ')'
             return true;

@@ -9,5 +9,5 @@ public class RemoteServiceGroup : IIndexed
     }
     public int Index { get; set; }
     public ImmutableArray<IRemoteService> Items { get; }
-    public RemoteServiceGroupSettings? Settings {get; set;}
+    public RemoteServiceGroupSettings? Settings { get; set; }
 }

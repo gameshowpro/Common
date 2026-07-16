@@ -18,6 +18,6 @@ public sealed class TriggerDefaultSpecification<TParent>(int parentDeviceInstanc
 
 internal interface ITriggerDefaultSpecification
 {
-    public int ParentDeviceInstanceIndex { get; }
-    public byte TriggerId { get; }
+    int ParentDeviceInstanceIndex { get; }
+    byte TriggerId { get; }
 }

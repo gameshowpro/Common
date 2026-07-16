@@ -82,7 +82,7 @@ public class IncomingTriggerComposite : IncomingTrigger
 
     private void UpdateIsDown()
     {
-        IsDown = EnabledChildren.Any(t => t.IsDown == t.Setting.TriggerEdge);
+        IsDown = EnabledChildren.Any(static t => t.IsDown == t.Setting.TriggerEdge);
     }
 
     private ImmutableList<IncomingTrigger> CalculateEnabledChildren
@@ -96,6 +96,6 @@ public class IncomingTriggerComposite : IncomingTrigger
     public ImmutableList<IncomingTrigger> EnabledChildren
     {
         get { return field; }
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     }
 }

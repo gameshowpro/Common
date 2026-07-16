@@ -114,7 +114,7 @@ public static class JsonNetUtils
         {
             return;
         }
-        EnsureDirectory(path);
+        _ = EnsureDirectory(path);
 
         string tempPath = $"{path}.{Guid.NewGuid():N}.tmp";
         try

@@ -82,7 +82,7 @@ public static class PingClient
         ImmutableArray<PingAddressResult> results;
         if (IPAddress.TryParse(hostName, out IPAddress? ipAddress))
         {
-             results = [await SendPing(ipAddress, logger, cancellationToken)];
+            results = [await SendPing(ipAddress, logger, cancellationToken)];
         }
         else
         {
@@ -94,7 +94,7 @@ public static class PingClient
             catch (Exception ex)
             {
                 logger.LogError(ex, "Exception while resolving {hostName}", hostName);
-                return new (hostName, null, []);
+                return new(hostName, null, []);
             }
 
             results = [.. await Task.WhenAll(addresses.Select(address => SendPing(address, logger, cancellationToken)))];

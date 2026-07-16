@@ -19,7 +19,7 @@ public class FixtureChannel : ObservableClass
     public FixtureChannelType FixtureChannelType
     {
         get { return field; }
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     }
 
     [DataMember, DefaultValue(0)]
@@ -39,19 +39,19 @@ public class FixtureChannel : ObservableClass
     public int Id
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     }
 
     [DataMember, DefaultValue(0)]
     public int UniverseIndex
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     } = 0;
 
     public Fixture? Parent
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     }
 }

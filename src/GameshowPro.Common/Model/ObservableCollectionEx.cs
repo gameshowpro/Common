@@ -46,8 +46,8 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
 
     protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
     {
-        if (e.Action == NotifyCollectionChangedAction.Remove ||
-            e.Action == NotifyCollectionChangedAction.Replace)
+        if (e.Action is NotifyCollectionChangedAction.Remove or
+            NotifyCollectionChangedAction.Replace)
         {
             foreach (T item in e.OldItems.NeverNull())
             {
@@ -55,8 +55,8 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
             }
         }
 
-        if (e.Action == NotifyCollectionChangedAction.Add ||
-            e.Action == NotifyCollectionChangedAction.Replace)
+        if (e.Action is NotifyCollectionChangedAction.Add or
+            NotifyCollectionChangedAction.Replace)
         {
             foreach (T item in e.NewItems.NeverNull())
             {

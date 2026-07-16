@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-
-namespace GameshowPro.Common.Model;
+﻿namespace GameshowPro.Common.Model;
 
 public class IncomingTriggerSettings : KeyedCollection<string, IncomingTriggerSetting>
 {

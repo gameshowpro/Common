@@ -11,11 +11,7 @@ public class PluralConverter : ICommonValueConverter
     /// <inheritdoc/>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is int valueInt && parameter is string parameterString)
-        {
-            return valueInt.PluralIfRequired(parameterString);
-        }
-        return null;
+        return value is int valueInt && parameter is string parameterString ? valueInt.PluralIfRequired(parameterString) : (object?)null;
     }
 
     /// <inheritdoc/>

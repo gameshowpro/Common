@@ -15,7 +15,7 @@ public interface ITrigger
     /// Raised when the trigger fires.
     /// </summary>
     /// <remarks>Docs added by AI.</remarks>
-    public event EventHandler<TriggerArgs> Triggered;
+    event EventHandler<TriggerArgs> Triggered;
 }
 
 public class TriggerArgs(object? data = null) : EventArgs

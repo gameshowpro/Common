@@ -63,21 +63,14 @@ public class SettingsFileManager
         EnsureDataDirectory();
         _fileNames = fileSpecifications
             .ToFrozenDictionary(
-                (fs) => fs.Key,
-                (fs) => fs
+                static (fs) => fs.Key,
+                static (fs) => fs
             );
 
         static string GetDirectory(Environment.SpecialFolder folder, string? organization, string? project)
         {
             string rootPath = Environment.GetFolderPath(folder);
-            if (organization == null || project == null)
-            {
-                return rootPath;
-            }
-            else
-            {
-                return Path.Combine(rootPath, organization, project);
-            }
+            return organization == null || project == null ? rootPath : Path.Combine(rootPath, organization, project);
         }
     }
 
@@ -97,7 +90,7 @@ public class SettingsFileManager
         DirectoryInfo[] legacySubDirs = legacyDir.GetDirectories();
 
         // Create the destination directory
-        Directory.CreateDirectory(current);
+        _ = Directory.CreateDirectory(current);
 
         bool allFilesMoved = true;
         // Get the files in the source directory and copy to the destination directory
@@ -152,11 +145,7 @@ public class SettingsFileManager
     /// <param name="key">The key associated with the path, which is most commonly a <see cref="Type"/></param>
     public string? GetPath(object key)
     {
-        if (TryGetPath(key, out string? path))
-        {
-            return path;
-        }
-        return null;
+        return TryGetPath(key, out string? path) ? path : null;
     }
 
 

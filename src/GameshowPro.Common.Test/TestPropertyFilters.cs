@@ -24,7 +24,7 @@ public class TestPropertyFilters
     {
         int eventCount = 0;
         TestObject testObject = new("A", 1);
-        _filters.AddFilter(FilterAction, new PropertyChangeCondition(testObject, string.Empty));
+        _ = _filters.AddFilter(FilterAction, new PropertyChangeCondition(testObject, string.Empty));
         Assert.AreEqual(1, eventCount);
 
         testObject.Property1 = "B";
@@ -44,7 +44,7 @@ public class TestPropertyFilters
     {
         int eventCount = 0;
         TestObject testObject = new("A", 1);
-        _filters.AddFilter(FilterAction, new PropertyChangeCondition(testObject, nameof(TestObject.Property1)));
+        _ = _filters.AddFilter(FilterAction, new PropertyChangeCondition(testObject, nameof(TestObject.Property1)));
         Assert.AreEqual(1, eventCount);
 
         testObject.Property1 = "B";

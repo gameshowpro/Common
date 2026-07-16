@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Runtime.Serialization;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using GameshowPro.Common.JsonConverters;
 
 namespace GameshowPro.Common.Test;
@@ -58,7 +57,7 @@ public class TestTypedObjectConverter
             ObjectValueContainer? output = JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions);
 
             Assert.IsNotNull(output);
-            AssertObjectEquivalent(value, output!.Value);
+            AssertObjectEquivalent(value, output.Value);
         }
     }
 
@@ -66,35 +65,35 @@ public class TestTypedObjectConverter
     public void TypedObjectConverter_ShouldThrow_WhenTypeIsUnresolvable()
     {
         const string json = "{\"value\":{\"$type\":\"No.Such.Type, Bogus\",\"value\":123}}";
-        Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
+        _ = Assert.ThrowsExactly<JsonException>(static () => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
     }
 
     [TestMethod]
     public void TypedObjectConverter_ShouldThrow_WhenEnvelopeIsMissingValueProperty()
     {
         const string json = "{\"value\":{\"$type\":\"System.Int32, System.Private.CoreLib\"}}";
-        Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
+        _ = Assert.ThrowsExactly<JsonException>(static () => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
     }
 
     [TestMethod]
     public void TypedObjectConverter_ShouldThrow_WhenEnvelopeIsMissingTypeProperty()
     {
         const string json = "{\"value\":{\"value\":123}}";
-        Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
+        _ = Assert.ThrowsExactly<JsonException>(static () => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
     }
 
     [TestMethod]
     public void TypedObjectConverter_ShouldThrow_OnBarePrimitive()
     {
         const string json = "{\"value\":123}";
-        Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
+        _ = Assert.ThrowsExactly<JsonException>(static () => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
     }
 
     [TestMethod]
     public void TypedObjectConverter_ShouldThrow_WhenNonNullableObjectIsNull()
     {
         const string json = "{\"value\":null}";
-        Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Deserialize<NonNullableObjectContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
+        _ = Assert.ThrowsExactly<JsonException>(static () => JsonSerializer.Deserialize<NonNullableObjectContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
     }
 
     [TestMethod]
@@ -102,7 +101,7 @@ public class TestTypedObjectConverter
     {
         // Impossible from this serializer: $type is always emitted as a string.
         const string json = "{\"value\":{\"$type\":123,\"value\":1}}";
-        Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
+        _ = Assert.ThrowsExactly<JsonException>(static () => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
     }
 
     [TestMethod]
@@ -110,7 +109,7 @@ public class TestTypedObjectConverter
     {
         // Impossible from this serializer: when $type resolves to Type/RuntimeType, value is emitted as a string.
         const string json = "{\"value\":{\"$type\":\"System.RuntimeType, System.Private.CoreLib\",\"value\":123}}";
-        Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
+        _ = Assert.ThrowsExactly<JsonException>(static () => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
     }
 
     [TestMethod]
@@ -118,7 +117,7 @@ public class TestTypedObjectConverter
     {
         // Impossible from this serializer: int value payload would never be null when type is System.Int32.
         const string json = "{\"value\":{\"$type\":\"System.Int32, System.Private.CoreLib\",\"value\":null}}";
-        Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
+        _ = Assert.ThrowsExactly<JsonException>(static () => JsonSerializer.Deserialize<ObjectValueContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
     }
 
     [TestMethod]
@@ -129,7 +128,7 @@ public class TestTypedObjectConverter
             Value = new CustomPayload { Number = 7 }
         };
 
-        Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Serialize(input, SystemTextJsonUtils.DefaultJsonSerializerOptions));
+        _ = Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Serialize(input, SystemTextJsonUtils.DefaultJsonSerializerOptions));
     }
 
     [TestMethod]
@@ -144,8 +143,8 @@ public class TestTypedObjectConverter
         AllowListConstrainedContainer? output = JsonSerializer.Deserialize<AllowListConstrainedContainer>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions);
 
         Assert.IsNotNull(output);
-        Assert.IsInstanceOfType<CustomPayload>(output!.Value);
-        Assert.AreEqual(12, ((CustomPayload)output.Value!).Number);
+        _ = Assert.IsInstanceOfType<CustomPayload>(output.Value);
+        Assert.AreEqual(12, ((CustomPayload)output.Value).Number);
     }
 
     private static void AssertObjectEquivalent(object? expected, object? actual)
@@ -157,7 +156,7 @@ public class TestTypedObjectConverter
         }
 
         Assert.IsNotNull(actual);
-        Assert.AreEqual(expected.GetType(), actual!.GetType());
+        Assert.AreEqual(expected.GetType(), actual.GetType());
 
         switch (expected)
         {
@@ -168,11 +167,11 @@ public class TestTypedObjectConverter
                 Assert.AreEqual(expectedTimeSpan.Ticks, ((TimeSpan)actual).Ticks);
                 return;
             case IEnumerable expectedEnumerable when expected.GetType().IsGenericType && expected.GetType().GetGenericTypeDefinition() == typeof(ImmutableArray<>):
-            {
-                IEnumerable actualEnumerable = (IEnumerable)actual!;
-                CollectionAssert.AreEqual(expectedEnumerable.Cast<object?>().ToArray(), actualEnumerable.Cast<object?>().ToArray());
-                return;
-            }
+                {
+                    IEnumerable actualEnumerable = (IEnumerable)actual;
+                    CollectionAssert.AreEqual(expectedEnumerable.Cast<object?>().ToArray(), actualEnumerable.Cast<object?>().ToArray());
+                    return;
+                }
             default:
                 Assert.AreEqual(expected, actual);
                 return;
@@ -189,12 +188,6 @@ public class TestTypedObjectConverter
     {
         [DataMember]
         public object Value { get; }
-
-        [JsonConstructor]
-        private NonNullableObjectContainer(object value)
-        {
-            Value = value;
-        }
     }
 
     private sealed class RegistryConstrainedContainer

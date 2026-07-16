@@ -21,7 +21,7 @@ public class TestFlexibleJsonConstructorResolver
         Assert.AreEqual("set-direct", output.DirectString);
         Assert.IsTrue(output.DirectFlag);
         Assert.AreEqual(9.5d, output.DirectNumber);
-        Assert.IsInstanceOfType<ImmutableArray<int>>(output.CtorObject);
+        _ = Assert.IsInstanceOfType<ImmutableArray<int>>(output.CtorObject);
         CollectionAssert.AreEqual(new[] { 1, 2, 3 }, ((ImmutableArray<int>)output.CtorObject).ToArray());
     }
 
@@ -119,7 +119,7 @@ public class TestFlexibleJsonConstructorResolver
     [TestMethod]
     public void FlexibleConstructor_ShouldThrow_WhenMultipleJsonConstructorsExist()
     {
-        Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Deserialize<MultipleJsonConstructorsModel>("{}", SystemTextJsonUtils.DefaultJsonSerializerOptions));
+        _ = Assert.ThrowsExactly<JsonException>(static () => JsonSerializer.Deserialize<MultipleJsonConstructorsModel>("{}", SystemTextJsonUtils.DefaultJsonSerializerOptions));
     }
 
     [TestMethod]
@@ -132,7 +132,7 @@ public class TestFlexibleJsonConstructorResolver
 }
 """;
 
-        Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Deserialize<MixedWithPresent>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
+        _ = Assert.ThrowsExactly<JsonException>(static () => JsonSerializer.Deserialize<MixedWithPresent>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
     }
 
     [TestMethod]
@@ -146,7 +146,7 @@ public class TestFlexibleJsonConstructorResolver
 }
 """;
 
-        Assert.ThrowsExactly<JsonException>(() => JsonSerializer.Deserialize<MixedWithPresent>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
+        _ = Assert.ThrowsExactly<JsonException>(static () => JsonSerializer.Deserialize<MixedWithPresent>(json, SystemTextJsonUtils.DefaultJsonSerializerOptions));
     }
 
     [TestMethod]
@@ -202,7 +202,7 @@ public class TestFlexibleJsonConstructorResolver
         }
 
         Assert.IsNotNull(actual);
-        Assert.AreEqual(expected.GetType(), actual!.GetType());
+        Assert.AreEqual(expected.GetType(), actual.GetType());
 
         switch (expected)
         {
@@ -213,11 +213,11 @@ public class TestFlexibleJsonConstructorResolver
                 Assert.AreEqual(expectedTimeSpan.Ticks, ((TimeSpan)actual).Ticks);
                 return;
             case IEnumerable expectedEnumerable when expected.GetType().IsGenericType && expected.GetType().GetGenericTypeDefinition() == typeof(ImmutableArray<>):
-            {
-                IEnumerable actualEnumerable = (IEnumerable)actual!;
-                CollectionAssert.AreEqual(expectedEnumerable.Cast<object?>().ToArray(), actualEnumerable.Cast<object?>().ToArray());
-                return;
-            }
+                {
+                    IEnumerable actualEnumerable = (IEnumerable)actual;
+                    CollectionAssert.AreEqual(expectedEnumerable.Cast<object?>().ToArray(), actualEnumerable.Cast<object?>().ToArray());
+                    return;
+                }
             default:
                 Assert.AreEqual(expected, actual);
                 return;
@@ -307,12 +307,6 @@ public class TestFlexibleJsonConstructorResolver
     {
         [DataMember]
         public int Number { get; }
-
-        [JsonConstructor]
-        private MissingDefaultModel([JsonMissingDefault(-1)] int number)
-        {
-            Number = number;
-        }
     }
 
     private sealed class MultipleJsonConstructorsModel
@@ -341,11 +335,5 @@ public class TestFlexibleJsonConstructorResolver
         public int URLValue { get; private set; }
 
         public IReadOnlySet<string> JsonPresentProperties { get; }
-
-        [JsonConstructor]
-        private JsonPresentKeyCaseModel(IReadOnlySet<string> jsonPresentProperties)
-        {
-            JsonPresentProperties = jsonPresentProperties;
-        }
     }
 }

@@ -1,7 +1,7 @@
 
-using MessagePack.Formatters;
-using MessagePack;
 using GameshowPro.Common.MessagePack;
+using MessagePack;
+using MessagePack.Formatters;
 
 
 namespace GameshowPro.Common.Model;
@@ -44,7 +44,7 @@ public class LockoutReportFormatter : IMessagePackFormatter<LockoutReport?>
 
             return new(version.Value, index, timeStamp, isLockedOut);
         }
-        
+
         for (int i = 2; i < fieldCount; i++)
         {
             reader.Skip();

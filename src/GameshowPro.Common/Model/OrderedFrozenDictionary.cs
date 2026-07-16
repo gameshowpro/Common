@@ -16,7 +16,7 @@ public static class OrderedFrozenDictionary
     /// <returns>An ordered frozen dictionary containing the specified keys and values.</returns>
     /// <remarks>Docs added by AI.</remarks>
     public static OrderedFrozenDictionary<TKey, TValue> ToOrderedFrozenDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, IEqualityComparer<TKey>? comparer = null) where TKey : notnull
-        => new([.. source.Select(kvp => kvp.Value)], source.ToFrozenDictionary(comparer));
+        => new([.. source.Select(static kvp => kvp.Value)], source.ToFrozenDictionary(comparer));
     /// <summary>
     /// Creates an <see cref="OrderedFrozenDictionary{TKey, TSource}"/> from a sequence using a key selector.
     /// </summary>

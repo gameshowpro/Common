@@ -5,7 +5,7 @@ namespace GameshowPro.Common.Test;
 [TestClass]
 public class TestUtils
 {
-    private static readonly Random s_rnd = new ();
+    private static readonly Random s_rnd = new();
 
     [TestMethod]
     public void RandomSequenceWithMinimumDistance_ShouldReturnSequenceWithMinimumDistance()
@@ -49,9 +49,9 @@ public class TestUtils
         var minimumRepeatDistance = -1;
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() =>
+        _ = Assert.Throws<ArgumentException>(() =>
         {
-            Utils.RandomSequenceWithMinimumDistance(sourcePool, destinationLength, minimumRepeatDistance, false, s_rnd);
+            _ = Utils.RandomSequenceWithMinimumDistance(sourcePool, destinationLength, minimumRepeatDistance, false, s_rnd);
         });
     }
 
@@ -64,9 +64,9 @@ public class TestUtils
         var minimumRepeatDistance = 11;
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() =>
+        _ = Assert.Throws<ArgumentException>(() =>
         {
-            Utils.RandomSequenceWithMinimumDistance(sourcePool, destinationLength, minimumRepeatDistance, false, s_rnd);
+            _ = Utils.RandomSequenceWithMinimumDistance(sourcePool, destinationLength, minimumRepeatDistance, false, s_rnd);
         });
     }
 }

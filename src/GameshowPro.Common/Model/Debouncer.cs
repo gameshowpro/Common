@@ -1,4 +1,5 @@
 ﻿namespace GameshowPro.Common.Model;
+
 public enum DebounceMode
 {
     [Description("Fire, block, wait")]
@@ -60,7 +61,7 @@ public class Debouncer<TArg>
             else
             {
                 _isBlocking = true;
-                _blockTimer.Change(MinimumInterval, Timeout.InfiniteTimeSpan);
+                _ = _blockTimer.Change(MinimumInterval, Timeout.InfiniteTimeSpan);
                 if (Mode == DebounceMode.FireBlockWait)
                 {
                     Execute?.Invoke(this, _latestArg);
@@ -80,7 +81,7 @@ public class Debouncer<TArg>
         {
             //the blocking is over
             _isBlocking = false;
-            _blockTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            _ = _blockTimer.Change(Timeout.Infinite, Timeout.Infinite);
             if (_executeAfterBlock)
             {
                 _executeAfterBlock = false;

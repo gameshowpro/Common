@@ -22,14 +22,7 @@ public class StatePresetGroup
     [Obsolete("Use StateLevels[key]?.Levels instead")]
     public IEnumerable<StatePresetChannel>? LevelByKey(string key)
     {
-        if (StatesLevels.TryGetValue(key, out StateLevels? levels))
-        {
-            return levels.Phases.FirstOrDefault()?.Levels;
-        }
-        else
-        {
-            return null;
-        }
+        return StatesLevels.TryGetValue(key, out StateLevels? levels) ? (levels.Phases.FirstOrDefault()?.Levels) : (IEnumerable<StatePresetChannel>?)null;
     }
 
     [DataMember]

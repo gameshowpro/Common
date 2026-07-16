@@ -52,7 +52,8 @@ public sealed class SynchronizationContextDispatcher : IUiThreadDispatcher
         TaskCompletionSource<TResult> tcs = new();
         _context.Post(_ =>
         {
-            try { tcs.SetResult(func()); }
+            try
+            { tcs.SetResult(func()); }
             catch (Exception ex) { tcs.SetException(ex); }
         }, null);
         return tcs.Task;

@@ -75,7 +75,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
         settings.TriggerSettings?.RemoveUntouched();
         TriggersBase = Triggers.ToFrozenDictionary(kvp => kvp.Key, kvp => (IncomingTrigger)kvp.Value);
 
-        _propertyChangeFilters.AddFilter((s, e) => UpdateTriggerDict(settings), Triggers.Values.SelectMany(
+        _ = _propertyChangeFilters.AddFilter((s, e) => UpdateTriggerDict(settings), Triggers.Values.SelectMany(
             t =>
             new PropertyChangeCondition[] {
                 new (t.Setting, nameof(IncomingTriggerSetting.Id)),
@@ -139,7 +139,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
                 trigger.Setting.IdIsValid = true;
             }
         }
-        _triggerDict = newTriggerDict.ToFrozenDictionary((pair) => pair.Key, (pair) => pair.Value.ToImmutable());
+        _triggerDict = newTriggerDict.ToFrozenDictionary(static (pair) => pair.Key, static (pair) => pair.Value.ToImmutable());
         AfterUpdateTriggerDict();
     }
 

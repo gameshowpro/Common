@@ -3,7 +3,7 @@
 public sealed class SignalRFilteredLogger(ILogger logger, bool allMessages) : ILogger
 {
     private readonly ILogger _logger = logger;
-    private readonly static Stopwatch s_stopwatch = Stopwatch.StartNew();
+    private static readonly Stopwatch s_stopwatch = Stopwatch.StartNew();
     private static readonly TimeSpan s_maximumInvocationTime = TimeSpan.FromSeconds(0.1);
     private readonly ConcurrentDictionary<string, TimeSpan> _invocationsInProgress = new();
     private readonly bool _allMessages = allMessages;
@@ -30,14 +30,14 @@ public sealed class SignalRFilteredLogger(ILogger logger, bool allMessages) : IL
             _logger.Log(LogLevel.Trace, eventId, state, exception, formatter);
             if (eventId.Name == "InvocationCreated") //created
             {
-                _invocationsInProgress.TryAdd(invocationId, s_stopwatch.Elapsed);
+                _ = _invocationsInProgress.TryAdd(invocationId, s_stopwatch.Elapsed);
             }
-            else if(eventId.Name == "InvocationDisposed")
+            else if (eventId.Name == "InvocationDisposed")
             {
                 if (_invocationsInProgress.TryRemove(invocationId, out TimeSpan creationTime))
                 {
                     TimeSpan elapsed = s_stopwatch.Elapsed - creationTime;
-                    _logger.Log(elapsed > s_maximumInvocationTime ? LogLevel.Warning : LogLevel.Trace,  "Invocation {id} lifetime was {elapsed}", invocationId, elapsed);
+                    _logger.Log(elapsed > s_maximumInvocationTime ? LogLevel.Warning : LogLevel.Trace, "Invocation {id} lifetime was {elapsed}", invocationId, elapsed);
                 }
                 else
                 {

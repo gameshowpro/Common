@@ -12,7 +12,7 @@ public class UniverseSettings : ObservableClass
     public int UniverseIndex
     {
         get;
-        set { SetProperty(ref field, value.KeepInRange(0, short.MaxValue)); }
+        set { _ = SetProperty(ref field, value.KeepInRange(0, short.MaxValue)); }
     } = 1;
 
     /// <summary>
@@ -21,6 +21,6 @@ public class UniverseSettings : ObservableClass
     public int Size
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     } = 512;
 }

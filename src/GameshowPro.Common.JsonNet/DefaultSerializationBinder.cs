@@ -7,7 +7,7 @@
 /// <remarks>Docs added by AI.</remarks>
 public class DefaultSerializationBinder : ISerializationBinderEx
 {
-    private readonly static FrozenDictionary<string, string> s_assemblyReplacements = new KeyValuePair<string, string>[] { KeyValuePair.Create("GameshowPro.Common.Windows", "GameshowPro.Common") }.ToFrozenDictionary();
+    private static readonly FrozenDictionary<string, string> s_assemblyReplacements = new KeyValuePair<string, string>[] { KeyValuePair.Create("GameshowPro.Common.Windows", "GameshowPro.Common") }.ToFrozenDictionary();
 
     private DefaultSerializationBinder()
     {
@@ -17,7 +17,7 @@ public class DefaultSerializationBinder : ISerializationBinderEx
     /// Gets a shared singleton instance.
     /// </summary>
     /// <remarks>Docs added by AI.</remarks>
-    public static DefaultSerializationBinder Instance { get; } = new ();
+    public static DefaultSerializationBinder Instance { get; } = new();
 
     /// <summary>
     /// Gets the preferred <see cref="TypeNameHandling"/> mode.

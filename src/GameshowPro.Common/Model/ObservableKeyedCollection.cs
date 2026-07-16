@@ -4,7 +4,7 @@ public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<T
 {
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
     public event PropertyChangedEventHandler? PropertyChanged;
-    int _prevCount = 0;
+    private int _prevCount = 0;
 
     protected virtual bool EnforceOrderByKey => false;
 

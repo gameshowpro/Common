@@ -17,12 +17,7 @@ public class EnumerableStringToObjectsConverter(object doNothing) : ICommonValue
         {
             return null;
         }
-        if (value is IEnumerable<string> strings)
-        {
-            return strings.Select(s => new StringItem(s));
-        }
-
-        return null;
+        return value is IEnumerable<string> strings ? strings.Select(static s => new StringItem(s)) : (object?)null;
     }
 
     /// <inheritdoc/>

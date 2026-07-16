@@ -13,11 +13,7 @@ public class EnumToDescriptionConverter : ICommonValueConverter
     {
         if (value is Enum valueEnum)
         {
-            if (targetType == typeof(int))
-            {
-                return (int)value;
-            }
-            return valueEnum.Description();
+            return targetType == typeof(int) ? (int)value : valueEnum.Description();
         }
         else
         {

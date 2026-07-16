@@ -11,5 +11,5 @@ public interface ISerializationBinderEx : ISerializationBinder
     /// Gets the preferred <see cref="Newtonsoft.Json.TypeNameHandling"/> to use when serializing types, or null to use defaults.
     /// </summary>
     /// <remarks>Docs added by AI.</remarks>
-    public TypeNameHandling? TypeNameHandling { get; }
+    TypeNameHandling? TypeNameHandling { get; }
 }

@@ -10,11 +10,7 @@ public class FsToDbfs : ICommonValueConverter
 {
     private static double ParameterToMultiplier(object? parameter)
     {
-        if (parameter is not null && double.TryParse(parameter.ToString(), out double multiplier))
-        {
-            return multiplier;
-        }
-        return 1d;
+        return parameter is not null && double.TryParse(parameter.ToString(), out double multiplier) ? multiplier : 1d;
     }
 
     /// <inheritdoc/>
@@ -23,11 +19,7 @@ public class FsToDbfs : ICommonValueConverter
         double multiplier = ParameterToMultiplier(parameter);
         double db = 20 * Math.Log10(System.Convert.ToDouble(value) / multiplier);
         double inRange = db.KeepInRange(-100, 20);
-        if (targetType == typeof(string))
-        {
-            return inRange.ToString("N2");
-        }
-        return inRange;
+        return targetType == typeof(string) ? inRange.ToString("N2") : inRange;
     }
 
     /// <inheritdoc/>

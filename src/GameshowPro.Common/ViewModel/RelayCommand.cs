@@ -82,11 +82,7 @@ public class RelayCommand<T>(Action<T?> execute, Predicate<T?>? canExecute) : IC
         {
             return _canExecuteBool;
         }
-        if (parameter is T parameterT)
-        {
-            return _canExecute(parameterT);
-        }
-        return false;
+        return parameter is T parameterT ? _canExecute(parameterT) : false;
     }
 
     ///<summary>

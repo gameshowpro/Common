@@ -96,13 +96,11 @@ public class EnumerableToStringConverter(object doNothing) : ICommonValueConvert
         {
             return EnumerableToDelimitedString(nfloats, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
         }
-        else if (value is IEnumerable<double?> ndoubles)
-        {
-            return EnumerableToDelimitedString(ndoubles, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
         else
         {
-            return _doNothing;
+            return value is IEnumerable<double?> ndoubles
+                ? EnumerableToDelimitedString(ndoubles, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder)
+                : _doNothing;
         }
     }
 

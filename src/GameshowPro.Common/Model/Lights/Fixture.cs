@@ -174,7 +174,7 @@ public class Fixture : ObservableClass
 
     public void DeserializationComplete()
     {
-        if (Channels?.Any(c => c.FixtureChannelType == null) != false)
+        if (Channels?.Any(static c => c.FixtureChannelType == null) != false)
         {
             //Not ready yet
             return;

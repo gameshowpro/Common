@@ -1,13 +1,13 @@
-using GameshowPro.Common.MessagePack;
-using GameshowPro.Common.Model;
-using MessagePack;
-using MessagePack.Formatters;
-using MessagePack.Resolvers;
 using System.Buffers;
 using System.Net;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using GameshowPro.Common.MessagePack;
+using GameshowPro.Common.Model;
+using MessagePack;
+using MessagePack.Formatters;
+using MessagePack.Resolvers;
 
 namespace GameshowPro.Common.Test;
 
@@ -28,7 +28,7 @@ public class TestMessagePackResolvers
 
         Assert.AreEqual(value, result);
         Assert.IsTrue(bytes.Length >= 18);
-        Assert.IsFalse(bytes.Any(b => b == (byte)'.' || b == (byte)':'));
+        Assert.IsFalse(bytes.Any(static b => b is ((byte)'.') or ((byte)':')));
     }
 
     [TestMethod]
@@ -52,7 +52,7 @@ public class TestMessagePackResolvers
     public void ConfigurableFormatterResolver_ShouldAllowOverrides()
     {
         ConfigurableFormatterResolver resolver = new ConfigurableFormatterResolver()
-            .RegisterFormatter<IPAddress?>(StringIPAddressFormatter.Instance)
+            .RegisterFormatter(StringIPAddressFormatter.Instance)
             .AddResolver(BclFormatterResolver.Instance);
 
         MessagePackSerializerOptions options = MessagePackSerializerOptions.Standard.WithResolver(
@@ -118,16 +118,16 @@ public class TestMessagePackResolvers
         byte[] assemblyBytes = MessagePackSerializer.Serialize(assemblyName, options);
         AssemblyName? assemblyResult = MessagePackSerializer.Deserialize<AssemblyName?>(assemblyBytes, options);
         Assert.IsNotNull(assemblyResult);
-        Assert.AreEqual(assemblyName.Name, assemblyResult!.Name);
+        Assert.AreEqual(assemblyName.Name, assemblyResult.Name);
 
         Exception source = new InvalidOperationException("Top level", new ArgumentException("Inner error"));
         byte[] exceptionBytes = MessagePackSerializer.Serialize<Exception?>(source, options);
         Exception? exceptionResult = MessagePackSerializer.Deserialize<Exception?>(exceptionBytes, options);
         Assert.IsNotNull(exceptionResult);
-        Assert.AreEqual("Top level", exceptionResult!.Message);
-        Assert.IsInstanceOfType<ExceptionFormatter.FormattedException>(exceptionResult);
+        Assert.AreEqual("Top level", exceptionResult.Message);
+        _ = Assert.IsInstanceOfType<ExceptionFormatter.FormattedException>(exceptionResult);
         Assert.IsNotNull(exceptionResult.InnerException);
-        Assert.AreEqual("Inner error", exceptionResult.InnerException!.Message);
+        Assert.AreEqual("Inner error", exceptionResult.InnerException.Message);
     }
 
     [TestMethod]
@@ -244,7 +244,7 @@ public class TestMessagePackResolvers
         EdgeReport edge = new(1, 5, 3, TimeSpan.FromMilliseconds(250), true, false, TimeSpan.FromSeconds(2));
         EdgeReport? edgeRoundTrip = MessagePackSerializer.Deserialize<EdgeReport?>(MessagePackSerializer.Serialize(edge, options), options);
         Assert.IsNotNull(edgeRoundTrip);
-        Assert.AreEqual(edge.Version, edgeRoundTrip!.Version);
+        Assert.AreEqual(edge.Version, edgeRoundTrip.Version);
         Assert.AreEqual(edge.Ordinal, edgeRoundTrip.Ordinal);
         Assert.AreEqual(edge.TimeStamp, edgeRoundTrip.TimeStamp);
         Assert.AreEqual(edge.LockoutTimeRemaining, edgeRoundTrip.LockoutTimeRemaining);
@@ -252,7 +252,7 @@ public class TestMessagePackResolvers
         LockoutReport lockout = new(1, 7, TimeSpan.FromMilliseconds(30), true);
         LockoutReport? lockoutRoundTrip = MessagePackSerializer.Deserialize<LockoutReport?>(MessagePackSerializer.Serialize(lockout, options), options);
         Assert.IsNotNull(lockoutRoundTrip);
-        Assert.AreEqual(lockout.Version, lockoutRoundTrip!.Version);
+        Assert.AreEqual(lockout.Version, lockoutRoundTrip.Version);
         Assert.AreEqual(lockout.Index, lockoutRoundTrip.Index);
 
         ServiceState state = new("svc", "service-key", RemoteServiceStates.Connected, "ready", 0.5,
@@ -262,7 +262,7 @@ public class TestMessagePackResolvers
             });
         ServiceState? stateRoundTrip = MessagePackSerializer.Deserialize<ServiceState?>(MessagePackSerializer.Serialize(state, options), options);
         Assert.IsNotNull(stateRoundTrip);
-        Assert.AreEqual(state.Progress, stateRoundTrip!.Progress);
+        Assert.AreEqual(state.Progress, stateRoundTrip.Progress);
         Assert.AreEqual(state.Detail, stateRoundTrip.Detail);
     }
 

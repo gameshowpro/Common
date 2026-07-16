@@ -31,7 +31,9 @@ public class Universe
     /// If true, updates will be sent immediately on change.  Otherwise state will be held internally until SendUpdates is set to true.
     /// In other words, this allows changes to be batched.
     /// </summary>
-    public bool SendUpdates { get; set
+    public bool SendUpdates
+    {
+        get; set
         {
             if (field != value)
             {
@@ -42,7 +44,8 @@ public class Universe
                     SendUpdate?.Invoke(_data);
                 }
             }
-        } } = true;
+        }
+    } = true;
 
     /// <summary>
     /// Set a block of data in a single operation.

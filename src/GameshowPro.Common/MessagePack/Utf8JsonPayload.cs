@@ -1,5 +1,4 @@
 using System.Buffers;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using MessagePack;
 
@@ -37,12 +36,7 @@ internal static class Utf8JsonPayload
     public static ReadOnlySequence<byte> ReadRequiredBytes(ref MessagePackReader reader, string typeName)
     {
         ReadOnlySequence<byte>? bytes = reader.ReadBytes();
-        if (!bytes.HasValue)
-        {
-            throw new MessagePackSerializationException($"Expected binary payload for {typeName}.");
-        }
-
-        return bytes.Value;
+        return !bytes.HasValue ? throw new MessagePackSerializationException($"Expected binary payload for {typeName}.") : bytes.Value;
     }
 
     public static JsonDocument ParseDocument(ReadOnlySequence<byte> bytes)
@@ -55,12 +49,7 @@ internal static class Utf8JsonPayload
         if (bytes.IsSingleSegment)
         {
             JsonNode? node = JsonNode.Parse(bytes.FirstSpan);
-            if (node is not null)
-            {
-                return node;
-            }
-
-            throw new MessagePackSerializationException("Invalid JSON payload.");
+            return node is not null ? node : throw new MessagePackSerializationException("Invalid JSON payload.");
         }
 
         int length = checked((int)bytes.Length);
@@ -69,12 +58,7 @@ internal static class Utf8JsonPayload
         {
             bytes.CopyTo(rented);
             JsonNode? node = JsonNode.Parse(rented.AsSpan(0, length));
-            if (node is not null)
-            {
-                return node;
-            }
-
-            throw new MessagePackSerializationException("Invalid JSON payload.");
+            return node is not null ? node : throw new MessagePackSerializationException("Invalid JSON payload.");
         }
         finally
         {

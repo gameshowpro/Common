@@ -1,6 +1,6 @@
 ﻿namespace GameshowPro.Common.Model;
 
-[method:JsonConstructor]
+[method: JsonConstructor]
 public class RemoteServiceManagerSettings(ImmutableArray<RemoteServiceGroupSettings>? groups) : ObservableClass
 {
     public RemoteServiceManagerSettings() : this(null)

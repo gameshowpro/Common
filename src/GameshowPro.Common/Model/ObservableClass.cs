@@ -153,14 +153,9 @@ public class ObservableClass : INotifyPropertyChanged
         {
             return true;
         }
-        if (compareEnumerablesByContent && field is IEnumerable eField && value is IEnumerable eValue)
-        {
-            return !SequenceEqual(eField, eValue);
-        }
-        else
-        {
-            return !field.Equals(value);
-        }
+        return compareEnumerablesByContent && field is IEnumerable eField && value is IEnumerable eValue
+            ? !SequenceEqual(eField, eValue)
+            : !field.Equals(value);
     }
 
     /// <summary>

@@ -9,11 +9,9 @@ public class PathPartConverter : ICommonValueConverter
     /// <inheritdoc/>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (parameter?.ToString()?.Equals("DirectoryName", StringComparison.InvariantCultureIgnoreCase) == true)
-        {
-            return Path.GetDirectoryName(value?.ToString());
-        }
-        return Path.GetFileName(value?.ToString());
+        return parameter?.ToString()?.Equals("DirectoryName", StringComparison.InvariantCultureIgnoreCase) == true
+            ? Path.GetDirectoryName(value?.ToString())
+            : Path.GetFileName(value?.ToString());
     }
 
     /// <inheritdoc/>

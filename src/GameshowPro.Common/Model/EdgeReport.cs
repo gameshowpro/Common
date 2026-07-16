@@ -1,6 +1,6 @@
-using MessagePack.Formatters;
-using MessagePack;
 using GameshowPro.Common.MessagePack;
+using MessagePack;
+using MessagePack.Formatters;
 
 namespace GameshowPro.Common.Model;
 
@@ -60,7 +60,7 @@ public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport?>
 
             return new(version.Value, index, ordinal, timeStamp, isDown, isTest, lockoutTimeRemaining);
         }
-        
+
         for (int i = 2; i < fieldCount; i++)
         {
             reader.Skip();

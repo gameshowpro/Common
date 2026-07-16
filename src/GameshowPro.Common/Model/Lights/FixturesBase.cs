@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-namespace GameshowPro.Common.Model.Lights;
+﻿namespace GameshowPro.Common.Model.Lights;
 
 public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
     where TSub : FixturesBase<TSub>, new()
@@ -28,7 +27,7 @@ public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
         PresetGroups = depersistedGroups;
         SyncPresetGroups(ref depersistedGroups, defaultPresetGroups);
         PresetGroups.AddChannelTypes();
-        bool startIdsAreInvalid = this.Count(f => f.StartId == 0) > 1;
+        bool startIdsAreInvalid = this.Count(static f => f.StartId == 0) > 1;
         IEnumerable<Fixture> template = BuildTemplate(PresetGroups);
         Dictionary<string, FixtureSettings> settings = SettingsToDictionary(depersistedSettings, logger);
         foreach (Fixture templateFixture in template)
@@ -119,7 +118,7 @@ public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
                 foreach (string key in levelsToRemove)
                 {
                     //Depersisted state levels has a key that does not exist in corresponding group in default template
-                    depG.StatesLevels.Remove(key);
+                    _ = depG.StatesLevels.Remove(key);
                 }
             }
             else

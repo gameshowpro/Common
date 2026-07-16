@@ -2,11 +2,11 @@
 
 public class PingHost : ObservableClass, IRemoteService
 {
-    private readonly static TimeSpan s_interval = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan s_interval = TimeSpan.FromSeconds(5);
     private readonly CancellationToken _cancellationToken;
     private readonly AutoResetEvent _settingChange = new(false);
     private readonly ILogger _logger;
-    public PingHost(IPingHostSettings settings, ILogger logger,  CancellationToken cancellationToken)
+    public PingHost(IPingHostSettings settings, ILogger logger, CancellationToken cancellationToken)
     {
         Settings = settings;
         _logger = logger;
@@ -18,7 +18,7 @@ public class PingHost : ObservableClass, IRemoteService
                 case nameof(Settings.Host):
                     ServiceState.AggregateState = RemoteServiceStates.Disconnected;
                     ServiceState.Detail = "In progress";
-                    _settingChange.Set();
+                    _ = _settingChange.Set();
                     break;
             }
         };
@@ -46,7 +46,7 @@ public class PingHost : ObservableClass, IRemoteService
                     }
                     else
                     {
-                        PingHostNameResult result =  await PingClient.SendPing(Settings.Host, _logger, _cancellationToken);
+                        PingHostNameResult result = await PingClient.SendPing(Settings.Host, _logger, _cancellationToken);
                         if (result.MinimumRoundtripTime.HasValue)
                         {
                             ServiceState.AggregateState = RemoteServiceStates.Connected;
@@ -56,14 +56,7 @@ public class PingHost : ObservableClass, IRemoteService
                         else
                         {
                             ServiceState.AggregateState = RemoteServiceStates.Warning;
-                            if (result.AddressResults.Length == 0)
-                            {
-                                ServiceState.Detail = "Could not resolve host name";
-                            }
-                            else
-                            {
-                                ServiceState.Detail = "No reply";
-                            }
+                            ServiceState.Detail = result.AddressResults.Length == 0 ? "Could not resolve host name" : "No reply";
                         }
                     }
                     break;

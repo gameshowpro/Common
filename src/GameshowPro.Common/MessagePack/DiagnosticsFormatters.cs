@@ -1,6 +1,5 @@
 using MessagePack;
 using MessagePack.Formatters;
-using System.Reflection;
 
 namespace GameshowPro.Common.MessagePack;
 
@@ -34,12 +33,9 @@ public sealed class AssemblyNameFormatter : IMessagePackFormatter<AssemblyName?>
         }
 
         string? displayName = reader.ReadString();
-        if (string.IsNullOrWhiteSpace(displayName))
-        {
-            throw new MessagePackSerializationException("Expected a valid AssemblyName display string.");
-        }
-
-        return new AssemblyName(displayName);
+        return string.IsNullOrWhiteSpace(displayName)
+            ? throw new MessagePackSerializationException("Expected a valid AssemblyName display string.")
+            : new AssemblyName(displayName);
     }
 }
 

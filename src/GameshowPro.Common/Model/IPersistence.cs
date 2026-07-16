@@ -14,7 +14,7 @@ public interface IPersistence
     /// <param name="logger">Optional logger for diagnostics.</param>
     /// <param name="cancellationToken">Optional cancellation token.</param>
     /// <remarks>Docs added by AI.</remarks>
-    public Task Persist<T>(T obj, string? path, ILogger? logger, CancellationToken? cancellationToken);
+    Task Persist<T>(T obj, string? path, ILogger? logger, CancellationToken? cancellationToken);
 
     /// <summary>
     /// Loads an object from storage.
@@ -27,5 +27,5 @@ public interface IPersistence
     /// <param name="cancellationToken">Optional cancellation token.</param>
     /// <returns>The deserialized instance, or null when deserialization failed or a new object would have been created.</returns>
     /// <remarks>Docs added by AI.</remarks>
-    public Task<T?> Depersist<T>(string? path, bool rethrowDeserializationExceptions, bool renameFailedFiles, ILogger? logger, CancellationToken? cancellationToken) where T : new();
+    Task<T?> Depersist<T>(string? path, bool rethrowDeserializationExceptions, bool renameFailedFiles, ILogger? logger, CancellationToken? cancellationToken) where T : new();
 }

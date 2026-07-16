@@ -8,7 +8,7 @@ public partial class TypeConverter : JsonConverter
     /// <inheritdoc />
     /// <remarks>Docs added by AI.</remarks>
     public override bool CanConvert(Type objectType)
-        =>  objectType.IsTypeOrRuntimeType();
+        => objectType.IsTypeOrRuntimeType();
 
     /// <inheritdoc />
     /// <remarks>Docs added by AI.</remarks>

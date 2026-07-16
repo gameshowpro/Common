@@ -1,7 +1,4 @@
-﻿
-using System.Runtime.Serialization;
-
-namespace GameshowPro.Common.Model;
+﻿namespace GameshowPro.Common.Model;
 
 /// <summary>
 /// The best of lists and sets: order is maintained, while uniqueness is maintained and <see cref="Contains(T)"/> is fast.
@@ -127,7 +124,7 @@ public class OrderedSet<T> : IList<T>, ICollection<T>, IEnumerable<T>, IEnumerab
     {
         if (_itemsSet.Remove(item))
         {
-            _items.Remove(item);
+            _ = _items.Remove(item);
             return true;
         }
         return false;
@@ -139,7 +136,7 @@ public class OrderedSet<T> : IList<T>, ICollection<T>, IEnumerable<T>, IEnumerab
     {
         T item = _items[index];
         _items.RemoveAt(index);
-        _itemsSet.Remove(item);
+        _ = _itemsSet.Remove(item);
     }
 
     /// <summary>Determines whether the current set and the specified collection contain the same elements.</summary>
@@ -170,7 +167,7 @@ public class OrderedSet<T> : IList<T>, ICollection<T>, IEnumerable<T>, IEnumerab
 
     /// <summary>Determines whether the collection contains a specific value (non-generic interface).</summary>
     /// <remarks>Docs added by AI.</remarks>
-    public bool Contains(object? value) =>  ((IList)_items).Contains(value);
+    public bool Contains(object? value) => ((IList)_items).Contains(value);
 
     /// <summary>Determines the index of a specific item (non-generic interface).</summary>
     /// <remarks>Docs added by AI.</remarks>

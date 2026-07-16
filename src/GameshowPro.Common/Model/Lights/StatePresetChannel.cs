@@ -17,12 +17,12 @@ public class StatePresetChannel(FixtureChannelType? fixtureChannelType) : Observ
     public byte Level
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     }
 
     public FixtureChannelType FixtureChannelType
     {
         get;
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     } = fixtureChannelType ?? new();
 }

@@ -49,11 +49,7 @@ public class TriggerBinder(bool useSynchronizationContext = true) : ManyToManyDi
     /// <remarks>Docs added by AI.</remarks>
     public bool TryAdd(ITrigger? trigger, ICommand command, object? commandParameter)
     {
-        if (trigger == null)
-        {
-            return false;
-        }
-        return TryAdd(new TriggerPair(trigger, command, commandParameter, _synchronizationContext));
+        return trigger == null ? false : TryAdd(new TriggerPair(trigger, command, commandParameter, _synchronizationContext));
     }
 
     /// <summary>

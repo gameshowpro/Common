@@ -1,6 +1,5 @@
 using MessagePack;
 using MessagePack.Formatters;
-using System.Net;
 
 namespace GameshowPro.Common.MessagePack;
 
@@ -49,11 +48,8 @@ public sealed class IPEndPointFormatter : IMessagePackFormatter<IPEndPoint?>
             reader.Skip();
         }
 
-        if (address is null)
-        {
-            throw new MessagePackSerializationException("Expected non-null IPAddress for IPEndPoint.");
-        }
-
-        return new IPEndPoint(address, port);
+        return address is null
+            ? throw new MessagePackSerializationException("Expected non-null IPAddress for IPEndPoint.")
+            : new IPEndPoint(address, port);
     }
 }

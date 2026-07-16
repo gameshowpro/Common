@@ -7,10 +7,10 @@ public class ObservableDictionary<TKey, TValue> : ICollection<KeyValuePair<TKey,
     private readonly IDictionary<TKey, TValue> _dictionary;
 
     /// <summary>Event raised when the collection changes.</summary>
-    public event NotifyCollectionChangedEventHandler? CollectionChanged = (sender, args) => { };
+    public event NotifyCollectionChangedEventHandler? CollectionChanged = static (sender, args) => { };
 
     /// <summary>Event raised when a property on the collection changes.</summary>
-    public event PropertyChangedEventHandler? PropertyChanged = (sender, args) => { };
+    public event PropertyChangedEventHandler? PropertyChanged = static (sender, args) => { };
 
     /// <summary>
     /// Occurs when a property is changed within an item.
@@ -91,7 +91,7 @@ public class ObservableDictionary<TKey, TValue> : ICollection<KeyValuePair<TKey,
         {
             if (_dictionary.TryGetValue(key, out value))
             {
-                _dictionary.Remove(key);
+                _ = _dictionary.Remove(key);
             }
             else
             {

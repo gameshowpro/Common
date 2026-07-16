@@ -13,11 +13,7 @@ public class IntToCharConverter : ICommonValueConverter
     {
         if (value is int valueInt)
         {
-            if (!valueInt.IsInRange(0, 25))
-            {
-                return string.Empty;
-            }
-            return (char)(valueInt + 65);
+            return !valueInt.IsInRange(0, 25) ? string.Empty : (char)(valueInt + 65);
         }
         else
         {

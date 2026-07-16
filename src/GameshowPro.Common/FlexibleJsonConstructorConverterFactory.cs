@@ -1,6 +1,3 @@
-using System.Runtime.Serialization;
-using System.Text.Json.Serialization.Metadata;
-
 namespace GameshowPro.Common;
 
 /// <summary>
@@ -26,15 +23,12 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
     {
         ConstructorInfo[] constructors = type
             .GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-            .Where(c => c.IsDefined(typeof(JsonConstructorAttribute), true))
+            .Where(static c => c.IsDefined(typeof(JsonConstructorAttribute), true))
             .ToArray();
 
-        if (constructors.Length > 1)
-        {
-            throw new JsonException($"Multiple constructors with [JsonConstructor] found on {type.FullName}.");
-        }
-
-        return constructors.Length == 1 ? constructors[0] : null;
+        return constructors.Length > 1
+            ? throw new JsonException($"Multiple constructors with [JsonConstructor] found on {type.FullName}.")
+            : constructors.Length == 1 ? constructors[0] : null;
     }
 
     private sealed class FlexibleJsonConstructorConverter<T>(
@@ -45,8 +39,6 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
         private static readonly Type s_jsonPresentSetType = typeof(IReadOnlySet<string>);
         private readonly ConstructorInfo _constructor = constructor;
         private readonly ParameterInfo[] _parameters = constructor.GetParameters();
-        private readonly Dictionary<string, ParameterInfo> _parametersByJsonName = constructor.GetParameters()
-            .ToDictionary(p => ToJsonName(p.Name!, namingPolicy), StringComparer.OrdinalIgnoreCase);
         private readonly List<MemberMetadata> _members = GetDataMembers(typeof(T), namingPolicy, nullabilityContext);
         private readonly NullabilityInfoContext _nullabilityContext = nullabilityContext;
 
@@ -146,19 +138,15 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
-                if (DisallowNull(parameter.ParameterType, _nullabilityContext.Create(parameter).ReadState))
-                {
-                    throw new JsonException($"Parameter '{parameter.Name}' cannot be null.");
-                }
-                return null;
+                return DisallowNull(parameter.ParameterType, _nullabilityContext.Create(parameter).ReadState)
+                    ? throw new JsonException($"Parameter '{parameter.Name}' cannot be null.")
+                    : null;
             }
 
             object? value = element.Deserialize(parameter.ParameterType, options);
-            if (value is null && DisallowNull(parameter.ParameterType, _nullabilityContext.Create(parameter).ReadState))
-            {
-                throw new JsonException($"Parameter '{parameter.Name}' cannot be null.");
-            }
-            return value;
+            return value is null && DisallowNull(parameter.ParameterType, _nullabilityContext.Create(parameter).ReadState)
+                ? throw new JsonException($"Parameter '{parameter.Name}' cannot be null.")
+                : value;
         }
 
         private static bool IsJsonPresentPropertiesParameter(ParameterInfo parameter)
@@ -173,12 +161,7 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
                 return ChangeType(missingDefault.Value, parameter.ParameterType);
             }
 
-            if (parameter.ParameterType.IsValueType)
-            {
-                return Activator.CreateInstance(parameter.ParameterType);
-            }
-
-            return null;
+            return parameter.ParameterType.IsValueType ? Activator.CreateInstance(parameter.ParameterType) : null;
         }
 
         private static object? ChangeType(object? value, Type destinationType)
@@ -189,11 +172,7 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
             }
 
             Type targetType = Nullable.GetUnderlyingType(destinationType) ?? destinationType;
-            if (targetType.IsInstanceOfType(value))
-            {
-                return value;
-            }
-            return Convert.ChangeType(value, targetType, CultureInfo.InvariantCulture);
+            return targetType.IsInstanceOfType(value) ? value : Convert.ChangeType(value, targetType, CultureInfo.InvariantCulture);
         }
 
         private static List<MemberMetadata> GetDataMembers(Type type, JsonNamingPolicy? namingPolicy, NullabilityInfoContext nullabilityContext)
@@ -224,7 +203,8 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
                     jsonName,
                     property.PropertyType,
                     obj => getter.Invoke(obj, null),
-                    setter is null ? static (_, _) => { } : (obj, val) => setter.Invoke(obj, [val]),
+                    setter is null ? static (_, _) => { }
+                : (obj, val) => setter.Invoke(obj, [val]),
                     setter is not null,
                     ctorParamNames.Contains(jsonName),
                     DisallowNull(property.PropertyType, nullabilityContext.Create(property).ReadState)));
@@ -261,11 +241,7 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
 
         private static bool DisallowNull(Type type, NullabilityState state)
         {
-            if (type.IsValueType)
-            {
-                return Nullable.GetUnderlyingType(type) is null;
-            }
-            return state == NullabilityState.NotNull;
+            return type.IsValueType ? Nullable.GetUnderlyingType(type) is null : state == NullabilityState.NotNull;
         }
 
         private sealed record MemberMetadata(

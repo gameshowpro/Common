@@ -20,7 +20,7 @@ public static partial class Utils
         IEnumerable<TSecond> second,
         TSecond secondFiller
     )
-        => ZipWithFill(first, firstFiller, second, secondFiller, (e1, e2) => (e1, e2));
+        => ZipWithFill(first, firstFiller, second, secondFiller, static (e1, e2) => (e1, e2));
 
     /// <summary>
     /// Produces a sequence of results merged elements from the two specified sequences.
@@ -101,14 +101,7 @@ public static partial class Utils
     ///  <param name="maxIsInclusive">Specifies whether numbers equal to the maximum should give a true result.</param>
     public static bool IsInRange(this int input, int min, int max, bool maxIsInclusive = true)
     {
-        if (maxIsInclusive)
-        {
-            return input <= max && input >= min;
-        }
-        else
-        {
-            return input < max && input >= min;
-        }
+        return maxIsInclusive ? input <= max && input >= min : input < max && input >= min;
     }
 
     public static bool IsInRange(this int? input, int min, int max, bool maxIsInclusive = true)
@@ -123,14 +116,7 @@ public static partial class Utils
     ///  <param name="maxIsInclusive">Specifies whether numbers equal to the maximum should give a true result.</param>
     public static bool IsInRange(this byte input, byte min, byte max, bool maxIsInclusive = true)
     {
-        if (maxIsInclusive)
-        {
-            return input <= max && input >= min;
-        }
-        else
-        {
-            return input < max && input >= min;
-        }
+        return maxIsInclusive ? input <= max && input >= min : input < max && input >= min;
     }
 
     public static bool IsInRange(this byte? input, byte min, byte max, bool maxIsInclusive = true)
@@ -145,14 +131,7 @@ public static partial class Utils
     ///  <param name="maxIsInclusive">Specifies whether numbers equal to the maximum should give a true result.</param>
     public static bool IsInRange(this long input, long min, long max, bool maxIsInclusive = true)
     {
-        if (maxIsInclusive)
-        {
-            return input <= max && input >= min;
-        }
-        else
-        {
-            return input < max && input >= min;
-        }
+        return maxIsInclusive ? input <= max && input >= min : input < max && input >= min;
     }
 
     public static bool IsInRange(this long? input, long min, long max, bool maxIsInclusive = true)
@@ -167,14 +146,7 @@ public static partial class Utils
     ///  <param name="maxIsInclusive">Specifies whether numbers equal to the maximum should give a true result.</param>
     public static bool IsInRange(this float input, float min, float max, bool maxIsInclusive = true)
     {
-        if (maxIsInclusive)
-        {
-            return input <= max && input >= min;
-        }
-        else
-        {
-            return input < max && input >= min;
-        }
+        return maxIsInclusive ? input <= max && input >= min : input < max && input >= min;
     }
 
     public static bool IsInRange(this float? input, float min, float max, bool maxIsInclusive = true)
@@ -189,14 +161,7 @@ public static partial class Utils
     ///  <param name="maxIsInclusive">Specifies whether numbers equal to the maximum should give a true result.</param>
     public static bool IsInRange(this double input, double min, double max, bool maxIsInclusive = true)
     {
-        if (maxIsInclusive)
-        {
-            return input <= max && input >= min;
-        }
-        else
-        {
-            return input < max && input >= min;
-        }
+        return maxIsInclusive ? input <= max && input >= min : input < max && input >= min;
     }
 
     public static bool IsInRange(this double? input, double min, double max, bool maxIsInclusive = true)
@@ -211,14 +176,7 @@ public static partial class Utils
     ///  <param name="maxIsInclusive">Specifies whether timespans equal to the maximum should give a true result.</param>
     public static bool IsInRange(this TimeSpan input, TimeSpan min, TimeSpan max, bool maxIsInclusive = true)
     {
-        if (maxIsInclusive)
-        {
-            return input <= max && input >= min;
-        }
-        else
-        {
-            return input < max && input >= min;
-        }
+        return maxIsInclusive ? input <= max && input >= min : input < max && input >= min;
     }
 
     /// <summary>
@@ -247,12 +205,7 @@ public static partial class Utils
             return ceiling;
         }
 
-        if (input < floor)
-        {
-            return floor;
-        }
-
-        return input;
+        return input < floor ? floor : input;
     }
 
     /// <summary>
@@ -271,12 +224,7 @@ public static partial class Utils
             return ceiling;
         }
 
-        if (input < floor)
-        {
-            return floor;
-        }
-
-        return input;
+        return input < floor ? floor : input;
     }
 
     /// <summary>
@@ -295,12 +243,7 @@ public static partial class Utils
             return ceiling;
         }
 
-        if (input < floor || float.IsNaN(input))
-        {
-            return floor;
-        }
-
-        return input;
+        return input < floor || float.IsNaN(input) ? floor : input;
     }
 
     /// <summary>
@@ -319,12 +262,7 @@ public static partial class Utils
             return ceiling;
         }
 
-        if (input < floor || double.IsNaN(input))
-        {
-            return floor;
-        }
-
-        return input;
+        return input < floor || double.IsNaN(input) ? floor : input;
     }
 
     /// <summary>
@@ -342,12 +280,7 @@ public static partial class Utils
             return ceiling;
         }
 
-        if (input < floor)
-        {
-            return floor;
-        }
-
-        return input;
+        return input < floor ? floor : input;
     }
 
     /// <summary>
@@ -365,12 +298,7 @@ public static partial class Utils
             return ceiling.Value;
         }
 
-        if (floor.HasValue && input < floor.Value)
-        {
-            return floor.Value;
-        }
-
-        return input;
+        return floor.HasValue && input < floor.Value ? floor.Value : input;
     }
 
     /// <summary>
@@ -473,7 +401,7 @@ public static partial class Utils
     /// <param name="value">The value to check.</param>
     /// <param name="defaultValue">The default value to be returned if the value is not defined.</param>
     /// <returns></returns>
-    public static T EnumFallbackToDefault<T> (this T? value, T defaultValue) where T : struct, Enum
+    public static T EnumFallbackToDefault<T>(this T? value, T defaultValue) where T : struct, Enum
         => !value.HasValue || !Enum.IsDefined(value.Value) ? defaultValue : value.Value;
 
     public static void StartProcessTerminateWatchdog(ILogger? logger = null, TimeSpan? timeout = null)
@@ -538,14 +466,7 @@ public static partial class Utils
                 changed = true;
             }
         }
-        if (changed)
-        {
-            return chars?.ToString() ?? string.Empty;
-        }
-        else
-        {
-            return input;
-        }
+        return changed ? chars?.ToString() ?? string.Empty : input;
     }
 
     private static readonly HashSet<char> s_spacesAndTabs = [' ', '\u00A0', '\t'];
@@ -558,14 +479,7 @@ public static partial class Utils
             return null;
         }
 
-        if (IsUpperCase(input, allowedLowerPercent) ?? upperIfUnknown)
-        {
-            return input.ToUpper();
-        }
-        else
-        {
-            return input;
-        }
+        return IsUpperCase(input, allowedLowerPercent) ?? upperIfUnknown ? input.ToUpper() : input;
     }
 
     /// <summary>
@@ -626,8 +540,8 @@ public static partial class Utils
         {
             return string.Empty;
         }
-        StringBuilder newText = new (text.Length * 2);
-        newText.Append(text[0]);
+        StringBuilder newText = new(text.Length * 2);
+        _ = newText.Append(text[0]);
         for (int i = 1; i < text.Length; i++)
         {
             if (char.IsUpper(text[i]))
@@ -636,11 +550,11 @@ public static partial class Utils
                     (preserveAcronyms && char.IsUpper(text[i - 1]) &&
                      i < text.Length - 1 && !char.IsUpper(text[i + 1])))
                 {
-                    newText.Append(' ');
+                    _ = newText.Append(' ');
                 }
             }
 
-            newText.Append(text[i]);
+            _ = newText.Append(text[i]);
         }
         return newText.ToString();
     }
@@ -656,11 +570,15 @@ public static partial class Utils
         {
             return "never";
         }
-        static string? getPart(double n, string s) => n > 0 ? PluralIfRequired(n, s) : null;
+        static string? getPart(double n, string s)
+        {
+            return n > 0 ? PluralIfRequired(n, s) : null;
+        }
+
         TimeSpan timeVal = timespan.Value;
         string[] dayParts = [.. new[] { getPart(timeVal.Days, "day"), getPart(timeVal.Hours, "hour"), getPart(timeVal.Minutes, "minute") }
-            .Where(s => s != null)
-            .Select(s => s!)];
+            .Where(static s => s != null)
+            .Select(static s => s!)];
 
         int numberOfParts = dayParts.Length;
 
@@ -687,8 +605,8 @@ public static partial class Utils
         if (includeHour)
         {
             double hours = (timeSpan.Days * 24) + timeSpan.Hours;
-            stringBuilder.AppendFormat("{0:D1}", hours);
-            stringBuilder.Append(':');
+            _ = stringBuilder.AppendFormat("{0:D1}", hours);
+            _ = stringBuilder.Append(':');
             minutes = timeSpan.Minutes;
         }
         else
@@ -696,7 +614,7 @@ public static partial class Utils
             minutes = (timeSpan.Days * 1440) + (timeSpan.Hours * 60) + timeSpan.Minutes;
         }
         double seconds = Math.Round(timeSpan.Seconds + ((double)timeSpan.Milliseconds / 1000), decimalPlaces);
-        stringBuilder.AppendFormat($"{{0:D{minuteMinimumDigits}}}:{(seconds < 10 ? "0" : "")}{{1:F{decimalPlaces}}}", minutes, seconds);
+        _ = stringBuilder.AppendFormat($"{{0:D{minuteMinimumDigits}}}:{(seconds < 10 ? "0" : "")}{{1:F{decimalPlaces}}}", minutes, seconds);
         return stringBuilder.ToString();
     }
 
@@ -1006,7 +924,7 @@ where T : IIndexed
         else
         {
             StringBuilder sb = new(original);
-            sb.Append(padding, diff);
+            _ = sb.Append(padding, diff);
             return sb.ToString();
         }
     }
@@ -1245,7 +1163,7 @@ where T : IIndexed
     /// <param name="source">The source sequence</param>
     public static IEnumerable<TSource> WhereNotNull<TSource>(this IEnumerable<TSource?> source)
         where TSource : struct
-        => source.Where(o => o.HasValue).Select(o => o!.Value);
+        => source.Where(static o => o.HasValue).Select(static o => o!.Value);
 
     /// <summary>
     /// Safely filter out null values from a <see cref="IEnumerable{TSource}"/> where <typeparamref name="TSource"/> is a nullable reference type, returning a sequence of non-nullable <typeparamref name="TSource"/> values.
@@ -1253,7 +1171,7 @@ where T : IIndexed
     /// <typeparam name="TSource">The item type from when nullability is to be removed.</typeparam>
     /// <param name="source">The source sequence</param>
     public static IEnumerable<TSource> WhereNotNull<TSource>(this IEnumerable<TSource?> source)
-    => source.Where(o => o is not null).Select(o => o!);
+    => source.Where(static o => o is not null).Select(static o => o!);
 
     /// <summary>
     /// Replace any null IEnumerable<typeparamref name="T"/> with an empty Enumerable. Most useful when running a foreach loop on a nullable IEnumerable.
@@ -1333,7 +1251,7 @@ where T : IIndexed
         {
             try
             {
-                Directory.CreateDirectory(dir);
+                _ = Directory.CreateDirectory(dir);
                 return true;
             }
             catch
@@ -1376,19 +1294,19 @@ where T : IIndexed
 
         if ((number / 1000000) > 0)
         {
-            words.Append(ToWords(number / 1000000) + " million ");
+            _ = words.Append(ToWords(number / 1000000) + " million ");
             number %= 1000000;
         }
 
         if ((number / 1000) > 0)
         {
-            words.Append(ToWords(number / 1000) + " thousand ");
+            _ = words.Append(ToWords(number / 1000) + " thousand ");
             number %= 1000;
         }
 
         if ((number / 100) > 0)
         {
-            words.Append(ToWords(number / 100) + " hundred ");
+            _ = words.Append(ToWords(number / 100) + " hundred ");
             number %= 100;
         }
 
@@ -1396,19 +1314,19 @@ where T : IIndexed
         {
             if (words.Length > 0)
             {
-                words.Append("and ");
+                _ = words.Append("and ");
             }
 
             if (number < 20)
             {
-                words.Append(s_unitsMap[number]);
+                _ = words.Append(s_unitsMap[number]);
             }
             else
             {
-                words.Append(s_tensMap[number / 10]);
+                _ = words.Append(s_tensMap[number / 10]);
                 if ((number % 10) > 0)
                 {
-                    words.Append("-" + s_unitsMap[number % 10]);
+                    _ = words.Append("-" + s_unitsMap[number % 10]);
                 }
             }
         }
@@ -1427,16 +1345,16 @@ where T : IIndexed
         {
             foreach (bool b in bools)
             {
-                sb.Append(delimiter);
-                sb.Append(b ? "1" : "0");
+                _ = sb.Append(delimiter);
+                _ = sb.Append(b ? "1" : "0");
             }
         }
         else if (value is IEnumerable<bool?> nbools)
         {
             foreach (bool? b in nbools)
             {
-                sb.Append(delimiter);
-                sb.Append(b.HasValue ? (b.Value ? "1" : "0") : nullNumberPlaceholder);
+                _ = sb.Append(delimiter);
+                _ = sb.Append(b.HasValue ? (b.Value ? "1" : "0") : nullNumberPlaceholder);
             }
         }
         else if (value is IEnumerable<string> strings)
@@ -1445,8 +1363,8 @@ where T : IIndexed
             {
                 if (includeEmptyItems || !string.IsNullOrWhiteSpace(s))
                 {
-                    sb.Append(delimiter);
-                    sb.Append(s);
+                    _ = sb.Append(delimiter);
+                    _ = sb.Append(s);
                 }
             }
         }
@@ -1456,8 +1374,8 @@ where T : IIndexed
             {
                 if (includeEmptyItems || !string.IsNullOrWhiteSpace(s))
                 {
-                    sb.Append(delimiter);
-                    sb.Append(s ?? nullStringPlaceholder);
+                    _ = sb.Append(delimiter);
+                    _ = sb.Append(s ?? nullStringPlaceholder);
                 }
             }
         }
@@ -1465,64 +1383,64 @@ where T : IIndexed
         {
             foreach (int i in ints)
             {
-                sb.Append(delimiter);
-                sb.Append(i + offset);
+                _ = sb.Append(delimiter);
+                _ = sb.Append(i + offset);
             }
         }
         else if (value is IEnumerable<int?> nints)
         {
             foreach (int? i in nints)
             {
-                sb.Append(delimiter);
-                sb.Append(i.HasValue ? i.Value + offset : nullNumberPlaceholder);
+                _ = sb.Append(delimiter);
+                _ = sb.Append(i.HasValue ? i.Value + offset : nullNumberPlaceholder);
             }
         }
         else if (value is IEnumerable<long> longs)
         {
             foreach (long i in longs)
             {
-                sb.Append(delimiter);
-                sb.Append(i + offset);
+                _ = sb.Append(delimiter);
+                _ = sb.Append(i + offset);
             }
         }
         else if (value is IEnumerable<long?> nlongs)
         {
             foreach (long? i in nlongs)
             {
-                sb.Append(delimiter);
-                sb.Append(i.HasValue ? i.Value + offset : nullNumberPlaceholder);
+                _ = sb.Append(delimiter);
+                _ = sb.Append(i.HasValue ? i.Value + offset : nullNumberPlaceholder);
             }
         }
         else if (value is IEnumerable<uint> uints)
         {
             foreach (uint i in uints)
             {
-                sb.Append(delimiter);
-                sb.Append(i + (uint)offset);
+                _ = sb.Append(delimiter);
+                _ = sb.Append(i + (uint)offset);
             }
         }
         else if (value is IEnumerable<uint?> nuints)
         {
             foreach (uint? i in nuints)
             {
-                sb.Append(delimiter);
-                sb.Append(i.HasValue ? i.Value + offset : nullNumberPlaceholder);
+                _ = sb.Append(delimiter);
+                _ = sb.Append(i.HasValue ? i.Value + offset : nullNumberPlaceholder);
             }
         }
         else if (value is IEnumerable<ulong> ulongs)
         {
             foreach (ulong i in ulongs)
             {
-                sb.Append(delimiter);
-                sb.Append(i + (ulong)offset);
+                _ = sb.Append(delimiter);
+                _ = sb.Append(i + (ulong)offset);
             }
         }
         else if (value is IEnumerable<ulong?> nulongs)
         {
             foreach (ulong? i in nulongs)
             {
-                sb.Append(delimiter);
-                sb.Append(i.HasValue ? i.Value + (ulong)offset : nullNumberPlaceholder);
+                _ = sb.Append(delimiter);
+                _ = sb.Append(i.HasValue ? i.Value + (ulong)offset : nullNumberPlaceholder);
             }
         }
         else if (value is IEnumerable<IEnumerable<int>> intList)
@@ -1531,7 +1449,7 @@ where T : IIndexed
             foreach (IEnumerable<int> intItems in intList)
             {
                 first = true;
-                sb.Append(delimiter);
+                _ = sb.Append(delimiter);
                 foreach (int i in intItems)
                 {
                     if (first)
@@ -1550,56 +1468,47 @@ where T : IIndexed
         {
             foreach (float? i in nfloats)
             {
-                sb.Append(delimiter);
-                sb.Append(i.HasValue ? (i.Value + offset).ToString("n3") : nullNumberPlaceholder);
+                _ = sb.Append(delimiter);
+                _ = sb.Append(i.HasValue ? (i.Value + offset).ToString("n3") : nullNumberPlaceholder);
             }
         }
         else if (value is IEnumerable<float> floats)
         {
             foreach (float i in floats)
             {
-                sb.Append(delimiter);
-                sb.Append((i + offset).ToString("n3"));
+                _ = sb.Append(delimiter);
+                _ = sb.Append((i + offset).ToString("n3"));
             }
         }
         else if (value is IEnumerable<double?> ndoubles)
         {
             foreach (double? i in ndoubles)
             {
-                sb.Append(delimiter);
-                sb.Append(i.HasValue ? (i.Value + offset).ToString("n3") : nullNumberPlaceholder);
+                _ = sb.Append(delimiter);
+                _ = sb.Append(i.HasValue ? (i.Value + offset).ToString("n3") : nullNumberPlaceholder);
             }
         }
         else if (value is IEnumerable<double> doubles)
         {
             foreach (double i in doubles)
             {
-                sb.Append(delimiter);
-                sb.Append((i + offset).ToString("n3"));
+                _ = sb.Append(delimiter);
+                _ = sb.Append((i + offset).ToString("n3"));
             }
         }
         else
         {
             return null;
         }
-        if (sb.Length <= delimiter.Length)
-        {
-            return string.Empty;
-        }
-        else
-        {
-            return sb.ToString(delimiter.Length, sb.Length - delimiter.Length);
-        }
+        return sb.Length <= delimiter.Length ? string.Empty : sb.ToString(delimiter.Length, sb.Length - delimiter.Length);
     }
 
     public static IEnumerable<string>? DelimitedStringToNonNullableString(string delimited, string delimiter, string nullStringPlaceholder = "?", bool exceptionOnFailure = false)
     {
         IEnumerable<string?>? result = DelimitedStringToNullableString(delimited, delimiter, nullStringPlaceholder);
-        if (exceptionOnFailure && result?.Any(t => t is null) == true)
-        {
-            throw new Exception("String parsing failed");
-        }
-        return result?.Select(t => t ?? nullStringPlaceholder);
+        return exceptionOnFailure && result?.Any(t => t is null) == true
+            ? throw new Exception("String parsing failed")
+            : (result?.Select(t => t ?? nullStringPlaceholder));
     }
 
 
@@ -1618,11 +1527,9 @@ where T : IIndexed
         where T : struct
     {
         IEnumerable<T?>? result = DelimitedStringToNullableType<T>(delimited, delimiter, offset);
-        if (exceptionOnFailure && result?.Any(t => t is null) == true)
-        {
-            throw new Exception("String parsing failed");
-        }
-        return result?.WhereNotNull().Select(t => t);
+        return exceptionOnFailure && result?.Any(static t => t is null) == true
+            ? throw new Exception("String parsing failed")
+            : (result?.WhereNotNull().Select(static t => t));
     }
 
     public static IEnumerable<T?>? DelimitedStringToNullableType<T>(string delimited, string delimiter, int offset = 0)
@@ -1637,7 +1544,7 @@ where T : IIndexed
         //Todo: special handling for strings, because they won't main it through constraint
         if (targetType.IsAssignableFrom(typeof(int)))
         {
-            IEnumerable<int?> result = parts.Select<string, int?>(s => int.TryParse(s.Trim(), out int i) ? i - (int)offset : null);
+            IEnumerable<int?> result = parts.Select<string, int?>(s => int.TryParse(s.Trim(), out int i) ? i - offset : null);
             return (IEnumerable<T?>)result;
         }
         else if (targetType.IsAssignableFrom(typeof(uint)))
@@ -1712,7 +1619,7 @@ where T : IIndexed
     /// Get the product version of the given assembly. This is a string which may contain non-numeric characters. Any build date information is stripped out.
     /// </summary>
     public static string GetProductVersion(this Assembly assembly)
-        =>  GetVersionAndBuildDate(assembly).Item1;
+        => GetVersionAndBuildDate(assembly).Item1;
 
     public static bool IsMulticast(this IPAddress address)
     {
@@ -1721,7 +1628,7 @@ where T : IIndexed
             return address.IsIPv6Multicast;
         }
         byte[] bytes = address.GetAddressBytes();
-        return bytes[0] > 223 && bytes[0] < 240;
+        return bytes[0] is > 223 and < 240;
     }
 
     /// <summary>
@@ -1808,18 +1715,18 @@ where T : IIndexed
 
     internal class HashSetWithIndex(IEnumerable<int> source)
     {
-        private readonly HashSet<int> _hashset = [..source];
-        private readonly List<int> _list = [..source];
+        private readonly HashSet<int> _hashset = [.. source];
+        private readonly List<int> _list = [.. source];
         internal void Add(int item)
         {
-            _hashset.Add(item);
+            _ = _hashset.Add(item);
             _list.Add(item);
         }
 
         internal int GetAndRemove(int index)
         {
             int item = _list[index];
-            _hashset.Remove(item);
+            _ = _hashset.Remove(item);
             _list.RemoveAt(index);
             return item;
         }
@@ -1870,11 +1777,11 @@ where T : IIndexed
             int overshoot = output.Count + minimumRepeatDistance - destinationLength;
             if (overshoot > 0)
             {
-                forwardWindow?.Add(output[overshoot - 1]);
+                _ = (forwardWindow?.Add(output[overshoot - 1]));
             }
             if (backWindow.Count > minimumRepeatDistance || (overshoot > 0 && (output.Count - minimumRepeatDistance) >= 1))
             {
-                backWindow.Remove(output[output.Count - minimumRepeatDistance - 1]);
+                _ = backWindow.Remove(output[output.Count - minimumRepeatDistance - 1]);
             }
             //Testing shows this is faster than ensuring that the random index is within only valid items
             if (backWindow.Count + (forwardWindow?.Count ?? 0) >= sourceLength)
@@ -1886,13 +1793,9 @@ where T : IIndexed
                     //no other options. We're going to have to break the rule
                     randomIndex = output[output.Count / 2];
                 }
-                else if (remaining.Length == 1)
-                {
-                    randomIndex = remaining[0];
-                }
                 else
                 {
-                    randomIndex = remaining[random.Next(remaining.Length)];
+                    randomIndex = remaining.Length == 1 ? remaining[0] : remaining[random.Next(remaining.Length)];
                 }
             }
             else
@@ -1903,7 +1806,7 @@ where T : IIndexed
                 } while (backWindow.Contains(randomIndex) || forwardWindow?.Contains(randomIndex) == true);
             }
             output.Add(randomIndex);
-            backWindow.Add(randomIndex);
+            _ = backWindow.Add(randomIndex);
         }
         return output.ToImmutable();
     }
@@ -1945,7 +1848,7 @@ where T : IIndexed
                     if (!uniqueVariations.Contains(result))
                     {
                         builder.Add(result);
-                        uniqueVariations.Add(result);
+                        _ = uniqueVariations.Add(result);
                         break;
                     }
                 }
@@ -2020,14 +1923,7 @@ where T : IIndexed
     {
         Random random = rnd ?? s_rnd;
         int r = random.Next(minimum, maximumExclusive - 1);
-        if (r >= excluding)
-        {
-            return r + 1;
-        }
-        else
-        {
-            return r;
-        }
+        return r >= excluding ? r + 1 : r;
     }
 
     private static readonly Random s_rnd = new();
@@ -2041,7 +1937,7 @@ where T : IIndexed
         StringBuilder sb = new(length);
         for (int i = 0; i < length; i++)
         {
-            sb.Append((char)s_rnd.Next(65,91));
+            _ = sb.Append((char)s_rnd.Next(65, 91));
         }
         return sb.ToString();
     }
@@ -2052,11 +1948,7 @@ where T : IIndexed
     public static TValue? TryGetValueOrNull<TKey, TValue>(this IDictionary<TKey, TValue>? dictionary, TKey? key)
         where TKey : struct
     {
-        if (key.HasValue && dictionary?.TryGetValue(key.Value, out TValue? value) == true)
-        {
-            return value!;
-        }
-        return default;
+        return key.HasValue && dictionary?.TryGetValue(key.Value, out TValue? value) == true ? value : default;
     }
 
     /// <summary>
@@ -2065,11 +1957,7 @@ where T : IIndexed
     public static TValue? TryGetValueOrNull<TKey, TValue>(this IDictionary<TKey, TValue>? dictionary, TKey? key)
         where TKey : class
     {
-        if (key != null && dictionary?.TryGetValue(key, out TValue? value) == true)
-        {
-            return value!;
-        }
-        return default;
+        return key != null && dictionary?.TryGetValue(key, out TValue? value) == true ? value : default;
     }
 
     public static bool TryGetElement<TSource>(this IEnumerable<TSource> source, int index, [MaybeNullWhen(false)] out TSource element)
@@ -2166,7 +2054,7 @@ where T : IIndexed
         {
             return isRecord;
         }
-        isRecord = type.GetMethods().Any(m => m.Name == "<Clone>$");
+        isRecord = type.GetMethods().Any(static m => m.Name == "<Clone>$");
         s_isRecordTypeCache[type] = isRecord;
         return isRecord;
     }
@@ -2248,11 +2136,7 @@ where T : IIndexed
     internal static TriggerParameters? GetTriggerParameters(MemberInfo? enumMemberInfo)
     {
         object[]? attrs = enumMemberInfo?.GetCustomAttributes(typeof(TriggerParameters), false);
-        if (attrs?.FirstOrDefault() is not TriggerParameters attr)
-        {
-            return null;
-        }
-        return attr;
+        return attrs?.FirstOrDefault() is not TriggerParameters attr ? null : attr;
     }
 
     internal static ITriggerDefaultSpecification? GetTriggerDefaultSpecification<TTriggerDevice>(MemberInfo? enumMemberInfo, int deviceInstanceIndex)

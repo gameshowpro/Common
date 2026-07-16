@@ -71,24 +71,13 @@ public class PropertyChangeFilter
     private readonly List<FilterTriggerInstance> _pausedQueue = [];
 
     /// <summary>
-    /// Legacy overload
-    /// </summary>
-    /// <param name="action">The action to execute when a property changes.</param>
-    /// <param name="conditions">A list of conditions to monitor for property changes.</param>
-    /// <param name="invokeAfterConstruction">If true, the action will be invoked immediately after construction.</param>
-    /// <param name="logger">The logger to use for logging.</param>
-    internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions, bool invokeAfterConstruction, ILogger logger) : this(action, conditions, invokeAfterConstruction, false, logger)
-    { }
-
-    /// <summary>
     /// Full constructor
     /// </summary>
     /// <param name="action">The action to execute when a property changes.</param>
     /// <param name="conditions">A list of conditions to monitor for property changes.</param>
     /// <param name="invokeAfterConstruction">If true, the action will be invoked immediately after construction.</param>
-    /// <param name="useOriginalThread">If true, PropertyChangeOnOriginalThread events will be used where possible.</param>
     /// <param name="logger">The logger to use for logging.</param>
-    internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions, bool invokeAfterConstruction, bool useOriginalThread, ILogger logger)
+    internal PropertyChangeFilter(PropertyChangedEventHandler action, IEnumerable<PropertyChangeCondition> conditions, bool invokeAfterConstruction, ILogger logger)
     {
         _logger = logger;
         _handler = action;
@@ -113,7 +102,7 @@ public class PropertyChangeFilter
                             collectionSendersBuilder.Add(condition.SenderCollection);
                             notifyCollectionConditions.Add([]);
                         }
-                        notifyCollectionConditions[senderIndex].Add(condition.Property);
+                        _ = notifyCollectionConditions[senderIndex].Add(condition.Property);
                     }
                 }
                 else if (condition.Property is not null)
@@ -125,14 +114,14 @@ public class PropertyChangeFilter
                         itemSendersBuilder.Add(condition.Sender);
                         notifyItemConditions.Add([]);
                     }
-                    notifyItemConditions[senderIndex].Add(condition.Property);
+                    _ = notifyItemConditions[senderIndex].Add(condition.Property);
                 }
             }
         }
         _itemSenders = itemSendersBuilder.ToImmutable();
-        _notifyItemConditions = [.. notifyItemConditions.Select(c => c.ToFrozenSet())];
+        _notifyItemConditions = [.. notifyItemConditions.Select(static c => c.ToFrozenSet())];
         _collectionSenders = collectionSendersBuilder.ToImmutable();
-        _notifyCollectionConditions = [.. notifyCollectionConditions.Select(c => c.ToFrozenSet())];
+        _notifyCollectionConditions = [.. notifyCollectionConditions.Select(static c => c.ToFrozenSet())];
         //Note the property handlers are hooked up last, otherwise they may fire before non-nullable lists they consume have been set.
         AddEventHandlers();
         if (invokeAfterConstruction)
@@ -194,7 +183,7 @@ public class PropertyChangeFilter
 
     private void SenderCollection_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (sender is not null && sender is INotifyCollectionChanged collectionSender)
+        if (sender is not null and INotifyCollectionChanged collectionSender)
         {
             int senderIndex = _collectionSenders.IndexOf(collectionSender);
             if (senderIndex >= 0 && _notifyCollectionConditions[senderIndex].Contains(null))
@@ -243,7 +232,7 @@ public class PropertyChangeFilter
     {
         if (Paused)
         {
-            _pausedQueue.Add(new (sender, args));
+            _pausedQueue.Add(new(sender, args));
         }
         else
         {
@@ -362,12 +351,12 @@ public class PropertyChangeFilters
     /// <param name="conditions">The conditions that must be met, or null to skip.</param>
     /// <returns>The created filter or null if conditions is null.</returns>
     /// <remarks>Docs added by AI.</remarks>
-    [return:NotNullIfNotNull(nameof(conditions))]
+    [return: NotNullIfNotNull(nameof(conditions))]
     public PropertyChangeFilter? AddFilter(PropertyChangedEventHandler handler, bool invokeAfterConstruction, IEnumerable<PropertyChangeCondition>? conditions)
     {
         if (conditions != null)
         {
-            PropertyChangeFilter filter = new (handler, conditions, invokeAfterConstruction, _logger);
+            PropertyChangeFilter filter = new(handler, conditions, invokeAfterConstruction, _logger);
             _filters.Add(filter);
             return filter;
         }
@@ -393,7 +382,7 @@ public class PropertyChangeFilters
     /// <remarks>Docs added by AI.</remarks>
     public void InvokeAll()
     {
-        _filters.ForEach(f => f.InvokeAll());
+        _filters.ForEach(static f => f.InvokeAll());
     }
 
     /// <summary>

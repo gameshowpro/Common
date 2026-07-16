@@ -1,8 +1,7 @@
+using System.Buffers;
+using System.Text.Json.Nodes;
 using MessagePack;
 using MessagePack.Formatters;
-using System.Buffers;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace GameshowPro.Common.MessagePack;
 
@@ -65,12 +64,7 @@ public sealed class JsonObjectFormatter : IMessagePackFormatter<JsonObject?>
 
         ReadOnlySequence<byte> bytes = Utf8JsonPayload.ReadRequiredBytes(ref reader, nameof(JsonObject));
         JsonNode node = Utf8JsonPayload.ParseNode(bytes);
-        if (node is not JsonObject jsonObject)
-        {
-            throw new MessagePackSerializationException("Expected JSON object payload.");
-        }
-
-        return jsonObject;
+        return node is not JsonObject jsonObject ? throw new MessagePackSerializationException("Expected JSON object payload.") : jsonObject;
     }
 }
 
@@ -99,12 +93,7 @@ public sealed class JsonArrayFormatter : IMessagePackFormatter<JsonArray?>
 
         ReadOnlySequence<byte> bytes = Utf8JsonPayload.ReadRequiredBytes(ref reader, nameof(JsonArray));
         JsonNode node = Utf8JsonPayload.ParseNode(bytes);
-        if (node is not JsonArray jsonArray)
-        {
-            throw new MessagePackSerializationException("Expected JSON array payload.");
-        }
-
-        return jsonArray;
+        return node is not JsonArray jsonArray ? throw new MessagePackSerializationException("Expected JSON array payload.") : jsonArray;
     }
 }
 

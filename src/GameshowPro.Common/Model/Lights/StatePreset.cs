@@ -59,7 +59,7 @@ public class StateLevels : ObservableClass
                 new StateLevelsPhase(levels, TimeSpan.Zero)
             )
         ),
-        cycleStepCount ?? (flashCount ?? 0) * 2, 0)
+        cycleStepCount ?? ((flashCount ?? 0) * 2), 0)
     {
     }
 
@@ -79,7 +79,7 @@ public class StateLevels : ObservableClass
     {
         Key = key ?? throw new ArgumentNullException(nameof(key), "Can't create StateLevels without key");
         Phases = [.. phases?.Any() != true ? [new StateLevelsPhase()] : phases];
-        
+
         CycleStepCount = cycleStepCount ?? 0;
         LoopBackStep = loopBackStep ?? 0;
         _flashTimer = new Timer((o) => DoFlash());
@@ -114,7 +114,7 @@ public class StateLevels : ObservableClass
     public int CycleStepCount
     {
         get { return field; }
-        set { SetProperty(ref field, value); }
+        set { _ = SetProperty(ref field, value); }
     }
 
     [DataMember]
@@ -127,7 +127,7 @@ public class StateLevels : ObservableClass
     private void SetPhaseCyclingIsEnabled()
     {
         HasMultiplePhases = Phases.Count > 1;
-        PhaseCyclingIsEnabled = HasMultiplePhases && CycleStepCount != 1 && Phases.Count(p => p.Duration > TimeSpan.Zero) > 1;
+        PhaseCyclingIsEnabled = HasMultiplePhases && CycleStepCount != 1 && Phases.Count(static p => p.Duration > TimeSpan.Zero) > 1;
         RemovePhaseCommand.SetCanExecute(HasMultiplePhases);
     }
 
@@ -163,7 +163,7 @@ public class StateLevels : ObservableClass
         {
             if (thisPhase.Duration > TimeSpan.Zero)
             {
-                _flashTimer.Change(thisPhase.Duration, Timeout.InfiniteTimeSpan);
+                _ = _flashTimer.Change(thisPhase.Duration, Timeout.InfiniteTimeSpan);
             }
         }
     }
@@ -180,7 +180,7 @@ public class StateLevels : ObservableClass
         }
         else
         {
-            _flashTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            _ = _flashTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
     }
 

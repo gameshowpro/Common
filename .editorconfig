@@ -159,6 +159,51 @@ end_of_line = lf
 [*.{cmd, bat}]
 end_of_line = crlf
 
-# IDE0160: Convert to file-scoped namespace
-csharp_style_namespace_declarations = file_scoped:warning
+# IDE0160: Suppressed — contradicts file-scoped namespace standard
+# IDE0161: Convert to block-scoped namespace (reverse — error)
+dotnet_diagnostic.IDE0160.severity = none
 dotnet_diagnostic.IDE0161.severity = error
+
+# ── BgRaster coding standards (from coding-standards.md) ──
+
+# IDE0005: Unnecessary using directive - all usings go in GlobalUsings.cs
+dotnet_diagnostic.IDE0005.severity = error
+
+# IDE0044: Make field readonly
+dotnet_diagnostic.IDE0044.severity = suggestion
+
+# IDE0090: Use target-typed new (Widget x = new(); not Widget x = new Widget();)
+dotnet_diagnostic.IDE0090.severity = suggestion
+
+# IDE0300/IDE0305: Use collection expressions ([.. list], [])
+dotnet_diagnostic.IDE0300.severity = suggestion
+dotnet_diagnostic.IDE0305.severity = suggestion
+
+# IDE0063: Use simple using statement (without braces)
+dotnet_diagnostic.IDE0063.severity = suggestion
+
+# IDE0065: Using directive placement (System first)
+dotnet_diagnostic.IDE0065.severity = suggestion
+
+# IDE0280: Use nameof
+dotnet_diagnostic.IDE0280.severity = suggestion
+
+# IDE0110: Use discard (_) for unused out parameters
+dotnet_diagnostic.IDE0110.severity = suggestion
+
+# IDE0059: Remove unnecessary value assignment (don't init to default)
+dotnet_diagnostic.IDE0059.severity = suggestion
+
+# IDE0011: Add braces to single-statement blocks
+dotnet_diagnostic.IDE0011.severity = suggestion
+
+# IDE0028: Use collection initializer
+dotnet_diagnostic.IDE0028.severity = suggestion
+
+# IDE0073: File header template (SPDX + copyright not enforced here, checked manually)
+# But ensure end_of_line consistency
+end_of_line = crlf
+
+# P/Invoke Interop files: suppress naming rules for native struct fields and Win32 constants
+[**/Interop/*.cs]
+dotnet_diagnostic.IDE1006.severity = none

@@ -11,11 +11,9 @@ public class ToOneBasedConverter : ICommonValueConverter
     /// <inheritdoc/>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value == null)
-        {
-            return null;
-        }
-        return value switch
+        return value == null
+            ? null
+            : value switch
         {
             byte valueByte => valueByte + 1,
             int valueInt => valueInt + 1,
@@ -30,10 +28,6 @@ public class ToOneBasedConverter : ICommonValueConverter
         {
             return null;
         }
-        if (int.TryParse(value?.ToString(), out int intValue))
-        {
-            return intValue - 1;
-        }
-        return null;
+        return int.TryParse(value?.ToString(), out int intValue) ? intValue - 1 : null;
     }
 }

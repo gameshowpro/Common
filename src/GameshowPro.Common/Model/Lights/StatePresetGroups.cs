@@ -1,7 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Collections.ObjectModel;
-
 namespace GameshowPro.Common.Model.Lights;
 
 public class StatePresetGroups : KeyedCollection<string, StatePresetGroup>

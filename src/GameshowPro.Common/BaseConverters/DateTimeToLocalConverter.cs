@@ -9,11 +9,7 @@ public class DateTimeToLocalConverter : ICommonValueConverter
     /// <inheritdoc/>
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is DateTime d)
-        {
-            return d.ToLocalTime();
-        }
-        return value;
+        return value is DateTime d ? d.ToLocalTime() : value;
     }
 
     /// <inheritdoc/>
