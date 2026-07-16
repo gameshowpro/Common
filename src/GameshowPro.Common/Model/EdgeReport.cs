@@ -1,5 +1,6 @@
 using MessagePack.Formatters;
 using MessagePack;
+using GameshowPro.Common.MessagePack;
 
 namespace GameshowPro.Common.Model;
 
@@ -39,17 +40,17 @@ public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport?>
         {
             throw new MessagePackSerializationException("Expected at reported message pack version of at least 1");
         }
-        int? version = reader.ReadNullableInt32();
+        int? version = reader.ReadNullable<int>(options);
         if (version.HasValue)
         {
             int index = reader.ReadInt32();
-            int? ordinal = reader.TryReadNil() ? null : reader.ReadInt32();
-            TimeSpan? timeStamp = reader.TryReadNil() ? null : new TimeSpan(reader.ReadInt64());
+            int? ordinal = reader.ReadNullable<int>(options);
+            TimeSpan? timeStamp = reader.ReadNullable<TimeSpan>(options);
             bool isDown = reader.ReadBoolean();
             bool isTest = reader.ReadBoolean();
             TimeSpan? lockoutTimeRemaining =
                 fieldCount > 7 ?
-                    reader.TryReadNil() ? null : new TimeSpan(reader.ReadInt64())
+                    reader.ReadNullable<TimeSpan>(options)
                 : null;
 
             for (int i = CurrentFieldCount; i < fieldCount; i++)
@@ -71,36 +72,15 @@ public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport?>
     {
         writer.WriteArrayHeader(CurrentFieldCount);
         writer.Write(MessagePackVersion);
-        writer.WriteNullableInt32(value?.Version);
+        writer.WriteNullable(value?.Version, options);
         if (value != null)
         {
             writer.Write(value.Index);
-            if (value.Ordinal.HasValue)
-            {
-                writer.Write(value.Ordinal.Value);
-            }
-            else
-            {
-                writer.WriteNil();
-            }
-            if (value.TimeStamp.HasValue)
-            {
-                writer.Write(value.TimeStamp.Value.Ticks);
-            }
-            else
-            {
-                writer.WriteNil();
-            }
+            writer.WriteNullable(value.Ordinal, options);
+            writer.WriteNullable(value.TimeStamp, options);
             writer.Write(value.IsRising);
             writer.Write(value.IsTest);
-            if (value.LockoutTimeRemaining.HasValue)
-            {
-                writer.Write(value.LockoutTimeRemaining.Value.Ticks);
-            }
-            else
-            {
-                writer.WriteNil();
-            }
+            writer.WriteNullable(value.LockoutTimeRemaining, options);
         }
     }
 }

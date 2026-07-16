@@ -1,6 +1,7 @@
 using System.Runtime.Serialization;
 using MessagePack;
 using MessagePack.Formatters;
+using GameshowPro.Common.MessagePack;
 
 namespace GameshowPro.Common.Model;
 
@@ -575,10 +576,10 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
                 throw new MessagePackSerializationException($"Expected at least {CurrentFieldCount} fields. Only found {fieldCount}");
             }
             string name = reader.ReadString() ?? "Unknown";
-            string? key = reader.ReadString();
+            string? key = reader.ReadNullable<string>(options);
             RemoteServiceStates state = (RemoteServiceStates)reader.ReadByte();
-            string? detail = reader.ReadNullableString();
-            double? progress = reader.ReadNullableDouble();
+            string? detail = reader.ReadNullable<string>(options);
+            double? progress = reader.ReadNullable<double>(options);
             ObservableDictionary<string, ServiceState> children = [];
             int childCount = reader.ReadArrayHeader();
             for (int i = 0; i < childCount; i++)
@@ -607,10 +608,10 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             }
             writer.WriteArrayHeader(CurrentFieldCount);
             writer.Write(value.Name);
-            writer.WriteNullableString(value.Key);
+            writer.WriteNullable(value.Key, options);
             writer.WriteUInt8((byte)value.AggregateState);
-            writer.WriteNullableString(value.Detail);
-            writer.WriteNullableDouble(value.Progress);
+            writer.WriteNullable(value.Detail, options);
+            writer.WriteNullable(value.Progress, options);
             writer.WriteArrayHeader(value.Children.Count);
             foreach (ServiceState child in value.Children.Values)
             {

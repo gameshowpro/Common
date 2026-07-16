@@ -9,6 +9,11 @@ Cross-platform shared library for common utilities, models, converters, and seri
 
 [Details](system-text-json.md).
 
+# MessagePack
+`GameshowPro.Common` provides custom MessagePack formatters and resolver composition utilities for consistent binary serialization behavior across applications.
+
+[Details](messagepack.md).
+
 # Lighting
 An implementation-independent object model for defining lighing fixtures, preset states, and applying presets to fixtures.
 

@@ -1,6 +1,7 @@
 
 using MessagePack.Formatters;
 using MessagePack;
+using GameshowPro.Common.MessagePack;
 
 
 namespace GameshowPro.Common.Model;
@@ -29,7 +30,7 @@ public class LockoutReportFormatter : IMessagePackFormatter<LockoutReport?>
         {
             throw new MessagePackSerializationException("Expected at reported message pack version of at least 1");
         }
-        int? version = reader.ReadNullableInt32();
+        int? version = reader.ReadNullable<int>(options);
         if (version.HasValue)
         {
             int index = reader.ReadInt32();
@@ -55,7 +56,7 @@ public class LockoutReportFormatter : IMessagePackFormatter<LockoutReport?>
     {
         writer.WriteArrayHeader(CurrentFieldCount);
         writer.Write(MessagePackVersion);
-        writer.WriteNullableInt32(value?.Version);
+        writer.WriteNullable(value?.Version, options);
         if (value != null)
         {
             writer.Write(value.Index);
