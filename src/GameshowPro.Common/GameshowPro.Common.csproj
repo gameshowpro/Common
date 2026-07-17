@@ -38,6 +38,8 @@
   </Choose>
   <PropertyGroup>
     <RootNamespace>GameshowPro.Common</RootNamespace>
+    <IsAotCompatible>true</IsAotCompatible>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ImplicitUsings>disable</ImplicitUsings>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Platforms>AnyCPU;x64;ARM64;ARM32</Platforms>
@@ -55,8 +57,16 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <OutputPath>bin\$(Configuration)</OutputPath>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
+    <!--
+      AOT/linker diagnostics below are intentionally suppressed for dynamic JSON/reflection paths
+      and single-file/WPF generated code that this library deliberately supports.
+    -->
+    <NoWarn>$(NoWarn);1591;IL2026;IL2055;IL2057;IL2070;IL2072;IL3000;IL3050</NoWarn>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.xml</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'ReleaseWindows' OR '$(Configuration)' == 'DebugWindows'">
+    <!-- WPF-generated helper code emits linker diagnostics we cannot annotate directly. -->
+    <NoWarn>$(NoWarn);IL2067;IL2075</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug' OR '$(Configuration)' == 'DebugWindows'">
     <DebugSymbols>true</DebugSymbols>

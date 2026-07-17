@@ -27,6 +27,8 @@ public static class JsonNetUtils
     /// <param name="rethrowDeserializationExceptions">If true, any deserialization exception will be rethrown. Otherwise exceptions will be logged and a new object will be returned.</param>
     /// <param name="renameFailedFiles">If true, an file which is found but cannot be deserialized will be renamed before a default object is created.</param>
     /// <returns></returns>
+    [RequiresUnreferencedCode("Json.NET serialization uses reflection over model members.")]
+    [RequiresDynamicCode("Json.NET serialization may require runtime-generated members.")]
     public static T Depersist<T>(string? path, ISerializationBinder? serializationBinder, out bool isNew, ILogger? logger = null, bool rethrowDeserializationExceptions = false, bool renameFailedFiles = true) where T : new()
     {
         JsonSerializer ser = new()
@@ -108,6 +110,8 @@ public static class JsonNetUtils
     /// <param name="path">Path to the JSON file.</param>
     /// <param name="enumsAsStrings">If true, enums will be persisted as strings. Otherwise they will be persisted as integers.</param>
 
+    [RequiresUnreferencedCode("Json.NET serialization uses reflection over model members.")]
+    [RequiresDynamicCode("Json.NET serialization may require runtime-generated members.")]
     public static void Persist<T>(T obj, ISerializationBinderEx? serializationBinder, string? path, bool enumsAsStrings = true)
     {
         if (obj is null || path is null)
@@ -153,6 +157,8 @@ public static class JsonNetUtils
     /// <param name="serializationBinder">A custom serialization binder to use, if required.</param>
     /// <param name="enumsAsStrings">If true, enums will be persisted as strings. Otherwise they will be persisted as integers.</param>
 
+    [RequiresUnreferencedCode("Json.NET serialization uses reflection over model members.")]
+    [RequiresDynamicCode("Json.NET serialization may require runtime-generated members.")]
     public static string? Persist<T>(T obj, ISerializationBinderEx? serializationBinder, bool enumsAsStrings = true)
     {
         if (obj is null)
@@ -173,6 +179,8 @@ public static class JsonNetUtils
     /// <param name="textWriter">The TextWriter to which the JSON will be written.</param>
     /// <param name="enumsAsStrings">If true, enums will be persisted as strings. Otherwise they will be persisted as integers.</param>
 
+    [RequiresUnreferencedCode("Json.NET serialization uses reflection over model members.")]
+    [RequiresDynamicCode("Json.NET serialization may require runtime-generated members.")]
     private static void Persist<T>(T obj, ISerializationBinderEx? serializationBinder, TextWriter textWriter, bool enumsAsStrings = true)
     {
         if (obj is null)

@@ -556,8 +556,10 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
                     ? null
                     : throw new MessagePackSerializationException($"Expected at least {CurrentFieldCount} fields. Only found {fieldCount}");
             }
-            string name = reader.ReadString() ?? "Unknown";
-            string? key = reader.ReadNullable<string>(options);
+            // Wire order is [Key, Name?, ...]: field 0 binds to the constructors'
+            // leading key parameter; a nil name defaults to the key.
+            string key = reader.ReadString() ?? "Unknown";
+            string? name = reader.ReadNullable<string>(options);
             RemoteServiceStates state = (RemoteServiceStates)reader.ReadByte();
             string? detail = reader.ReadNullable<string>(options);
             double? progress = reader.ReadNullable<double>(options);
@@ -577,7 +579,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
                 reader.Skip();
             }
 
-            return new ServiceState(name, key, state, detail, progress, children);
+            return new ServiceState(key, name, state, detail, progress, children);
         }
 
         public void Serialize(ref MessagePackWriter writer, ServiceState? value, MessagePackSerializerOptions options)
@@ -588,8 +590,12 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
                 return;
             }
             writer.WriteArrayHeader(CurrentFieldCount);
-            writer.Write(value.Name);
-            writer.WriteNullable(value.Key, options);
+            // Wire order is [Key, Name?, ...] — matching Deserialize and the
+            // constructors' parameter order. Until 2026-07 this wrote Name
+            // first, silently swapping Key and Name across any hop where they
+            // differed (masked whenever Key == Name).
+            writer.Write(value.Key);
+            writer.WriteNullable(value.Name, options);
             writer.WriteUInt8((byte)value.AggregateState);
             writer.WriteNullable(value.Detail, options);
             writer.WriteNullable(value.Progress, options);

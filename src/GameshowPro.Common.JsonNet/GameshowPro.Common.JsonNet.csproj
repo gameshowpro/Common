@@ -22,6 +22,10 @@
   </Choose>
   <PropertyGroup>
     <RootNamespace>GameshowPro.Common</RootNamespace>
+    <IsAotCompatible>true</IsAotCompatible>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Json.NET is reflection-driven by design in this package. -->
+    <NoWarn>$(NoWarn);IL2026;IL2057;IL3050</NoWarn>
     <ImplicitUsings>disable</ImplicitUsings>
     <Platforms>AnyCPU;x64;ARM64;ARM32</Platforms>
     <LangVersion>preview</LangVersion>

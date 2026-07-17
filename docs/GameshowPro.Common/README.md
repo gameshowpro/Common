@@ -14,6 +14,11 @@ Cross-platform shared library for common utilities, models, converters, and seri
 
 [Details](messagepack.md).
 
+# AOT and Trimming
+Guidance on AOT compatibility, strict warning policy, and what consumers should consider when shipping with Native AOT or aggressive trimming.
+
+[Details](aot.md).
+
 # Lighting
 An implementation-independent object model for defining lighing fixtures, preset states, and applying presets to fixtures.
 

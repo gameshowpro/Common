@@ -3,6 +3,8 @@ namespace GameshowPro.Common;
 /// <summary>
 /// Handles non-public JsonConstructor patterns and optional jsonPresentProperties constructor injection.
 /// </summary>
+[RequiresUnreferencedCode("This converter uses reflection and runtime type-based serialization metadata.")]
+[RequiresDynamicCode("This converter creates generic converters and uses runtime type-based serialization metadata.")]
 public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFactory
 {
     private readonly NullabilityInfoContext _nullabilityContext = new();

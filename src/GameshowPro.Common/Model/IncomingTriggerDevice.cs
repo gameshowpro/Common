@@ -44,8 +44,9 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
         if (settings.TriggerSettings != null)
         {
             Type t = typeof(TTriggerKey);
-            foreach (TTriggerKey value in Enum.GetValues(t))
+            foreach (object raw in Enum.GetValuesAsUnderlyingType(t))
             {
+                TTriggerKey value = (TTriggerKey)Enum.ToObject(t, raw);
                 string? valueString = value.ToString();
                 if (valueString == null)
                 {

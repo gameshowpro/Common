@@ -49,6 +49,16 @@ Because C# does not allow overloads that differ only by generic constraints in a
 
 These are used in model formatters such as `ServiceState.MsgPackResolver`, `EdgeReportFormatter`, and `LockoutReportFormatter`.
 
+### The `ServiceState` wire format is a frozen cross-language contract
+
+`MsgPackResolver` does not just serve C#-to-C# hops: TriggerGate's ESP32 firmware emits the format from C (`cmp`), and Rust engines emit it via `gsp-engine-ipc`'s `service_state` module for the EngineIpc intrinsic status notification. Treat it exactly like an int-keyed record: **additive evolution only** — append fields (readers already skip extras beyond the current field count), never reorder, remove, or retype. Each node is:
+
+```text
+[ key: str, name: str|nil, state: uint8, detail: str|nil, progress: f64|nil, children: node[] ]
+```
+
+Key is field 0, matching the leading `key` parameter of every `ServiceState` constructor. History note (2026-07): `Serialize` wrote `Name` first while `Deserialize` bound field 0 to `key`, silently swapping the two across any hop where they differed — masked because most trees set `Key == Name`. Fixed in this repo; external emitters were already effectively key-first (ESP32 writes identical key/name strings). Cross-language byte-compatibility is regression-guarded by the golden tests in the EngineIpc repo.
+
 ## Consuming app usage
 
 ### Use library defaults + standard fallback

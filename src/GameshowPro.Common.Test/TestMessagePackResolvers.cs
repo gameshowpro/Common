@@ -262,8 +262,14 @@ public class TestMessagePackResolvers
             });
         ServiceState? stateRoundTrip = MessagePackSerializer.Deserialize<ServiceState?>(MessagePackSerializer.Serialize(state, options), options);
         Assert.IsNotNull(stateRoundTrip);
+        // Key and Name differ in this fixture deliberately: a swapped wire
+        // order (the pre-2026-07 Serialize bug) fails here.
+        Assert.AreEqual(state.Key, stateRoundTrip.Key);
+        Assert.AreEqual(state.Name, stateRoundTrip.Name);
         Assert.AreEqual(state.Progress, stateRoundTrip.Progress);
         Assert.AreEqual(state.Detail, stateRoundTrip.Detail);
+        Assert.AreEqual(state.AggregateState, stateRoundTrip.AggregateState);
+        CollectionAssert.AreEqual(state.Children.Keys.ToList(), stateRoundTrip.Children.Keys.ToList());
     }
 
     internal sealed class StringIPAddressFormatter : IMessagePackFormatter<IPAddress?>

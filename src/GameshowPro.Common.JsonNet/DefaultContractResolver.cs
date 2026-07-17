@@ -5,8 +5,14 @@ namespace GameshowPro.Common.JsonNet;
 /// <summary>
 /// Subclass of <see cref="Newtonsoft.Json.Serialization.DefaultContractResolver"/> which uses the constructor marked with <see cref="System.Text.Json.Serialization.JsonConstructorAttribute"/> if present and always presumes <see cref="MemberSerialization.OptIn"/>.
 /// </summary>
+[RequiresUnreferencedCode("Json.NET contract resolution uses reflection over model members.")]
+[RequiresDynamicCode("Json.NET contract resolution may require runtime-generated members.")]
 internal class DefaultContractResolver : Newtonsoft.Json.Serialization.DefaultContractResolver
 {
+    public DefaultContractResolver()
+    {
+    }
+
     protected override JsonObjectContract CreateObjectContract(Type objectType)
     {
         JsonObjectContract contract = base.CreateObjectContract(objectType);

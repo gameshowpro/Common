@@ -6,6 +6,8 @@ namespace GameshowPro.Common;
 /// <summary>
 /// Custom Type resolver that only includes properties which are marked with the <typeparamref name="TDataMemberAttribute"/>.
 /// </summary>
+[RequiresUnreferencedCode("This resolver inspects members and creates JsonPropertyInfo entries dynamically.")]
+[RequiresDynamicCode("This resolver creates metadata for runtime-discovered members.")]
 public class OptInResolver<TDataMemberAttribute> : DefaultJsonTypeInfoResolver
 {
     public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)

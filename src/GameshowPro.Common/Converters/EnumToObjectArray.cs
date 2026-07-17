@@ -64,9 +64,10 @@ public class EnumToObjectArray : MarkupExtension, IValueConverter
         {
             return null;
         }
-        return Enum.GetValues(type)
-                        .Cast<Enum>()
-                        .Select(e => new { Value = e, Name = e.ToString(), DisplayName = e.Description(), Underlying = e.UnderlyingValue() });
+        return Enum.GetValuesAsUnderlyingType(type)
+                .Cast<object>()
+                .Select(raw => (Enum)Enum.ToObject(type, raw))
+                .Select(e => new { Value = e, Name = e.ToString(), DisplayName = e.Description(), Underlying = e.UnderlyingValue() });
     }
 
     /// <inheritdoc/>

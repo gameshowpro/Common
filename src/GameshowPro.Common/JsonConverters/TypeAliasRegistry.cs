@@ -42,6 +42,7 @@ public static class TypeAliasRegistry
     /// Configure relative-name lookup for a specific assembly context.
     /// Type names inside this assembly can be serialized as short names relative to <paramref name="rootNamespace"/>.
     /// </summary>
+    [RequiresUnreferencedCode("Assembly type enumeration may require members trimmed by the linker.")]
     public static void ConfigureRelativeTypeMap(Assembly assembly, string? rootNamespace = null)
     {
         rootNamespace ??= assembly.GetName().Name;
@@ -267,6 +268,7 @@ public static class TypeAliasRegistry
         return false;
     }
 
+    [RequiresDynamicCode("Constructing closed generic nullable types may require runtime code generation.")]
     private static bool ParseNullable(string input, ref int index, [NotNullWhen(true)] out Type? type)
     {
         if (!TryParseAlias(input, ref index, out Type? underlying))
@@ -285,6 +287,7 @@ public static class TypeAliasRegistry
         return true;
     }
 
+    [RequiresDynamicCode("Constructing closed generic collection types may require runtime code generation.")]
     private static bool ParseSingleArgGeneric(string input, ref int index, Type genericDefinition, [NotNullWhen(true)] out Type? type)
     {
         if (!TryParseAlias(input, ref index, out Type? argType))
@@ -297,6 +300,7 @@ public static class TypeAliasRegistry
         return true;
     }
 
+    [RequiresDynamicCode("Constructing closed generic dictionary types may require runtime code generation.")]
     private static bool ParseDictionary(string input, ref int index, [NotNullWhen(true)] out Type? type)
     {
         if (!TryParseAlias(input, ref index, out Type? keyType))

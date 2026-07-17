@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization.Metadata;
+
 namespace GameshowPro.Common.JsonConverters;
 
 /// <summary>
@@ -63,7 +65,7 @@ public class TypedObjectConverter : JsonConverter<object?>
             return TypeAliasRegistry.ResolveType(valueTypeName);
         }
 
-        object? result = valueElement.Deserialize(resolvedType, options);
+        object? result = TryDeserializeKnown(valueElement, resolvedType, options);
         return result is null && resolvedType.IsValueType && Nullable.GetUnderlyingType(resolvedType) is null
             ? throw new JsonException($"Type '{resolvedType.FullName}' cannot be null.")
             : result;
@@ -91,7 +93,7 @@ public class TypedObjectConverter : JsonConverter<object?>
         }
         else
         {
-            JsonSerializer.Serialize(writer, value, runtimeType, options);
+            WriteKnownOrDynamic(writer, value, runtimeType, options);
         }
 
         writer.WriteEndObject();
@@ -109,4 +111,35 @@ public class TypedObjectConverter : JsonConverter<object?>
             throw new JsonException($"Type '{runtimeType.FullName}' in {context} is not in the configured allow-list.");
         }
     }
+
+    private static object? TryDeserializeKnown(JsonElement valueElement, Type resolvedType, JsonSerializerOptions options)
+    {
+        if (KnownJsonTypeContextResolver.TryGetTypeInfo(resolvedType, options, out JsonTypeInfo? jsonTypeInfo))
+        {
+            return valueElement.Deserialize(jsonTypeInfo);
+        }
+
+        return DeserializeDynamic(valueElement, resolvedType, options);
+    }
+
+    private static void WriteKnownOrDynamic(Utf8JsonWriter writer, object value, Type runtimeType, JsonSerializerOptions options)
+    {
+        if (KnownJsonTypeContextResolver.TryGetTypeInfo(runtimeType, options, out JsonTypeInfo? jsonTypeInfo))
+        {
+            JsonSerializer.Serialize(writer, value, jsonTypeInfo);
+            return;
+        }
+
+        SerializeDynamic(writer, value, runtimeType, options);
+    }
+
+    [RequiresUnreferencedCode("Dynamic type-based JSON deserialization requires reflective metadata.")]
+    [RequiresDynamicCode("Dynamic type-based JSON deserialization may require runtime code generation.")]
+    private static object? DeserializeDynamic(JsonElement valueElement, Type resolvedType, JsonSerializerOptions options)
+        => valueElement.Deserialize(resolvedType, options);
+
+    [RequiresUnreferencedCode("Dynamic type-based JSON serialization requires reflective metadata.")]
+    [RequiresDynamicCode("Dynamic type-based JSON serialization may require runtime code generation.")]
+    private static void SerializeDynamic(Utf8JsonWriter writer, object value, Type runtimeType, JsonSerializerOptions options)
+        => JsonSerializer.Serialize(writer, value, runtimeType, options);
 }
