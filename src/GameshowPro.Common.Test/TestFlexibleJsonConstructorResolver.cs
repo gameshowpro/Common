@@ -305,6 +305,12 @@ public class TestFlexibleJsonConstructorResolver
 
     private sealed class MissingDefaultModel
     {
+        [JsonConstructor]
+        private MissingDefaultModel([JsonMissingDefault(-1)] int number)
+        {
+            Number = number;
+        }
+
         [DataMember]
         public int Number { get; }
     }
@@ -328,6 +334,12 @@ public class TestFlexibleJsonConstructorResolver
 
     private sealed class JsonPresentKeyCaseModel
     {
+        [JsonConstructor]
+        private JsonPresentKeyCaseModel(IReadOnlySet<string> jsonPresentProperties)
+        {
+            JsonPresentProperties = jsonPresentProperties;
+        }
+
         [DataMember]
         public string? IPAddress { get; private set; }
 

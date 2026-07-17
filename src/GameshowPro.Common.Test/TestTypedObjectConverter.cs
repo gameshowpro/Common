@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Runtime.Serialization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using GameshowPro.Common.JsonConverters;
 
 namespace GameshowPro.Common.Test;
@@ -186,6 +187,12 @@ public class TestTypedObjectConverter
 
     private sealed class NonNullableObjectContainer
     {
+        [JsonConstructor]
+        private NonNullableObjectContainer(object value)
+        {
+            Value = value;
+        }
+
         [DataMember]
         public object Value { get; }
     }
