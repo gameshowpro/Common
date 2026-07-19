@@ -1,0 +1,75 @@
+@implements IDisposable
+
+<MudOverlay Visible="@IsVisible" DarkBackground="true" ZIndex="2000">
+    <MudPaper Class="pa-8 d-flex flex-column align-center gap-4 gsp-connection-overlay" Elevation="10" Style="min-width: 22rem;">
+        <MudProgressCircular Indeterminate="true" Color="Color.Error" Size="Size.Large" />
+        <MudText Typo="Typo.h6">@Title</MudText>
+        @if (!string.IsNullOrEmpty(Detail))
+        {
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">@Detail</MudText>
+        }
+        @ChildContent
+        <ServiceStateUi DataContext="DataContext" />
+    </MudPaper>
+</MudOverlay>
+
+@code {
+    /// <summary>
+    /// The service's health tree, rendered inside the overlay so the operator sees what is
+    /// wrong before any functional test ("status before function"). By default the overlay is
+    /// visible whenever this tree's aggregate state is Disconnected.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public ServiceState? DataContext { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "Disconnected from service";
+
+    /// <summary>Free-text status line, e.g. a retry-attempt counter.</summary>
+    [Parameter]
+    public string? Detail { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Overrides the visibility derivation for hosts that track connectedness separately.</summary>
+    [Parameter]
+    public bool? VisibleOverride { get; set; }
+
+    private bool IsVisible => VisibleOverride ?? DataContext?.AggregateState == RemoteServiceStates.Disconnected;
+
+    private ServiceState? _subscribed;
+
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(_subscribed, DataContext))
+        {
+            return;
+        }
+        Unsubscribe();
+        if (DataContext is not null)
+        {
+            DataContext.PropertyChanged += OnStateChanged;
+            DataContext.AllUpdated += OnAllUpdated;
+            _subscribed = DataContext;
+        }
+    }
+
+    private void OnStateChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        => _ = InvokeAsync(StateHasChanged);
+
+    private void OnAllUpdated(object? sender, EventArgs e)
+        => _ = InvokeAsync(StateHasChanged);
+
+    private void Unsubscribe()
+    {
+        if (_subscribed is not null)
+        {
+            _subscribed.PropertyChanged -= OnStateChanged;
+            _subscribed.AllUpdated -= OnAllUpdated;
+            _subscribed = null;
+        }
+    }
+
+    public void Dispose() => Unsubscribe();
+}

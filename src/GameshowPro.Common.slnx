@@ -14,6 +14,17 @@
     <Platform Solution="*|ARM64" Project="ARM64" />
     <Platform Solution="*|x64" Project="x64" />
   </Project>
+  <!-- The Blazor package is cross-platform only: it must reference the non-Windows build of
+       GameshowPro.Common, so it is excluded from the Windows solution configurations and
+       builds/packs in Debug/Release alone. -->
+  <Project Path="GameshowPro.Common.Blazor/GameshowPro.Common.Blazor.csproj">
+    <Build Solution="DebugWindows|*" Project="false" />
+    <Build Solution="ReleaseWindows|*" Project="false" />
+  </Project>
+  <Project Path="GameshowPro.Common.Blazor.Test/GameshowPro.Common.Blazor.Test.csproj">
+    <Build Solution="DebugWindows|*" Project="false" />
+    <Build Solution="ReleaseWindows|*" Project="false" />
+  </Project>
   <Project Path="GameshowPro.Common.NLog/GameshowPro.Common.NLog.csproj" />
   <Project Path="GameshowPro.Common.Test/GameshowPro.Common.Test.csproj" />
   <Project Path="GameshowPro.Common/GameshowPro.Common.csproj">

@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <PackageId>GameshowPro.Common.Blazor</PackageId>
+    <Title>Gameshow Pro shared Blazor components</Title>
+    <Product>Gameshow Pro Common Blazor components</Product>
+    <Description>Shared Blazor components for GameshowPro service UIs: the standardized ServiceState tree and connection overlay (services architecture §3), MudBlazor-styled.</Description>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <Company>Barjonas LLC</Company>
+    <Authors>Hamish Barjonas</Authors>
+    <Copyright>Barjonas LLC 2026</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <RootNamespace>GameshowPro.Common.Blazor</RootNamespace>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <Configurations>Debug;Release;ReleaseWindows;DebugWindows</Configurations>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <OutputPath>bin\$(Configuration)</OutputPath>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\docs\GameshowPro.Common.Blazor\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.10" />
+    <!-- MudBlazor is the standard component library for the GameshowPro web tier; pinned to the
+         lowest version among current consumers so apps float it upward, never downward. -->
+    <PackageReference Include="MudBlazor" Version="9.6.0" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.10.91">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameshowPro.Common\GameshowPro.Common.csproj" />
+  </ItemGroup>
+</Project>

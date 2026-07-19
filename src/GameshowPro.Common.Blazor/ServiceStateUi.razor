@@ -1,0 +1,102 @@
+@implements IDisposable
+
+@if (DataContext is not null)
+{
+    <div class="d-flex flex-column gsp-service-state">
+        <div class="d-flex align-center gap-2">
+            <MudIcon Icon="@StateIcon" Color="@StateColor" Size="Size.Small" />
+            <MudText Typo="Typo.body2">@DataContext.Name</MudText>
+            @if (!string.IsNullOrEmpty(DataContext.Detail))
+            {
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">@DataContext.Detail</MudText>
+            }
+            @if (DataContext.Progress is double percentage && percentage < 1)
+            {
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">@percentage.ToString("P0")</MudText>
+            }
+        </div>
+        @* Progress semantics: null on a non-connected node = busy for an unknown time
+           (indeterminate); 0–1 = a finite process with an estimated completion (determinate);
+           >= 1 or null-while-connected = steady, no indicator. *@
+        @if (DataContext.Progress is double progress)
+        {
+            @if (progress < 1)
+            {
+                <MudProgressLinear Value="@(progress * 100)" Color="@StateColor" Size="Size.Small" Class="my-1 gsp-progress-determinate" />
+            }
+        }
+        else if (DataContext.AggregateState != RemoteServiceStates.Connected)
+        {
+            <MudProgressLinear Indeterminate="true" Color="@StateColor" Size="Size.Small" Class="my-1 gsp-progress-indeterminate" />
+        }
+        <div class="ml-4 d-flex flex-column">
+            @foreach (ServiceState child in DataContext.Children.Values.ToArray())
+            {
+                <ServiceStateUi DataContext="child" @key="child.Key" />
+            }
+        </div>
+    </div>
+}
+
+@code {
+    /// <summary>
+    /// The node to render. The component subscribes to the node's change and child-collection
+    /// events itself, so parents do not need to re-render for updates to appear.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public ServiceState? DataContext { get; set; }
+
+    private ServiceState? _subscribed;
+
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(_subscribed, DataContext))
+        {
+            return;
+        }
+        Unsubscribe();
+        if (DataContext is not null)
+        {
+            DataContext.PropertyChanged += OnStateChanged;
+            DataContext.AllUpdated += OnAllUpdated;
+            DataContext.Children.CollectionChanged += OnChildrenChanged;
+            _subscribed = DataContext;
+        }
+    }
+
+    private void OnStateChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        => _ = InvokeAsync(StateHasChanged);
+
+    private void OnAllUpdated(object? sender, EventArgs e)
+        => _ = InvokeAsync(StateHasChanged);
+
+    private void OnChildrenChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        => _ = InvokeAsync(StateHasChanged);
+
+    private void Unsubscribe()
+    {
+        if (_subscribed is not null)
+        {
+            _subscribed.PropertyChanged -= OnStateChanged;
+            _subscribed.AllUpdated -= OnAllUpdated;
+            _subscribed.Children.CollectionChanged -= OnChildrenChanged;
+            _subscribed = null;
+        }
+    }
+
+    public void Dispose() => Unsubscribe();
+
+    private Color StateColor => DataContext?.AggregateState switch
+    {
+        RemoteServiceStates.Connected => Color.Success,
+        RemoteServiceStates.Warning => Color.Warning,
+        _ => Color.Error
+    };
+
+    private string StateIcon => DataContext?.AggregateState switch
+    {
+        RemoteServiceStates.Connected => Icons.Material.Filled.CheckCircle,
+        RemoteServiceStates.Warning => Icons.Material.Filled.Warning,
+        _ => Icons.Material.Filled.Cancel
+    };
+}
