@@ -30,11 +30,11 @@
     <None Include="..\..\docs\GameshowPro.Common.Blazor\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.12" />
     <!-- MudBlazor is the standard component library for the GameshowPro web tier; pinned to the
          lowest version among current consumers so apps float it upward, never downward. -->
-    <PackageReference Include="MudBlazor" Version="9.6.0" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.10.91">
+    <PackageReference Include="MudBlazor" Version="9.10.0" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.10.94">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

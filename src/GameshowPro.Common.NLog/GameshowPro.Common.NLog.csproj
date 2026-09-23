@@ -45,8 +45,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NLog" Version="6.1.4" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.10.91">
+    <PackageReference Include="NLog" Version="6.2.1" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.10.94">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

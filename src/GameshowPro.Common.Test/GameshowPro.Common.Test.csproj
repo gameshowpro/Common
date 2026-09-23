@@ -25,14 +25,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="4.3.2" />
-    <PackageReference Include="MSTest.TestFramework" Version="4.3.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="4.4.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="4.4.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <!-- GameshowPro.Common is supplied transitively by GameshowPro.Common.JsonNet; do not
+         add it directly here. -->
     <ProjectReference Include="..\GameshowPro.Common.JsonNet\GameshowPro.Common.JsonNet.csproj" />
-    <ProjectReference Include="..\GameshowPro.Common\GameshowPro.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
