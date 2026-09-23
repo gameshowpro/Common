@@ -272,6 +272,34 @@ public class TestMessagePackResolvers
         CollectionAssert.AreEqual(state.Children.Keys.ToList(), stateRoundTrip.Children.Keys.ToList());
     }
 
+    [TestMethod]
+    public void ServiceStateFormatter_ShouldWriteAggregateStateAsUInt8_AndReadFixInt()
+    {
+        MessagePackSerializerOptions options = MessagePackSerializerOptions.Standard;
+        ServiceState state = new("svc", "service-key", RemoteServiceStates.Warning, "check", 0.5);
+        byte[] bytes = MessagePackSerializer.Serialize(state, options);
+
+        // This formatter owns the ServiceState wire contract. Wire order is
+        // [Key, Name?, AggregateState, ...], and AggregateState is always the
+        // 2-byte uint8 form (0xCC nn). Non-C# emitters (gsp-engine-ipc, the
+        // TriggerGate ESP32 firmware) must match it byte for byte.
+        MessagePackReader reader = new(bytes);
+        _ = reader.ReadArrayHeader();
+        reader.Skip();
+        reader.Skip();
+        int stateOffset = (int)reader.Consumed;
+        Assert.AreEqual(0xCC, bytes[stateOffset]);
+        Assert.AreEqual((byte)RemoteServiceStates.Warning, bytes[stateOffset + 1]);
+
+        // Readers stay lenient: the minimal positive-fixint form still deserializes.
+        byte[] fixInt = [.. bytes[..stateOffset], bytes[stateOffset + 1], .. bytes[(stateOffset + 2)..]];
+        ServiceState? fixIntRoundTrip = MessagePackSerializer.Deserialize<ServiceState?>(fixInt, options);
+        Assert.IsNotNull(fixIntRoundTrip);
+        Assert.AreEqual(RemoteServiceStates.Warning, fixIntRoundTrip.AggregateState);
+        Assert.AreEqual(state.Key, fixIntRoundTrip.Key);
+        Assert.AreEqual(state.Detail, fixIntRoundTrip.Detail);
+    }
+
     internal sealed class StringIPAddressFormatter : IMessagePackFormatter<IPAddress?>
     {
         internal static readonly StringIPAddressFormatter Instance = new();
