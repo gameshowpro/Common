@@ -7,8 +7,6 @@ namespace GameshowPro.Common;
 [RequiresDynamicCode("This converter creates generic converters and uses runtime type-based serialization metadata.")]
 public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFactory
 {
-    private readonly NullabilityInfoContext _nullabilityContext = new();
-
     public override bool CanConvert(Type typeToConvert)
         => GetJsonConstructor(typeToConvert) is not null;
 
@@ -18,7 +16,7 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
             ?? throw new JsonException($"No [JsonConstructor] found for {typeToConvert.FullName}.");
 
         Type converterType = typeof(FlexibleJsonConstructorConverter<>).MakeGenericType(typeToConvert);
-        return (JsonConverter)Activator.CreateInstance(converterType, constructor, options.PropertyNamingPolicy, _nullabilityContext)!;
+        return (JsonConverter)Activator.CreateInstance(converterType, constructor, options.PropertyNamingPolicy)!;
     }
 
     private static ConstructorInfo? GetJsonConstructor(Type type)
@@ -33,16 +31,18 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
             : constructors.Length == 1 ? constructors[0] : null;
     }
 
+    // NullabilityInfoContext is not thread-safe, and converters are cached on the (often shared)
+    // JsonSerializerOptions and used from many threads. So all nullability is resolved once,
+    // here at construction, and Read/Write never touch a context.
     private sealed class FlexibleJsonConstructorConverter<T>(
         ConstructorInfo constructor,
-        JsonNamingPolicy? namingPolicy,
-        NullabilityInfoContext nullabilityContext) : JsonConverter<T>
+        JsonNamingPolicy? namingPolicy) : JsonConverter<T>
     {
         private static readonly Type s_jsonPresentSetType = typeof(IReadOnlySet<string>);
         private readonly ConstructorInfo _constructor = constructor;
         private readonly ParameterInfo[] _parameters = constructor.GetParameters();
-        private readonly List<MemberMetadata> _members = GetDataMembers(typeof(T), namingPolicy, nullabilityContext);
-        private readonly NullabilityInfoContext _nullabilityContext = nullabilityContext;
+        private readonly bool[] _parameterDisallowsNull = GetParameterDisallowsNull(constructor.GetParameters());
+        private readonly List<MemberMetadata> _members = GetDataMembers(typeof(T), namingPolicy);
 
         public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
@@ -84,7 +84,7 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
                     continue;
                 }
 
-                args[i] = DeserializeParameterValue(parameter, element, options);
+                args[i] = DeserializeParameterValue(parameter, _parameterDisallowsNull[i], element, options);
             }
 
             T instance;
@@ -136,19 +136,25 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
             writer.WriteEndObject();
         }
 
-        private object? DeserializeParameterValue(ParameterInfo parameter, JsonElement element, JsonSerializerOptions options)
+        private static object? DeserializeParameterValue(ParameterInfo parameter, bool disallowNull, JsonElement element, JsonSerializerOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
-                return DisallowNull(parameter.ParameterType, _nullabilityContext.Create(parameter).ReadState)
+                return disallowNull
                     ? throw new JsonException($"Parameter '{parameter.Name}' cannot be null.")
                     : null;
             }
 
             object? value = element.Deserialize(parameter.ParameterType, options);
-            return value is null && DisallowNull(parameter.ParameterType, _nullabilityContext.Create(parameter).ReadState)
+            return value is null && disallowNull
                 ? throw new JsonException($"Parameter '{parameter.Name}' cannot be null.")
                 : value;
+        }
+
+        private static bool[] GetParameterDisallowsNull(ParameterInfo[] parameters)
+        {
+            NullabilityInfoContext nullabilityContext = new();
+            return [.. parameters.Select(p => DisallowNull(p.ParameterType, nullabilityContext.Create(p).ReadState))];
         }
 
         private static bool IsJsonPresentPropertiesParameter(ParameterInfo parameter)
@@ -177,8 +183,9 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
             return targetType.IsInstanceOfType(value) ? value : Convert.ChangeType(value, targetType, CultureInfo.InvariantCulture);
         }
 
-        private static List<MemberMetadata> GetDataMembers(Type type, JsonNamingPolicy? namingPolicy, NullabilityInfoContext nullabilityContext)
+        private static List<MemberMetadata> GetDataMembers(Type type, JsonNamingPolicy? namingPolicy)
         {
+            NullabilityInfoContext nullabilityContext = new();
             List<MemberMetadata> members = [];
             HashSet<string> ctorParamNames = type
                 .GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
