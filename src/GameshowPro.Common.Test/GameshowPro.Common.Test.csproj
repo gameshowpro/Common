@@ -31,8 +31,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- GameshowPro.Common is supplied transitively by GameshowPro.Common.JsonNet; do not
+         add it directly here. -->
     <ProjectReference Include="..\GameshowPro.Common.JsonNet\GameshowPro.Common.JsonNet.csproj" />
-    <ProjectReference Include="..\GameshowPro.Common\GameshowPro.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
