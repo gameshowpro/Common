@@ -416,23 +416,18 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         }
     }
 
-    public static bool operator ==(ServiceState obj1, ServiceState obj2)
+    // Nullable parameters: callers legitimately compare against null (`state != null`), and declaring the
+    // parameters non-nullable made every such comparison a CS8604/CS8625 warning in consumers.
+    public static bool operator ==(ServiceState? obj1, ServiceState? obj2)
     {
         if (ReferenceEquals(obj1, obj2))
         {
             return true;
         }
-        if (obj1 is null)
-        {
-            return false;
-        }
-        return obj2 is null ? false : obj1.Equals(obj2);
+        return obj1 is not null && obj1.Equals(obj2);
     }
 
-    public static bool operator !=(ServiceState obj1, ServiceState obj2)
-    {
-        return !(obj1 == obj2);
-    }
+    public static bool operator !=(ServiceState? obj1, ServiceState? obj2) => !(obj1 == obj2);
 
     public bool Equals(ServiceState? other)
     {
