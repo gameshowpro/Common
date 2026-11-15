@@ -2,8 +2,8 @@
   <PropertyGroup>
     <TargetFrameworks>net10.0</TargetFrameworks>
     <PackageId>GameshowPro.Common.Blazor</PackageId>
-    <Title>Gameshow Pro shared Blazor components</Title>
-    <Product>Gameshow Pro Common Blazor components</Product>
+    <Title>GameshowPro shared Blazor components</Title>
+    <Product>GameshowPro Common Blazor components</Product>
     <Description>Shared Blazor components for GameshowPro service UIs: the standardized ServiceState tree and connection overlay (services architecture §3), MudBlazor-styled.</Description>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ImplicitUsings>enable</ImplicitUsings>

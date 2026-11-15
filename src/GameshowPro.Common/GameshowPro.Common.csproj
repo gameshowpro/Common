@@ -4,7 +4,7 @@
       <PropertyGroup>
         <TargetFrameworks>net10.0-windows</TargetFrameworks>
         <DefineConstants>$(DefineConstants);WPF</DefineConstants>
-        <Product>Gameshow Pro Common - Windows version</Product>
+        <Product>GameshowPro Common - Windows version</Product>
         <PackageTags>GameshowPro Common Windows</PackageTags>
         <PackageId>GameshowPro.Common.Windows</PackageId>
         <UseWpf>true</UseWpf>
@@ -18,7 +18,7 @@
     <Otherwise>
       <PropertyGroup>
         <TargetFrameworks>net10.0</TargetFrameworks>
-        <Product>Gameshow Pro Common - cross-platform</Product>
+        <Product>GameshowPro Common - cross-platform</Product>
         <PackageTags>GameshowPro Common</PackageTags>
         <PackageId>GameshowPro.Common</PackageId>
       </PropertyGroup>
@@ -47,7 +47,7 @@
     <Company>Barjonas LLC</Company>
     <Authors>Hamish Barjonas</Authors>
     <Copyright>Barjonas LLC 2026</Copyright>
-    <Description>Gameshow Pro common class library.</Description>
+    <Description>GameshowPro common class library.</Description>
     <NeutralLanguage>en-US</NeutralLanguage>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Configurations>Debug;Release;DebugWindows;ReleaseWindows</Configurations>

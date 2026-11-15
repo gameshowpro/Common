@@ -4,7 +4,7 @@
       <PropertyGroup>
         <TargetFrameworks>net10.0-windows</TargetFrameworks>
         <DefineConstants>$(DefineConstants);WPF</DefineConstants>
-        <Title>Gameshow Pro utilities for NLog - Windows version</Title>
+        <Title>GameshowPro utilities for NLog - Windows version</Title>
         <UseWpf>true</UseWpf>
         <UseWindowsForms>true</UseWindowsForms>
         <PackageId>GameshowPro.Common.NLog.Windows</PackageId>
@@ -13,7 +13,7 @@
     <Otherwise>
       <PropertyGroup>
         <TargetFrameworks>net10.0</TargetFrameworks>
-        <Title>Gameshow Pro utilities for NLog - cross platform</Title>
+        <Title>GameshowPro utilities for NLog - cross platform</Title>
         <PackageId>GameshowPro.Common.NLog</PackageId>
       </PropertyGroup>
     </Otherwise>
@@ -26,7 +26,7 @@
     <LangVersion>preview</LangVersion>
     <Company>Barjonas LLC</Company>
     <Authors>Hamish Barjonas</Authors>
-    <Product>Gameshow Pro Common NLog utilities</Product>
+    <Product>GameshowPro Common NLog utilities</Product>
     <Copyright>Barjonas LLC 2026</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <RootNamespace>GameshowPro.Common</RootNamespace>
