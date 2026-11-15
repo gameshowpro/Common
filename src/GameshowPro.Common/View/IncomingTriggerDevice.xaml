@@ -22,6 +22,7 @@
     <BooleanToVisibilityConverter  x:Key="BooleanToVisibilityConverter"/>
     <conv:IntToOrdinalConverter x:Key="IntToOrdinalConverter"/>
     <vm:IncomingTriggerDeviceHeaderTemplateSelector x:Key="IncomingTriggerDeviceHeaderTemplateSelector"/>
+    <vm:IncomingTriggerDeviceHeaderTemplateSelector x:Key="IncomingTriggerDeviceCommandsTemplateSelector" Suffix="Commands" IsOptional="True"/>
     <DataTemplate DataType="{x:Type commodel:IncomingTriggerComposite}" x:Key="{x:Type commodel:IncomingTriggerComposite}">
         <Expander ClipToBounds="True">
             <Expander.Header>
@@ -207,6 +208,8 @@
                 <ItemsControl ItemsSource="{Binding ServiceState.Children.Values}" ItemTemplate="{StaticResource ServiceStateMax}" VerticalAlignment="Center" />
                 <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource IncomingTriggerDeviceHeaderTemplateSelector}" />
             </StackPanel>
+            <!-- A device type that defines {type name}.Commands gets a row of its own controls under its name; types that do not are unchanged. -->
+            <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource IncomingTriggerDeviceCommandsTemplateSelector}" HorizontalAlignment="Left" Focusable="False"/>
             <controls:ToggleSwitch OnContent="Device is enabled" OffContent="Device is disabled" IsOn="{Binding BaseSettings.IsEnabled}"/>
             <controls:ToggleSwitch OnContent="Showing all triggers" OffContent="Showing enabled triggers only" x:Name="ShowAllFilter" DockPanel.Dock="Left"/>
             <controls:ToggleSwitch OnContent="Duplicates allowed" OffContent="Duplicates not allowed" IsOn="{Binding BaseSettings.AllowDuplicateTriggerIds}"/>
