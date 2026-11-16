@@ -53,6 +53,11 @@ WpfUtils contains an extra set of extension methods and utilities specifically t
 ### Lighting
 Lighting functionality usising `Windows.Media.Color` to make WPF integration easier.
 
+### Clocks
+Monotonic and absolute clocks, their identities, conversion between them, discipline probing and the per-pair ordering separation rule, in the cross-platform build.
+
+[Details](clocks.md).
+
 # Testing
 The `GameshowPro.Common.Test` project tests various features of this library, particularly the custom (de)serialization and utilities.
 

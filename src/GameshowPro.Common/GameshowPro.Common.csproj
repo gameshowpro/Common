@@ -39,6 +39,8 @@
   <PropertyGroup>
     <RootNamespace>GameshowPro.Common</RootNamespace>
     <IsAotCompatible>true</IsAotCompatible>
+    <!-- Required by the source-generated P/Invoke (LibraryImport) used by the Linux clock probe. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ImplicitUsings>disable</ImplicitUsings>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -87,6 +89,9 @@
     <PackageReference Include="MahApps.Metro.IconPacks" Version="6.2.1" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.14" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="GameshowPro.Common.Test" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\docs\GameshowPro.Common\README.md" Pack="true" PackagePath="\" />

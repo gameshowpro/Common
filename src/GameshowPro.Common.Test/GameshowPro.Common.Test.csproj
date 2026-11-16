@@ -21,7 +21,9 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <Configurations>Debug;Release;DebugWindows;ReleaseWindows</Configurations>
-    <NoWarn>$(NoWarn);IL2026;IL3050</NoWarn>
+    <!-- CS0436: GameshowPro.Common exposes its internals to this project (InternalsVisibleTo), which makes its internal, empty
+         GeneratedMessagePackResolver visible next to this project's own generated one. The local one wins; harmless. -->
+    <NoWarn>$(NoWarn);IL2026;IL3050;CS0436</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
