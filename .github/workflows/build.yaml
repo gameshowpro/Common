@@ -2,6 +2,18 @@ on:
   push:
     branches:
       - main
+    # A push that changes only documentation or editor and agent files does not build or publish packages; a push that also
+    # changes anything else still does. Each package's own README (docs/<package>/README.md) is packed into it, so a change
+    # to one of those does build. Later patterns override earlier ones.
+    paths:
+      - '**'
+      - '!**/*.md'
+      - '!docs/**'
+      - 'docs/*/README.md'
+      - '!.claude/**'
+      - '!.vscode/**'
+      - '!.gitignore'
+      - '!LICENSE*'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
