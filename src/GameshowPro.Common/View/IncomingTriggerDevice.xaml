@@ -248,7 +248,25 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Header="Time" IsReadOnly="True" Binding="{Binding Time}" MinWidth="102" />
-                    <DataGridTextColumn Header="#" IsReadOnly="True" Binding="{Binding Ordinal, Converter={StaticResource IntToOrdinalConverter}}" />
+                    <DataGridTemplateColumn Header="#" IsReadOnly="True" SortMemberPath="Ordinal">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="2 0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="{Binding Ordinal, Converter={StaticResource IntToOrdinalConverter}}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsTied}" Value="True">
+                                                    <Setter Property="Text" Value="{Binding Ordinal, Converter={StaticResource IntToOrdinalConverter}, StringFormat='≈ {0}'}" />
+                                                    <Setter Property="ToolTip" Value="Too close to call: the order was drawn at random" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn Header="Filter" IsReadOnly="True" Binding="{Binding Setting.TriggerFilter, Converter={StaticResource EnumToDescriptionConverter}}" />
                     <DataGridTemplateColumn Header="Edge" Width="110" IsReadOnly="True">
                         <DataGridTemplateColumn.CellTemplate>

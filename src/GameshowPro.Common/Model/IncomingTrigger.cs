@@ -106,6 +106,22 @@ public abstract class IncomingTrigger : ObservableClass, ITrigger
     public int? Ordinal
     {
         get;
+        set
+        {
+            if (SetProperty(ref field, value) && (value is null || value < 0))
+            {
+                IsTied = false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// True when the place in <see cref="Ordinal"/> was drawn at random because the source could not tell which of several inputs came first.
+    /// Set by the device class. UIs show it as an approximately-equal sign. Setting <see cref="Ordinal"/> to null or a negative value clears it.
+    /// </summary>
+    public bool IsTied
+    {
+        get;
         set { _ = SetProperty(ref field, value); }
     }
 
