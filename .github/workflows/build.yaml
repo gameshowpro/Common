@@ -84,6 +84,7 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
+      id-token: write # For nuget.org trusted publishing (OIDC)
     
     steps:
     - uses: actions/checkout@v7
@@ -100,6 +101,39 @@ jobs:
       with:
         setAllVars: true
     
+    - name: Publish NuGet packages to GitHub Packages
+      shell: pwsh
+      run: |
+        $packages = Get-ChildItem -Path "./all-packages" -Recurse -Filter "*.nupkg"
+        foreach ($package in $packages) {
+          Write-Host "Pushing package: $($package.FullName)"
+          dotnet nuget push $package.FullName --api-key "${{ secrets.GSP_PACKAGE_PAT }}" --source ${{ vars.NUGET_URL }} --skip-duplicate
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to push package: $($package.Name)"
+            exit 1
+          }
+        }
+
+    - name: Log in to nuget.org (trusted publishing)
+      id: nuget_login
+      uses: NuGet/login@v1
+      with:
+        user: ${{ vars.NUGET_ORG_USER }}
+
+    - name: Publish NuGet packages to nuget.org
+      shell: pwsh
+      run: |
+        # The matching .snupkg beside each .nupkg is pushed to the nuget.org symbol server automatically.
+        $packages = Get-ChildItem -Path "./all-packages" -Recurse -Filter "*.nupkg"
+        foreach ($package in $packages) {
+          Write-Host "Pushing package to nuget.org: $($package.FullName)"
+          dotnet nuget push $package.FullName --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to push package to nuget.org: $($package.Name)"
+            exit 1
+          }
+        }
+
     - name: Add tags
       shell: pwsh
       run: |
@@ -113,15 +147,3 @@ jobs:
         files: |
           ./all-packages/**/*.nupkg
           ./all-packages/**/*.snupkg
-
-    - name: Publish NuGet packages
-      run: |
-        $packages = Get-ChildItem -Path "./all-packages" -Recurse -Filter "*.nupkg"
-        foreach ($package in $packages) {
-          Write-Host "Pushing package: $package.FullName"
-          dotnet nuget push $package.FullName --api-key "${{ secrets.GSP_PACKAGE_PAT }}" --source ${{ vars.NUGET_URL }} --skip-duplicate
-          if (-not $?) {
-            Write-Error "Failed to push package: $($package.Name)"
-            exit 1
-          }
-        }

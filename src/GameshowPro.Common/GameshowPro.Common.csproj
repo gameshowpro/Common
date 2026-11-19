@@ -66,6 +66,8 @@
     <NoWarn>$(NoWarn);1591;IL2026;IL2055;IL2057;IL2070;IL2072;IL3000;IL3050</NoWarn>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.xml</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <RepositoryUrl>https://github.com/gameshowpro/Common</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/gameshowpro/Common</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'ReleaseWindows' OR '$(Configuration)' == 'DebugWindows'">
