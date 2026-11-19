@@ -45,6 +45,7 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.xml</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>gameshowpro-icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/gameshowpro/Common</RepositoryUrl>
     <PackageProjectUrl>https://github.com/gameshowpro/Common</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -52,6 +53,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\docs\GameshowPro.Common.JsonNet\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\resources\gameshowpro-icon.png" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
   <ItemGroup>
     <!-- Microsoft.Extensions.Logging is supplied transitively by the GameshowPro.Common

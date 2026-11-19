@@ -55,6 +55,7 @@
     <Configurations>Debug;Release;DebugWindows;ReleaseWindows</Configurations>
     <Nullable>enable</Nullable>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>gameshowpro-icon.png</PackageIcon>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <OutputPath>bin\$(Configuration)</OutputPath>
@@ -99,5 +100,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\docs\GameshowPro.Common\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\resources\gameshowpro-icon.png" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
 </Project>
