@@ -45,6 +45,8 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.xml</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/gameshowpro/Common</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\docs\GameshowPro.Common.JsonNet\README.md" Pack="true" PackagePath="\" />
