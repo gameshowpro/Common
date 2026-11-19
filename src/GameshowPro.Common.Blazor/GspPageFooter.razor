@@ -1,0 +1,30 @@
+<footer class="gsp-footer @Class" @attributes="AdditionalAttributes">
+    <span>@ProductName@(string.IsNullOrEmpty(Version) ? "" : " " + Version), @Copyright</span>
+    @ChildContent
+</footer>
+
+@code {
+    /// <summary>The product name.</summary>
+    [Parameter, EditorRequired]
+    public string ProductName { get; set; } = "";
+
+    /// <summary>The version text shown after the product name. Omitted when empty.</summary>
+    [Parameter]
+    public string? Version { get; set; }
+
+    /// <summary>The copyright text.</summary>
+    [Parameter]
+    public string Copyright { get; set; } = "© 2026 Barjonas LLC";
+
+    /// <summary>Optional extra content after the copyright line (links, a license note).</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Extra CSS classes for the <c>footer</c> element.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>Other attributes, splatted onto the <c>footer</c> element.</summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+}

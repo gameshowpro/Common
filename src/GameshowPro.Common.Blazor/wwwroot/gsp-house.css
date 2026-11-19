@@ -1,0 +1,174 @@
+/* =============================================================================================
+   GameshowPro house style (GameshowPro.Common.Blazor). Link after fonts/fonts.css:
+     <link rel="stylesheet" href="_content/GameshowPro.Common.Blazor/fonts/fonts.css" />
+     <link rel="stylesheet" href="_content/GameshowPro.Common.Blazor/gsp-house.css" />
+
+   Where the colors come from. The C# palette (GspHouseTheme) is the single source of truth. MudBlazor writes it
+   into :root as --mud-palette-* variables for the ACTIVE mode (light or dark, including a forced mode), and the
+   --gsp-* tokens below simply read those. GspThemeProvider writes --gsp-accent, --gsp-accent-ink and --gsp-shadow for the active mode the same way.
+   Before Blazor starts (splash screen, error UI) those variables do not exist yet, so each token falls back to a
+   --gsp-default-* literal that follows prefers-color-scheme. The literals equal the C# palettes (a unit test,
+   HouseThemeCssTests, fails if they drift) and the product sets the accent defaults
+   in its own index.html, overriding --gsp-default-accent, --gsp-default-accent-ink and --gsp-default-accent-text
+   in :root and again inside @media (prefers-color-scheme: dark).
+   ============================================================================================= */
+
+:root {
+    --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "Cascadia Code", ui-monospace, Consolas, monospace;
+    /* Cascadia's 400 reads heavy next to Jakarta 400 at 11-13px; data sits at 350 on its 200-700 axis. */
+    --weight-data: 350;
+    --font-feature-data: "tnum" 1, "zero" 1, "liga" 0, "calt" 0;
+
+    /* Pre-start defaults, light. */
+    --gsp-default-bg: #f5f6f8;
+    --gsp-default-panel: #ffffff;
+    --gsp-default-sunken: #f0f2f5;
+    --gsp-default-ink: #16191d;
+    --gsp-default-muted: #667085;
+    --gsp-default-line: #e2e6ea;
+    --gsp-default-ok: #257e36;
+    --gsp-default-warn: #8f6809;
+    --gsp-default-bad: #c92a2a;
+    --gsp-default-shadow: 0 1px 3px rgba(0, 0, 0, .07);
+    --gsp-default-accent: #3b5bdb;
+    --gsp-default-accent-ink: #ffffff;
+    --gsp-default-accent-text: #3b5bdb;
+
+    /* The tokens. */
+    --gsp-bg: var(--mud-palette-background, var(--gsp-default-bg));
+    --gsp-panel: var(--mud-palette-surface, var(--gsp-default-panel));
+    --gsp-sunken: var(--mud-palette-background-gray, var(--gsp-default-sunken));
+    --gsp-ink: var(--mud-palette-text-primary, var(--gsp-default-ink));
+    --gsp-muted: var(--mud-palette-text-secondary, var(--gsp-default-muted));
+    --gsp-line: var(--mud-palette-lines-default, var(--gsp-default-line));
+    --gsp-ok: var(--mud-palette-success, var(--gsp-default-ok));
+    --gsp-warn: var(--mud-palette-warning, var(--gsp-default-warn));
+    --gsp-bad: var(--mud-palette-error, var(--gsp-default-bad));
+    --gsp-shadow: var(--gsp-default-shadow); /* GspThemeProvider overrides it for the active mode */
+    --gsp-accent: var(--gsp-default-accent);
+    --gsp-accent-ink: var(--gsp-default-accent-ink);
+    --gsp-accent-text: var(--mud-palette-primary, var(--gsp-default-accent-text));
+
+    /* Layout knobs a product may override. */
+    --gsp-main-max-width: 940px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Pre-start defaults, dark. */
+        --gsp-default-bg: #13151a;
+        --gsp-default-panel: #1b1e24;
+        --gsp-default-sunken: #15171c;
+        --gsp-default-ink: #e8eaed;
+        --gsp-default-muted: #98a2b3;
+        --gsp-default-line: #2a2f38;
+        --gsp-default-ok: #51cf66;
+        --gsp-default-warn: #f0b849;
+        --gsp-default-bad: #ff6b6b;
+        --gsp-default-shadow: none;
+        --gsp-default-accent: #7d92f0;
+        --gsp-default-accent-ink: #13151a;
+        --gsp-default-accent-text: #7d92f0;
+    }
+}
+
+/* ---- Base ---------------------------------------------------------------------------------- */
+html, body {
+    background-color: var(--gsp-bg);
+    color: var(--gsp-ink);
+    font-family: var(--font-sans);
+}
+
+/* Body 15px / 1.55, set on body so rem stays 16px for MudBlazor's rem-based scale. */
+body {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    letter-spacing: 0.01em;
+}
+
+/* Data: numbers, timestamps, identifiers, addresses, form values. Mono, tabular digits, slashed zero, no ligatures
+   so 0/O and 1/l stay unambiguous. `.gsp-data-field` puts the same on a MudBlazor input. */
+.gsp-data, .gsp-data .mud-chip-content, .gsp-data-field input, .gsp-data-field textarea,
+.gsp-data-field .mud-select-input, .gsp-data-field .mud-input-slot, .gsp-data-field .mud-input-text {
+    font-family: var(--font-mono);
+    font-weight: var(--weight-data);
+    font-variant-numeric: tabular-nums slashed-zero;
+    font-feature-settings: var(--font-feature-data);
+    font-variant-ligatures: none;
+}
+
+/* Code-like free text: programming ligatures on. */
+.gsp-code {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums slashed-zero;
+    font-variant-ligatures: common-ligatures contextual;
+    font-feature-settings: "liga" 1, "calt" 1, "zero" 1;
+}
+
+/* MudBlazor uppercases buttons and tabs by default; the house style is sentence case. */
+.mud-button-root { text-transform: none; }
+.mud-tab { text-transform: none; font-weight: 600; letter-spacing: 0.01em; }
+
+/* Focus: a visible 2px accent ring on every interactive control. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--gsp-accent-text);
+    outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ---- Layout -------------------------------------------------------------------------------- */
+/* Sticky header: panel background, bottom border, at least 56px, wraps on narrow screens. */
+.gsp-header {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px;
+    min-height: 56px; padding: 4px 20px;
+    background: var(--gsp-panel); border-bottom: 1px solid var(--gsp-line);
+    box-sizing: border-box;
+}
+.gsp-brand { display: flex; align-items: center; gap: 8px; flex-shrink: 0; min-width: 0; }
+.gsp-app-icon { display: block; width: 48px; height: 48px; flex: 0 0 48px; }
+.gsp-app-name { margin: 0; font-size: 20px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02em; }
+.gsp-header-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+@media (max-width: 76.234375em) {
+    .gsp-brand { gap: 6px; }
+    .gsp-app-icon { width: 40px; height: 40px; flex-basis: 40px; }
+}
+
+/* Centered content column; set --gsp-main-max-width to change the width. */
+.gsp-main { box-sizing: border-box; max-width: var(--gsp-main-max-width); margin: 0 auto; padding: 18px 20px 60px; }
+
+/* Panels: the unit of page layout. Use `.gsp-eyebrow` for a section label inside. */
+.gsp-panel {
+    box-sizing: border-box;
+    background: var(--gsp-panel); border: 1px solid var(--gsp-line); border-radius: 10px;
+    padding: 16px; margin-bottom: 16px; box-shadow: var(--gsp-shadow);
+}
+
+/* Section eyebrow: small, uppercase, muted. */
+.gsp-eyebrow {
+    margin: 0 0 8px; color: var(--gsp-muted);
+    font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+/* Pills: status or counts. The color-bearing variants color both text and border; pair them with a word or icon. */
+.gsp-pill {
+    display: inline-block; box-sizing: border-box; white-space: nowrap;
+    padding: 3px 10px; border: 1px solid var(--gsp-line); border-radius: 999px;
+    font-size: 12px; font-weight: 600; line-height: 1.4; color: var(--gsp-ink);
+}
+.gsp-pill.ok { color: var(--gsp-ok); border-color: currentColor; }
+.gsp-pill.warn { color: var(--gsp-warn); border-color: currentColor; }
+.gsp-pill.bad { color: var(--gsp-bad); border-color: currentColor; }
+.gsp-pill.muted { color: var(--gsp-muted); }
+
+.gsp-footer { padding: 16px 20px 24px; color: var(--gsp-muted); font-size: 12px; text-align: center; }

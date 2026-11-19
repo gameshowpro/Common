@@ -1,0 +1,47 @@
+<header class="gsp-header @Class" @attributes="AdditionalAttributes">
+    <div class="gsp-brand">
+        @if (!string.IsNullOrEmpty(IconUrl))
+        {
+            <img class="gsp-app-icon" src="@IconUrl" alt="" />
+        }
+        <h1 class="gsp-app-name">@ProductName</h1>
+        @if (!string.IsNullOrEmpty(Version))
+        {
+            <span class="gsp-pill muted gsp-data gsp-version" title="@VersionTooltip">@Version</span>
+        }
+    </div>
+    @if (ChildContent is not null)
+    {
+        <div class="gsp-header-actions">@ChildContent</div>
+    }
+</header>
+
+@code {
+    /// <summary>URL of the product icon (shown at 48px, 40px on narrow screens). Omitted when empty.</summary>
+    [Parameter]
+    public string? IconUrl { get; set; }
+
+    /// <summary>The product name, rendered as the page's <c>h1</c>.</summary>
+    [Parameter, EditorRequired]
+    public string ProductName { get; set; } = "";
+
+    /// <summary>Version text for the muted monospace pill next to the name (for example <c>1.2.3</c>). Omitted when empty.</summary>
+    [Parameter]
+    public string? Version { get; set; }
+
+    /// <summary>Tooltip (the <c>title</c> attribute) of the version pill, for example the build date.</summary>
+    [Parameter]
+    public string? VersionTooltip { get; set; }
+
+    /// <summary>Content for the right side of the header (status pills, actions). It wraps below the brand on narrow screens.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Extra CSS classes for the <c>header</c> element.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>Other attributes, splatted onto the <c>header</c> element.</summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+}
