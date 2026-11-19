@@ -356,15 +356,19 @@ public static partial class Utils
         {
             return string.Empty;
         }
-        string oneBased = (value.Value + (fromZeroBased ? 1 : 0)).ToString();
-        string suffix = oneBased[^1] switch
-        {
-            '1' => "st",
-            '2' => "nd",
-            '3' => "rd",
-            _ => "th",
-        };
-        return oneBased + suffix;
+        int oneBased = value.Value + (fromZeroBased ? 1 : 0);
+        // 11th, 12th and 13th (and 111th, 212th...) are the exceptions to the last-digit rule.
+        int lastTwo = Math.Abs(oneBased % 100);
+        string suffix = lastTwo is >= 11 and <= 13
+            ? "th"
+            : (lastTwo % 10) switch
+            {
+                1 => "st",
+                2 => "nd",
+                3 => "rd",
+                _ => "th",
+            };
+        return oneBased.ToString(System.Globalization.CultureInfo.InvariantCulture) + suffix;
     }
 
     public static string ToOrdinal(this int value, bool fromZeroBased = false)
