@@ -1,39 +1,66 @@
+@implements IDisposable
+@inject IServiceProvider Services
+
 <header class="gsp-header @Class" @attributes="AdditionalAttributes">
     <div class="gsp-brand">
-        @if (!string.IsNullOrEmpty(IconUrl))
+        @if (!string.IsNullOrEmpty(EffectiveIconUrl))
         {
-            <img class="gsp-app-icon" src="@IconUrl" alt="" />
+            <img class="gsp-app-icon" src="@EffectiveIconUrl" alt="" />
         }
-        <h1 class="gsp-app-name">@ProductName</h1>
-        @if (!string.IsNullOrEmpty(Version))
+        <h1 class="gsp-app-name">@EffectiveProductName</h1>
+        @if (!string.IsNullOrEmpty(EffectiveVersion))
         {
-            <span class="gsp-pill muted gsp-data gsp-version" title="@VersionTooltip">@Version</span>
+            @if (_state?.AboutAvailable == true)
+            {
+                <button type="button" class="gsp-pill muted gsp-data gsp-version" title="@EffectiveVersionTooltip" aria-label="About @EffectiveProductName" @onclick="OnVersionClicked">@EffectiveVersion</button>
+            }
+            else
+            {
+                <span class="gsp-pill muted gsp-data gsp-version" title="@EffectiveVersionTooltip">@EffectiveVersion</span>
+            }
         }
     </div>
-    @if (ChildContent is not null)
+    @if (ChildContent is not null || !string.IsNullOrEmpty(_state?.HostName) || _state?.Connection is not null)
     {
-        <div class="gsp-header-actions">@ChildContent</div>
+        <div class="gsp-header-actions">
+            @if (!string.IsNullOrEmpty(_state?.HostName))
+            {
+                <span class="gsp-host"><span class="gsp-host-label">Host</span> <span class="gsp-data">@_state!.HostName</span></span>
+            }
+            @if (_state?.Connection is RemoteServiceStates connection)
+            {
+                @* The word always accompanies the color. *@
+                <span class="gsp-pill @ConnectionClass(connection) gsp-connection" role="status"><span class="gsp-connection-dot" aria-hidden="true"></span>@ConnectionText(connection)</span>
+            }
+            @ChildContent
+        </div>
     }
 </header>
 
 @code {
-    /// <summary>URL of the product icon (shown at 48px, 40px on narrow screens). Omitted when empty.</summary>
+    private GspAppInfo? _info;
+    private GspRuntimeState? _state;
+
+    /// <summary>Overrides the icon address (default: the app icon of <c>AddGspHouseStyle</c>). Omitted when empty.</summary>
     [Parameter]
     public string? IconUrl { get; set; }
 
-    /// <summary>The product name, rendered as the page's <c>h1</c>.</summary>
-    [Parameter, EditorRequired]
-    public string ProductName { get; set; } = "";
+    /// <summary>Overrides the product name (default: derived from the app's assembly), rendered as the page's <c>h1</c>.</summary>
+    [Parameter]
+    public string? ProductName { get; set; }
 
-    /// <summary>Version text for the muted monospace pill next to the name (for example <c>1.2.3</c>). Omitted when empty.</summary>
+    /// <summary>
+    /// Overrides the text of the version pill. By default it is the platform (when the app set one in
+    /// <see cref="GspRuntimeState"/>) followed by the app's public version, for example <c>Windows 1.2.3</c>.
+    /// </summary>
     [Parameter]
     public string? Version { get; set; }
 
-    /// <summary>Tooltip (the <c>title</c> attribute) of the version pill, for example the build date.</summary>
+    /// <summary>Overrides the pill's tooltip (default: <c>Built {date}</c> when the build recorded a date).</summary>
     [Parameter]
     public string? VersionTooltip { get; set; }
 
-    /// <summary>Content for the right side of the header (status pills, actions). It wraps below the brand on narrow screens.</summary>
+    /// <summary>Extra content for the right side of the header, after the host name and the connection pill. It wraps below the brand on narrow screens.</summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
@@ -44,4 +71,59 @@
     /// <summary>Other attributes, splatted onto the <c>header</c> element.</summary>
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private static string ConnectionClass(RemoteServiceStates state) => state switch
+    {
+        RemoteServiceStates.Connected => "ok",
+        RemoteServiceStates.Warning => "warn",
+        _ => "bad",
+    };
+
+    private static string ConnectionText(RemoteServiceStates state) => state switch
+    {
+        RemoteServiceStates.Connected => "Connected",
+        RemoteServiceStates.Warning => "Reconnecting",
+        _ => "Disconnected",
+    };
+
+    private string? EffectiveIconUrl => IconUrl ?? _info?.IconUrl;
+
+    private string EffectiveProductName => ProductName ?? _info?.ProductName ?? "";
+
+    private string? EffectiveVersion
+    {
+        get
+        {
+            if (Version is not null)
+            {
+                return Version;
+            }
+            string version = _info?.Version ?? "";
+            return string.IsNullOrEmpty(_state?.Platform) ? version : (_state.Platform + " " + version).Trim();
+        }
+    }
+
+    private string? EffectiveVersionTooltip => VersionTooltip ?? (_info?.BuildDate is { Length: > 0 } date ? "Built " + date : null);
+
+    protected override void OnInitialized()
+    {
+        _info = Services.GetService(typeof(GspAppInfo)) as GspAppInfo;
+        _state = Services.GetService(typeof(GspRuntimeState)) as GspRuntimeState;
+        if (_state is not null)
+        {
+            _state.Changed += OnStateChanged;
+        }
+    }
+
+    private void OnVersionClicked() => _state?.RequestAbout();
+
+    private void OnStateChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        if (_state is not null)
+        {
+            _state.Changed -= OnStateChanged;
+        }
+    }
 }

@@ -1,17 +1,36 @@
 @* The accent and shadow variables for the active theme, written from the same GspAccent the MudBlazor palette was built from.
    Every value is a validated #rrggbb (GspAccentColors), so the markup is safe. *@
 <style>@((MarkupString)AccentCss)</style>
-<MudThemeProvider @ref="_provider" Theme="_theme" IsDarkMode="_isDark" ObserveSystemDarkModeChange="false" />
+@* MudBlazor's own observer must be ON while the mode follows the system: its JavaScript listener (the browser's
+   prefers-color-scheme change event) is the only thing that reports a change; WatchSystemDarkModeAsync merely subscribes
+   to the .NET event it raises. It is turned OFF while a mode is forced, so an OS change cannot override the force. *@
+<MudThemeProvider @ref="_provider" Theme="_theme" IsDarkMode="_isDark" ObserveSystemDarkModeChange="@(ForceDarkMode is null)" />
+
+@inject IServiceProvider Services
 
 @code {
     private MudThemeProvider? _provider;
     private MudTheme _theme = GspHouseTheme.Create(GspAccent.Indigo);
     private GspAccent _themeAccent = GspAccent.Indigo;
+    private GspAccent? _themeSecondary;
     private bool _isDark;
+    private bool _watching;
+    private bool _wasForced;
 
-    /// <summary>The product's accent. Defaults to <see cref="GspAccent.Indigo"/>. Changing it rebuilds the theme.</summary>
+    /// <summary>
+    /// Overrides the product's accent. Left <c>null</c> (the default) it is <see cref="GspHouseOptions.Accent"/> from
+    /// <c>AddGspHouseStyle</c> (<see cref="GspAccent.Indigo"/> when nothing is registered). Changing it rebuilds the theme.
+    /// </summary>
     [Parameter]
-    public GspAccent Accent { get; set; } = GspAccent.Indigo;
+    public GspAccent? Accent { get; set; }
+
+    /// <summary>
+    /// Overrides the product's optional second accent (<see cref="GspHouseOptions.SecondaryAccent"/> by default): MudBlazor's
+    /// <c>Secondary</c> and the <c>--gsp-accent-2*</c> CSS variables. Without any, <c>Secondary</c> is the house neutral and the
+    /// second-accent variables hold that neutral.
+    /// </summary>
+    [Parameter]
+    public GspAccent? SecondaryAccent { get; set; }
 
     /// <summary>
     /// Forces the theme (<c>true</c> dark, <c>false</c> light). Left <c>null</c> (the default), the theme follows the
@@ -27,34 +46,61 @@
     /// <summary>The theme in effect, for consumers that want to read palette values.</summary>
     public MudTheme Theme => _theme;
 
-    private GspAccentColors CurrentAccent => _isDark ? Accent.Dark : Accent.Light;
+    private GspHouseOptions? Options => Services.GetService(typeof(GspHouseOptions)) as GspHouseOptions;
 
-    private string AccentCss => $":root{{--gsp-accent:{CurrentAccent.Fill};--gsp-accent-ink:{CurrentAccent.OnFill};--gsp-shadow:{(_isDark ? "none" : "0 1px 3px rgba(0,0,0,.07)")};color-scheme:{(_isDark ? "dark" : "light")};}}";
+    private GspAccent EffectiveAccent => Accent ?? Options?.Accent ?? GspAccent.Indigo;
+
+    private GspAccent? EffectiveSecondary => SecondaryAccent ?? Options?.SecondaryAccent;
+
+    private GspAccentColors CurrentAccent => _isDark ? EffectiveAccent.Dark : EffectiveAccent.Light;
+
+    private GspAccentColors CurrentSecondary => _isDark
+        ? EffectiveSecondary?.Dark ?? GspHouseTheme.NeutralSecondaryDark
+        : EffectiveSecondary?.Light ?? GspHouseTheme.NeutralSecondaryLight;
+
+    private string AccentCss => $":root{{--gsp-accent:{CurrentAccent.Fill};--gsp-accent-ink:{CurrentAccent.OnFill};--gsp-accent-2:{CurrentSecondary.Fill};--gsp-accent-2-ink:{CurrentSecondary.OnFill};--gsp-shadow:{(_isDark ? "none" : "0 1px 3px rgba(0,0,0,.07)")};color-scheme:{(_isDark ? "dark" : "light")};}}";
 
     protected override void OnParametersSet()
     {
-        ArgumentNullException.ThrowIfNull(Accent);
-        if (!ReferenceEquals(Accent, _themeAccent))
+        if (!ReferenceEquals(EffectiveAccent, _themeAccent) || !ReferenceEquals(EffectiveSecondary, _themeSecondary))
         {
-            _themeAccent = Accent;
-            _theme = GspHouseTheme.Create(Accent);
+            _themeAccent = EffectiveAccent;
+            _themeSecondary = EffectiveSecondary;
+            _theme = GspHouseTheme.Create(_themeAccent, _themeSecondary);
         }
         if (ForceDarkMode is bool forced)
         {
             _isDark = forced;
+            _wasForced = true;
         }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && _provider is not null && ForceDarkMode is null)
+        if (_provider is null)
         {
-            // MudBlazor's own observer is off so that this component alone decides the mode (a forced mode must not
-            // be overridden by an OS change).
-            _isDark = await _provider.GetSystemDarkModeAsync();
-            await _provider.WatchSystemDarkModeAsync(OnSystemModeChanged);
-            StateHasChanged();
-            await IsDarkModeChanged.InvokeAsync(_isDark);
+            return;
+        }
+        if (firstRender || (_wasForced && ForceDarkMode is null))
+        {
+            // First render, or a forced mode was released: (re)read the system setting. MudBlazor's observer is on
+            // whenever ForceDarkMode is null (see the markup), so changes after this arrive through the event.
+            _wasForced = false;
+            if (ForceDarkMode is null)
+            {
+                if (!_watching)
+                {
+                    _watching = true;
+                    await _provider.WatchSystemDarkModeAsync(OnSystemModeChanged);
+                }
+                bool system = await _provider.GetSystemDarkModeAsync();
+                if (system != _isDark || firstRender)
+                {
+                    _isDark = system;
+                    StateHasChanged();
+                    await IsDarkModeChanged.InvokeAsync(_isDark);
+                }
+            }
         }
     }
 

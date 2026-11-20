@@ -1,0 +1,23 @@
+/* The two upright faces only (Plus Jakarta Sans and Cascadia Code, no italics), for products served from a small device, so that the
+   browser never asks for the two italic files (about 225 KB together; the browser synthesizes an italic where one is needed). Link this
+   instead of fonts.css, or use gsp-house-upright.css. The italic files still ship in the package; a bundler may leave them out. */
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("PlusJakartaSans-Variable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cascadia Code";
+  src: url("CascadiaCode.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 200 700;
+  font-display: swap;
+}
+
+:root {
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Cascadia Code", ui-monospace, Consolas, monospace;
+}

@@ -8,3 +8,7 @@ Open Font License; the license texts sit next to the fonts and ship in the NuGet
 
 Link `fonts.css` from the page (see the package README); its `@font-face` URLs are relative to the
 CSS file, so it works under any path prefix.
+
+`fonts-upright.css` declares only the two upright faces, for products served from a small device (the browser then never
+requests the italic files, about 225 KB). Use `fonts.css` otherwise. `gsp-house.css` links `fonts.css` and
+`gsp-house-upright.css` links `fonts-upright.css`, so most products never link either directly.

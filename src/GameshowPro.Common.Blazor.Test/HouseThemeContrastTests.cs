@@ -33,25 +33,36 @@ public class HouseThemeContrastTests
         new GspAccentColors("#ffe600", "#16191d", "#7b6f00"),
         new GspAccentColors("#ffe600", "#13151a", "#ffe600"));
 
+    /// <summary>
+    /// A blue second accent as a product would define it next to <see cref="LogoYellow"/> (the TriggerGate logo blue
+    /// <c>#2e6fb7</c>). Light theme: the blue is both fill (white text) and text (4.6:1 or better on the page, panel and
+    /// sunken colors). Dark theme: a lighter blue of the same hue (HSL lightness 60%) is both fill (near-black text) and text.
+    /// </summary>
+    internal static readonly GspAccent LogoBlue = new(
+        new GspAccentColors("#2e6fb7", "#ffffff", "#2e6fb7"),
+        new GspAccentColors("#5c96d6", "#13151a", "#5c96d6"));
+
     public TestContext TestContext { get; set; } = null!;
 
     private sealed record Pair(string Name, MudColor Foreground, MudColor Background);
 
-    private static IEnumerable<(string Name, GspAccent Accent)> Accents()
+    private static IEnumerable<(string Name, GspAccent Accent, GspAccent? Secondary)> Accents()
     {
-        yield return ("Indigo", GspAccent.Indigo);
-        yield return ("LogoYellow", LogoYellow);
+        yield return ("Indigo", GspAccent.Indigo, null);
+        yield return ("LogoYellow", LogoYellow, null);
+        yield return ("LogoYellow+LogoBlue", LogoYellow, LogoBlue);
+        yield return ("Indigo+LogoYellow", GspAccent.Indigo, LogoYellow);
     }
 
-    private static IEnumerable<(string Name, Palette Palette, GspAccentColors Accent)> Palettes(string accentName, GspAccent accent)
+    private static IEnumerable<(string Name, Palette Palette, GspAccentColors Accent)> Palettes(string accentName, GspAccent accent, GspAccent? secondary)
     {
-        MudTheme theme = GspHouseTheme.Create(accent);
+        MudTheme theme = GspHouseTheme.Create(accent, secondary);
         yield return ($"{accentName}/light", theme.PaletteLight, accent.Light);
         yield return ($"{accentName}/dark", theme.PaletteDark, accent.Dark);
     }
 
     private static IEnumerable<(string Name, Palette Palette, GspAccentColors Accent)> AllPalettes()
-        => Accents().SelectMany(a => Palettes(a.Name, a.Accent));
+        => Accents().SelectMany(a => Palettes(a.Name, a.Accent, a.Secondary));
 
     private static MudColor C(string hex) => new(hex);
 
@@ -98,7 +109,41 @@ public class HouseThemeContrastTests
         {
             pairs.Add(P($"{name}: accent OnFill on Fill", C(accent.OnFill), C(accent.Fill)));
         }
+        foreach ((string name, GspAccent _, GspAccent? secondary) in Accents().Where(a => a.Secondary is not null))
+        {
+            pairs.Add(P($"{name}: accent 2 OnFill on Fill (light)", C(secondary!.Light.OnFill), C(secondary.Light.Fill)));
+            pairs.Add(P($"{name}: accent 2 OnFill on Fill (dark)", C(secondary.Dark.OnFill), C(secondary.Dark.Fill)));
+        }
         AssertAllPass(pairs);
+    }
+
+    [TestMethod]
+    public void Second_accent_text_reads_on_page_panel_and_sunken_and_maps_to_Secondary()
+    {
+        List<Pair> pairs = [];
+        foreach ((string name, GspAccent accent, GspAccent? secondary) in Accents().Where(a => a.Secondary is not null))
+        {
+            MudTheme theme = GspHouseTheme.Create(accent, secondary);
+            foreach ((string mode, Palette p, GspAccentColors colors) in new[] { ("light", (Palette)theme.PaletteLight, secondary!.Light), ("dark", theme.PaletteDark, secondary.Dark) })
+            {
+                Assert.AreEqual(colors.Text, GspContrast.Hex(p.Secondary), $"{name}/{mode}: Secondary is accent 2's Text");
+                foreach ((string gName, MudColor g) in new[] { ("bg", p.Background), ("panel", p.Surface), ("sunken", p.BackgroundGray) })
+                {
+                    pairs.Add(P($"{name}/{mode}: accent 2 text on {gName}", C(colors.Text), g));
+                }
+            }
+        }
+        AssertAllPass(pairs);
+    }
+
+    [TestMethod]
+    public void Without_a_second_accent_Secondary_stays_the_house_neutral()
+    {
+        MudTheme theme = GspHouseTheme.Create(LogoYellow);
+        Assert.AreEqual("#667085", GspContrast.Hex(theme.PaletteLight.Secondary));
+        Assert.AreEqual("#ffffff", GspContrast.Hex(theme.PaletteLight.SecondaryContrastText));
+        Assert.AreEqual("#98a2b3", GspContrast.Hex(theme.PaletteDark.Secondary));
+        Assert.AreEqual("#13151a", GspContrast.Hex(theme.PaletteDark.SecondaryContrastText));
     }
 
     [TestMethod]

@@ -1,0 +1,364 @@
+/* =============================================================================================
+   GameshowPro house style (GameshowPro.Common.Blazor): the rules and tokens. Products link gsp-house.css (or
+   gsp-house-upright.css), which imports this file after MudBlazor's stylesheet and the fonts:
+     <link rel="stylesheet" href="_content/GameshowPro.Common.Blazor/gsp-house.css" />
+
+   Where the colors come from. The C# palette (GspHouseTheme) is the single source of truth. MudBlazor writes it
+   into :root as --mud-palette-* variables for the ACTIVE mode (light or dark, including a forced mode), and the
+   --gsp-* tokens below simply read those. GspThemeProvider writes --gsp-accent, --gsp-accent-ink, --gsp-accent-2,
+   --gsp-accent-2-ink and --gsp-shadow for the active mode the same way.
+   Before Blazor starts (splash screen, error UI) those variables do not exist yet, so each token falls back to a
+   --gsp-default-* literal that follows prefers-color-scheme. The literals equal the C# palettes (a unit test,
+   HouseThemeCssTests, fails if they drift) and the product sets the accent defaults
+   in its own index.html, overriding --gsp-default-accent, --gsp-default-accent-ink and --gsp-default-accent-text
+   (and, for a second accent, the same three with -2 after "accent") in :root and again inside @media (prefers-color-scheme: dark).
+   ============================================================================================= */
+
+:root {
+    --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "Cascadia Code", ui-monospace, Consolas, monospace;
+    /* Cascadia's 400 reads heavy next to Jakarta 400 at 11-13px; data sits at 350 on its 200-700 axis. */
+    --weight-data: 350;
+    --font-feature-data: "tnum" 1, "zero" 1, "liga" 0, "calt" 0;
+
+    /* Pre-start defaults, light. */
+    --gsp-default-bg: #f5f6f8;
+    --gsp-default-panel: #ffffff;
+    --gsp-default-sunken: #f0f2f5;
+    --gsp-default-ink: #16191d;
+    --gsp-default-muted: #667085;
+    --gsp-default-line: #e2e6ea;
+    --gsp-default-ok: #257e36;
+    --gsp-default-warn: #8f6809;
+    --gsp-default-bad: #c92a2a;
+    --gsp-default-shadow: 0 1px 3px rgba(0, 0, 0, .07);
+    --gsp-default-accent: #3b5bdb;
+    --gsp-default-accent-ink: #ffffff;
+    --gsp-default-accent-text: #3b5bdb;
+    /* The second accent defaults to the house neutral (what MudBlazor's Secondary is without a second accent). */
+    --gsp-default-accent-2: #667085;
+    --gsp-default-accent-2-ink: #ffffff;
+    --gsp-default-accent-2-text: #667085;
+    --gsp-default-dialog-shadow: 0 14px 44px rgba(0, 0, 0, .3);
+    --gsp-default-backdrop: rgba(0, 0, 0, .45);
+
+    /* The tokens. */
+    --gsp-bg: var(--mud-palette-background, var(--gsp-default-bg));
+    --gsp-panel: var(--mud-palette-surface, var(--gsp-default-panel));
+    --gsp-sunken: var(--mud-palette-background-gray, var(--gsp-default-sunken));
+    --gsp-ink: var(--mud-palette-text-primary, var(--gsp-default-ink));
+    --gsp-muted: var(--mud-palette-text-secondary, var(--gsp-default-muted));
+    --gsp-line: var(--mud-palette-lines-default, var(--gsp-default-line));
+    --gsp-ok: var(--mud-palette-success, var(--gsp-default-ok));
+    --gsp-warn: var(--mud-palette-warning, var(--gsp-default-warn));
+    --gsp-bad: var(--mud-palette-error, var(--gsp-default-bad));
+    --gsp-shadow: var(--gsp-default-shadow); /* GspThemeProvider overrides it for the active mode */
+    --gsp-accent: var(--gsp-default-accent);
+    --gsp-accent-ink: var(--gsp-default-accent-ink);
+    --gsp-accent-text: var(--mud-palette-primary, var(--gsp-default-accent-text));
+    --gsp-accent-2: var(--gsp-default-accent-2);
+    --gsp-accent-2-ink: var(--gsp-default-accent-2-ink);
+    --gsp-accent-2-text: var(--mud-palette-secondary, var(--gsp-default-accent-2-text));
+    /* The dialog look shared by MudBlazor dialogs and GspAboutDialog, and the dimming behind them. */
+    --gsp-dialog-shadow: var(--gsp-default-dialog-shadow);
+    --gsp-backdrop: var(--gsp-default-backdrop);
+
+    /* Layout knobs a product may override. */
+    --gsp-main-max-width: 940px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Pre-start defaults, dark. */
+        --gsp-default-bg: #13151a;
+        --gsp-default-panel: #1b1e24;
+        --gsp-default-sunken: #15171c;
+        --gsp-default-ink: #e8eaed;
+        --gsp-default-muted: #98a2b3;
+        --gsp-default-line: #2a2f38;
+        --gsp-default-ok: #51cf66;
+        --gsp-default-warn: #f0b849;
+        --gsp-default-bad: #ff6b6b;
+        --gsp-default-shadow: none;
+        --gsp-default-accent: #7d92f0;
+        --gsp-default-accent-ink: #13151a;
+        --gsp-default-accent-text: #7d92f0;
+        --gsp-default-accent-2: #98a2b3;
+        --gsp-default-accent-2-ink: #13151a;
+        --gsp-default-accent-2-text: #98a2b3;
+    }
+}
+
+/* ---- Base ---------------------------------------------------------------------------------- */
+html, body {
+    background-color: var(--gsp-bg);
+    color: var(--gsp-ink);
+    font-family: var(--font-sans);
+}
+
+/* Body 15px / 1.55, set on body so rem stays 16px for MudBlazor's rem-based scale. */
+body {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    letter-spacing: 0.01em;
+}
+
+/* Data: numbers, timestamps, identifiers, addresses, form values. Mono, tabular digits, slashed zero, no ligatures
+   so 0/O and 1/l stay unambiguous. `.gsp-data-field` puts the same on a MudBlazor input. */
+.gsp-data, .gsp-data .mud-chip-content, .gsp-data-field input, .gsp-data-field textarea,
+.gsp-data-field .mud-select-input, .gsp-data-field .mud-input-slot, .gsp-data-field .mud-input-text {
+    font-family: var(--font-mono);
+    font-weight: var(--weight-data);
+    font-variant-numeric: tabular-nums slashed-zero;
+    font-feature-settings: var(--font-feature-data);
+    font-variant-ligatures: none;
+}
+
+/* Code-like free text: programming ligatures on. */
+.gsp-code {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums slashed-zero;
+    font-variant-ligatures: common-ligatures contextual;
+    font-feature-settings: "liga" 1, "calt" 1, "zero" 1;
+}
+
+/* MudBlazor uppercases buttons and tabs by default; the house style is sentence case. */
+.mud-button-root { text-transform: none; }
+.mud-tab { text-transform: none; font-weight: 600; letter-spacing: 0.01em; }
+
+/* Focus: a visible 2px accent ring on every interactive control. `:is()` (not `:where()`) keeps the rule's specificity high
+   enough to beat MudBlazor's `button:focus { outline: none }`; the explicit MudBlazor classes beat `.mud-button-root { outline: 0 }`. */
+:is(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+.mud-button-root:focus-visible, .mud-toggle-item:focus-visible, .mud-tab:focus-visible, .mud-link:focus-visible,
+.mud-icon-button:focus-visible, .mud-nav-link:focus-visible, .mud-chip:focus-visible {
+    outline: 2px solid var(--gsp-accent-text);
+    outline-offset: 1px;
+}
+
+/* MudBlazor dialogs: 12px rounding, the house border and elevation, the house dimming. */
+.mud-dialog {
+    border: 1px solid var(--gsp-line);
+    border-radius: 12px;
+    background-color: var(--gsp-panel);
+    box-shadow: var(--gsp-dialog-shadow);
+}
+.mud-dialog .mud-dialog-title { padding-bottom: 8px; }
+.mud-dialog .mud-dialog-title .mud-typography-h6 { font-size: 15px; font-weight: 700; letter-spacing: 0; }
+.mud-overlay-dark { background-color: var(--gsp-backdrop); }
+
+/* Tooltips: the house toast look, ink on the page color. */
+.mud-tooltip.mud-tooltip-default {
+    background-color: var(--gsp-ink);
+    color: var(--gsp-bg);
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 7px;
+}
+.mud-tooltip.mud-tooltip-default.mud-tooltip-arrow::after { border-color: var(--gsp-ink) transparent; }
+
+/* Outlined default buttons: a quiet line border that firms up on hover. */
+.mud-button-root.mud-button-outlined.mud-button-outlined-default { border-color: var(--gsp-line); }
+.mud-button-root.mud-button-outlined.mud-button-outlined-default:hover { border-color: var(--gsp-muted); background-color: var(--gsp-sunken); }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ---- Layout -------------------------------------------------------------------------------- */
+/* Sticky header: panel background, a 2px bottom rule in the accent (set --gsp-header-rule to change its color), at least
+   56px, wraps on narrow screens. */
+.gsp-header {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px;
+    min-height: 56px; padding: 4px 20px;
+    background: var(--gsp-panel); border-bottom: 2px solid var(--gsp-header-rule, var(--gsp-accent));
+    box-sizing: border-box;
+}
+.gsp-brand { display: flex; align-items: center; gap: 8px; flex-shrink: 0; min-width: 0; }
+.gsp-app-icon { display: block; width: 48px; height: 48px; flex: 0 0 48px; }
+.gsp-app-name { margin: 0; font-size: 20px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02em; }
+.gsp-header-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+@media (max-width: 76.234375em) {
+    .gsp-brand { gap: 6px; }
+    .gsp-app-icon { width: 40px; height: 40px; flex-basis: 40px; }
+}
+
+/* Centered content column; set --gsp-main-max-width to change the width. */
+.gsp-main { box-sizing: border-box; max-width: var(--gsp-main-max-width); margin: 0 auto; padding: 18px 20px 60px; }
+
+/* Panels: the unit of page layout. Use `.gsp-eyebrow` for a section label inside. */
+.gsp-panel {
+    box-sizing: border-box;
+    background: var(--gsp-panel); border: 1px solid var(--gsp-line); border-radius: 10px;
+    padding: 16px; margin-bottom: 16px; box-shadow: var(--gsp-shadow);
+}
+
+/* Section eyebrow: small, uppercase, muted. */
+.gsp-eyebrow {
+    margin: 0 0 8px; color: var(--gsp-muted);
+    font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+/* Pills: status or counts. The color-bearing variants color both text and border; pair them with a word or icon. */
+.gsp-pill {
+    display: inline-block; box-sizing: border-box; white-space: nowrap;
+    padding: 3px 10px; border: 1px solid var(--gsp-line); border-radius: 999px;
+    font-size: 12px; font-weight: 600; line-height: 1.4; color: var(--gsp-ink);
+}
+.gsp-pill.ok { color: var(--gsp-ok); border-color: currentColor; }
+.gsp-pill.warn { color: var(--gsp-warn); border-color: currentColor; }
+.gsp-pill.bad { color: var(--gsp-bad); border-color: currentColor; }
+.gsp-pill.muted { color: var(--gsp-muted); }
+
+.gsp-footer { padding: 16px 20px 24px; color: var(--gsp-muted); font-size: 12px; text-align: center; }
+
+/* ---- Buttons, for plain markup (dialog feet, loading and error screens) ------------------------------------------ */
+.gsp-button {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box;
+    padding: 6px 14px; border: 1px solid var(--gsp-line); border-radius: 7px;
+    background: transparent; color: var(--gsp-ink); cursor: pointer;
+    font: inherit; font-size: 13px; font-weight: 600; line-height: 1.5; text-decoration: none;
+}
+.gsp-button:hover { border-color: var(--gsp-muted); background: var(--gsp-sunken); }
+.gsp-button.primary { background: var(--gsp-accent); border-color: var(--gsp-accent-text); color: var(--gsp-accent-ink); }
+.gsp-button.primary:hover { background: color-mix(in srgb, var(--gsp-accent) 92%, var(--gsp-accent-ink)); }
+.gsp-button:disabled { opacity: .5; cursor: not-allowed; }
+.gsp-hint { color: var(--gsp-muted); font-size: 13px; }
+a.gsp-link, .gsp-link-button { color: var(--gsp-accent-text); }
+.gsp-link-button { background: none; border: 0; padding: 0; font: inherit; font-size: inherit; text-decoration: underline; cursor: pointer; }
+
+/* A version pill that opens the About dialog: the same pill, with a hover and focus treatment. */
+button.gsp-pill { background: transparent; font-family: inherit; line-height: inherit; cursor: pointer; transition: border-color .15s, background-color .15s; }
+button.gsp-pill:hover { color: var(--gsp-ink); border-color: var(--gsp-muted); background: var(--gsp-sunken); }
+.gsp-footer .gsp-link-button { margin-left: .5em; font-size: inherit; color: var(--gsp-muted); }
+.gsp-footer .gsp-link-button:hover { color: var(--gsp-ink); }
+
+/* ---- The ring: the product logo inside a track and an arc ---------------------------------------------------------- */
+/* A conic gradient masked to a ring. `.gsp-ring` shows real progress: the arc's length is Blazor's --blazor-load-percentage (set on
+   :root by blazor.webassembly.js while it downloads the app; a percentage is a valid color-stop position). Without the variable
+   the arc is a fixed quarter turn that spins: the spin's duration is the variable itself, which is not a time, so with the
+   variable present the declaration is invalid at computed-value time and the animation does not run. `.gsp-ring.indeterminate`
+   (the connection overlay, which can appear long after the load) always spins, whatever the variable says. */
+.gsp-ring { position: relative; display: grid; place-items: center; width: 112px; height: 112px; flex: 0 0 auto; }
+.gsp-ring.small { width: 56px; height: 56px; }
+.gsp-ring-logo { grid-area: 1 / 1; width: 64%; height: 64%; object-fit: contain; }
+.gsp-ring::before {
+    content: ""; position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(var(--gsp-accent-text) var(--blazor-load-percentage, 25%), var(--gsp-line) 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+    animation-name: gsp-spin; animation-timing-function: linear; animation-iteration-count: infinite;
+    animation-duration: var(--blazor-load-percentage, 0.9s);
+}
+.gsp-ring.indeterminate::before { background: conic-gradient(var(--gsp-accent-text) 25%, var(--gsp-line) 0); animation-duration: 0.9s; }
+@keyframes gsp-spin { to { transform: rotate(360deg); } }
+
+/* ---- Loading screen (static markup in index.html, before Blazor starts) ---------------------------------------------- */
+.gsp-loading {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    box-sizing: border-box; min-height: 100vh; min-height: 100dvh; padding: 20px; text-align: center;
+    color: var(--gsp-muted);
+}
+.gsp-loading-text { font-size: 15px; font-weight: 500; }
+/* The percentage Blazor reports, as text under the line above (nothing until Blazor sets --blazor-load-percentage-text). */
+.gsp-loading::after {
+    content: var(--blazor-load-percentage-text, ""); min-height: 1.4em; margin-top: -8px;
+    font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 12px;
+}
+
+/* ---- Error bar and error boundary (Blazor's #blazor-error-ui and ErrorBoundary), as a house alert ---------------------- */
+#blazor-error-ui {
+    display: none; position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 3000; box-sizing: border-box;
+    padding: 10px 44px 10px 14px; background: var(--gsp-panel); color: var(--gsp-ink);
+    border: 1px solid var(--gsp-line); border-left: 4px solid var(--gsp-bad); border-radius: 0 9px 9px 0;
+    box-shadow: var(--gsp-dialog-shadow); font-size: 14px;
+}
+#blazor-error-ui strong { color: var(--gsp-bad); margin-right: 6px; }
+#blazor-error-ui .reload { margin-left: 8px; color: var(--gsp-accent-text); font-weight: 600; }
+#blazor-error-ui .dismiss {
+    position: absolute; top: 6px; right: 8px; padding: 2px 8px; border: 0; border-radius: 7px;
+    background: transparent; color: var(--gsp-muted); font: inherit; font-size: 18px; cursor: pointer;
+}
+.blazor-error-boundary {
+    padding: 12px 16px; background: var(--gsp-panel); color: var(--gsp-ink);
+    border: 1px solid var(--gsp-line); border-left: 4px solid var(--gsp-bad); border-radius: 0 9px 9px 0;
+}
+.blazor-error-boundary::after { content: "An error has occurred."; }
+
+/* ---- Connection overlay (ServiceConnectionOverlay) ------------------------------------------------------------------ */
+/* The page behind is dimmed and blurred (Suede's reconnect overlay); a centered card says what is wrong. */
+.gsp-connection-overlay .mud-overlay-scrim {
+    background-color: color-mix(in srgb, var(--gsp-bg) 72%, transparent);
+    backdrop-filter: blur(3px);
+}
+.gsp-connection-card {
+    display: flex; flex-direction: column; align-items: center; gap: 8px; box-sizing: border-box;
+    width: min(34em, calc(100vw - 32px)); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto;
+    padding: 22px 26px; background: var(--gsp-panel); color: var(--gsp-ink);
+    border: 1px solid var(--gsp-line); border-radius: 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, .28);
+    text-align: center;
+}
+.gsp-connection-title { margin: 8px 0 0; font-size: 17px; line-height: 1.3; font-weight: 700; letter-spacing: -0.01em; }
+.gsp-connection-detail { margin: 0; color: var(--gsp-muted); font-size: 14px; }
+.gsp-connection-state { align-self: stretch; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--gsp-line); text-align: left; }
+
+/* ---- Dialogs on the native <dialog> element (GspAboutDialog) -------------------------------------------------------- */
+dialog.gsp-dialog {
+    width: min(560px, calc(100vw - 32px)); max-width: none; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px);
+    margin: auto; /* centered in the viewport: MudBlazor's reset would otherwise zero the browser's margin: auto */
+    padding: 0; overflow: hidden; box-sizing: border-box;
+    border: 1px solid var(--gsp-line); border-radius: 12px; background: var(--gsp-panel); color: var(--gsp-ink);
+    box-shadow: var(--gsp-dialog-shadow);
+}
+dialog.gsp-dialog[open] { display: flex; flex-direction: column; }
+dialog.gsp-dialog::backdrop { background: var(--gsp-backdrop); }
+.gsp-dialog-body { padding: 18px; overflow-y: auto; }
+.gsp-dialog-foot {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;
+    padding: 12px 18px; border-top: 1px solid var(--gsp-line); background: var(--gsp-sunken);
+}
+.gsp-dialog h3 { font-size: 13px; margin: 18px 0 8px; color: var(--gsp-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ---- About ----------------------------------------------------------------------------------------------------------- */
+.gsp-about-button {
+    position: fixed; z-index: 1000;
+    left: max(12px, env(safe-area-inset-left)); bottom: max(12px, env(safe-area-inset-bottom));
+    display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+    width: 34px; height: 34px; padding: 0; border: 1px solid var(--gsp-line); border-radius: 999px;
+    background: var(--gsp-panel); color: var(--gsp-muted); cursor: pointer; box-shadow: var(--gsp-dialog-shadow);
+}
+.gsp-about-button:hover { color: var(--gsp-ink); border-color: var(--gsp-muted); background: var(--gsp-sunken); }
+.gsp-about-button svg { width: 18px; height: 18px; fill: currentColor; }
+.gsp-about-brand { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.gsp-about-logo { display: block; width: 128px; height: 128px; flex: 0 0 128px; object-fit: contain; }
+.gsp-about-brand h2 { margin: 0; font-size: 20px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02em; }
+.gsp-about-brand p { margin: 2px 0 0; }
+@media (max-width: 30em) {
+    .gsp-about-brand { flex-direction: column; align-items: flex-start; }
+    .gsp-about-logo { width: 96px; height: 96px; flex-basis: 96px; }
+}
+.gsp-kv { width: 100%; border-collapse: collapse; font-size: 14px; }
+.gsp-kv th, .gsp-kv td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--gsp-line); text-align: left; vertical-align: top; }
+.gsp-kv th { width: 7em; color: var(--gsp-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; padding-top: 8px; }
+.gsp-kv td { overflow-wrap: anywhere; }
+.gsp-kv tr:last-child th, .gsp-kv tr:last-child td { border-bottom: 0; }
+.gsp-about-links { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 10px 0 14px; font-size: 14px; }
+.gsp-about-links a { color: var(--gsp-accent-text); }
+.gsp-about-credit { display: flex; align-items: center; gap: 12px; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--gsp-line); }
+.gsp-about-credit a { display: flex; align-items: center; gap: 12px; color: var(--gsp-muted); font-size: 13px; text-decoration: none; }
+.gsp-about-credit a:hover { color: var(--gsp-ink); }
+.gsp-about-credit a:focus-visible { border-radius: 4px; outline-offset: 2px; }
+.gsp-logo { display: block; width: 48px; height: 48px; flex: 0 0 48px; color: var(--gsp-ink); }
+
+/* ---- Header content: the host name and the connection pill (GspRuntimeState) --------------------------------------- */
+.gsp-host { color: var(--gsp-muted); font-size: 13px; white-space: nowrap; }
+.gsp-host .gsp-data { color: var(--gsp-ink); }
+.gsp-host-label { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+.gsp-connection { display: inline-flex; align-items: center; gap: 6px; }
+.gsp-connection-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }

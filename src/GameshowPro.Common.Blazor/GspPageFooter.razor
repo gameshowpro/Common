@@ -1,20 +1,30 @@
+@implements IDisposable
+@inject IServiceProvider Services
+
 <footer class="gsp-footer @Class" @attributes="AdditionalAttributes">
-    <span>@ProductName@(string.IsNullOrEmpty(Version) ? "" : " " + Version), @Copyright</span>
+    <span>@EffectiveProductName@(string.IsNullOrEmpty(EffectiveVersion) ? "" : " " + EffectiveVersion), @EffectiveCopyright</span>
+    @if (_state?.AboutAvailable == true)
+    {
+        <button type="button" class="gsp-link-button" @onclick="OnAboutClicked">About</button>
+    }
     @ChildContent
 </footer>
 
 @code {
-    /// <summary>The product name.</summary>
-    [Parameter, EditorRequired]
-    public string ProductName { get; set; } = "";
+    private GspAppInfo? _info;
+    private GspRuntimeState? _state;
 
-    /// <summary>The version text shown after the product name. Omitted when empty.</summary>
+    /// <summary>Overrides the product name (default: derived from the app's assembly).</summary>
+    [Parameter]
+    public string? ProductName { get; set; }
+
+    /// <summary>Overrides the version text (default: the app's public version). Omitted when empty.</summary>
     [Parameter]
     public string? Version { get; set; }
 
-    /// <summary>The copyright text.</summary>
+    /// <summary>Overrides the copyright text (default: from the assembly, else <c>© 2026 Barjonas LLC</c>).</summary>
     [Parameter]
-    public string Copyright { get; set; } = "© 2026 Barjonas LLC";
+    public string? Copyright { get; set; }
 
     /// <summary>Optional extra content after the copyright line (links, a license note).</summary>
     [Parameter]
@@ -27,4 +37,32 @@
     /// <summary>Other attributes, splatted onto the <c>footer</c> element.</summary>
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string EffectiveProductName => ProductName ?? _info?.ProductName ?? "";
+
+    private string? EffectiveVersion => Version ?? _info?.Version;
+
+    private string EffectiveCopyright => Copyright ?? _info?.Copyright ?? GspAppInfo.DefaultCopyright;
+
+    protected override void OnInitialized()
+    {
+        _info = Services.GetService(typeof(GspAppInfo)) as GspAppInfo;
+        _state = Services.GetService(typeof(GspRuntimeState)) as GspRuntimeState;
+        if (_state is not null)
+        {
+            _state.Changed += OnStateChanged;
+        }
+    }
+
+    private void OnAboutClicked() => _state?.RequestAbout();
+
+    private void OnStateChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        if (_state is not null)
+        {
+            _state.Changed -= OnStateChanged;
+        }
+    }
 }

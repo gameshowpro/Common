@@ -1,0 +1,51 @@
+@inject IServiceProvider Services
+
+@* The whole house page frame in one component, for a layout: the theme (following the OS), MudBlazor's providers, the header,
+   the content column, the footer, and the About dialog with its button. Everything it shows comes from AddGspHouseStyle
+   and the app's assembly. Use it as `<GspAppShell>@Body</GspAppShell>` in a layout. *@
+<GspThemeProvider ForceDarkMode="ForceDarkMode" IsDarkModeChanged="IsDarkModeChanged" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<GspAppHeader>@HeaderContent</GspAppHeader>
+<main class="gsp-main">
+    @ChildContent
+</main>
+<GspPageFooter>@FooterContent</GspPageFooter>
+<GspAboutDialog>@AboutContent</GspAboutDialog>
+@if (ShowAboutButton)
+{
+    <GspAboutButton />
+}
+
+@code {
+    /// <summary>The page content, usually the layout's <c>@Body</c>.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Extra content for the right side of the header.</summary>
+    [Parameter]
+    public RenderFragment? HeaderContent { get; set; }
+
+    /// <summary>Extra content after the footer's copyright line.</summary>
+    [Parameter]
+    public RenderFragment? FooterContent { get; set; }
+
+    /// <summary>Product-specific extras at the end of the About dialog.</summary>
+    [Parameter]
+    public RenderFragment? AboutContent { get; set; }
+
+    /// <summary>Forces a theme (<c>true</c> dark, <c>false</c> light); <c>null</c> (default) follows the OS.</summary>
+    [Parameter]
+    public bool? ForceDarkMode { get; set; }
+
+    /// <summary>Raised with the effective mode once known and whenever it changes.</summary>
+    [Parameter]
+    public EventCallback<bool> IsDarkModeChanged { get; set; }
+
+    /// <summary>Overrides <see cref="GspHouseOptions.ShowAboutButton"/> (default: the registration's value, true if none).</summary>
+    [Parameter]
+    public bool? ShowAboutButtonOverride { get; set; }
+
+    private bool ShowAboutButton => ShowAboutButtonOverride ?? (Services.GetService(typeof(GspAppInfo)) as GspAppInfo)?.ShowAboutButton ?? true;
+}

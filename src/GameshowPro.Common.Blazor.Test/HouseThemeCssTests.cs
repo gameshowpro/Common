@@ -17,13 +17,13 @@ public class HouseThemeCssTests
     {
         for (DirectoryInfo? dir = new(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
         {
-            string candidate = Path.Combine(dir.FullName, "src", "GameshowPro.Common.Blazor", "wwwroot", "gsp-house.css");
+            string candidate = Path.Combine(dir.FullName, "src", "GameshowPro.Common.Blazor", "wwwroot", "gsp-house-base.css");
             if (File.Exists(candidate))
             {
                 return candidate;
             }
         }
-        throw new FileNotFoundException("gsp-house.css not found above " + AppContext.BaseDirectory);
+        throw new FileNotFoundException("gsp-house-base.css not found above " + AppContext.BaseDirectory);
     }
 
     private static (Dictionary<string, string> Light, Dictionary<string, string> Dark) ReadDefaults()
@@ -31,12 +31,12 @@ public class HouseThemeCssTests
         string css = File.ReadAllText(CssPath());
         int dark = css.LastIndexOf("@media (prefers-color-scheme: dark)", StringComparison.Ordinal);
         Assert.IsGreaterThan(0, dark, "dark block not found");
-        static Dictionary<string, string> Read(string text) => Regex.Matches(text, @"--gsp-default-([a-z-]+):\s*([^;]+);")
+        static Dictionary<string, string> Read(string text) => Regex.Matches(text, @"--gsp-default-([a-z0-9-]+):\s*([^;]+);")
             .ToDictionary(m => m.Groups[1].Value, m => m.Groups[2].Value.Trim());
         return (Read(css[..dark]), Read(css[dark..]));
     }
 
-    private static void AssertDefaults(Dictionary<string, string> actual, Palette p, GspAccentColors accent, string shadow)
+    private static void AssertDefaults(Dictionary<string, string> actual, Palette p, GspAccentColors accent, GspAccentColors secondary, string shadow)
     {
         Dictionary<string, string> expected = new()
         {
@@ -44,6 +44,7 @@ public class HouseThemeCssTests
             ["ink"] = GspContrast.Hex(p.TextPrimary), ["muted"] = GspContrast.Hex(p.TextSecondary), ["line"] = GspContrast.Hex(p.LinesDefault),
             ["ok"] = GspContrast.Hex(p.Success), ["warn"] = GspContrast.Hex(p.Warning), ["bad"] = GspContrast.Hex(p.Error),
             ["accent"] = accent.Fill, ["accent-ink"] = accent.OnFill, ["accent-text"] = accent.Text,
+            ["accent-2"] = secondary.Fill, ["accent-2-ink"] = secondary.OnFill, ["accent-2-text"] = secondary.Text,
             ["shadow"] = shadow,
         };
         foreach ((string key, string value) in expected)
@@ -58,8 +59,8 @@ public class HouseThemeCssTests
     {
         (Dictionary<string, string> light, Dictionary<string, string> dark) = ReadDefaults();
         MudTheme theme = GspHouseTheme.Create(GspAccent.Indigo);
-        AssertDefaults(light, theme.PaletteLight, GspAccent.Indigo.Light, "0 1px 3px rgba(0, 0, 0, .07)");
-        AssertDefaults(dark, theme.PaletteDark, GspAccent.Indigo.Dark, "none");
+        AssertDefaults(light, theme.PaletteLight, GspAccent.Indigo.Light, GspHouseTheme.NeutralSecondaryLight, "0 1px 3px rgba(0, 0, 0, .07)");
+        AssertDefaults(dark, theme.PaletteDark, GspAccent.Indigo.Dark, GspHouseTheme.NeutralSecondaryDark, "none");
     }
 
     [TestMethod]

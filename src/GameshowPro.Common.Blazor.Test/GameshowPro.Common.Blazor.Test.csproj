@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
     <Configurations>Debug;Release;ReleaseWindows;DebugWindows</Configurations>
+    <!-- This assembly stands in for an app in HouseStyleRegistrationTests: the properties below are what GspAppInfo derives from. -->
+    <RepositoryUrl>https://github.com/gameshowpro/Example</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GspDocumentationUrl>https://example.test/docs</GspDocumentationUrl>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="bunit" Version="2.14.0" />
@@ -16,4 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\GameshowPro.Common.Blazor\GameshowPro.Common.Blazor.csproj" />
   </ItemGroup>
+  <!-- A project that references GameshowPro.Common.Blazor as a PROJECT imports its targets file explicitly (a package reference does it by itself). -->
+  <Import Project="..\GameshowPro.Common.Blazor\build\GameshowPro.Common.Blazor.targets" />
 </Project>

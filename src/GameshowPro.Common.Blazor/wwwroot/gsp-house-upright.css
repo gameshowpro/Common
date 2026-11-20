@@ -1,0 +1,4 @@
+/* gsp-house.css without the italic font faces: MudBlazor's stylesheet, the upright fonts only, the house rules and tokens. */
+@import url("../MudBlazor/MudBlazor.min.css");
+@import url("fonts/fonts-upright.css");
+@import url("gsp-house-base.css");

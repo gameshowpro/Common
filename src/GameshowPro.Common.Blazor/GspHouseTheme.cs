@@ -20,7 +20,7 @@ namespace GameshowPro.Common.Blazor;
 /// text) with the same hue and saturation, so that they reach WCAG AA (4.5:1) wherever they are drawn as text.
 /// </para>
 /// <para>
-/// MudBlazor's <c>Primary</c> is the accent's <see cref="GspAccentColors.Text"/>, since MudBlazor draws it as text,
+/// A product may give a second accent; it maps to MudBlazor's <c>Secondary</c> the same way. MudBlazor's <c>Primary</c> is the accent's <see cref="GspAccentColors.Text"/>, since MudBlazor draws it as text,
 /// outlines and focus; <c>PrimaryContrastText</c> is whichever of white and the accent's
 /// <see cref="GspAccentColors.OnFill"/> reads better on it. A filled <c>Color.Primary</c> MudBlazor control therefore
 /// uses the accent text color as its fill; plain markup that wants the exact brand fill uses
@@ -32,21 +32,31 @@ public static class GspHouseTheme
     private const string LightInk = "#16191d";
     private const string DarkInk = "#e8eaed";
 
-    /// <summary>A new house theme with the given accent. Pass the same <paramref name="accent"/> to <see cref="GspThemeProvider"/>.</summary>
-    public static MudTheme Create(GspAccent accent)
+    /// <summary>The house neutral that MudBlazor's <c>Secondary</c> is when a product has no second accent (light theme).</summary>
+    public static GspAccentColors NeutralSecondaryLight { get; } = new("#667085", "#ffffff", "#667085");
+
+    /// <summary>The house neutral that MudBlazor's <c>Secondary</c> is when a product has no second accent (dark theme).</summary>
+    public static GspAccentColors NeutralSecondaryDark { get; } = new("#98a2b3", "#13151a", "#98a2b3");
+
+    /// <summary>
+    /// A new house theme with the given accent. Pass the same arguments to <see cref="GspThemeProvider"/>. The optional
+    /// <paramref name="secondary"/> accent becomes MudBlazor's <c>Secondary</c> (by its <see cref="GspAccentColors.Text"/>);
+    /// without it <c>Secondary</c> stays the house neutral.
+    /// </summary>
+    public static MudTheme Create(GspAccent accent, GspAccent? secondary = null)
     {
         ArgumentNullException.ThrowIfNull(accent);
         return new MudTheme
         {
-            PaletteLight = CreateLight(accent.Light),
-            PaletteDark = CreateDark(accent.Dark),
+            PaletteLight = CreateLight(accent.Light, secondary?.Light),
+            PaletteDark = CreateDark(accent.Dark, secondary?.Dark),
             Typography = CreateTypography(),
             LayoutProperties = new LayoutProperties { DefaultBorderRadius = "7px" },
         };
     }
 
-    /// <summary>The light palette for <paramref name="accent"/>.</summary>
-    public static PaletteLight CreateLight(GspAccentColors accent)
+    /// <summary>The light palette for <paramref name="accent"/> and the optional <paramref name="secondary"/> accent.</summary>
+    public static PaletteLight CreateLight(GspAccentColors accent, GspAccentColors? secondary = null)
     {
         ArgumentNullException.ThrowIfNull(accent);
         PaletteLight palette = new()
@@ -79,20 +89,18 @@ public static class GspHouseTheme
             ErrorContrastText = "#ffffff",
             Info = "#1c6fb8",
             InfoContrastText = "#ffffff",
-            Secondary = "#667085",
-            SecondaryContrastText = "#ffffff",
             Tertiary = "#1c6fb8",
             TertiaryContrastText = "#ffffff",
             Dark = LightInk,
             DarkContrastText = "#ffffff",
         };
-        ApplyAccent(palette, accent);
+        ApplyAccents(palette, accent, secondary ?? NeutralSecondaryLight);
         ApplyShades(palette, darkenForText: true);
         return palette;
     }
 
-    /// <summary>The dark palette for <paramref name="accent"/>.</summary>
-    public static PaletteDark CreateDark(GspAccentColors accent)
+    /// <summary>The dark palette for <paramref name="accent"/> and the optional <paramref name="secondary"/> accent.</summary>
+    public static PaletteDark CreateDark(GspAccentColors accent, GspAccentColors? secondary = null)
     {
         ArgumentNullException.ThrowIfNull(accent);
         PaletteDark palette = new()
@@ -125,26 +133,29 @@ public static class GspHouseTheme
             ErrorContrastText = "#13151a",
             Info = "#74b4f0",
             InfoContrastText = "#13151a",
-            Secondary = "#98a2b3",
-            SecondaryContrastText = "#13151a",
             Tertiary = "#74b4f0",
             TertiaryContrastText = "#13151a",
             Dark = "#2a2f38",
             DarkContrastText = DarkInk,
         };
-        ApplyAccent(palette, accent);
+        ApplyAccents(palette, accent, secondary ?? NeutralSecondaryDark);
         ApplyShades(palette, darkenForText: false);
         return palette;
     }
 
-    private static void ApplyAccent(Palette palette, GspAccentColors accent)
+    private static void ApplyAccents(Palette palette, GspAccentColors primary, GspAccentColors secondary)
     {
-        palette.Primary = accent.Text;
-        // MudBlazor fills Color.Primary controls with Primary, so their text must read on the accent *text* color.
-        palette.PrimaryContrastText = GspContrast.Ratio(new MudColor("#ffffff"), new MudColor(accent.Text)) >= GspContrast.Ratio(new MudColor(accent.OnFill), new MudColor(accent.Text))
+        palette.Primary = primary.Text;
+        palette.PrimaryContrastText = ContrastTextOnText(primary);
+        palette.Secondary = secondary.Text;
+        palette.SecondaryContrastText = ContrastTextOnText(secondary);
+    }
+
+    // MudBlazor fills Color.Primary / Color.Secondary controls with the accent's *text* color, so their text must read on that.
+    private static string ContrastTextOnText(GspAccentColors accent)
+        => GspContrast.Ratio(new MudColor("#ffffff"), new MudColor(accent.Text)) >= GspContrast.Ratio(new MudColor(accent.OnFill), new MudColor(accent.Text))
             ? "#ffffff"
             : accent.OnFill;
-    }
 
     /// <summary>
     /// Sets the Darken/Lighten variants MudBlazor uses for hover, pressed and alert text, which it would otherwise

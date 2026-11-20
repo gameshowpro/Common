@@ -1,0 +1,27 @@
+<Project>
+  <!--
+    Adds the facts the GameshowPro house style shows in a product's About dialog to the consuming app's assembly as
+    AssemblyMetadata, so that the app declares nothing twice: the build date, the license expression, the project URL and a
+    documentation URL, when the project defines them. The product name, version, copyright and repository URL come from the
+    SDK's own assembly attributes (Product, InformationalVersion, Copyright, RepositoryUrl).
+
+    Imported automatically when the package is referenced. A project that references GameshowPro.Common.Blazor as a PROJECT
+    imports it explicitly:
+      <Import Project="path\to\Common\src\GameshowPro.Common.Blazor\build\GameshowPro.Common.Blazor.targets" />
+
+    Set GspBuildDate (any text) to override the date, for example to make a build reproducible; GspAddAssemblyMetadata=false
+    turns the whole thing off.
+  -->
+  <PropertyGroup>
+    <GspAddAssemblyMetadata Condition="'$(GspAddAssemblyMetadata)' == ''">true</GspAddAssemblyMetadata>
+    <GspBuildDate Condition="'$(GspBuildDate)' == ''">$([System.DateTime]::UtcNow.ToString('yyyy-MM-dd'))</GspBuildDate>
+  </PropertyGroup>
+  <Target Name="GspAddAssemblyMetadata" BeforeTargets="GetAssemblyAttributes" Condition="'$(GspAddAssemblyMetadata)' == 'true'">
+    <ItemGroup>
+      <AssemblyMetadata Include="GspBuildDate" Value="$(GspBuildDate)" />
+      <AssemblyMetadata Include="PackageLicenseExpression" Value="$(PackageLicenseExpression)" Condition="'$(PackageLicenseExpression)' != ''" />
+      <AssemblyMetadata Include="PackageProjectUrl" Value="$(PackageProjectUrl)" Condition="'$(PackageProjectUrl)' != ''" />
+      <AssemblyMetadata Include="GspDocumentationUrl" Value="$(GspDocumentationUrl)" Condition="'$(GspDocumentationUrl)' != ''" />
+    </ItemGroup>
+  </Target>
+</Project>

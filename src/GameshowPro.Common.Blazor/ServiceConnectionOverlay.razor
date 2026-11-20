@@ -1,16 +1,28 @@
 @implements IDisposable
 
-<MudOverlay Visible="@IsVisible" DarkBackground="true" ZIndex="2000">
-    <MudPaper Class="pa-8 d-flex flex-column align-center gap-4 gsp-connection-overlay" Elevation="10" Style="min-width: 22rem;">
-        <MudProgressCircular Indeterminate="true" Color="Color.Error" Size="Size.Large" />
-        <MudText Typo="Typo.h6">@Title</MudText>
+@inject IServiceProvider Services
+
+@* Dims and blurs the page behind (Suede's reconnect overlay) and shows a centered card: the product logo inside a spinning
+   ring (or the ring alone without a logo), the title, the detail, ChildContent and the service-state tree. The icon and
+   product name default to the app's registration (AddGspHouseStyle) when there is one. *@
+<MudOverlay Visible="@IsVisible" DarkBackground="true" ZIndex="2000" Class="gsp-connection-overlay">
+    <div class="gsp-connection-card" role="alertdialog" aria-modal="true" aria-labelledby="gsp-connection-title">
+        <div class="gsp-ring indeterminate @(string.IsNullOrEmpty(EffectiveIconUrl) ? "small" : "")" role="status" aria-label="Reconnecting">
+            @if (!string.IsNullOrEmpty(EffectiveIconUrl))
+            {
+                <img class="gsp-ring-logo" src="@EffectiveIconUrl" alt="" />
+            }
+        </div>
+        <h2 id="gsp-connection-title" class="gsp-connection-title">@EffectiveTitle</h2>
         @if (!string.IsNullOrEmpty(Detail))
         {
-            <MudText Typo="Typo.body2" Class="mud-text-secondary">@Detail</MudText>
+            <p class="gsp-connection-detail">@Detail</p>
         }
         @ChildContent
-        <ServiceStateUi DataContext="DataContext" />
-    </MudPaper>
+        <div class="gsp-connection-state">
+            <ServiceStateUi DataContext="DataContext" />
+        </div>
+    </div>
 </MudOverlay>
 
 @code {
@@ -22,8 +34,37 @@
     [Parameter, EditorRequired]
     public ServiceState? DataContext { get; set; }
 
+    /// <summary>
+    /// The heading. Left unset, it reads "Reconnecting to {ProductName}..." when a product name is known (the
+    /// <see cref="ProductName"/> parameter, else the app's <c>AddGspHouseStyle</c> registration) and "Disconnected from service" otherwise.
+    /// </summary>
     [Parameter]
-    public string Title { get; set; } = "Disconnected from service";
+    public string? Title { get; set; }
+
+    /// <summary>The product icon shown inside the ring. Defaults to the app icon of <c>AddGspHouseStyle</c>, when registered; without any the ring is shown alone.</summary>
+    [Parameter]
+    public string? IconUrl { get; set; }
+
+    /// <summary>The product name for the default title. Defaults to the name derived by <c>AddGspHouseStyle</c>, when registered.</summary>
+    [Parameter]
+    public string? ProductName { get; set; }
+
+    private GspAppInfo? AppInfo => Services.GetService(typeof(GspAppInfo)) as GspAppInfo;
+
+    private string? EffectiveIconUrl => IconUrl ?? AppInfo?.IconUrl;
+
+    private string EffectiveTitle
+    {
+        get
+        {
+            if (Title is not null)
+            {
+                return Title;
+            }
+            string? name = ProductName ?? AppInfo?.ProductName;
+            return string.IsNullOrEmpty(name) ? "Disconnected from service" : $"Reconnecting to {name}...";
+        }
+    }
 
     /// <summary>Free-text status line, e.g. a retry-attempt counter.</summary>
     [Parameter]

@@ -1,0 +1,32 @@
+@inject IServiceProvider Services
+
+@* The small round "About" button fixed at the bottom left of the viewport (above the page, below dialogs and overlays). *@
+<button type="button" class="gsp-about-button @Class" title="About @ProductName" aria-label="About @ProductName" @onclick="OnClick" @attributes="AdditionalAttributes">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z" /></svg>
+</button>
+
+@code {
+    private GspAppInfo? _info;
+    private GspRuntimeState? _state;
+
+    /// <summary>Overrides the product name used in the button's label (default: derived from the app's assembly).</summary>
+    [Parameter]
+    public string? ProductName { get; set; }
+
+    /// <summary>Extra CSS classes.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>Other attributes, splatted onto the <c>button</c>.</summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _info = Services.GetService(typeof(GspAppInfo)) as GspAppInfo;
+        _state = Services.GetService(typeof(GspRuntimeState)) as GspRuntimeState;
+        ProductName ??= _info?.ProductName;
+    }
+
+    private void OnClick() => _state?.RequestAbout();
+}
