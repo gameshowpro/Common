@@ -2,7 +2,7 @@
   <Choose>
     <When Condition="'$(Configuration)' == 'ReleaseWindows' OR '$(Configuration)' == 'DebugWindows'">
       <PropertyGroup>
-        <TargetFrameworks>net10.0-windows</TargetFrameworks>
+        <TargetFrameworks>net11.0-windows</TargetFrameworks>
         <DefineConstants>$(DefineConstants);WPF</DefineConstants>
         <Title>GameshowPro utilities for Json.NET - Windows version</Title>
         <PackageTags>GameshowPro Common Json.NET Windows</PackageTags>
@@ -13,7 +13,7 @@
     </When>
     <Otherwise>
       <PropertyGroup>
-        <TargetFrameworks>net10.0</TargetFrameworks>
+        <TargetFrameworks>net11.0</TargetFrameworks>
         <Title>GameshowPro utilities for Json.NET - cross-platform</Title>
         <PackageTags>GameshowPro Common  Json.NET </PackageTags>
         <PackageId>GameshowPro.Common.JsonNet</PackageId>
@@ -28,7 +28,7 @@
     <NoWarn>$(NoWarn);IL2026;IL2057;IL3050</NoWarn>
     <ImplicitUsings>disable</ImplicitUsings>
     <Platforms>AnyCPU;x64;ARM64;ARM32</Platforms>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>15.0</LangVersion>
     <Company>Barjonas LLC</Company>
     <Authors>Hamish Barjonas</Authors>
     <Copyright>Barjonas LLC 2026</Copyright>

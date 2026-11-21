@@ -2,7 +2,7 @@
   <Choose>
     <When Condition="'$(Configuration)' == 'ReleaseWindows' OR '$(Configuration)' == 'DebugWindows'">
       <PropertyGroup>
-        <TargetFrameworks>net10.0-windows</TargetFrameworks>
+        <TargetFrameworks>net11.0-windows</TargetFrameworks>
         <DefineConstants>$(DefineConstants);WPF</DefineConstants>
         <Product>GameshowPro Common - Windows version</Product>
         <PackageTags>GameshowPro Common Windows</PackageTags>
@@ -17,7 +17,7 @@
     </When>
     <Otherwise>
       <PropertyGroup>
-        <TargetFrameworks>net10.0</TargetFrameworks>
+        <TargetFrameworks>net11.0</TargetFrameworks>
         <Product>GameshowPro Common - cross-platform</Product>
         <PackageTags>GameshowPro Common</PackageTags>
         <PackageId>GameshowPro.Common</PackageId>
@@ -45,7 +45,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Platforms>AnyCPU;x64;ARM64;ARM32</Platforms>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>15.0</LangVersion>
     <Company>Barjonas LLC</Company>
     <Authors>Hamish Barjonas</Authors>
     <Copyright>Barjonas LLC 2026</Copyright>
@@ -82,7 +82,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MessagePack" Version="3.1.12" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="11.0.0" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.10.94">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -93,7 +93,7 @@
     <PackageReference Include="MahApps.Metro" Version="2.4.11" />
     <PackageReference Include="MahApps.Metro.IconPacks" Version="6.2.1" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-    <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.14" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="11.0.0" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="GameshowPro.Common.Test" />
