@@ -38,9 +38,9 @@ dotnet_style_qualification_for_property = false:suggestion
 dotnet_style_qualification_for_method = false:suggestion
 dotnet_style_qualification_for_event = false:suggestion
 
-# only use var when it's obvious what the variable type is
-csharp_style_var_for_built_in_types = false:none
-csharp_style_var_when_type_is_apparent = false:none
+# never use var; always use explicit types
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = false:suggestion
 csharp_style_var_elsewhere = false:suggestion
 
 # use language keywords instead of BCL types
@@ -57,12 +57,14 @@ dotnet_naming_symbols.constant_fields.required_modifiers = const
 
 dotnet_naming_style.pascal_case_style.capitalization = pascal_case
 
-# static fields should have s_ prefix
+# non-public static fields should have s_ prefix. Public static fields (for example a formatter's Instance) are part of
+# the API and use PascalCase like any other public member.
 dotnet_naming_rule.static_fields_should_have_prefix.severity = suggestion
 dotnet_naming_rule.static_fields_should_have_prefix.symbols  = static_fields
 dotnet_naming_rule.static_fields_should_have_prefix.style    = static_prefix_style
 
 dotnet_naming_symbols.static_fields.applicable_kinds   = field
+dotnet_naming_symbols.static_fields.applicable_accessibilities = private, internal, private_protected
 dotnet_naming_symbols.static_fields.required_modifiers = static
 
 dotnet_naming_style.static_prefix_style.required_prefix = s_
@@ -80,7 +82,10 @@ dotnet_naming_style.camel_case_underscore_style.required_prefix = _
 dotnet_naming_style.camel_case_underscore_style.capitalization = camel_case 
 
 # Code style defaults
-dotnet_sort_system_directives_first = true
+# Import ordering is deliberately not configured. Setting dotnet_sort_system_directives_first or
+# dotnet_separate_import_directive_groups makes dotnet format report and "fix" import order (IMPORTS) into one
+# alphabetical list, which conflicts with the standard group order: System, Microsoft, other third parties,
+# GameshowPro, local (alphabetical within each group). Keep that order by review.
 csharp_preserve_single_line_blocks = true
 csharp_preserve_single_line_statements = false
 
@@ -132,6 +137,60 @@ csharp_space_between_method_declaration_parameter_list_parentheses = false
 csharp_space_between_parentheses = false
 csharp_space_between_square_brackets = false
 
+# -- Coding standards (from GameshowPro Docs coding-standards.md) --
+
+# Use file-scoped namespaces.
+csharp_style_namespace_declarations = file_scoped:error
+
+# IDE0160: Suppressed - contradicts file-scoped namespace standard
+# IDE0161: Convert to file-scoped namespace
+dotnet_diagnostic.IDE0160.severity = none
+dotnet_diagnostic.IDE0161.severity = error
+
+# IDE0005: Unnecessary using directive
+dotnet_diagnostic.IDE0005.severity = error
+
+# IDE0044: Make field readonly
+dotnet_diagnostic.IDE0044.severity = suggestion
+
+# IDE0090: Use target-typed new (Widget x = new(); not Widget x = new Widget();)
+dotnet_diagnostic.IDE0090.severity = suggestion
+
+# IDE0300/IDE0305: Use collection expressions ([.. list], [])
+dotnet_diagnostic.IDE0300.severity = suggestion
+dotnet_diagnostic.IDE0305.severity = suggestion
+
+# IDE0063: Use simple using statement (without braces)
+dotnet_diagnostic.IDE0063.severity = suggestion
+
+# IDE0065: Using directive placement inside or outside a namespace
+csharp_using_directive_placement = outside_namespace
+dotnet_diagnostic.IDE0065.severity = suggestion
+
+# IDE0410: Prefer labeled break/continue when they clarify nested-loop control flow
+csharp_style_prefer_labeled_jump_statements = true
+dotnet_diagnostic.IDE0410.severity = suggestion
+
+# IDE0280: Use nameof
+dotnet_diagnostic.IDE0280.severity = suggestion
+
+# IDE0110: Use discard (_) for unused out parameters
+dotnet_diagnostic.IDE0110.severity = suggestion
+
+# IDE0059: Remove unnecessary value assignment
+dotnet_diagnostic.IDE0059.severity = suggestion
+
+# IDE0011: Always brace statement bodies, even single statements
+csharp_prefer_braces = true
+dotnet_diagnostic.IDE0011.severity = suggestion
+
+# IDE0028: Use collection initializer
+dotnet_diagnostic.IDE0028.severity = suggestion
+
+# Keep line endings consistent
+end_of_line = crlf
+
+
 # C++ Files
 [*.{cpp,h,in}]
 curly_bracket_next_line = true
@@ -157,51 +216,6 @@ indent_size = 2
 [*.sh]
 end_of_line = lf
 [*.{cmd, bat}]
-end_of_line = crlf
-
-# IDE0160: Suppressed — contradicts file-scoped namespace standard
-# IDE0161: Convert to block-scoped namespace (reverse — error)
-dotnet_diagnostic.IDE0160.severity = none
-dotnet_diagnostic.IDE0161.severity = error
-
-# ── BgRaster coding standards (from coding-standards.md) ──
-
-# IDE0005: Unnecessary using directive - all usings go in GlobalUsings.cs
-dotnet_diagnostic.IDE0005.severity = error
-
-# IDE0044: Make field readonly
-dotnet_diagnostic.IDE0044.severity = suggestion
-
-# IDE0090: Use target-typed new (Widget x = new(); not Widget x = new Widget();)
-dotnet_diagnostic.IDE0090.severity = suggestion
-
-# IDE0300/IDE0305: Use collection expressions ([.. list], [])
-dotnet_diagnostic.IDE0300.severity = suggestion
-dotnet_diagnostic.IDE0305.severity = suggestion
-
-# IDE0063: Use simple using statement (without braces)
-dotnet_diagnostic.IDE0063.severity = suggestion
-
-# IDE0065: Using directive placement (System first)
-dotnet_diagnostic.IDE0065.severity = suggestion
-
-# IDE0280: Use nameof
-dotnet_diagnostic.IDE0280.severity = suggestion
-
-# IDE0110: Use discard (_) for unused out parameters
-dotnet_diagnostic.IDE0110.severity = suggestion
-
-# IDE0059: Remove unnecessary value assignment (don't init to default)
-dotnet_diagnostic.IDE0059.severity = suggestion
-
-# IDE0011: Add braces to single-statement blocks
-dotnet_diagnostic.IDE0011.severity = suggestion
-
-# IDE0028: Use collection initializer
-dotnet_diagnostic.IDE0028.severity = suggestion
-
-# IDE0073: File header template (SPDX + copyright not enforced here, checked manually)
-# But ensure end_of_line consistency
 end_of_line = crlf
 
 # P/Invoke Interop files: suppress naming rules for native struct fields and Win32 constants
