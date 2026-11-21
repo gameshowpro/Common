@@ -1058,7 +1058,7 @@ public static partial class Utils
             int minutes;
             if (includeHour)
             {
-                double hours = (timeSpan.Days * 24) + timeSpan.Hours;
+                int hours = (timeSpan.Days * 24) + timeSpan.Hours;
                 _ = stringBuilder.AppendFormat("{0:D1}", hours);
                 _ = stringBuilder.Append(':');
                 minutes = timeSpan.Minutes;
@@ -1106,14 +1106,14 @@ public static partial class Utils
                     changed = true;
                 }
             }
-            return changed ? chars.ToString() ?? string.Empty : input;
+            return changed ? new string(chars) : input;
         }
 
         /// <summary>
         /// If the supplied string is mostly upper case, returns true. If not, returns false. May return null if there is not enough data to determine case.
         /// </summary>
-        /// <param name="allowedLowerPercent">The percentage of lower case letters allowed before the string is considered to be upper case.</param>
-        /// <returns></returns>
+        /// <param name="allowedLowerPercent">The largest fraction (0 to 1) of the string's letters that may be lower case for it to still count as upper case.</param>
+        /// <returns>True if mostly upper case, false if not (including when there are no upper-case letters at all), or null if the counts are too close to call.</returns>
         public bool? IsUpperCase(double allowedLowerPercent = .50)
         {
             if (input is null)
@@ -1142,7 +1142,7 @@ public static partial class Utils
                 return null;
             }
             int upperLowerCount = upperCount + lowerCount;
-            return (((float)lowerCount) / upperLowerCount) > allowedLowerPercent;
+            return (((float)lowerCount) / upperLowerCount) <= allowedLowerPercent;
         }
     }
 
@@ -1401,22 +1401,30 @@ public static partial class Utils
             {
                 return false;
             }
-            if (s_isRecordTypeCache.TryGetValue(type, out bool isRecord))
-            {
-                return isRecord;
-            }
-            isRecord = type.GetMethods().Any(static m => m.Name == "<Clone>$");
-            s_isRecordTypeCache[type] = isRecord;
-            return isRecord;
+            return s_isRecordTypeCache.GetOrAdd(type, static t => t.GetMethods().Any(static m => m.Name == "<Clone>$"));
         }
     }
 
+    // Rooted here so that the timer is neither disposed nor collected before it fires.
+    private static Timer? s_processTerminateWatchdog;
+
+    /// <summary>
+    /// Kill the current process if it is still running after the given time. Call this at the end of an orderly shutdown to
+    /// guarantee that the process exits even if something is keeping it alive. Only the first call starts the countdown.
+    /// </summary>
+    /// <param name="logger">If supplied, used to log the start of the wait and the kill.</param>
+    /// <param name="timeout">How long to allow the process to exit by itself. Defaults to five seconds.</param>
     public static void StartProcessTerminateWatchdog(ILogger? logger = null, TimeSpan? timeout = null)
     {
-        TimeSpan defaultedTimeout = timeout ?? TimeSpan.FromSeconds(2);
-        using (Timer nuker = new(OnTimeout, null, defaultedTimeout, Timeout.InfiniteTimeSpan))
+        TimeSpan defaultedTimeout = timeout ?? TimeSpan.FromSeconds(5);
+        Timer nuker = new(OnTimeout, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        if (Interlocked.CompareExchange(ref s_processTerminateWatchdog, nuker, null) is not null)
         {
+            // A countdown is already running; the earlier deadline stands.
+            nuker.Dispose();
+            return;
         }
+        _ = nuker.Change(defaultedTimeout, Timeout.InfiniteTimeSpan);
         logger?.LogWatchdogWaiting(defaultedTimeout);
 
         void OnTimeout(object? state)
@@ -1455,7 +1463,15 @@ public static partial class Utils
             return null;
         }
 
-        return IsUpperCase(input, allowedLowerPercent) ?? upperIfUnknown ? input.ToUpper() : input;
+        // Mostly upper-case text is left alone so that deliberate lower-case letters survive; mostly lower-case text is
+        // upper-cased. Text with no upper-case letters at all is also left alone, as it always has been.
+        bool makeUpper = IsUpperCase(input, allowedLowerPercent) switch
+        {
+            null => upperIfUnknown,
+            true => false,
+            false => input.Any(char.IsUpper),
+        };
+        return makeUpper ? input.ToUpper() : input;
     }
 
     /// <summary>
@@ -1558,7 +1574,7 @@ public static partial class Utils
         }
         else if (diff < 0)
         {
-            return original[..(0 - diff)];
+            return original[..targetLength];
         }
         else
         {
@@ -2095,37 +2111,41 @@ public static partial class Utils
 
     private static ImmutableArray<int[]> AllShuffledNumbersPermutations(int sequenceLength, int permutationCount)
     {
-        int[][] permutations = new int[sequenceLength][];
+        if (sequenceLength <= 0)
+        {
+            return [];
+        }
+        ImmutableArray<int[]>.Builder permutations = ImmutableArray.CreateBuilder<int[]>(permutationCount);
         int[] indexes = new int[sequenceLength];
         int[] items = [.. Enumerable.Range(0, sequenceLength)];
-        for (int permutationIndex = 0; permutationIndex < permutationCount; permutationIndex++)
+        int[] identity = [.. items];
+        // Heap's algorithm yields every arrangement except the starting one, one swap at a time.
+        for (int i = 1; i < sequenceLength && permutations.Count < permutationCount - 1;)
         {
-            for (int i = 1; i < sequenceLength;)
+            if (indexes[i] < i)
             {
-                if (indexes[i] < i)
+                if ((i & 1) == 1)
                 {
-                    if ((i & 1) == 1)
-                    {
-                        Swap(ref items[i], ref items[indexes[i]]);
-                    }
-                    else
-                    {
-                        Swap(ref items[i], ref items[0]);
-                    }
-
-                    permutations[permutationIndex] = (int[])items.Clone();
-
-                    indexes[i]++;
-                    i = 1;
+                    Swap(ref items[i], ref items[indexes[i]]);
                 }
                 else
                 {
-                    indexes[i++] = 0;
+                    Swap(ref items[i], ref items[0]);
                 }
+
+                permutations.Add([.. items]);
+
+                indexes[i]++;
+                i = 1;
+            }
+            else
+            {
+                indexes[i++] = 0;
             }
         }
-
-        return [.. permutations];
+        // The in-order sequence comes last.
+        permutations.Add(identity);
+        return permutations.ToImmutable();
 
         static void Swap(ref int a, ref int b)
             => (b, a) = (a, b);
@@ -2164,7 +2184,7 @@ public static partial class Utils
 
     private static readonly Type s_runtimeType = typeof(Type).GetType(); //Trick to get an instance of an internal object.
 
-    private static readonly Dictionary<Type, bool> s_isRecordTypeCache = [];
+    private static readonly ConcurrentDictionary<Type, bool> s_isRecordTypeCache = [];
 
     public static T[] ArrayRepeat<T>(T value, int count)
     {

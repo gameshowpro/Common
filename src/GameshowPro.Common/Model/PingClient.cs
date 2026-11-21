@@ -32,7 +32,7 @@ public static class PingClient
     {
         DontFragment = true
     };
-    private static readonly byte[] s_buffer = Encoding.ASCII.GetBytes(Enumerable.Repeat('a', 32).ToArray().ToString()!);
+    private static readonly byte[] s_buffer = Encoding.ASCII.GetBytes(new string('a', 32));
     private static readonly TimeSpan s_timeout = TimeSpan.FromMilliseconds(120);
     /// <summary>
     /// Sends a ping to the specified IP address.

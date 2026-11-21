@@ -45,7 +45,7 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
 
                     if (logger.IsEnabled(LogLevel.Information))
                     {
-                        logger.LogInformation("Initializing {process} v{version} built {buildTime)}", process, version, buildTime);
+                        logger.LogInformation("Initializing {process} v{version} built {buildTime}", process, version, buildTime);
                     }
                     app.InitializeComponent();
                     _ = app.Run();

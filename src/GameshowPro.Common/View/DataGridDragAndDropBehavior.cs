@@ -70,7 +70,7 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
         AssociatedObject.BeginningEdit -= OnBeginEdit;
         AssociatedObject.CellEditEnding -= OnEndEdit;
         AssociatedObject.MouseLeftButtonUp -= OnMouseLeftButtonUp;
-        AssociatedObject.MouseLeftButtonDown -= OnMouseLeftButtonDown;
+        AssociatedObject.PreviewMouseLeftButtonDown -= OnMouseLeftButtonDown;
         AssociatedObject.MouseMove -= OnMouseMove;
 
         Popup = null;
