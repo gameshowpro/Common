@@ -1,7 +1,9 @@
-using GameshowPro.Common.Model;
-
 namespace GameshowPro.Common.Test;
 
+#if WPF
+// The Windows configurations target a Windows-only TFM, so every test class is platform-specific (MSTEST0084).
+[OSCondition(OperatingSystems.Windows)]
+#endif
 [TestClass]
 public class TestServiceState
 {
@@ -10,7 +12,7 @@ public class TestServiceState
     {
         // 1. Arrange: Create a parent state with one child.
         // The parent state uses GetAggregateState to calculate its aggregate state from children.
-        var parent = new ServiceState("ParentKey", "ParentName", new[] { "ChildName" }, ServiceState.GetAggregateState);
+        ServiceState parent = new("ParentKey", "ParentName", ["ChildName"], ServiceState.GetAggregateState);
 
         // Assert initial states (reflecting the current constructor behavior before we fix it)
         Assert.AreEqual(RemoteServiceStates.Disconnected, parent.AggregateState);
@@ -18,11 +20,11 @@ public class TestServiceState
         Assert.IsNull(parent.Progress);
 
         // 2. Act: Prepare a child update where all properties change.
-        var childUpdate = new ServiceState("ChildName", "ChildName", RemoteServiceStates.Connected, "All OK Details", 0.75);
+        ServiceState childUpdate = new("ChildName", "ChildName", RemoteServiceStates.Connected, "All OK Details", 0.75);
 
         // Update parent children with this new child state.
         // This will update the existing child in place.
-        parent.UpdateChildren(new[] { childUpdate });
+        parent.UpdateChildren([childUpdate]);
 
         // 3. Assert: Verify if the parent state has aggregated correctly from the updated child.
         System.Diagnostics.Debug.WriteLine($"Parent state after update: State={parent.AggregateState}, Detail='{parent.Detail}', Progress={parent.Progress}");

@@ -1,8 +1,9 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 namespace GameshowPro.Common.Test;
 
+#if WPF
+// The Windows configurations target a Windows-only TFM, so every test class is platform-specific (MSTEST0084).
+[OSCondition(OperatingSystems.Windows)]
+#endif
 [TestClass]
 public class TestFlexibleJsonConstructorConcurrency
 {
@@ -23,7 +24,7 @@ public class TestFlexibleJsonConstructorConcurrency
             List<Exception> failures = [];
             Thread[] threads = [.. Enumerable.Range(0, ThreadsPerRound).Select(_ => new Thread(() =>
             {
-                start.SignalAndWait();
+                start.SignalAndWait(TestContext.CancellationToken);
                 try
                 {
                     NullableCtorModel? model = JsonSerializer.Deserialize<NullableCtorModel>(json, options);
@@ -81,4 +82,6 @@ public class TestFlexibleJsonConstructorConcurrency
 
         public string Name { get; }
     }
+
+    public TestContext TestContext { get; set; }
 }

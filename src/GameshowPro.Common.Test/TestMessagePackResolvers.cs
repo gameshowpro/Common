@@ -1,16 +1,9 @@
-using System.Buffers;
-using System.Net;
-using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using GameshowPro.Common.MessagePack;
-using GameshowPro.Common.Model;
-using MessagePack;
-using MessagePack.Formatters;
-using MessagePack.Resolvers;
-
 namespace GameshowPro.Common.Test;
 
+#if WPF
+// The Windows configurations target a Windows-only TFM, so every test class is platform-specific (MSTEST0084).
+[OSCondition(OperatingSystems.Windows)]
+#endif
 [TestClass]
 public class TestMessagePackResolvers
 {
@@ -23,12 +16,12 @@ public class TestMessagePackResolvers
                 StandardResolver.Instance));
 
         IPAddress value = IPAddress.Parse("2001:db8::1");
-        byte[] bytes = MessagePackSerializer.Serialize(value, options);
-        IPAddress? result = MessagePackSerializer.Deserialize<IPAddress>(bytes, options);
+        byte[] bytes = MessagePackSerializer.Serialize(value, options, TestContext.CancellationToken);
+        IPAddress? result = MessagePackSerializer.Deserialize<IPAddress>(bytes, options, TestContext.CancellationToken);
 
         Assert.AreEqual(value, result);
-        Assert.IsTrue(bytes.Length >= 18);
-        Assert.IsFalse(bytes.Any(static b => b is ((byte)'.') or ((byte)':')));
+        Assert.IsGreaterThanOrEqualTo(18, bytes.Length);
+        Assert.DoesNotContain(static b => b is ((byte)'.') or ((byte)':'), bytes);
     }
 
     [TestMethod]
@@ -40,8 +33,8 @@ public class TestMessagePackResolvers
                 StandardResolver.Instance));
 
         IPEndPoint value = new(IPAddress.Parse("127.0.0.1"), 5678);
-        byte[] bytes = MessagePackSerializer.Serialize(value, options);
-        IPEndPoint? result = MessagePackSerializer.Deserialize<IPEndPoint>(bytes, options);
+        byte[] bytes = MessagePackSerializer.Serialize(value, options, TestContext.CancellationToken);
+        IPEndPoint? result = MessagePackSerializer.Deserialize<IPEndPoint>(bytes, options, TestContext.CancellationToken);
 
         Assert.IsNotNull(result);
         Assert.AreEqual(value.Address, result.Address);
@@ -52,7 +45,7 @@ public class TestMessagePackResolvers
     public void ConfigurableFormatterResolver_ShouldAllowOverrides()
     {
         ConfigurableFormatterResolver resolver = new ConfigurableFormatterResolver()
-            .RegisterFormatter(StringIPAddressFormatter.Instance)
+            .RegisterFormatter(StringIPAddressFormatter.s_instance)
             .AddResolver(BclFormatterResolver.Instance);
 
         MessagePackSerializerOptions options = MessagePackSerializerOptions.Standard.WithResolver(
@@ -61,8 +54,8 @@ public class TestMessagePackResolvers
                 StandardResolver.Instance));
 
         IPAddress value = IPAddress.Parse("10.20.30.40");
-        byte[] bytes = MessagePackSerializer.Serialize(value, options);
-        IPAddress? result = MessagePackSerializer.Deserialize<IPAddress>(bytes, options);
+        byte[] bytes = MessagePackSerializer.Serialize(value, options, TestContext.CancellationToken);
+        IPAddress? result = MessagePackSerializer.Deserialize<IPAddress>(bytes, options, TestContext.CancellationToken);
 
         Assert.AreEqual(value, result);
         Assert.IsTrue(bytes[0] is >= 0xA0 and <= 0xDB);
@@ -83,25 +76,25 @@ public class TestMessagePackResolvers
             ["enabled"] = true
         };
 
-        byte[] nodeBytes = MessagePackSerializer.Serialize<JsonNode?>(jsonObject, options);
-        JsonNode? nodeResult = MessagePackSerializer.Deserialize<JsonNode?>(nodeBytes, options);
+        byte[] nodeBytes = MessagePackSerializer.Serialize<JsonNode?>(jsonObject, options, TestContext.CancellationToken);
+        JsonNode? nodeResult = MessagePackSerializer.Deserialize<JsonNode?>(nodeBytes, options, TestContext.CancellationToken);
         Assert.IsNotNull(nodeResult);
         Assert.AreEqual("alpha", nodeResult!["name"]!.GetValue<string>());
 
-        byte[] objectBytes = MessagePackSerializer.Serialize(jsonObject, options);
-        JsonObject? objectResult = MessagePackSerializer.Deserialize<JsonObject?>(objectBytes, options);
+        byte[] objectBytes = MessagePackSerializer.Serialize(jsonObject, options, TestContext.CancellationToken);
+        JsonObject? objectResult = MessagePackSerializer.Deserialize<JsonObject?>(objectBytes, options, TestContext.CancellationToken);
         Assert.IsNotNull(objectResult);
         Assert.AreEqual(3, objectResult!["values"]!.AsArray().Count);
 
         JsonDocument document = JsonDocument.Parse("{\"kind\":\"doc\",\"n\":7}");
-        byte[] documentBytes = MessagePackSerializer.Serialize(document, options);
-        using JsonDocument? documentResult = MessagePackSerializer.Deserialize<JsonDocument?>(documentBytes, options);
+        byte[] documentBytes = MessagePackSerializer.Serialize(document, options, TestContext.CancellationToken);
+        using JsonDocument? documentResult = MessagePackSerializer.Deserialize<JsonDocument?>(documentBytes, options, TestContext.CancellationToken);
         Assert.IsNotNull(documentResult);
         Assert.AreEqual("doc", documentResult!.RootElement.GetProperty("kind").GetString());
 
         JsonElement element = document.RootElement;
-        byte[] elementBytes = MessagePackSerializer.Serialize<JsonElement?>(element, options);
-        JsonElement? elementResult = MessagePackSerializer.Deserialize<JsonElement?>(elementBytes, options);
+        byte[] elementBytes = MessagePackSerializer.Serialize<JsonElement?>(element, options, TestContext.CancellationToken);
+        JsonElement? elementResult = MessagePackSerializer.Deserialize<JsonElement?>(elementBytes, options, TestContext.CancellationToken);
         Assert.IsNotNull(elementResult);
         Assert.AreEqual(7, elementResult!.Value.GetProperty("n").GetInt32());
     }
@@ -115,14 +108,14 @@ public class TestMessagePackResolvers
                 StandardResolver.Instance));
 
         AssemblyName assemblyName = typeof(TestMessagePackResolvers).Assembly.GetName();
-        byte[] assemblyBytes = MessagePackSerializer.Serialize(assemblyName, options);
-        AssemblyName? assemblyResult = MessagePackSerializer.Deserialize<AssemblyName?>(assemblyBytes, options);
+        byte[] assemblyBytes = MessagePackSerializer.Serialize(assemblyName, options, TestContext.CancellationToken);
+        AssemblyName? assemblyResult = MessagePackSerializer.Deserialize<AssemblyName?>(assemblyBytes, options, TestContext.CancellationToken);
         Assert.IsNotNull(assemblyResult);
         Assert.AreEqual(assemblyName.Name, assemblyResult.Name);
 
         Exception source = new InvalidOperationException("Top level", new ArgumentException("Inner error"));
-        byte[] exceptionBytes = MessagePackSerializer.Serialize<Exception?>(source, options);
-        Exception? exceptionResult = MessagePackSerializer.Deserialize<Exception?>(exceptionBytes, options);
+        byte[] exceptionBytes = MessagePackSerializer.Serialize<Exception?>(source, options, TestContext.CancellationToken);
+        Exception? exceptionResult = MessagePackSerializer.Deserialize<Exception?>(exceptionBytes, options, TestContext.CancellationToken);
         Assert.IsNotNull(exceptionResult);
         Assert.AreEqual("Top level", exceptionResult.Message);
         _ = Assert.IsInstanceOfType<ExceptionFormatter.FormattedException>(exceptionResult);
@@ -138,14 +131,14 @@ public class TestMessagePackResolvers
                 BclFormatterResolver.Instance,
                 StandardResolver.Instance));
 
-        Assert.IsNull(MessagePackSerializer.Deserialize<IPAddress?>(MessagePackSerializer.Serialize<IPAddress?>(null, options), options));
-        Assert.IsNull(MessagePackSerializer.Deserialize<IPEndPoint?>(MessagePackSerializer.Serialize<IPEndPoint?>(null, options), options));
-        Assert.IsNull(MessagePackSerializer.Deserialize<JsonNode?>(MessagePackSerializer.Serialize<JsonNode?>(null, options), options));
-        Assert.IsNull(MessagePackSerializer.Deserialize<JsonObject?>(MessagePackSerializer.Serialize<JsonObject?>(null, options), options));
-        Assert.IsNull(MessagePackSerializer.Deserialize<JsonArray?>(MessagePackSerializer.Serialize<JsonArray?>(null, options), options));
-        Assert.IsNull(MessagePackSerializer.Deserialize<JsonDocument?>(MessagePackSerializer.Serialize<JsonDocument?>(null, options), options));
-        Assert.IsNull(MessagePackSerializer.Deserialize<AssemblyName?>(MessagePackSerializer.Serialize<AssemblyName?>(null, options), options));
-        Assert.IsNull(MessagePackSerializer.Deserialize<Exception?>(MessagePackSerializer.Serialize<Exception?>(null, options), options));
+        Assert.IsNull(MessagePackSerializer.Deserialize<IPAddress?>(MessagePackSerializer.Serialize<IPAddress?>(null, options, TestContext.CancellationToken), options, TestContext.CancellationToken));
+        Assert.IsNull(MessagePackSerializer.Deserialize<IPEndPoint?>(MessagePackSerializer.Serialize<IPEndPoint?>(null, options, TestContext.CancellationToken), options, TestContext.CancellationToken));
+        Assert.IsNull(MessagePackSerializer.Deserialize<JsonNode?>(MessagePackSerializer.Serialize<JsonNode?>(null, options, TestContext.CancellationToken), options, TestContext.CancellationToken));
+        Assert.IsNull(MessagePackSerializer.Deserialize<JsonObject?>(MessagePackSerializer.Serialize<JsonObject?>(null, options, TestContext.CancellationToken), options, TestContext.CancellationToken));
+        Assert.IsNull(MessagePackSerializer.Deserialize<JsonArray?>(MessagePackSerializer.Serialize<JsonArray?>(null, options, TestContext.CancellationToken), options, TestContext.CancellationToken));
+        Assert.IsNull(MessagePackSerializer.Deserialize<JsonDocument?>(MessagePackSerializer.Serialize<JsonDocument?>(null, options, TestContext.CancellationToken), options, TestContext.CancellationToken));
+        Assert.IsNull(MessagePackSerializer.Deserialize<AssemblyName?>(MessagePackSerializer.Serialize<AssemblyName?>(null, options, TestContext.CancellationToken), options, TestContext.CancellationToken));
+        Assert.IsNull(MessagePackSerializer.Deserialize<Exception?>(MessagePackSerializer.Serialize<Exception?>(null, options, TestContext.CancellationToken), options, TestContext.CancellationToken));
     }
 
     [TestMethod]
@@ -178,9 +171,9 @@ public class TestMessagePackResolvers
                 BclFormatterResolver.Instance,
                 StandardResolver.Instance));
 
-        byte[] valueBytes = MessagePackSerializer.Serialize(TimeSpan.FromSeconds(12), options);
-        byte[] nilBytes = MessagePackSerializer.Serialize<TimeSpan?>(null, options);
-        byte[] bytes = valueBytes.Concat(nilBytes).ToArray();
+        byte[] valueBytes = MessagePackSerializer.Serialize(TimeSpan.FromSeconds(12), options, TestContext.CancellationToken);
+        byte[] nilBytes = MessagePackSerializer.Serialize<TimeSpan?>(null, options, TestContext.CancellationToken);
+        byte[] bytes = [.. valueBytes, .. nilBytes];
 
         MessagePackReader reader = new(bytes);
         TimeSpan? first = reader.ReadNullable<TimeSpan>(options);
@@ -242,7 +235,7 @@ public class TestMessagePackResolvers
         MessagePackSerializerOptions options = MessagePackSerializerOptions.Standard;
 
         EdgeReport edge = new(1, 5, 3, TimeSpan.FromMilliseconds(250), true, false, TimeSpan.FromSeconds(2));
-        EdgeReport? edgeRoundTrip = MessagePackSerializer.Deserialize<EdgeReport?>(MessagePackSerializer.Serialize(edge, options), options);
+        EdgeReport? edgeRoundTrip = MessagePackSerializer.Deserialize<EdgeReport?>(MessagePackSerializer.Serialize(edge, options, TestContext.CancellationToken), options, TestContext.CancellationToken);
         Assert.IsNotNull(edgeRoundTrip);
         Assert.AreEqual(edge.Version, edgeRoundTrip.Version);
         Assert.AreEqual(edge.Ordinal, edgeRoundTrip.Ordinal);
@@ -250,7 +243,7 @@ public class TestMessagePackResolvers
         Assert.AreEqual(edge.LockoutTimeRemaining, edgeRoundTrip.LockoutTimeRemaining);
 
         LockoutReport lockout = new(1, 7, TimeSpan.FromMilliseconds(30), true);
-        LockoutReport? lockoutRoundTrip = MessagePackSerializer.Deserialize<LockoutReport?>(MessagePackSerializer.Serialize(lockout, options), options);
+        LockoutReport? lockoutRoundTrip = MessagePackSerializer.Deserialize<LockoutReport?>(MessagePackSerializer.Serialize(lockout, options, TestContext.CancellationToken), options, TestContext.CancellationToken);
         Assert.IsNotNull(lockoutRoundTrip);
         Assert.AreEqual(lockout.Version, lockoutRoundTrip.Version);
         Assert.AreEqual(lockout.Index, lockoutRoundTrip.Index);
@@ -260,7 +253,7 @@ public class TestMessagePackResolvers
             {
                 ["child"] = new ServiceState("child", "child", RemoteServiceStates.Connected, "ok", 1.0)
             });
-        ServiceState? stateRoundTrip = MessagePackSerializer.Deserialize<ServiceState?>(MessagePackSerializer.Serialize(state, options), options);
+        ServiceState? stateRoundTrip = MessagePackSerializer.Deserialize<ServiceState?>(MessagePackSerializer.Serialize(state, options, TestContext.CancellationToken), options, TestContext.CancellationToken);
         Assert.IsNotNull(stateRoundTrip);
         // Key and Name differ in this fixture deliberately: a swapped wire
         // order (the pre-2026-07 Serialize bug) fails here.
@@ -269,7 +262,7 @@ public class TestMessagePackResolvers
         Assert.AreEqual(state.Progress, stateRoundTrip.Progress);
         Assert.AreEqual(state.Detail, stateRoundTrip.Detail);
         Assert.AreEqual(state.AggregateState, stateRoundTrip.AggregateState);
-        CollectionAssert.AreEqual(state.Children.Keys.ToList(), stateRoundTrip.Children.Keys.ToList());
+        Assert.AreSequenceEqual(state.Children.Keys, stateRoundTrip.Children.Keys);
     }
 
     [TestMethod]
@@ -277,7 +270,7 @@ public class TestMessagePackResolvers
     {
         MessagePackSerializerOptions options = MessagePackSerializerOptions.Standard;
         ServiceState state = new("svc", "service-key", RemoteServiceStates.Warning, "check", 0.5);
-        byte[] bytes = MessagePackSerializer.Serialize(state, options);
+        byte[] bytes = MessagePackSerializer.Serialize(state, options, TestContext.CancellationToken);
 
         // This formatter owns the ServiceState wire contract. Wire order is
         // [Key, Name?, AggregateState, ...], and AggregateState is always the
@@ -293,7 +286,7 @@ public class TestMessagePackResolvers
 
         // Readers stay lenient: the minimal positive-fixint form still deserializes.
         byte[] fixInt = [.. bytes[..stateOffset], bytes[stateOffset + 1], .. bytes[(stateOffset + 2)..]];
-        ServiceState? fixIntRoundTrip = MessagePackSerializer.Deserialize<ServiceState?>(fixInt, options);
+        ServiceState? fixIntRoundTrip = MessagePackSerializer.Deserialize<ServiceState?>(fixInt, options, TestContext.CancellationToken);
         Assert.IsNotNull(fixIntRoundTrip);
         Assert.AreEqual(RemoteServiceStates.Warning, fixIntRoundTrip.AggregateState);
         Assert.AreEqual(state.Key, fixIntRoundTrip.Key);
@@ -302,7 +295,7 @@ public class TestMessagePackResolvers
 
     internal sealed class StringIPAddressFormatter : IMessagePackFormatter<IPAddress?>
     {
-        internal static readonly StringIPAddressFormatter Instance = new();
+        internal static readonly StringIPAddressFormatter s_instance = new();
 
         public IPAddress? Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
@@ -328,4 +321,5 @@ public class TestMessagePackResolvers
         }
     }
 
+    public TestContext TestContext { get; set; }
 }

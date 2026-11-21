@@ -1,20 +1,20 @@
-﻿using System.ComponentModel;
-using GameshowPro.Common.Model;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿namespace GameshowPro.Common.Test;
 
-namespace GameshowPro.Common.Test;
-
+#if WPF
+// The Windows configurations target a Windows-only TFM, so every test class is platform-specific (MSTEST0084).
+[OSCondition(OperatingSystems.Windows)]
+#endif
 [TestClass]
 public class TestPropertyFilters
 {
     private readonly PropertyChangeFilters _filters;
-    private static bool _loggerAssigned = false;
+    private static bool s_loggerAssigned;
     public TestPropertyFilters()
     {
-        if (!_loggerAssigned)
+        if (!s_loggerAssigned)
         {
             PropertyChangeFilters.AssignLoggerFactory(NullLoggerFactory.Instance);
-            _loggerAssigned = true;
+            s_loggerAssigned = true;
         }
         _filters = new("test");
     }

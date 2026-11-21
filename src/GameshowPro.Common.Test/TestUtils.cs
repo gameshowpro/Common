@@ -1,7 +1,10 @@
-using System.Diagnostics;
 [assembly: Parallelize]
 namespace GameshowPro.Common.Test;
 
+#if WPF
+// The Windows configurations target a Windows-only TFM, so every test class is platform-specific (MSTEST0084).
+[OSCondition(OperatingSystems.Windows)]
+#endif
 [TestClass]
 public class TestUtils
 {
@@ -38,7 +41,7 @@ public class TestUtils
     public void RandomSequenceWithMinimumDistance_ShouldReturnSequenceWithMinimumDistance()
     {
         // Arrange
-        var minimumRepeatDistance = 6;
+        int minimumRepeatDistance = 6;
 
         Stopwatch stopwatch = Stopwatch.StartNew();
         for (int sourcePool = minimumRepeatDistance + 1; sourcePool < 100; sourcePool++)
@@ -71,9 +74,9 @@ public class TestUtils
     public void RandomSequenceWithMinimumDistance_ShouldThrowArgumentException_WhenMinimumRepeatDistanceIsNegative()
     {
         // Arrange
-        var sourcePool = 9;
-        var destinationLength = 5;
-        var minimumRepeatDistance = -1;
+        int sourcePool = 9;
+        int destinationLength = 5;
+        int minimumRepeatDistance = -1;
 
         // Act & Assert
         _ = Assert.Throws<ArgumentException>(() =>
@@ -86,9 +89,9 @@ public class TestUtils
     public void RandomSequenceWithMinimumDistance_ShouldThrowArgumentException_WhenMinimumRepeatDistanceIsGreaterThanSourcePool()
     {
         // Arrange
-        var sourcePool = 9;
-        var destinationLength = 5;
-        var minimumRepeatDistance = 11;
+        int sourcePool = 9;
+        int destinationLength = 5;
+        int minimumRepeatDistance = 11;
 
         // Act & Assert
         _ = Assert.Throws<ArgumentException>(() =>

@@ -1,8 +1,9 @@
-using GameshowPro.Common.Model;
-using Microsoft.Extensions.Logging.Abstractions;
-
 namespace GameshowPro.Common.Test;
 
+#if WPF
+// The Windows configurations target a Windows-only TFM, so every test class is platform-specific (MSTEST0084).
+[OSCondition(OperatingSystems.Windows)]
+#endif
 [TestClass]
 public class TestIncomingTrigger
 {
@@ -16,22 +17,22 @@ public class TestIncomingTrigger
     [TestMethod]
     public void IsTied_RaisesPropertyChanged_OnlyWhenValueChanges()
     {
-        var trigger = new TestTrigger();
-        var changed = new List<string?>();
+        TestTrigger trigger = new();
+        List<string?> changed = [];
         trigger.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
 
         trigger.IsTied = true;
         trigger.IsTied = true;
 
-        CollectionAssert.AreEqual(new[] { nameof(IncomingTrigger.IsTied) }, changed);
+        string?[] expected = [nameof(IncomingTrigger.IsTied)];
+        Assert.AreSequenceEqual(expected, changed);
         Assert.IsTrue(trigger.IsTied);
     }
 
     [TestMethod]
     public void IsTied_IsKept_WhenOrdinalIsSetToAnotherPlace()
     {
-        var trigger = new TestTrigger { Ordinal = 0 };
-        trigger.IsTied = true;
+        TestTrigger trigger = new() { Ordinal = 0, IsTied = true };
         trigger.Ordinal = 1;
         Assert.IsTrue(trigger.IsTied);
     }
@@ -41,8 +42,7 @@ public class TestIncomingTrigger
     [DataRow(null)]
     public void IsTied_IsCleared_WhenOrdinalIsSetToNullOrNegative(int? ordinal)
     {
-        var trigger = new TestTrigger { Ordinal = 0 };
-        trigger.IsTied = true;
+        TestTrigger trigger = new() { Ordinal = 0, IsTied = true };
 
         trigger.Ordinal = ordinal;
 

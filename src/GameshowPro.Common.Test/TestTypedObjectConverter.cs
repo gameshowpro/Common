@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Runtime.Serialization;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using GameshowPro.Common.JsonConverters;
-
 namespace GameshowPro.Common.Test;
 
+#if WPF
+// The Windows configurations target a Windows-only TFM, so every test class is platform-specific (MSTEST0084).
+[OSCondition(OperatingSystems.Windows)]
+#endif
 [TestClass]
 public class TestTypedObjectConverter
 {
@@ -170,7 +168,7 @@ public class TestTypedObjectConverter
             case IEnumerable expectedEnumerable when expected.GetType().IsGenericType && expected.GetType().GetGenericTypeDefinition() == typeof(ImmutableArray<>):
                 {
                     IEnumerable actualEnumerable = (IEnumerable)actual;
-                    CollectionAssert.AreEqual(expectedEnumerable.Cast<object?>().ToArray(), actualEnumerable.Cast<object?>().ToArray());
+                    Assert.AreSequenceEqual(expectedEnumerable.Cast<object?>(), actualEnumerable.Cast<object?>());
                     return;
                 }
             default:

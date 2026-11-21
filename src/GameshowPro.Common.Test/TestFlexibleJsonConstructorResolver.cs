@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Runtime.Serialization;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 namespace GameshowPro.Common.Test;
 
+#if WPF
+// The Windows configurations target a Windows-only TFM, so every test class is platform-specific (MSTEST0084).
+[OSCondition(OperatingSystems.Windows)]
+#endif
 [TestClass]
 public class TestFlexibleJsonConstructorResolver
 {
@@ -22,7 +21,7 @@ public class TestFlexibleJsonConstructorResolver
         Assert.IsTrue(output.DirectFlag);
         Assert.AreEqual(9.5d, output.DirectNumber);
         _ = Assert.IsInstanceOfType<ImmutableArray<int>>(output.CtorObject);
-        CollectionAssert.AreEqual(new[] { 1, 2, 3 }, ((ImmutableArray<int>)output.CtorObject).ToArray());
+        Assert.AreSequenceEqual<int>([1, 2, 3], (ImmutableArray<int>)output.CtorObject);
     }
 
     [TestMethod]
@@ -45,11 +44,11 @@ public class TestFlexibleJsonConstructorResolver
         Assert.AreEqual(0.0d, output.DirectNumber);
         Assert.IsFalse(output.DirectFlag);
 
-        Assert.IsTrue(output.JsonPresentProperties.Contains("ctorNumber"));
-        Assert.IsTrue(output.JsonPresentProperties.Contains("ctorObject"));
-        Assert.IsTrue(output.JsonPresentProperties.Contains("directString"));
-        Assert.IsFalse(output.JsonPresentProperties.Contains("directFlag"));
-        Assert.IsFalse(output.JsonPresentProperties.Contains("directNumber"));
+        Assert.Contains("ctorNumber", output.JsonPresentProperties);
+        Assert.Contains("ctorObject", output.JsonPresentProperties);
+        Assert.Contains("directString", output.JsonPresentProperties);
+        Assert.DoesNotContain("directFlag", output.JsonPresentProperties);
+        Assert.DoesNotContain("directNumber", output.JsonPresentProperties);
     }
 
     [TestMethod]
@@ -166,8 +165,8 @@ public class TestFlexibleJsonConstructorResolver
         Assert.AreEqual("10.1.2.3", output.IPAddress);
         Assert.AreEqual(123, output.URLValue);
         Assert.IsTrue(output.JsonPresentProperties.SetEquals(["ipAddress", "urlValue", "extraKey"]));
-        Assert.IsFalse(output.JsonPresentProperties.Contains("IPAddress"));
-        Assert.IsFalse(output.JsonPresentProperties.Contains("URLValue"));
+        Assert.DoesNotContain("IPAddress", output.JsonPresentProperties);
+        Assert.DoesNotContain("URLValue", output.JsonPresentProperties);
     }
 
     [TestMethod]
@@ -189,8 +188,8 @@ public class TestFlexibleJsonConstructorResolver
 
         // Binding is case-insensitive, but the captured presence set preserves raw payload spellings.
         Assert.IsTrue(output.JsonPresentProperties.SetEquals(["IPADDRESS", "uRlVaLuE", "ExTrA"]));
-        Assert.IsFalse(output.JsonPresentProperties.Contains("ipAddress"));
-        Assert.IsFalse(output.JsonPresentProperties.Contains("urlValue"));
+        Assert.DoesNotContain("ipAddress", output.JsonPresentProperties);
+        Assert.DoesNotContain("urlValue", output.JsonPresentProperties);
     }
 
     private static void AssertObjectEquivalent(object? expected, object? actual)
@@ -215,7 +214,7 @@ public class TestFlexibleJsonConstructorResolver
             case IEnumerable expectedEnumerable when expected.GetType().IsGenericType && expected.GetType().GetGenericTypeDefinition() == typeof(ImmutableArray<>):
                 {
                     IEnumerable actualEnumerable = (IEnumerable)actual;
-                    CollectionAssert.AreEqual(expectedEnumerable.Cast<object?>().ToArray(), actualEnumerable.Cast<object?>().ToArray());
+                    Assert.AreSequenceEqual(expectedEnumerable.Cast<object?>(), actualEnumerable.Cast<object?>());
                     return;
                 }
             default:

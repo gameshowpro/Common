@@ -1,14 +1,15 @@
-using System.Diagnostics;
-using System.Text.Json;
-using GameshowPro.Common.Model;
-using MessagePack;
-
 namespace GameshowPro.Common.Test;
 
+#if WPF
+// The Windows configurations target a Windows-only TFM, so every test class is platform-specific (MSTEST0084).
+[OSCondition(OperatingSystems.Windows)]
+#endif
 [TestClass]
 public class TestClocks
 {
     // ---------------------------------------------------------------- helpers
+
+    private static readonly JsonSerializerOptions s_caseInsensitiveOptions = new() { PropertyNameCaseInsensitive = true };
 
     private sealed class FakeTimeSource(long frequency) : ITimeSource
     {
@@ -79,7 +80,8 @@ public class TestClocks
         OrderingSeparation result = OrderingSeparation.Minimum(P(1, a), P(1, b));
         Assert.AreEqual(OrderingRule.NotComparable, result.Rule);
         Assert.IsNull(result.Separation);
-        StringAssert.Contains(result.Reason, "different time sources");
+        Assert.IsNotNull(result.Reason);
+        Assert.Contains("different time sources", result.Reason);
     }
 
     [TestMethod]
@@ -89,7 +91,8 @@ public class TestClocks
         ClockStatus b = Status("m2", "ntp:x", ClockQuality.Ntp, TimeSpan.Zero);
         OrderingSeparation result = OrderingSeparation.Minimum(P(1, a), P(1, b));
         Assert.AreEqual(OrderingRule.NotComparable, result.Rule);
-        StringAssert.Contains(result.Reason, "quality None");
+        Assert.IsNotNull(result.Reason);
+        Assert.Contains("quality None", result.Reason);
     }
 
     [TestMethod]
@@ -99,7 +102,8 @@ public class TestClocks
         ClockStatus b = Status("m2", "ntp:x", ClockQuality.Ntp, null);
         OrderingSeparation result = OrderingSeparation.Minimum(P(1, a), P(1, b));
         Assert.AreEqual(OrderingRule.NotComparable, result.Rule);
-        StringAssert.Contains(result.Reason, "unknown");
+        Assert.IsNotNull(result.Reason);
+        Assert.Contains("unknown", result.Reason);
 
         // A free-running clock reads System with unknown error, and its id names only its own machine.
         ClockStatus s1 = Status("m1", "system:A", ClockQuality.System, null);
@@ -415,7 +419,7 @@ public class TestClocks
         ClockDisciplineReading reading = map.PollDiscipline();
         Assert.IsTrue(reading.Failed);
         Assert.AreEqual(ClockQuality.System, reading.Quality);
-        StringAssert.Contains(reading.Detail, "boom");
+        Assert.Contains("boom", reading.Detail);
         Assert.AreEqual(ClockQuality.System, map.GetStatus().Quality);
     }
 
@@ -428,7 +432,7 @@ public class TestClocks
         map.StartSampling();
         for (int i = 0; i < 400 && probe.Calls == 0; i++)
         {
-            await Task.Delay(5);
+            await Task.Delay(5, TestContext.CancellationToken);
         }
         Assert.IsGreaterThan(0, probe.Calls);
         Assert.IsNull(map.LastTimerError);
@@ -539,7 +543,7 @@ public class TestClocks
         ClockDisciplineReading vm = WindowsTimeServiceProbe.Parse(SyntheticNtp.Replace("Source: Time.Example.com,0x8", "Source: VMICTimeProvider"));
         Assert.AreEqual(ClockQuality.System, vm.Quality);
         Assert.IsNull(vm.EstimatedError);
-        StringAssert.Contains(vm.Detail, "Hyper-V");
+        Assert.Contains("Hyper-V", vm.Detail);
     }
 
     [TestMethod]
@@ -598,7 +602,7 @@ public class TestClocks
             Assert.AreEqual(ClockQuality.System, r.Quality);
             Assert.IsNull(r.EstimatedError);
             Assert.IsTrue(r.Failed);
-            StringAssert.Contains(r.Detail, expected);
+            Assert.Contains(expected, r.Detail);
         }
     }
 
@@ -610,16 +614,13 @@ public class TestClocks
     }
 
     [TestMethod]
+    [OSCondition(OperatingSystems.Windows)]
     public void Windows_Probe_RealRun_IsTimeBounded()
     {
-        if (!OperatingSystem.IsWindows())
-        {
-            Assert.Inconclusive("Windows only");
-        }
         // Real runner with a timeout far shorter than w32tm needs.
         Stopwatch sw = Stopwatch.StartNew();
         ClockDisciplineReading r = new WindowsTimeServiceProbe().Probe();
-        Assert.IsLessThan(WindowsTimeServiceProbe.DefaultTimeout.TotalSeconds + 5, sw.Elapsed.TotalSeconds);
+        Assert.IsLessThan(WindowsTimeServiceProbe.s_defaultTimeout.TotalSeconds + 5, sw.Elapsed.TotalSeconds);
         Assert.IsNotNull(r);
     }
 
@@ -663,7 +664,7 @@ public class TestClocks
     {
         ClockDisciplineReading failed = LinuxAdjtimexProbe.Interpret(-1, 1, 0, 0);
         Assert.IsTrue(failed.Failed);
-        StringAssert.Contains(failed.Detail, "errno 1");
+        Assert.Contains("errno 1", failed.Detail);
         Assert.IsTrue(LinuxAdjtimexProbe.Interpret(0, 0, 0, -5).Failed);
         Assert.IsTrue(new LinuxAdjtimexProbe(() => throw new DllNotFoundException("libc")).Probe().Failed);
     }
@@ -696,10 +697,10 @@ public class TestClocks
     {
         foreach (ClockStatus value in new[] { Full(), new ClockStatus("m", "a", ClockQuality.System, null) })
         {
-            ClockStatus? back = MessagePackSerializer.Deserialize<ClockStatus>(MessagePackSerializer.Serialize(value));
+            ClockStatus? back = MessagePackSerializer.Deserialize<ClockStatus>(MessagePackSerializer.Serialize(value, cancellationToken: TestContext.CancellationToken), cancellationToken: TestContext.CancellationToken);
             Assert.AreEqual(value, back);
         }
-        Assert.IsNull(MessagePackSerializer.Deserialize<ClockStatus?>(MessagePackSerializer.Serialize<ClockStatus?>(null)));
+        Assert.IsNull(MessagePackSerializer.Deserialize<ClockStatus?>(MessagePackSerializer.Serialize<ClockStatus?>(null, cancellationToken: TestContext.CancellationToken), cancellationToken: TestContext.CancellationToken));
     }
 
     [TestMethod]
@@ -710,7 +711,7 @@ public class TestClocks
         {
             ClockStatus full = Full();
             byte[] bytes = Handwrite(full, fields, extra: 0);
-            ClockStatus? back = MessagePackSerializer.Deserialize<ClockStatus>(bytes);
+            ClockStatus? back = MessagePackSerializer.Deserialize<ClockStatus>(bytes, cancellationToken: TestContext.CancellationToken);
             Assert.IsNotNull(back);
             Assert.AreEqual(full.AbsoluteClockId, back.AbsoluteClockId);
             Assert.AreEqual(full.EstimatedError, back.EstimatedError);
@@ -724,21 +725,21 @@ public class TestClocks
     public void MessagePack_NewerWriter_WithExtraFields_IsSkipped()
     {
         ClockStatus full = Full();
-        ClockStatus? back = MessagePackSerializer.Deserialize<ClockStatus>(Handwrite(full, 8, extra: 3));
+        ClockStatus? back = MessagePackSerializer.Deserialize<ClockStatus>(Handwrite(full, 8, extra: 3), cancellationToken: TestContext.CancellationToken);
         Assert.AreEqual(full, back);
     }
 
     [TestMethod]
     public void MessagePack_TooFewFields_Throws()
     {
-        Assert.Throws<MessagePackSerializationException>(() => MessagePackSerializer.Deserialize<ClockStatus>(Handwrite(Full(), 4, 0)));
+        Assert.Throws<MessagePackSerializationException>(() => MessagePackSerializer.Deserialize<ClockStatus>(Handwrite(Full(), 4, 0), cancellationToken: TestContext.CancellationToken));
     }
 
     [TestMethod]
     public void MessagePack_UnknownQualityValue_IsPreserved()
     {
         ClockStatus value = new("m", "a", (ClockQuality)42, null);
-        Assert.AreEqual((ClockQuality)42, MessagePackSerializer.Deserialize<ClockStatus>(MessagePackSerializer.Serialize(value))!.Quality);
+        Assert.AreEqual((ClockQuality)42, MessagePackSerializer.Deserialize<ClockStatus>(MessagePackSerializer.Serialize(value, cancellationToken: TestContext.CancellationToken), cancellationToken: TestContext.CancellationToken)!.Quality);
     }
 
     private static byte[] Handwrite(ClockStatus s, int fieldCount, int extra)
@@ -798,7 +799,9 @@ public class TestClocks
             Assert.IsNull(back.Detail);
         }
         const string newer = """{"monotonicClockId":"m","absoluteClockId":"a","quality":1,"estimatedError":null,"somethingNew":{"x":1},"detail":"d"}""";
-        ClockStatus? withExtra = JsonSerializer.Deserialize<ClockStatus>(newer, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        ClockStatus? withExtra = JsonSerializer.Deserialize<ClockStatus>(newer, s_caseInsensitiveOptions);
         Assert.AreEqual("d", withExtra!.Detail);
     }
+
+    public TestContext TestContext { get; set; }
 }
