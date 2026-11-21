@@ -91,16 +91,20 @@ public class RemoteServiceManager : ObservableClass
 
     private void RemoteServiceAddedOrRemoved()
     {
-        bool changed = false;
         HashSet<IRemoteService> newList = [.. _serviceCollections.SelectMany(static s => s.Services)];
+        bool changed = false;
         // Unsubscribe from services that are no longer in the list
         foreach (IRemoteService service in _serviceChangeSubscriptions.Except(newList))
         {
             if (service.RemoteServiceSettings is not null)
             {
                 service.RemoteServiceSettings.MonitorUiGroupChanged -= Settings_MonitorUiGroupChanged;
-                changed = true;
             }
+            if (service is INotifyPropertyChanged notifier)
+            {
+                notifier.PropertyChanged -= Service_PropertyChanged;
+            }
+            changed = true;
         }
         // Subscribe to services that are new to the list
         foreach (IRemoteService service in newList.Except(_serviceChangeSubscriptions))
@@ -108,8 +112,12 @@ public class RemoteServiceManager : ObservableClass
             if (service.RemoteServiceSettings is not null)
             {
                 service.RemoteServiceSettings.MonitorUiGroupChanged += Settings_MonitorUiGroupChanged;
-                changed = true;
             }
+            if (service is INotifyPropertyChanged notifier)
+            {
+                notifier.PropertyChanged += Service_PropertyChanged;
+            }
+            changed = true;
         }
         if (changed)
         {
@@ -121,23 +129,72 @@ public class RemoteServiceManager : ObservableClass
     private void Collection_RemoteServiceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         => RemoteServiceAddedOrRemoved();
 
+    private void Service_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(IRemoteService.IsConfigured))
+        {
+            UpdateGroups();
+        }
+    }
+
+    private readonly Lock _updateLock = new();
     private bool _updatingGroups;
+    private bool _updateGroupsPending;
+
+    /// <summary>
+    /// Rebuilds <see cref="MonitorUiGroups"/>. A request arriving while a rebuild is running (reentrant or from another thread)
+    /// is not dropped: the running rebuild repeats once it finishes.
+    /// </summary>
     private void UpdateGroups()
     {
-        if (_updatingGroups)
+        lock (_updateLock)
         {
-            return;
+            if (_updatingGroups)
+            {
+                _updateGroupsPending = true;
+                return;
+            }
+            _updatingGroups = true;
         }
-        _updatingGroups = true;
-        MonitorUiGroups = [..
+        try
+        {
+            while (true)
+            {
+                RebuildGroups();
+                lock (_updateLock)
+                {
+                    if (!_updateGroupsPending)
+                    {
+                        _updatingGroups = false;
+                        return;
+                    }
+                    _updateGroupsPending = false;
+                }
+            }
+        }
+        catch
+        {
+            lock (_updateLock)
+            {
+                _updatingGroups = false;
+                _updateGroupsPending = false;
+            }
+            throw;
+        }
+    }
+
+    private void RebuildGroups()
+    {
+        // Group, index, name slots and MonitorUiOrder are all computed over every service, so hiding a service never shifts anything.
+        ImmutableArray<RemoteServiceGroup> allGroups = [..
             _serviceChangeSubscriptions
             .GroupBy(s => s.RemoteServiceSettings?.MonitorUiGroup ?? -1)
             .Select(g => new RemoteServiceGroup(g.Key, [.. g.OrderBy(s => s.RemoteServiceSettings?.MonitorUiOrder)]))
             .OrderBy(g => g.Index)
         ];
-        MonitorUiGroups.SetIndices();
-        Settings.Groups = Settings.Groups.ImmutableArrayEnsureCountAndIndices(MonitorUiGroups.Length, MonitorUiGroups.Length, i => new RemoteServiceGroupSettings());
-        MonitorUiGroups.ForEachWithIndex((g, i) =>
+        allGroups.SetIndices();
+        Settings.Groups = Settings.Groups.ImmutableArrayEnsureCountAndIndices(allGroups.Length, allGroups.Length, i => new RemoteServiceGroupSettings());
+        allGroups.ForEachWithIndex((g, i) =>
         {
             g.Settings = Settings.Groups[i];
             g.Items.ForEachWithIndex(SetMonitorUiOrder);
@@ -146,7 +203,40 @@ public class RemoteServiceManager : ObservableClass
         {
             service.RemoteServiceSettings?.MonitorUiOrder = order * 2;
         }
-        _updatingGroups = false;
+
+        // Publish only configured services, and only groups that still have one. Each visible group keeps its unfiltered Index and Settings.
+        List<RemoteServiceGroup> visibleGroups = [];
+        foreach (RemoteServiceGroup group in allGroups)
+        {
+            ImmutableArray<IRemoteService> visibleItems = [.. group.Items.Where(static s => s.IsConfigured)];
+            if (visibleItems.Length > 0)
+            {
+                visibleGroups.Add(new RemoteServiceGroup(group.Index, visibleItems) { Settings = group.Settings });
+            }
+        }
+        // Leave MonitorUiGroups alone when nothing visible changed, so the UI does not rebuild its visual tree for nothing.
+        if (MonitorUiGroups.IsDefault || !SameVisibleGroups(MonitorUiGroups, visibleGroups))
+        {
+            MonitorUiGroups = [.. visibleGroups];
+        }
+    }
+
+    private static bool SameVisibleGroups(ImmutableArray<RemoteServiceGroup> current, List<RemoteServiceGroup> candidate)
+    {
+        if (current.Length != candidate.Count)
+        {
+            return false;
+        }
+        for (int i = 0; i < candidate.Count; i++)
+        {
+            if (current[i].Index != candidate[i].Index
+                || !ReferenceEquals(current[i].Settings, candidate[i].Settings)
+                || !current[i].Items.SequenceEqual(candidate[i].Items))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void Settings_MonitorUiGroupChanged(object? sender, EventArgs args)
