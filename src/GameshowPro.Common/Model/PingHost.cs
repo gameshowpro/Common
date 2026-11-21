@@ -16,6 +16,7 @@ public class PingHost : ObservableClass, IRemoteService
             switch (e.PropertyName)
             {
                 case nameof(Settings.Host):
+                    NotifyPropertyChanged(nameof(IsConfigured));
                     ServiceState.AggregateState = RemoteServiceStates.Disconnected;
                     ServiceState.Detail = "In progress";
                     _ = _settingChange.Set();
@@ -26,6 +27,8 @@ public class PingHost : ObservableClass, IRemoteService
         _ = Task.Run(UpdateLoop, cancellationToken);
     }
     public IPingHostSettings Settings { get; }
+    /// <summary>False when no host is set, so the monitoring UI omits this service.</summary>
+    public bool IsConfigured => !string.IsNullOrWhiteSpace(Settings.Host);
     IRemoteServiceSettings IRemoteService.RemoteServiceSettings => Settings.RemoteServiceSettings;
 
     private async Task UpdateLoop()
