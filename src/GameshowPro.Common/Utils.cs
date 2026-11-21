@@ -2069,6 +2069,7 @@ public static partial class Utils
     /// <param name="sequenceLength">The length of each sequence.</param>
     /// <param name="maxCount">The maximum number of variations.</param>
     /// <param name="rnd">The random number generator to use. If null, use default instance.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="maxCount"/> is large enough to require every permutation of more than 12 items, which cannot be returned.</exception>
     public static ImmutableArray<int[]> ShuffledNumbersPermutations(int sequenceLength, int maxCount, Random? rnd)
     {
         int maxPossible = Factorial((ulong)sequenceLength).NarrowToIntClamped();
@@ -2103,17 +2104,25 @@ public static partial class Utils
     /// </summary>
     /// <remarks>Based on Heap's Algorithm.</remarks>
     /// <param name="sequenceLength">The length of the sequence to be shuffled. Using this for numbers greater than 8 is not recommended.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="sequenceLength"/> is greater than 12, because every permutation of more than 12 items cannot be returned.</exception>
     public static ImmutableArray<int[]> ShuffledNumbersPermutations(int sequenceLength)
     {
         int maxPossible = Factorial((ulong)sequenceLength).NarrowToIntClamped();
         return AllShuffledNumbersPermutations(sequenceLength, maxPossible);
     }
 
+    private const int MaxExhaustivePermutationLength = 12;
+
     private static ImmutableArray<int[]> AllShuffledNumbersPermutations(int sequenceLength, int permutationCount)
     {
         if (sequenceLength <= 0)
         {
             return [];
+        }
+        if (sequenceLength > MaxExhaustivePermutationLength)
+        {
+            // 13! does not fit in an int, so the count would clamp to int.MaxValue and allocation would fail.
+            throw new ArgumentOutOfRangeException(nameof(sequenceLength), sequenceLength, $"Every permutation of more than {MaxExhaustivePermutationLength} items cannot be returned.");
         }
         ImmutableArray<int[]>.Builder permutations = ImmutableArray.CreateBuilder<int[]>(permutationCount);
         int[] indexes = new int[sequenceLength];

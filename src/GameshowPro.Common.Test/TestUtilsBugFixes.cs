@@ -204,4 +204,51 @@ public class TestUtilsBugFixes
         Assert.IsNotNull(buffer);
         Assert.AreSequenceEqual(Enumerable.Repeat((byte)'a', 32), buffer);
     }
+
+    private sealed class DepersistSample
+    {
+        public int Value { get; set; }
+    }
+
+    public TestContext TestContext { get; set; } = null!;
+
+    [TestMethod]
+    public async Task SystemTextJsonDepersist_WithInvalidFileAndRename_RenamesBrokenFile()
+    {
+        string dir = Path.Combine(Path.GetTempPath(), $"GspDepersist_{Guid.NewGuid():N}");
+        _ = Directory.CreateDirectory(dir);
+        try
+        {
+            string path = Path.Combine(dir, "settings.json");
+            await File.WriteAllTextAsync(path, "{ this is not valid json", TestContext.CancellationToken);
+            DepersistSample? result = await SystemTextJsonUtils.Depersist<DepersistSample>(path, false, true, null, null, TestContext.CancellationToken);
+            Assert.IsNull(result);
+            Assert.IsFalse(File.Exists(path));
+            Assert.IsTrue(File.Exists(Path.Combine(dir, "settings.broken.1.json")));
+        }
+        finally
+        {
+            Directory.Delete(dir, true);
+        }
+    }
+
+    [TestMethod]
+    public void ShuffledNumbersPermutations_AllOverloadWithMoreThan12Items_Throws()
+    {
+        ArgumentOutOfRangeException ex = Assert.Throws<ArgumentOutOfRangeException>(static () => GameshowPro.Common.Utils.ShuffledNumbersPermutations(13));
+        Assert.AreEqual("sequenceLength", ex.ParamName);
+    }
+
+    [TestMethod]
+    public void ShuffledNumbersPermutations_WithMaxCountAndLongSequence_ReturnsDistinctValidPermutations()
+    {
+        ImmutableArray<int[]> result = GameshowPro.Common.Utils.ShuffledNumbersPermutations(13, 5, new Random(1));
+        Assert.HasCount(5, result);
+        Assert.HasCount(5, result.Select(static p => string.Join(",", p)).Distinct().ToList());
+        int[] expected = [.. Enumerable.Range(0, 13)];
+        foreach (int[] permutation in result)
+        {
+            Assert.AreSequenceEqual(expected, permutation.Order());
+        }
+    }
 }

@@ -74,19 +74,22 @@ public static partial class SystemTextJsonUtils
         if (path is not null && File.Exists(path))
         {
             bool renameBroken = false;
-            await using FileStream fileStream = File.OpenRead(path);
-            try
+            // The stream is scoped so that it is closed before the broken file is renamed.
+            await using (FileStream fileStream = File.OpenRead(path))
             {
-                obj = await Depersist<T>(fileStream, jsonSerializerOptions, cancellationToken);
-                logger?.LogDeserializedFromPath(path);
-            }
-            catch (Exception ex)
-            {
-                logger?.LogDeserializingPathFailed(ex, path);
-                renameBroken = renameFailedFiles;
-                if (rethrowDeserializationExceptions)
+                try
                 {
-                    throw new JsonException($"Exception while deserializing {path}", ex);
+                    obj = await Depersist<T>(fileStream, jsonSerializerOptions, cancellationToken);
+                    logger?.LogDeserializedFromPath(path);
+                }
+                catch (Exception ex)
+                {
+                    logger?.LogDeserializingPathFailed(ex, path);
+                    renameBroken = renameFailedFiles;
+                    if (rethrowDeserializationExceptions)
+                    {
+                        throw new JsonException($"Exception while deserializing {path}", ex);
+                    }
                 }
             }
 
