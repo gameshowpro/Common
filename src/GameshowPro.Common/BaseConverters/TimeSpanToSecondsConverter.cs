@@ -37,7 +37,7 @@ public class TimeSpanToSecondsConverter(object unsetValue) : ICommonValueConvert
         }
         else
         {
-            return double.TryParse(value?.ToString(), out var valDouble) ? TimeSpan.FromSeconds(valDouble) : _unsetValue;
+            return double.TryParse(value?.ToString(), out double valDouble) ? TimeSpan.FromSeconds(valDouble) : _unsetValue;
         }
     }
 }

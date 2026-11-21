@@ -57,7 +57,7 @@ public static class TypeAliasRegistry
         }
 
         string prefix = rootNamespace + ".";
-        Dictionary<string, Type> relativeLookup = new(StringComparer.Ordinal);
+        Dictionary<string, Type> relativeLookup = [with(StringComparer.Ordinal)];
         Dictionary<Type, string> reverseLookup = [];
 
         foreach (TypeInfo typeInfo in assembly.DefinedTypes)
@@ -69,15 +69,9 @@ public static class TypeAliasRegistry
             }
 
             string relative = fullName[prefix.Length..];
-            if (!relativeLookup.ContainsKey(relative))
-            {
-                relativeLookup.Add(relative, typeInfo.AsType());
-            }
-
-            if (!reverseLookup.ContainsKey(typeInfo.AsType()))
-            {
-                reverseLookup.Add(typeInfo.AsType(), relative);
-            }
+            Type definedType = typeInfo.AsType();
+            _ = relativeLookup.TryAdd(relative, definedType);
+            _ = reverseLookup.TryAdd(definedType, relative);
         }
 
         lock (s_contextLock)
@@ -190,7 +184,7 @@ public static class TypeAliasRegistry
             return IsKnownSupportedType(args[0]);
         }
 
-        return genericDefinition == typeof(ImmutableDictionary<,>) ? IsKnownSupportedType(args[0]) && IsKnownSupportedType(args[1]) : false;
+        return genericDefinition == typeof(ImmutableDictionary<,>) && IsKnownSupportedType(args[0]) && IsKnownSupportedType(args[1]);
     }
 
     private static bool TryParseAlias(string input, [NotNullWhen(true)] out Type? type)

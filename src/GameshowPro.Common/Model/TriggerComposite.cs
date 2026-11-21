@@ -1,7 +1,4 @@
-﻿#if WPF
-using GameshowPro.Common.ViewModel;
-#endif
-namespace GameshowPro.Common.Model;
+﻿namespace GameshowPro.Common.Model;
 
 /// <summary>
 /// A trigger which composes multiple child triggers into a single object.

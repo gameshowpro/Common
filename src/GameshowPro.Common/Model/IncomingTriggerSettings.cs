@@ -14,10 +14,7 @@ public class IncomingTriggerSettings : KeyedCollection<string, IncomingTriggerSe
 
     public virtual IncomingTriggerSetting GetOrCreate(string key, string name, byte? defaultId, TriggerFilter triggerFilter, TimeSpan? debounceInterval = null)
     {
-        if (name == null)
-        {
-            name = key;
-        }
+        name ??= key;
         IncomingTriggerSetting trigger;
         if (Contains(key))
         {

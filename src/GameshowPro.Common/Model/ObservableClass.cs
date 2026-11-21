@@ -53,8 +53,7 @@ public class ObservableClass : INotifyPropertyChanged
     [IgnoreDataMember]
     public bool SuppressEvents
     {
-        get
-        { return field; }
+        get;
         set
         {
             if (field != value)

@@ -30,7 +30,7 @@ public class PingHost : ObservableClass, IRemoteService
 
     private async Task UpdateLoop()
     {
-        var waitHandles = new WaitHandle[] { _cancellationToken.WaitHandle, _settingChange };
+        WaitHandle[] waitHandles = [_cancellationToken.WaitHandle, _settingChange];
         int handle;
         while (!_cancellationToken.IsCancellationRequested)
         {

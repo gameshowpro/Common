@@ -1,8 +1,6 @@
-using GameshowPro.Common.MessagePack;
-using MessagePack;
-using MessagePack.Formatters;
-
+#pragma warning disable IDE0130 // Namespace does not match folder: the clock types are published in GameshowPro.Common.Model; moving them to match the Clocks folder would break consumers.
 namespace GameshowPro.Common.Model;
+#pragma warning restore IDE0130
 
 /// <summary>A jump of the offset between the monotonic clock and the absolute (wall) clock, as seen by <see cref="AbsoluteClockMap"/>.</summary>
 /// <param name="At">The UTC instant, on the new clock, at which the step was detected.</param>

@@ -10,24 +10,18 @@ public static class NLogUtils
     public static string? CurrentNLogLogPath(string targetName)
     {
         // Ensure configuration and target are present to avoid nullability issues
-        var config = LogManager.Configuration;
+        NLog.Config.LoggingConfiguration? config = LogManager.Configuration;
         if (config is null)
         {
             return null;
         }
         NLog.Targets.Target? target = config.FindTargetByName(targetName);
-        switch (target)
+        return target switch
         {
-            case NLog.Targets.FileTarget ft:
-                return FileTargetToPath(ft);
-            case NLog.Targets.Wrappers.AsyncTargetWrapper atw:
-                if (atw.WrappedTarget is NLog.Targets.FileTarget wft)
-                {
-                    return FileTargetToPath(wft);
-                }
-                break;
-        }
-        return null;
+            NLog.Targets.FileTarget ft => FileTargetToPath(ft),
+            NLog.Targets.Wrappers.AsyncTargetWrapper { WrappedTarget: NLog.Targets.FileTarget wft } => FileTargetToPath(wft),
+            _ => null,
+        };
     }
 
     private static string FileTargetToPath(NLog.Targets.FileTarget ft)
@@ -61,7 +55,7 @@ public static class NLogUtils
         };
         try
         {
-            return Process.Start(info) != null;
+            return Process.Start(info) is not null;
         }
         catch
         {
@@ -75,5 +69,5 @@ public static class NLogUtils
     /// </summary>
     /// <param name="defaultTargetName">Fallback target name if the command parameter is null.</param>
     public static ICommand GetLaunchNLogLogCommand(string defaultTargetName)
-        => new RelayCommand<string?>((string? targetKey) => LaunchCurrentNLogLog(targetKey ?? defaultTargetName));
+        => new RelayCommand<string?>(targetKey => LaunchCurrentNLogLog(targetKey ?? defaultTargetName));
 }

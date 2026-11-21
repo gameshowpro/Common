@@ -28,10 +28,7 @@ public class StatePresetGroup
     [DataMember]
     public ImmutableList<FixtureChannelType> ChannelColors
     {
-        get
-        {
-            return field;
-        }
+        get;
         set
         {
             field = value;

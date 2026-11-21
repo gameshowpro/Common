@@ -41,14 +41,14 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
         _propertyChangeFilters = new(GetType().Name);
         ImmutableDictionary<TTriggerKey, TTrigger>.Builder dictBuilder = ImmutableDictionary.CreateBuilder<TTriggerKey, TTrigger>();
         Type thisType = GetType();
-        if (settings.TriggerSettings != null)
+        if (settings.TriggerSettings is not null)
         {
             Type t = typeof(TTriggerKey);
             foreach (object raw in Enum.GetValuesAsUnderlyingType(t))
             {
                 TTriggerKey value = (TTriggerKey)Enum.ToObject(t, raw);
                 string? valueString = value.ToString();
-                if (valueString == null)
+                if (valueString is null)
                 {
                     throw new ArgumentException($"{t} cannot contain a enum value the converts to a null string.");
                 }
@@ -84,7 +84,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
             })
             .Union(new PropertyChangeCondition(settings, nameof(IncomingTriggerDeviceSettingsBase.AllowDuplicateTriggerIds)))
         );
-        _triggerDict ??= FrozenDictionary<int, ImmutableList<TTrigger>>.Empty;
+        _triggerDict ??= [];
     }
 
     protected abstract TTrigger TriggerFactory(IncomingTriggerSetting triggerSetting, ILoggerFactory loggerFactory);
@@ -107,7 +107,7 @@ public abstract class IncomingTriggerDevice<TTriggerKey, TTrigger, TSubclass> : 
     {
         get;
         protected set => _ = SetProperty(ref field, value);
-    } = 0;
+    }
 
     [MemberNotNull(nameof(_triggerDict))]
     private void UpdateTriggerDict(IncomingTriggerDeviceSettingsBase settings)

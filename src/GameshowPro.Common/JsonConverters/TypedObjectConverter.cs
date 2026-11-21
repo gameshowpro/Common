@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization.Metadata;
-
 namespace GameshowPro.Common.JsonConverters;
 
 /// <summary>

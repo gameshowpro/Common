@@ -1,8 +1,4 @@
-﻿using static GameshowPro.Common.Wpf.Utils;
-using Point = System.Windows.Point;
-using Size = System.Windows.Size;
-
-namespace GameshowPro.Common.View;
+﻿namespace GameshowPro.Common.View;
 
 public class DataGridDragAndDropBehavior : Behavior<DataGrid>
 {
@@ -30,29 +26,29 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
 
     private void RaiseDragEndedEvent()
     {
-        RoutedEventArgs? args = new(s_dragEndedEvent);
+        RoutedEventArgs args = new(s_dragEndedEvent);
         AssociatedObject.RaiseEvent(args);
     }
     #endregion
 
     #region Popup
     public static readonly DependencyProperty s_popupProperty =
-        DependencyProperty.Register("Popup", typeof(System.Windows.Controls.Primitives.Popup), typeof(DataGridDragAndDropBehavior), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(Popup), typeof(System.Windows.Controls.Primitives.Popup), typeof(DataGridDragAndDropBehavior), new PropertyMetadata(null));
     public System.Windows.Controls.Primitives.Popup? Popup
     {
-        get { return (System.Windows.Controls.Primitives.Popup?)GetValue(s_popupProperty); }
-        set { SetValue(s_popupProperty, value); }
+        get => (System.Windows.Controls.Primitives.Popup?)GetValue(s_popupProperty);
+        set => SetValue(s_popupProperty, value);
     }
     #endregion
 
     #region DragAndDropController
     public static readonly DependencyProperty s_dragAndDropControllerProperty =
-        DependencyProperty.Register("DragAndDropController", typeof(IDragAndDropController), typeof(DataGridDragAndDropBehavior), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(DragAndDropController), typeof(IDragAndDropController), typeof(DataGridDragAndDropBehavior), new PropertyMetadata(null));
 
     public IDragAndDropController? DragAndDropController
-        {
-        get { return (IDragAndDropController?)GetValue(s_dragAndDropControllerProperty); }
-        set { SetValue(s_dragAndDropControllerProperty, value); }
+    {
+        get => (IDragAndDropController?)GetValue(s_dragAndDropControllerProperty);
+        set => SetValue(s_dragAndDropControllerProperty, value);
     }
     #endregion
 
@@ -88,13 +84,13 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
         _isEditing = true;
         //in case we are in the middle of a drag/drop operation, cancel it...
         if (_isDragging)
+        {
             ResetDragDrop();
+        }
     }
 
     private void OnEndEdit(object? sender, DataGridCellEditEndingEventArgs e)
-    {
-        _isEditing = false;
-    }
+        => _isEditing = false;
 
     private void OnMouseLeftButtonDown(object? sender, MouseButtonEventArgs e)
     {
@@ -168,7 +164,9 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
     private void OnMouseMove(object sender, MouseEventArgs e)
     {
         if (!_isDragging || e.LeftButton != MouseButtonState.Pressed)
+        {
             return;
+        }
 
         //make sure the row under the grid is being selected
         Point position = e.GetPosition(AssociatedObject);
@@ -190,7 +188,7 @@ public class DataGridDragAndDropBehavior : Behavior<DataGrid>
             if (row != null)
             {
                 Popup.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
-                Popup.PlacementRectangle = new Rect(row.TranslatePoint(new Point(0, -row.ActualHeight / 4), AssociatedObject), popupSize);
+                Popup.PlacementRectangle = new System.Windows.Rect(row.TranslatePoint(new Point(0, -row.ActualHeight / 4), AssociatedObject), popupSize);
             }
             else
             {

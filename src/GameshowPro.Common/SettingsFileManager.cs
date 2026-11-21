@@ -7,7 +7,7 @@ public record SettingsFileSpecification(object Key, string FileName, bool IsWith
 /// If the key is a <see cref="Type"/>, additional functionality is available.
 /// This is a legacy implementation based on Newtonsoft.Json.
 /// </summary>
-public class SettingsFileManager
+public partial class SettingsFileManager
 {
     private readonly ILogger _logger;
     private readonly FrozenDictionary<object, SettingsFileSpecification> _fileNames;
@@ -61,16 +61,12 @@ public class SettingsFileManager
         }
         DataDirectoryUri = new(DataDirectory + @"\", UriKind.Absolute);
         EnsureDataDirectory();
-        _fileNames = fileSpecifications
-            .ToFrozenDictionary(
-                static (fs) => fs.Key,
-                static (fs) => fs
-            );
+        _fileNames = fileSpecifications.ToFrozenDictionary(static fs => fs.Key);
 
         static string GetDirectory(Environment.SpecialFolder folder, string? organization, string? project)
         {
             string rootPath = Environment.GetFolderPath(folder);
-            return organization == null || project == null ? rootPath : Path.Combine(rootPath, organization, project);
+            return organization is null || project is null ? rootPath : Path.Combine(rootPath, organization, project);
         }
     }
 
@@ -82,7 +78,7 @@ public class SettingsFileManager
     /// <param name="logger">Logger instance used for status and warnings.</param>
     private static void MigrateDirectory(string current, string legacy, ILogger logger)
     {
-        DirectoryInfo? legacyDir = new(legacy);
+        DirectoryInfo legacyDir = new(legacy);
         if (!legacyDir.Exists)
         {
             return;
@@ -100,15 +96,14 @@ public class SettingsFileManager
             try
             {
                 file.MoveTo(currentFilePath, false);
-                logger.LogInformation("Migrated \"{legacyDir}\" to \"{currentFilePath}\"", file.FullName, currentFilePath);
+                LogMigratedFile(logger, file.FullName, currentFilePath);
             }
             catch (Exception ex)
             {
                 allFilesMoved = false;
-                logger.LogWarning(ex, "Exception while migrating \"{legacyDir}\" to \"{currentFilePath}\"", file.FullName, currentFilePath);
+                LogMigratingFileFailed(logger, ex, file.FullName, currentFilePath);
             }
         }
-
 
         foreach (DirectoryInfo legacySubDir in legacySubDirs)
         {
@@ -120,11 +115,11 @@ public class SettingsFileManager
             try
             {
                 legacyDir.Delete();
-                logger.LogInformation("Deleted \"{legacyDir}\" because all files had been moved", legacyDir.FullName);
+                LogDeletedLegacyDirectory(logger, legacyDir.FullName);
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Exception while deleting \"{legacyDir}\" because all files had been moved", legacyDir.FullName);
+                LogDeletingLegacyDirectoryFailed(logger, ex, legacyDir.FullName);
             }
         }
     }
@@ -144,10 +139,7 @@ public class SettingsFileManager
     /// </summary>
     /// <param name="key">The key associated with the path, which is most commonly a <see cref="Type"/></param>
     public string? GetPath(object key)
-    {
-        return TryGetPath(key, out string? path) ? path : null;
-    }
-
+        => TryGetPath(key, out string? path) ? path : null;
 
     /// <summary>
     /// Try to get the absolute path associated with the given key, which is most commonly a <see cref="Type"/>.
@@ -300,6 +292,16 @@ public class SettingsFileManager
         Task.Run(() => task).Wait();
     }
     #endregion
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Migrated \"{legacyDir}\" to \"{currentFilePath}\"")]
+    private static partial void LogMigratedFile(ILogger logger, string legacyDir, string currentFilePath);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Exception while migrating \"{legacyDir}\" to \"{currentFilePath}\"")]
+    private static partial void LogMigratingFileFailed(ILogger logger, Exception ex, string legacyDir, string currentFilePath);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Deleted \"{legacyDir}\" because all files had been moved")]
+    private static partial void LogDeletedLegacyDirectory(ILogger logger, string legacyDir);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Exception while deleting \"{legacyDir}\" because all files had been moved")]
+    private static partial void LogDeletingLegacyDirectoryFailed(ILogger logger, Exception ex, string legacyDir);
 }
-
-

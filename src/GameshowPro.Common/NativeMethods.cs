@@ -1,16 +1,16 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Runtime.InteropServices;
-
 namespace GameshowPro.Common;
 
-public static class NativeMethods
+public static partial class NativeMethods
 {
-    [DllImport("user32.dll")]
-    internal static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, EnumMonitorsDelegate lpfnEnum, IntPtr dwData);
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, EnumMonitorsDelegate lpfnEnum, IntPtr dwData);
     internal delegate bool EnumMonitorsDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref Rect lprcMonitor, IntPtr dwData);
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    internal static extern bool GetMonitorInfo(IntPtr hMonitor, ref MonitorInfoEx lpmi);
+    [LibraryImport("user32.dll", EntryPoint = "GetMonitorInfoW", StringMarshalling = StringMarshalling.Utf16)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool GetMonitorInfo(IntPtr hMonitor, [MarshalUsing(typeof(MonitorInfoExMarshaller))] ref MonitorInfoEx lpmi);
     [StructLayout(LayoutKind.Sequential)]
     public struct Rect
     {
@@ -74,8 +74,57 @@ public static class NativeMethods
             _deviceName = string.Empty;
         }
     }
-    [DllImport("Shcore.dll")]
-    internal static extern IntPtr GetDpiForMonitor([In] IntPtr hmonitor, [In] DpiType dpiType, [Out] out uint dpiX, [Out] out uint dpiY);
+    /// <summary>
+    /// Blittable mirror of <see cref="MonitorInfoEx"/> (the string field becomes an inline UTF-16 buffer) so that
+    /// <see cref="GetMonitorInfo"/> can use source-generated marshalling.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    internal unsafe struct MonitorInfoExUnmanaged
+    {
+        public int Size;
+        public Rect Monitor;
+        public Rect WorkArea;
+        public uint Flags;
+        public fixed char DeviceName[CCHDEVICENAME];
+    }
+
+    /// <summary>
+    /// Converts <see cref="MonitorInfoEx"/> to and from <see cref="MonitorInfoExUnmanaged"/> for <see cref="GetMonitorInfo"/>.
+    /// </summary>
+    [CustomMarshaller(typeof(MonitorInfoEx), MarshalMode.ManagedToUnmanagedRef, typeof(MonitorInfoExMarshaller))]
+    internal static unsafe class MonitorInfoExMarshaller
+    {
+        public static MonitorInfoExUnmanaged ConvertToUnmanaged(MonitorInfoEx managed)
+        {
+            MonitorInfoExUnmanaged unmanaged = new()
+            {
+                Size = managed.Size,
+                Monitor = managed.Monitor,
+                WorkArea = managed.WorkArea,
+                Flags = managed.Flags,
+            };
+            ReadOnlySpan<char> name = managed._deviceName.AsSpan(0, Math.Min(managed._deviceName?.Length ?? 0, CCHDEVICENAME - 1));
+            name.CopyTo(new Span<char>(unmanaged.DeviceName, CCHDEVICENAME));
+            return unmanaged;
+        }
+
+        public static MonitorInfoEx ConvertToManaged(MonitorInfoExUnmanaged unmanaged)
+        {
+            ReadOnlySpan<char> buffer = new(unmanaged.DeviceName, CCHDEVICENAME);
+            int length = buffer.IndexOf('\0');
+            return new MonitorInfoEx
+            {
+                Size = unmanaged.Size,
+                Monitor = unmanaged.Monitor,
+                WorkArea = unmanaged.WorkArea,
+                Flags = unmanaged.Flags,
+                _deviceName = new string(length < 0 ? buffer : buffer[..length]),
+            };
+        }
+    }
+
+    [LibraryImport("Shcore.dll")]
+    internal static partial IntPtr GetDpiForMonitor(IntPtr hmonitor, DpiType dpiType, out uint dpiX, out uint dpiY);
 
     /// <summary>
     /// Represents the different types of scaling.

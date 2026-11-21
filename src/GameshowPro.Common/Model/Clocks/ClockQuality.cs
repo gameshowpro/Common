@@ -1,4 +1,6 @@
+#pragma warning disable IDE0130 // Namespace does not match folder: the clock types are published in GameshowPro.Common.Model; moving them to match the Clocks folder would break consumers.
 namespace GameshowPro.Common.Model;
+#pragma warning restore IDE0130
 
 /// <summary>How well a wall clock is known to be disciplined to a time source. Ordered: a higher value is a better-disciplined clock.</summary>
 /// <remarks>

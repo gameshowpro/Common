@@ -1,9 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Runtime.InteropServices;
-using static GameshowPro.Common.NativeMethods;
-using Rect = GameshowPro.Common.NativeMethods.Rect;
-
 namespace GameshowPro.Common;
 
 public static class Screen
@@ -19,19 +15,20 @@ public static class Screen
 
     private static List<MonitorInfoEx> GetDisplays()
     {
-        var col = new List<MonitorInfoEx>();
+        List<MonitorInfoEx> col = [];
+        _ = EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, OnMonitor, IntPtr.Zero);
+        return col;
 
-        EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero,
-        delegate (IntPtr hMonitor, IntPtr hdcMonitor, ref Rect lprcMonitor, IntPtr dwData)
+        bool OnMonitor(IntPtr hMonitor, IntPtr hdcMonitor, ref Rect lprcMonitor, IntPtr dwData)
         {
-            var mi = new MonitorInfoEx();
+            MonitorInfoEx mi = new();
             mi.Size = Marshal.SizeOf(mi);
             bool success = GetMonitorInfo(hMonitor, ref mi);
             if (success)
             {
                 switch (GetDpiForMonitor(hMonitor, DpiType.Effective, out uint dpiX, out uint dpiY).ToInt32())
                 {
-                    case S_OK:
+                    case SOk:
                         Rect scaled = new()
                         {
                             left = (int)(mi.Monitor.left / ((double)dpiX / 96)),
@@ -49,11 +46,10 @@ public static class Screen
                 col.Add(mi);
             }
             return true;
-        }, IntPtr.Zero);
-        return col;
+        }
     }
 
-    private const int S_OK = 0;
+    private const int SOk = 0;
     private const int MONITOR_DEFAULTTONEAREST = 2;
     private const int E_INVALIDARG = -2147024809;
 
@@ -65,7 +61,7 @@ public static class Screen
     /// <param name="index">The index of the target screen, where zero is always the primary.</param>
     public static bool SizeWindowToScreen(this Window window, int index)
     {
-        var target = new MonitorInfoEx();
+        MonitorInfoEx target = new();
         List<MonitorInfoEx> disps = GetDisplays();
         if (index == 0)
         {

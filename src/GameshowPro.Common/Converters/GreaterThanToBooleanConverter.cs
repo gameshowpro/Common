@@ -10,7 +10,7 @@ public class GreaterThanToBooleanConverter : IValueConverter, IMultiValueConvert
 {
     /// <summary>When true, greater-than-or-equal counts as true.</summary>
     /// <remarks>Docs added by AI.</remarks>
-    public bool AllowEqual { get; } = false;
+    public bool AllowEqual { get; }
     /// <summary>The Visibility value to use when the result is false.</summary>
     /// <remarks>Docs added by AI.</remarks>
     public Visibility FalseVisibility { get; set; } = Visibility.Hidden;

@@ -15,7 +15,7 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
     /// Raise once for each batch of changes, independently of INotifyCollectionChanged, which has many complex issues in implementation making it unrelible.
     /// </summary>
     public event EventHandler? BatchChange;
-    private bool _batchChangeSuppressed = false;
+    private bool _batchChangeSuppressed;
     protected void OnBatchChange()
     {
         if (!_batchChangeSuppressed)
@@ -107,10 +107,7 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
     public void AddRange(IEnumerable<T> collection, bool clearFirst)
     {
         _batchChangeSuppressed = true;
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection));
-        }
+        ArgumentNullException.ThrowIfNull(collection);
         bool changed = false;
         if (Count > 0 && clearFirst)
         {
@@ -134,10 +131,7 @@ public class ObservableCollectionEx<T> : ObservableCollection<T>, IItemPropertyC
 
     private void ChildPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (sender is null)
-        {
-            throw new ArgumentNullException(nameof(sender));
-        }
+        ArgumentNullException.ThrowIfNull(sender);
         T typedSender = (T)sender;
         int i = Items.IndexOf(typedSender);
 

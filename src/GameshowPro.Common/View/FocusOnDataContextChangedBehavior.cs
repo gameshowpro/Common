@@ -28,8 +28,8 @@ public class FocusOnDataContextChangedBehavior : Behavior<FrameworkElement>
 
     public bool AlsoClear
     {
-        get { return (bool)GetValue(s_alsoClearProperty); }
-        set { SetValue(s_alsoClearProperty, value); }
+        get => (bool)GetValue(s_alsoClearProperty);
+        set => SetValue(s_alsoClearProperty, value);
     }
 
     // Using a DependencyProperty as the backing store for AlsoClear.  This enables animation, styling, binding, etc...

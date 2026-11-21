@@ -1,8 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-#if WPF
-using GameshowPro.Common.ViewModel;
-#endif
 namespace GameshowPro.Common.Model;
 
 public abstract class IncomingTrigger : ObservableClass, ITrigger
@@ -50,12 +47,15 @@ public abstract class IncomingTrigger : ObservableClass, ITrigger
 
     public virtual bool IsDown
     {
-        get { return field; }
+        get;
         protected set
         {
             if (SetProperty(ref field, value))
             {
-                _logger.LogTrace("IsDown changed to {value}", value);
+                if (_logger.IsEnabled(LogLevel.Trace))
+                {
+                    _logger.LogTrace("IsDown changed to {value}", value);
+                }
                 OnIsDownChanged(value);
             }
         }
@@ -79,7 +79,9 @@ public abstract class IncomingTrigger : ObservableClass, ITrigger
     protected bool DebounceIsInProgress()
         => _lastTrigger.Elapsed < Setting.DebounceInterval;
 
+#pragma warning disable IDE0060 // Unused parameter: part of the protected signature that derived triggers already call; reserved for the lockout timer in the TODO below.
     protected void OnLockedOutEdge(TimeSpan lockoutTimeRemaining)
+#pragma warning restore IDE0060
     {
         LastLockoutDateTime = DateTime.UtcNow;
         //Todo - use a timer to track how long the lockout lasts, to be surfaced on the UI

@@ -21,7 +21,7 @@ public class IntToOrdinalConverter : ICommonValueConverter
             {
                 return string.Empty;
             }
-            var b = parameter as bool?;
+            bool? b = parameter as bool?;
             return i.ToOrdinal(!(b ?? false));
         }
         else

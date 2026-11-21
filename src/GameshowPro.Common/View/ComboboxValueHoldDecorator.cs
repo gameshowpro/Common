@@ -1,7 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Windows.Controls.Primitives;
-
 namespace GameshowPro.Common.View;
 
 /// <summary>
@@ -22,14 +20,10 @@ public static class ComboBoxValueHoldDecorator
     );
 
     public static void SetItemsSource(UIElement element, IEnumerable value)
-    {
-        element.SetValue(s_itemsSourceProperty, value);
-    }
+        => element.SetValue(s_itemsSourceProperty, value);
 
     public static IEnumerable GetItemsSource(UIElement element)
-    {
-        return (IEnumerable)element.GetValue(s_itemsSourceProperty);
-    }
+        => (IEnumerable)element.GetValue(s_itemsSourceProperty);
 
     private static void ItemsSourcePropertyChanged(DependencyObject element,
                     DependencyPropertyChangedEventArgs e)
@@ -82,36 +76,34 @@ public static class ComboBoxValueHoldDecorator
                 BindingOperations.SetBinding(target, Selector.SelectedValueProperty, originalSelectedValueBinding);
             }
         }
-    }
 
-    private static object? ItemAt(IEnumerable? list, int index)
-    {
-        if (list == null)
-            return null;
-        IEnumerator enumerator = list.GetEnumerator();
-        if (index < 0)
+        static object? ItemAt(IEnumerable? list, int index)
         {
-            return null;
-        }
-        for (int i = 0; i <= index; i++)
-        {
-            if (!enumerator.MoveNext())
+            if (list is null)
             {
                 return null;
             }
+            IEnumerator enumerator = list.GetEnumerator();
+            if (index < 0)
+            {
+                return null;
+            }
+            for (int i = 0; i <= index; i++)
+            {
+                if (!enumerator.MoveNext())
+                {
+                    return null;
+                }
+            }
+            return enumerator.Current;
         }
-        return enumerator.Current;
     }
 
     public static int? GetSelectedIndex(UIElement obj)
-    {
-        return (int?)obj.GetValue(s_selectedIndexProperty);
-    }
+        => (int?)obj.GetValue(s_selectedIndexProperty);
 
     public static void SetSelectedIndex(UIElement obj, int value)
-    {
-        obj.SetValue(s_selectedIndexProperty, value);
-    }
+        => obj.SetValue(s_selectedIndexProperty, value);
 
     public static readonly DependencyProperty s_selectedIndexProperty =
         DependencyProperty.RegisterAttached("SelectedIndex", typeof(int?), typeof(ComboBoxValueHoldDecorator), new PropertyMetadata(null, SelectedIndexPropertyChanged));

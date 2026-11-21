@@ -42,7 +42,7 @@ public class AsyncCommand<T>(
     /// <exception cref="InvalidOperationException">Raised if <c>Func&lt;T, bool&gt;</c> was supplied in constructor.</exception>
     public void SetCanExecute(bool canExecute)
     {
-        if (_canExecute != null)
+        if (_canExecute is not null)
         {
             throw new InvalidOperationException($"{nameof(SetCanExecute)} cannot be used in instances instantiated with a ${nameof(Predicate<>)}");
         }
@@ -61,7 +61,7 @@ public class AsyncCommand<T>(
     /// <exception cref="InvalidOperationException">Raised if <c>Func&lt;T, bool&gt;</c> was not supplied in constructor.</exception>
     public void RequeryCanExecute()
     {
-        if (_canExecute == null)
+        if (_canExecute is null)
         {
             throw new InvalidOperationException($"{nameof(RequeryCanExecute)} can only be used in instances instantiated with a ${nameof(Predicate<>)}");
         }

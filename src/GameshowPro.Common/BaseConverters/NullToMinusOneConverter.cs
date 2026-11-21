@@ -23,14 +23,11 @@ public class NullToMinusOneConverter : ICommonValueConverter
     /// <inheritdoc/>
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        switch (value)
+        return value switch
         {
-            case int valInt:
-                return DisplayIsOneBased ? valInt == 0 ? null : valInt - 1 : valInt == -1 ? null : valInt;
-            case double valDouble:
-                return DisplayIsOneBased ? valDouble == 0d ? null : valDouble - 1d : valDouble == -1d ? null : valDouble;
-            default:
-                return null;
-        }
+            int valInt => DisplayIsOneBased ? valInt == 0 ? null : valInt - 1 : valInt == -1 ? null : valInt,
+            double valDouble => DisplayIsOneBased ? valDouble == 0d ? null : valDouble - 1d : valDouble == -1d ? null : valDouble,
+            _ => null,
+        };
     }
 }

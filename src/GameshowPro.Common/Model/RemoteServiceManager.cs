@@ -35,7 +35,7 @@ public class RemoteServiceManager : ObservableClass
     /// <remarks>Docs added by AI.</remarks>
     public RemoteServiceManagerSettings Settings
     {
-        get => field;
+        get;
         set
         {
             if (SetProperty(ref field, value))
@@ -96,7 +96,7 @@ public class RemoteServiceManager : ObservableClass
         // Unsubscribe from services that are no longer in the list
         foreach (IRemoteService service in _serviceChangeSubscriptions.Except(newList))
         {
-            if (service.RemoteServiceSettings != null)
+            if (service.RemoteServiceSettings is not null)
             {
                 service.RemoteServiceSettings.MonitorUiGroupChanged -= Settings_MonitorUiGroupChanged;
                 changed = true;
@@ -105,7 +105,7 @@ public class RemoteServiceManager : ObservableClass
         // Subscribe to services that are new to the list
         foreach (IRemoteService service in newList.Except(_serviceChangeSubscriptions))
         {
-            if (service.RemoteServiceSettings != null)
+            if (service.RemoteServiceSettings is not null)
             {
                 service.RemoteServiceSettings.MonitorUiGroupChanged += Settings_MonitorUiGroupChanged;
                 changed = true;

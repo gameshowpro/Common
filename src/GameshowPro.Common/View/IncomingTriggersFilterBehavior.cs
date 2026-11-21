@@ -22,14 +22,14 @@ public class IncomingTriggersFilterBehavior : Behavior<CollectionViewSource>
     {
         if (d is IncomingTriggersFilterBehavior filterBehavior)
         {
-            filterBehavior?._source?.View.Refresh();
+            filterBehavior._source?.View.Refresh();
         }
     }
 
     public static readonly DependencyProperty s_showAll = DependencyProperty.Register(nameof(ShowAll), typeof(bool), typeof(IncomingTriggersFilterBehavior), new PropertyMetadata(false, ShowAllChanged));
     public bool ShowAll
     {
-        get { return (bool)GetValue(s_showAll); }
-        set { SetValue(s_showAll, value); }
+        get => (bool)GetValue(s_showAll);
+        set => SetValue(s_showAll, value);
     }
 }

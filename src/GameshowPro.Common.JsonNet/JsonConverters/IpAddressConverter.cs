@@ -1,4 +1,6 @@
-﻿namespace GameshowPro.Common.JsonNet.JsonConverters;
+﻿#pragma warning disable IDE0130 // Namespace does not match folder: this type is published in this namespace; changing it to match the project root namespace or folder would break consumers and type names stored in settings files.
+namespace GameshowPro.Common.JsonNet.JsonConverters;
+#pragma warning restore IDE0130
 
 /// <summary>
 /// Json.NET converter for <see cref="IPAddress"/> that reads and writes dotted-quad string forms.
@@ -9,9 +11,7 @@ public class IPAddressConverter : JsonConverter
     /// <inheritdoc />
     /// <remarks>Docs added by AI.</remarks>
     public override bool CanConvert(Type objectType)
-    {
-        return objectType == typeof(IPAddress);
-    }
+        => objectType == typeof(IPAddress);
 
     /// <inheritdoc />
     /// <remarks>Docs added by AI.</remarks>

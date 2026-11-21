@@ -1,5 +1,3 @@
-using GameshowPro.Common.ViewModel;
-
 namespace GameshowPro.Common.Wpf;
 
 /// <summary>

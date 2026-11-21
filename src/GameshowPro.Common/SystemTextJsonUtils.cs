@@ -1,7 +1,4 @@
-﻿using GameshowPro.Common.JsonConverters;
-using System.Text.Json.Serialization.Metadata;
-
-namespace GameshowPro.Common;
+﻿namespace GameshowPro.Common;
 
 public class Persistence : IPersistence
 {
@@ -35,7 +32,7 @@ public class Persistence : IPersistence
 
 [RequiresUnreferencedCode("SystemTextJsonUtils uses runtime JSON metadata resolution for dynamic scenarios.")]
 [RequiresDynamicCode("SystemTextJsonUtils uses runtime JSON metadata resolution for dynamic scenarios.")]
-public static class SystemTextJsonUtils
+public static partial class SystemTextJsonUtils
 {
     /// <summary>
     /// The default <see cref="JsonSerializerOptions"/> used for serialization and deserialization. This can also be used as the basis of custom options.
@@ -81,15 +78,12 @@ public static class SystemTextJsonUtils
             try
             {
                 obj = await Depersist<T>(fileStream, jsonSerializerOptions, cancellationToken);
-                logger?.LogInformation("Successfully deserialized from {path}", path);
+                logger?.LogDeserializedFromPath(path);
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Exception while deserializing {path}", path);
-                if (renameFailedFiles)
-                {
-                    renameBroken = true;
-                }
+                logger?.LogDeserializingPathFailed(ex, path);
+                renameBroken = renameFailedFiles;
                 if (rethrowDeserializationExceptions)
                 {
                     throw new JsonException($"Exception while deserializing {path}", ex);
@@ -122,16 +116,16 @@ public static class SystemTextJsonUtils
         try
         {
             obj = await Depersist<T>(stream, jsonSerializerOptions, cancellationToken);
-            logger?.LogInformation("Successfully deserialized from stream");
+            logger?.LogDeserializedFromStream();
         }
         catch (Exception ex)
         {
-            logger?.LogError(ex, "Exception while deserializing stream");
+            logger?.LogDeserializingStreamFailed(ex);
             throw new JsonException("Exception while deserializing stream", ex);
         }
         if (obj is null)
         {
-            logger?.LogWarning("Deserialization from stream returned null");
+            logger?.LogDeserializedStreamNull();
             throw new JsonException("Deserialization from stream returned null");
         }
         return obj;
@@ -162,10 +156,10 @@ public static class SystemTextJsonUtils
     public static async Task<T> Depersist<T>(string? path, Func<T> factory, bool rethrowDeserializationExceptions, bool renameFailedFiles, JsonSerializerOptions? jsonSerializerOptions, ILogger? logger, CancellationToken? cancellationToken)
     {
         T? obj = await Depersist<T>(path, rethrowDeserializationExceptions, renameFailedFiles, jsonSerializerOptions, logger, cancellationToken);
-        if (obj == null)
+        if (obj is null)
         {
             obj = factory();
-            logger?.LogInformation("Created new object because nothing could be deserialized from {path}", path);
+            logger?.LogCreatedNewObject(path);
         }
         return obj;
     }
@@ -190,7 +184,7 @@ public static class SystemTextJsonUtils
         }
         if (!EnsureDirectory(path))
         {
-            logger?.LogError("Failed to find or create directory for {path}", path);
+            logger?.LogDirectoryUnavailable(path);
             return;
         }
 
@@ -239,4 +233,25 @@ public static class SystemTextJsonUtils
         => await JsonSerializer.SerializeAsync(stream, obj, jsonTypeInfo, cancellationToken ?? default);
 
     public static Persistence Persistence { get; } = new();
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Successfully deserialized from {path}")]
+    private static partial void LogDeserializedFromPath(this ILogger logger, string path);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception while deserializing {path}")]
+    private static partial void LogDeserializingPathFailed(this ILogger logger, Exception ex, string path);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Successfully deserialized from stream")]
+    private static partial void LogDeserializedFromStream(this ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception while deserializing stream")]
+    private static partial void LogDeserializingStreamFailed(this ILogger logger, Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Deserialization from stream returned null")]
+    private static partial void LogDeserializedStreamNull(this ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Created new object because nothing could be deserialized from {path}")]
+    private static partial void LogCreatedNewObject(this ILogger logger, string? path);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to find or create directory for {path}")]
+    private static partial void LogDirectoryUnavailable(this ILogger logger, string path);
 }

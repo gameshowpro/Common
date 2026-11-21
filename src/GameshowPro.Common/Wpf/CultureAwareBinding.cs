@@ -7,7 +7,7 @@
 /// </summary>
 public class CultureAwareBinding : Binding
 {
-    public CultureAwareBinding() : base()
+    public CultureAwareBinding()
     {
         ConverterCulture = CultureInfo.CurrentCulture;
     }

@@ -1,6 +1,3 @@
-using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
-
 namespace GameshowPro.Common.Model;
 
 /// <summary>What a <see cref="IClockDisciplineProbe"/> found out about the wall clock.</summary>
@@ -77,13 +74,13 @@ internal readonly record struct CommandResult(bool Started, bool TimedOut, int E
 /// </remarks>
 public sealed class WindowsTimeServiceProbe : IClockDisciplineProbe
 {
-    internal static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(5);
+    internal static readonly TimeSpan s_defaultTimeout = TimeSpan.FromSeconds(5);
     private const int MaxOutputChars = 16_384;
 
     private readonly Func<TimeSpan, CommandResult> _run;
     private readonly TimeSpan _timeout;
 
-    public WindowsTimeServiceProbe() : this(RunW32tm, DefaultTimeout)
+    public WindowsTimeServiceProbe() : this(RunW32tm, s_defaultTimeout)
     {
     }
 
@@ -131,7 +128,7 @@ public sealed class WindowsTimeServiceProbe : IClockDisciplineProbe
         {
             return ClockDisciplineReading.Unknown("w32tm printed nothing usable");
         }
-        Dictionary<string, string> fields = new(StringComparer.Ordinal);
+        Dictionary<string, string> fields = [with(StringComparer.Ordinal)];
         foreach (string line in output.Split('\n'))
         {
             int colon = line.IndexOf(':');

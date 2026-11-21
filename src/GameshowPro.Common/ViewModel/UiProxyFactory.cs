@@ -146,11 +146,9 @@ public interface IUiProxyFactory
 /// </summary>
 public sealed class UiProxyFactory(IUiThreadDispatcher dispatcher) : IUiProxyFactory
 {
-    private readonly IUiThreadDispatcher _dispatcher = dispatcher;
-
     /// <inheritdoc />
     public ObservableUiProxy<T> Create<T>(T model) where T : INotifyPropertyChanged
     {
-        return new ObservableUiProxy<T>(model, _dispatcher);
+        return new ObservableUiProxy<T>(model, dispatcher);
     }
 }

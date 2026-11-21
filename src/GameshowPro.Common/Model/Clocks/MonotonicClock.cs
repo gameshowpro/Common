@@ -1,6 +1,6 @@
-using Microsoft.Win32;
-
+#pragma warning disable IDE0130 // Namespace does not match folder: the clock types are published in GameshowPro.Common.Model; moving them to match the Clocks folder would break consumers.
 namespace GameshowPro.Common.Model;
+#pragma warning restore IDE0130
 
 /// <summary>
 /// The monotonic clock: <see cref="Stopwatch"/> timestamps expressed as a <see cref="TimeSpan"/> on a fixed origin, plus the identity of the
@@ -54,16 +54,16 @@ public static class MonotonicClock
     /// <c>linux:boot:{boot_id}</c> (no readable machine-id), or <c>proc-random:{guid}</c> when the identity could not be read
     /// (see <see cref="IsIdVerified"/>).
     /// </summary>
-    public static string Id => IdentityHolder.Identity.MonotonicId;
+    public static string Id => IdentityHolder.s_identity.MonotonicId;
 
     /// <summary>False when <see cref="Id"/> is the random per-process fallback: it never collides with another machine or process, but nothing else can share it.</summary>
-    public static bool IsIdVerified => IdentityHolder.Identity.MonotonicIdVerified;
+    public static bool IsIdVerified => IdentityHolder.s_identity.MonotonicIdVerified;
 
     /// <summary>Names this machine, independent of boot (the owner of the machine's own free-running wall clock). Same fallback rules as <see cref="Id"/>.</summary>
-    public static string MachineId => IdentityHolder.Identity.MachineId;
+    public static string MachineId => IdentityHolder.s_identity.MachineId;
 
     /// <summary>False when <see cref="MachineId"/> is the random per-process fallback.</summary>
-    public static bool IsMachineIdVerified => IdentityHolder.Identity.MachineIdVerified;
+    public static bool IsMachineIdVerified => IdentityHolder.s_identity.MachineIdVerified;
 
     internal static long TimestampToTicks(long timestamp, long frequency)
     {
@@ -95,7 +95,7 @@ public static class MonotonicClock
 
     private static class IdentityHolder
     {
-        internal static readonly MachineIdentity Identity = MachineIdentity.Resolve();
+        internal static readonly MachineIdentity s_identity = MachineIdentity.Resolve();
     }
 }
 
@@ -155,9 +155,9 @@ internal readonly record struct MachineIdentity(string MachineId, string Monoton
 
     private static MachineIdentity Fallback() => new(RandomId(), RandomId(), false, false);
 
-    private static string RandomId() => $"proc-random:{ProcessRandom.ToString("N", CultureInfo.InvariantCulture)}";
+    private static string RandomId() => $"proc-random:{s_processRandom.ToString("N", CultureInfo.InvariantCulture)}";
 
-    private static readonly Guid ProcessRandom = Guid.NewGuid();
+    private static readonly Guid s_processRandom = Guid.NewGuid();
 
     private static string? NormalizeGuid(string? text)
     {

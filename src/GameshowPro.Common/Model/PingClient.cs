@@ -1,6 +1,4 @@
-﻿using System.Net.NetworkInformation;
-
-namespace GameshowPro.Common.Model;
+﻿namespace GameshowPro.Common.Model;
 
 /// <summary>
 /// Aggregated ping results for a set of host names.

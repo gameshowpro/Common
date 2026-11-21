@@ -1,9 +1,4 @@
-﻿using System.Windows.Documents;
-using System.Windows.Markup;
-using System.Windows.Media;
-using Point = System.Windows.Point;
-
-namespace GameshowPro.Common.Wpf;
+﻿namespace GameshowPro.Common.Wpf;
 
 public interface IInitializableApp
 {
@@ -14,7 +9,7 @@ public static class Utils
 
     public static void SetWpfCulture()
     {
-        var lang = XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.Name);
+        XmlLanguage lang = XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.Name);
         FrameworkContentElement.LanguageProperty.OverrideMetadata(typeof(TextElement), new FrameworkPropertyMetadata(lang));
         FrameworkContentElement.LanguageProperty.OverrideMetadata(typeof(FixedDocument), new FrameworkPropertyMetadata(lang));
         FrameworkContentElement.LanguageProperty.OverrideMetadata(typeof(FixedDocumentSequence), new FrameworkPropertyMetadata(lang));
@@ -41,19 +36,13 @@ public static class Utils
         DependencyObject? parentObject = GetParentObject(child);
 
         //we've reached the end of the tree
-        if (parentObject == null)
+        if (parentObject is null)
+        {
             return null;
+        }
 
-        //check if the parent matches the type we're looking for
-        if (parentObject is T parent)
-        {
-            return parent;
-        }
-        else
-        {
-            //use recursion to proceed with next level
-            return TryFindParent<T>(parentObject);
-        }
+        //check if the parent matches the type we're looking for, otherwise use recursion to proceed with next level
+        return parentObject is T parent ? parent : TryFindParent<T>(parentObject);
     }
 
 
@@ -68,17 +57,20 @@ public static class Utils
     /// null.</returns>
     public static DependencyObject? GetParentObject(DependencyObject child)
     {
-        if (child == null)
+        if (child is null)
+        {
             return null;
+        }
 
         if (child is ContentElement contentElement)
         {
             DependencyObject parent = ContentOperations.GetParent(contentElement);
-            if (parent != null)
+            if (parent is not null)
+            {
                 return parent;
+            }
 
-            FrameworkContentElement? fce = contentElement as FrameworkContentElement;
-            return fce?.Parent;
+            return (contentElement as FrameworkContentElement)?.Parent;
         }
 
         //if it's not a ContentElement, rely on VisualTreeHelper
@@ -140,7 +132,7 @@ public static class Utils
         return element switch
         {
             null => null,
-            T => (T)element,
+            T match => match,
             _ => TryFindParent<T>(element),
         };
     }

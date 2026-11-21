@@ -52,7 +52,7 @@ public static partial class Utils
         private readonly bool _taskBar;
         internal WindowRestoreState(Window wnd)
         {
-            _rect = new Rectangle((int)wnd.Left, (int)wnd.Top, (int)wnd.Width, (int)wnd.Height);
+            _rect = new((int)wnd.Left, (int)wnd.Top, (int)wnd.Width, (int)wnd.Height);
             _mode = wnd.ResizeMode;
             _cursor = wnd.Cursor;
             _topMost = wnd.Topmost;
@@ -113,9 +113,9 @@ public static partial class Utils
                 }
             }
         }
-        if (target.HasValue && target.Value.Width > 0 && target.Value.Height > 0)
+        if (target is { Width: > 0, Height: > 0 } bounds)
         {
-            SizeWindowToRect(window, target.Value);
+            SizeWindowToRect(window, bounds);
             return true;
         }
         else
@@ -136,18 +136,13 @@ public static partial class Utils
     /// Returns true if process is currently running with elevated permissions.
     /// </summary>
     public static bool IsElevated
-    {
-        get
-        {
-            return WindowsIdentity.GetCurrent().Owner?.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid) == true;
-        }
-    }
+        => WindowsIdentity.GetCurrent().Owner?.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid) == true;
 
     public static bool IsAdministrator()
     {
         using WindowsIdentity identity = WindowsIdentity.GetCurrent();
 
-        if (identity != null)
+        if (identity is not null)
         {
             WindowsPrincipal principal = new(identity);
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
@@ -202,7 +197,7 @@ public static partial class Utils
         string absStartPath = startPath.MakePathAbsolute(basePath);
         string? absStartDir = Path.GetDirectoryName(absStartPath);
         string initDir, defaultFilename;
-        if (startPath != null && Directory.Exists(absStartDir))
+        if (startPath is not null && Directory.Exists(absStartDir))
         {
             initDir = absStartDir;
             defaultFilename = Path.GetFileName(absStartPath);
@@ -264,19 +259,28 @@ public static partial class Utils
             {
                 logger.LogError(ex, "Exception while trying to find service {service}, so can't wait on it", service);
             }
-            if (status != null && sc != null)
+            if (status is not null && sc is not null)
             {
                 if (status.Value == ServiceControllerStatus.Running)
                 {
-                    logger.LogInformation("Service {service} is running, so no need to wait", service);
+                    if (logger.IsEnabled(LogLevel.Information))
+                    {
+                        logger.LogInformation("Service {service} is running, so no need to wait", service);
+                    }
                 }
                 else
                 {
-                    logger.LogInformation("Service {service} is {state}, so waiting for it now", service, status.Value);
+                    if (logger.IsEnabled(LogLevel.Information))
+                    {
+                        logger.LogInformation("Service {service} is {state}, so waiting for it now", service, status.Value);
+                    }
                     try
                     {
                         sc.WaitForStatus(ServiceControllerStatus.Running, serviceRunTimeout);
-                        logger.LogInformation("Continuing now that service {service} is running", service);
+                        if (logger.IsEnabled(LogLevel.Information))
+                        {
+                            logger.LogInformation("Continuing now that service {service} is running", service);
+                        }
                     }
                     catch (System.ServiceProcess.TimeoutException)
                     {

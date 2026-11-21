@@ -1,7 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using GameshowPro.Common.ViewModel;
-
 namespace GameshowPro.Common.Model.Lights;
 
 /// <summary>
@@ -50,7 +48,7 @@ public class StateLevels : ObservableClass
         int? flashCount
     ) : this(
         key,
-        phases ?? (levels == null ? null : flashOnDuration > 0 && flashOffDuration > 0 ?
+        phases ?? (levels is null ? null : flashOnDuration > 0 && flashOffDuration > 0 ?
             [
                 new StateLevelsPhase(levels, TimeSpan.FromSeconds(flashOnDuration.Value)),
                 new StateLevelsPhase(flashLevels, TimeSpan.FromSeconds(flashOffDuration.Value)),
@@ -78,11 +76,11 @@ public class StateLevels : ObservableClass
     )
     {
         Key = key ?? throw new ArgumentNullException(nameof(key), "Can't create StateLevels without key");
-        Phases = [.. phases?.Any() != true ? [new StateLevelsPhase()] : phases];
+        Phases = [.. phases is not { Count: > 0 } ? [new StateLevelsPhase()] : phases];
 
         CycleStepCount = cycleStepCount ?? 0;
         LoopBackStep = loopBackStep ?? 0;
-        _flashTimer = new Timer((o) => DoFlash());
+        _flashTimer = new Timer(_ => DoFlash());
         AddPhaseCommand = new RelayCommandSimple(
             () => Phases.Add(
                 new([.. Phases.Last().Levels.Select(l => new StatePresetChannel(l.FixtureChannelType))],
@@ -113,14 +111,14 @@ public class StateLevels : ObservableClass
     [DataMember, DefaultValue(0)]
     public int CycleStepCount
     {
-        get { return field; }
+        get;
         set { _ = SetProperty(ref field, value); }
     }
 
     [DataMember]
     public int LoopBackStep
     {
-        get => field;
+        get;
         set => _ = SetProperty(ref field, value);
     }
 

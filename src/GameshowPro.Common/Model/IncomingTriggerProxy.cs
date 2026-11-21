@@ -1,7 +1,4 @@
-﻿#if WPF
-using GameshowPro.Common.ViewModel;
-#endif
-namespace GameshowPro.Common.Model;
+﻿namespace GameshowPro.Common.Model;
 
 /// <summary>
 /// A proxy which can be referenced from a model (e.g. contestant objects) allowing the trigger implementation to be changed dynamically (e.g. depending when user requests switch to a different source)
@@ -34,7 +31,7 @@ public class IncomingTriggerProxy<TKey> : ObservableClass, ITrigger
 #endif
     }
 
-    private bool _firstSetIsDone = false; //If TKey is an enum, the source key will already be set to default, but the source will not be set
+    private bool _firstSetIsDone; //If TKey is an enum, the source key will already be set to default, but the source will not be set
 
     /// <summary>
     /// Gets or sets the key for the active source trigger. Setting this updates <see cref="Source"/>.

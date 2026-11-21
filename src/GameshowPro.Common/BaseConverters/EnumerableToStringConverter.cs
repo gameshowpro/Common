@@ -20,7 +20,7 @@ public class EnumerableToStringConverter(object doNothing) : ICommonValueConvert
     public string NullNumberPlaceholder { get; set; } = "";
     private static readonly string[] s_joinTypes = [", ", "", "\n", "\n\u2022", "~"];
     public StringConverterJoinType JoinType { get; set; } = StringConverterJoinType.Comma;
-    public bool IncludeEmptyItems { get; set; } = false;
+    public bool IncludeEmptyItems { get; set; }
     public int IntUiOffset { get; set; } = 1;
     private readonly object _doNothing = doNothing;
 
@@ -31,77 +31,14 @@ public class EnumerableToStringConverter(object doNothing) : ICommonValueConvert
         {
             return null;
         }
-        string separator = s_joinTypes[(int)JoinType];
-        if (value is IEnumerable<bool> bools)
-        {
-            return EnumerableToDelimitedString(bools, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<bool?> nbools)
-        {
-            return EnumerableToDelimitedString(nbools, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<string> strings)
-        {
-            return EnumerableToDelimitedString(strings, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<string?> nstrings)
-        {
-            return EnumerableToDelimitedString(nstrings, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<int> ints)
-        {
-            return EnumerableToDelimitedString(ints, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<int?> nints)
-        {
-            return EnumerableToDelimitedString(nints, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<long> longs)
-        {
-            return EnumerableToDelimitedString(longs, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<long?> nlongs)
-        {
-            return EnumerableToDelimitedString(nlongs, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<uint> uints)
-        {
-            return EnumerableToDelimitedString(uints, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<uint?> nuints)
-        {
-            return EnumerableToDelimitedString(nuints, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<ulong> ulongs)
-        {
-            return EnumerableToDelimitedString(ulongs, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<ulong?> nulongs)
-        {
-            return EnumerableToDelimitedString(nulongs, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<IEnumerable<int>> intList)
-        {
-            return EnumerableToDelimitedString(intList, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<float> floats)
-        {
-            return EnumerableToDelimitedString(floats, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<double> doubles)
-        {
-            return EnumerableToDelimitedString(doubles, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else if (value is IEnumerable<float?> nfloats)
-        {
-            return EnumerableToDelimitedString(nfloats, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder);
-        }
-        else
-        {
-            return value is IEnumerable<double?> ndoubles
-                ? EnumerableToDelimitedString(ndoubles, separator, IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder)
-                : _doNothing;
-        }
+        bool isSupported = value is IEnumerable<bool> or IEnumerable<bool?> or IEnumerable<string>
+            or IEnumerable<int> or IEnumerable<int?> or IEnumerable<long> or IEnumerable<long?>
+            or IEnumerable<uint> or IEnumerable<uint?> or IEnumerable<ulong> or IEnumerable<ulong?>
+            or IEnumerable<IEnumerable<int>> or IEnumerable<float> or IEnumerable<double>
+            or IEnumerable<float?> or IEnumerable<double?>;
+        return isSupported
+            ? EnumerableToDelimitedString(value, s_joinTypes[(int)JoinType], IntUiOffset, IncludeEmptyItems, NullNumberPlaceholder, NullStringPlaceholder)
+            : _doNothing;
     }
 
     /// <inheritdoc/>

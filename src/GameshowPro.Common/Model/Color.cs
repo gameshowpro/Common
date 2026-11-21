@@ -31,6 +31,12 @@ public readonly struct Color(byte a, byte r, byte g, byte b) : IEquatable<Color>
             SaturatingAdd(left.G, right.G),
             SaturatingAdd(left.B, right.B));
 
+    public static bool operator ==(Color left, Color right)
+        => left.Equals(right);
+
+    public static bool operator !=(Color left, Color right)
+        => !left.Equals(right);
+
     public bool Equals(Color other)
         => A == other.A && R == other.R && G == other.G && B == other.B;
 

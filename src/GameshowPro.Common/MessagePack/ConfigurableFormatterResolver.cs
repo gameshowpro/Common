@@ -1,6 +1,3 @@
-using MessagePack;
-using MessagePack.Formatters;
-
 namespace GameshowPro.Common.MessagePack;
 
 /// <summary>
@@ -11,7 +8,7 @@ public sealed class ConfigurableFormatterResolver : IFormatterResolver
     private readonly ConcurrentDictionary<Type, object?> _cache = new();
     private readonly Dictionary<Type, object> _registeredFormatters = [];
     private readonly List<IFormatterResolver> _subResolvers = [];
-    private readonly object _syncRoot = new();
+    private readonly Lock _syncRoot = new();
 
     /// <summary>
     /// Registers a formatter for <typeparamref name="T"/> with highest resolution priority.

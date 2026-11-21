@@ -1,4 +1,6 @@
-﻿namespace GameshowPro.Common.JsonNet.JsonConverters;
+﻿#pragma warning disable IDE0130 // Namespace does not match folder: this type is published in this namespace; changing it to match the project root namespace or folder would break consumers and type names stored in settings files.
+namespace GameshowPro.Common.JsonNet.JsonConverters;
+#pragma warning restore IDE0130
 /// <summary>
 /// A JsonConverter that serializes <see cref="Type"/> objects with just their assembly-scoped names, but tolerates fully qualified names for deserialization.
 /// </summary>
@@ -14,21 +16,14 @@ public partial class TypeConverter : JsonConverter
     /// <remarks>Docs added by AI.</remarks>
     public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
     {
-        if (value is Type type)
-        {
-            serializer.Serialize(writer, IsolateAssemblyAndTypeName(type));
-        }
-        else
-        {
-            serializer.Serialize(writer, null);
-        }
+        serializer.Serialize(writer, value is Type type ? IsolateAssemblyAndTypeName(type) : null);
     }
 
     /// <inheritdoc />
     /// <remarks>Docs added by AI.</remarks>
     public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
-        if (serializer.Deserialize(reader, typeof(string)) is string typeName)
+        if (serializer.Deserialize<string>(reader) is string typeName)
         {
             string name = IsolateAssemblyAndTypeName(typeName);
             return Type.GetType(name);

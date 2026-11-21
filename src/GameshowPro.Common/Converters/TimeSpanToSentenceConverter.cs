@@ -19,7 +19,7 @@ public class TimeSpanToSentenceConverter : IValueConverter, IMultiValueConverter
         }
         else
         {
-            throw new ArgumentException();
+            throw new ArgumentException("The value must be a TimeSpan.", nameof(value));
         }
     }
 

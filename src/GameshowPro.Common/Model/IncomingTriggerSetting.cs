@@ -54,7 +54,7 @@ public class IncomingTriggerSetting : ObservableClass, INotifyDataErrorInfo
     {
         get;
         set { _ = SetProperty(ref field, value); }
-    } = null;
+    }
 
     public bool IdIsValid
     {
@@ -74,6 +74,6 @@ public class IncomingTriggerSetting : ObservableClass, INotifyDataErrorInfo
 
     public IEnumerable GetErrors(string? propertyName)
     {
-        return !IdIsValid && propertyName == nameof(Id) ? new List<string>() { "ID is duplicated" } : new List<string>();
+        return !IdIsValid && propertyName == nameof(Id) ? new List<string> { "ID is duplicated" } : [];
     }
 }

@@ -52,9 +52,9 @@ public static class JsonNetUtils
         if (path is not null && File.Exists(path))
         {
             bool renameBroken = false;
-            using StreamReader sr = new(path);
+            using (StreamReader sr = new(path))
+            using (JsonReader reader = new JsonTextReader(sr))
             {
-                using JsonReader reader = new JsonTextReader(sr);
                 try
                 {
                     obj = ser.Deserialize<T>(reader);
@@ -77,15 +77,21 @@ public static class JsonNetUtils
                 RenameBrokenFile(path, logger);
             }
         }
-        if (obj == null)
+        if (obj is null)
         {
             obj = new T();
             isNew = true;
-            logger?.LogInformation("Created new object because nothing could be deserialized from {path}", path);
+            if (logger?.IsEnabled(LogLevel.Information) == true)
+            {
+                logger.LogInformation("Created new object because nothing could be deserialized from {path}", path);
+            }
         }
         else
         {
-            logger?.LogInformation("Successfully deserialized from {path}", path);
+            if (logger?.IsEnabled(LogLevel.Information) == true)
+            {
+                logger.LogInformation("Successfully deserialized from {path}", path);
+            }
             isNew = false;
         }
         return obj;
@@ -123,8 +129,8 @@ public static class JsonNetUtils
         string tempPath = $"{path}.{Guid.NewGuid():N}.tmp";
         try
         {
-            using (var fs = new FileStream(tempPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-            using (var sw = new StreamWriter(fs))
+            using (FileStream fs = new(tempPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (StreamWriter sw = new(fs))
             {
                 Persist(obj, serializationBinder, sw, enumsAsStrings);
                 sw.Flush();
@@ -165,7 +171,7 @@ public static class JsonNetUtils
         {
             return null;
         }
-        using var sw = new StringWriter();
+        using StringWriter sw = new();
         Persist(obj, serializationBinder, sw, enumsAsStrings);
         return sw.ToString();
     }

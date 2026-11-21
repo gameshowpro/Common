@@ -1,7 +1,4 @@
-﻿using System.Windows.Markup;
-using System.Windows.Media;
-
-namespace GameshowPro.Common.View;
+﻿namespace GameshowPro.Common.View;
 
 /// <summary>
 /// Usage examples:
@@ -47,13 +44,13 @@ public class ComboBoxTemplateSelector : DataTemplateSelector
 
         // Search up the visual tree, stopping at either a ComboBox or
         // a ComboBoxItem (or null). This will determine which template to use
-        while (itemToCheck is not null
-        and not ComboBox
-        and not ComboBoxItem)
+        while (itemToCheck is not (null or ComboBox or ComboBoxItem))
+        {
             itemToCheck = VisualTreeHelper.GetParent(itemToCheck);
+        }
 
         // If you stopped at a ComboBoxItem, you're in the dropdown
-        var inDropDown = itemToCheck is ComboBoxItem;
+        bool inDropDown = itemToCheck is ComboBoxItem;
 
         return inDropDown
             ? DropdownItemsTemplate ?? DropdownItemsTemplateSelector?.SelectTemplate(item, container)

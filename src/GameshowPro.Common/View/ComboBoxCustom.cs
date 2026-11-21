@@ -28,12 +28,12 @@ public class ComboBoxCustom : ComboBox
 
     public int? SelectedIndexCustom
     {
-        get { return (int?)GetValue(s_selectedIndexCustomProperty); }
-        set { SetValue(s_selectedIndexCustomProperty, value); }
+        get => (int?)GetValue(s_selectedIndexCustomProperty);
+        set => SetValue(s_selectedIndexCustomProperty, value);
     }
 
     public static readonly DependencyProperty s_selectedIndexCustomProperty =
-        DependencyProperty.Register("SelectedIndexCustom", typeof(int?), typeof(ComboBoxCustom), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal, SelectedIndexCustomPropertyChanged));
+        DependencyProperty.Register(nameof(SelectedIndexCustom), typeof(int?), typeof(ComboBoxCustom), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal, SelectedIndexCustomPropertyChanged));
 
     private static void SelectedIndexCustomPropertyChanged(DependencyObject element,
             DependencyPropertyChangedEventArgs e)

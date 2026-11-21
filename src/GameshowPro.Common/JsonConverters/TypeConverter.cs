@@ -3,7 +3,7 @@
 internal partial class TypeConverter : JsonConverter<Type?>
 {
     public override void Write(Utf8JsonWriter writer, Type? value, JsonSerializerOptions options)
-        => writer.WriteStringValue(value == null ? null : TypeAliasRegistry.GetTypeAlias(value));
+        => writer.WriteStringValue(value is null ? null : TypeAliasRegistry.GetTypeAlias(value));
 
     public override Type? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -11,7 +11,7 @@ internal partial class TypeConverter : JsonConverter<Type?>
         {
             throw new JsonException("Expected a string");
         }
-        string? typeName = reader.GetString() ?? throw new JsonException("Could not parse to string");
-        return typeName == null ? null : TypeAliasRegistry.ResolveType(typeName);
+        string typeName = reader.GetString() ?? throw new JsonException("Could not parse to string");
+        return TypeAliasRegistry.ResolveType(typeName);
     }
 }

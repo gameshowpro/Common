@@ -45,8 +45,7 @@ public class IncomingTriggerComposite : IncomingTrigger
                 {
                     case nameof(Ordinal):
                     case nameof(Time):
-                        IncomingTrigger? c = s as IncomingTrigger;
-                        if (c is not null)
+                        if (s is IncomingTrigger c)
                         {
                             Ordinal = c.Ordinal;
                             Time = c.Time;
@@ -73,7 +72,10 @@ public class IncomingTriggerComposite : IncomingTrigger
                     Ordinal = trigger.Ordinal;
                     Time = trigger.Time;
                     IsTest = trigger.IsTest;
-                    _logger.LogTrace("Received trigger from {source}, ordinal {ordinal}, time {time}{IsTest}", source.GetType(), Ordinal, Time, IsTest ? " TEST ONLY" : "");
+                    if (_logger.IsEnabled(LogLevel.Trace))
+                    {
+                        _logger.LogTrace("Received trigger from {source}, ordinal {ordinal}, time {time}{IsTest}", source.GetType(), Ordinal, Time, IsTest ? " TEST ONLY" : "");
+                    }
                     base.OnVerifiedTrigger(source, args);
                 }
             }
@@ -95,7 +97,7 @@ public class IncomingTriggerComposite : IncomingTrigger
 
     public ImmutableList<IncomingTrigger> EnabledChildren
     {
-        get { return field; }
+        get;
         set { _ = SetProperty(ref field, value); }
     }
 }

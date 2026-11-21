@@ -1,8 +1,5 @@
 ﻿// (C) Barjonas LLC 2020
 
-using System.Windows.Media;
-using Size = System.Windows.Size;
-
 namespace GameshowPro.Common.View;
 
 /// <summary>
@@ -13,7 +10,7 @@ public class UniformGridEx : Grid
 {
     public static readonly DependencyProperty s_columnMemberPathProperty =
             DependencyProperty.Register(
-                    "ColumnMemberPath",
+                    nameof(ColumnMemberPath),
                     typeof(string),
                     typeof(ItemsControl),
                     new FrameworkPropertyMetadata(
@@ -22,13 +19,13 @@ public class UniformGridEx : Grid
 
     public string ColumnMemberPath
     {
-        get { return (string)GetValue(s_columnMemberPathProperty); }
-        set { SetValue(s_columnMemberPathProperty, value); }
+        get => (string)GetValue(s_columnMemberPathProperty);
+        set => SetValue(s_columnMemberPathProperty, value);
     }
 
     public static readonly DependencyProperty s_rowMemberPathProperty =
     DependencyProperty.Register(
-            "RowMemberPath",
+            nameof(RowMemberPath),
             typeof(string),
             typeof(ItemsControl),
             new FrameworkPropertyMetadata(
@@ -37,13 +34,13 @@ public class UniformGridEx : Grid
 
     public string RowMemberPath
     {
-        get { return (string)GetValue(s_rowMemberPathProperty); }
-        set { SetValue(s_rowMemberPathProperty, value); }
+        get => (string)GetValue(s_rowMemberPathProperty);
+        set => SetValue(s_rowMemberPathProperty, value);
     }
 
     public static readonly DependencyProperty s_columnSpanMemberPathProperty =
             DependencyProperty.Register(
-                    "ColumnSpanMemberPath",
+                    nameof(ColumnSpanMemberPath),
                     typeof(string),
                     typeof(ItemsControl),
                     new FrameworkPropertyMetadata(
@@ -52,13 +49,13 @@ public class UniformGridEx : Grid
 
     public string ColumnSpanMemberPath
     {
-        get { return (string)GetValue(s_columnSpanMemberPathProperty); }
-        set { SetValue(s_columnSpanMemberPathProperty, value); }
+        get => (string)GetValue(s_columnSpanMemberPathProperty);
+        set => SetValue(s_columnSpanMemberPathProperty, value);
     }
 
     public static readonly DependencyProperty s_rowSpanMemberPathProperty =
         DependencyProperty.Register(
-            "RowSpanMemberPath",
+            nameof(RowSpanMemberPath),
             typeof(string),
             typeof(ItemsControl),
             new FrameworkPropertyMetadata(
@@ -67,8 +64,8 @@ public class UniformGridEx : Grid
 
     public string RowSpanMemberPath
     {
-        get { return (string)GetValue(s_rowSpanMemberPathProperty); }
-        set { SetValue(s_rowSpanMemberPathProperty, value); }
+        get => (string)GetValue(s_rowSpanMemberPathProperty);
+        set => SetValue(s_rowSpanMemberPathProperty, value);
     }
 
     private static void UpdateChildrenBinding(DependencyObject d, DependencyProperty property, string path)
@@ -90,36 +87,36 @@ public class UniformGridEx : Grid
         => child.SetBinding(property, new Binding(path));
 
     public static readonly DependencyProperty s_columnsProperty =
-        DependencyProperty.Register("Columns", typeof(int), typeof(UniformGridEx), new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.AffectsArrange, OnColumnsChanged));
+        DependencyProperty.Register(nameof(Columns), typeof(int), typeof(UniformGridEx), new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.AffectsArrange, OnColumnsChanged));
 
     public int Columns
     {
-        get { return (int)GetValue(s_columnsProperty); }
-        set { SetValue(s_columnsProperty, value); }
+        get => (int)GetValue(s_columnsProperty);
+        set => SetValue(s_columnsProperty, value);
     }
 
     private static void OnColumnsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is UniformGridEx instance)
         {
-            Utils.EnsureListCount(instance.ColumnDefinitions, instance.Columns, instance.Columns, i => new ColumnDefinition());
+            Utils.EnsureListCount(instance.ColumnDefinitions, instance.Columns, instance.Columns, _ => new ColumnDefinition());
         }
     }
 
     public static readonly DependencyProperty s_rowsProperty =
-        DependencyProperty.Register("Rows", typeof(int), typeof(UniformGridEx), new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.AffectsArrange, OnRowsChanged));
+        DependencyProperty.Register(nameof(Rows), typeof(int), typeof(UniformGridEx), new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.AffectsArrange, OnRowsChanged));
 
     public int Rows
     {
-        get { return (int)GetValue(s_rowsProperty); }
-        set { SetValue(s_rowsProperty, value); }
+        get => (int)GetValue(s_rowsProperty);
+        set => SetValue(s_rowsProperty, value);
     }
 
     private static void OnRowsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is UniformGridEx instance)
         {
-            Utils.EnsureListCount(instance.RowDefinitions, instance.Rows, instance.Rows, i => new RowDefinition());
+            Utils.EnsureListCount(instance.RowDefinitions, instance.Rows, instance.Rows, _ => new RowDefinition());
         }
     }
 

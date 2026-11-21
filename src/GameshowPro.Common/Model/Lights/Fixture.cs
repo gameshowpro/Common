@@ -1,11 +1,6 @@
 ﻿// (C) Barjonas LLC 2018
 
-#if WPF
-using Color = System.Windows.Media.Color;
-#endif
-
 namespace GameshowPro.Common.Model.Lights;
-
 
 /// <summary>
 /// Represents a single logical light fixture.  This will contain one or more channels, e.g. different colors.  Each State represents values a fixed set of values for these channels.
@@ -49,14 +44,14 @@ public class Fixture : ObservableClass
     [DataMember, DefaultValue("Light")]
     public string DisplayName
     {
-        get { return field; }
+        get;
         set { _ = SetProperty(ref field, value); }
     }
 
     [DataMember, DefaultValue(0)]
     public int StartId
     {
-        get => field;
+        get;
         set
         {
             if (SetProperty(ref field, value))
@@ -69,7 +64,7 @@ public class Fixture : ObservableClass
     [DefaultValue(null)]
     public List<FixtureChannel> Channels
     {
-        get { return field; }
+        get;
         set
         {
             RemoveChannelHandlers(field, Channel_PropertyChanged);
@@ -82,7 +77,7 @@ public class Fixture : ObservableClass
     private void SetChannelsFromStartChannel(int start, IEnumerable<FixtureChannel> channels)
     {
         bool changed = false;
-        if (channels != null)
+        if (channels is not null)
         {
             foreach (FixtureChannel channel in channels)
             {
@@ -112,7 +107,7 @@ public class Fixture : ObservableClass
 
     public void ApplyStatePreset(string presetKey)
     {
-        if (StateGroup == null)
+        if (StateGroup is null)
         {
             throw new InvalidOperationException($"Cannot apply preset before {nameof(StateGroup)} is set");
         }
@@ -121,7 +116,7 @@ public class Fixture : ObservableClass
 
     private void ApplyStatePreset(IEnumerable<StatePresetChannel>? preset)
     {
-        var i = 0;
+        int i = 0;
         foreach (FixtureChannel chan in Channels)
         {
             chan.Level = preset?.ElementAtOrDefault(i)?.Level ?? 0;
@@ -131,7 +126,7 @@ public class Fixture : ObservableClass
 
     public void ApplyStatePreset(StateLevels stateLevels, bool flashNow = true)
     {
-        if (StateGroup == null)
+        if (StateGroup is null)
         {
             throw new InvalidOperationException($"Can't set a {nameof(State)} without a {nameof(StateGroup)} already set.");
         }
@@ -174,7 +169,7 @@ public class Fixture : ObservableClass
 
     public void DeserializationComplete()
     {
-        if (Channels?.Any(static c => c.FixtureChannelType == null) != false)
+        if (Channels?.Any(static c => c.FixtureChannelType is null) != false)
         {
             //Not ready yet
             return;
@@ -186,7 +181,7 @@ public class Fixture : ObservableClass
 
     private static void AddChannelHandlers(IList<FixtureChannel> channels, PropertyChangedEventHandler handler, Fixture fixture)
     {
-        if (channels == null)
+        if (channels is null)
         { return; }
         foreach (FixtureChannel ch in channels)
         {
@@ -198,7 +193,7 @@ public class Fixture : ObservableClass
 
     private static void RemoveChannelHandlers(IList<FixtureChannel> channels, PropertyChangedEventHandler handler)
     {
-        if (channels == null)
+        if (channels is null)
         { return; }
         foreach (FixtureChannel ch in channels)
         {
@@ -240,7 +235,7 @@ public class Fixture : ObservableClass
     [DefaultValue("#00000000")]
     public Color MixedColor
     {
-        get { return field; }
+        get;
         private set { _ = SetProperty(ref field, value); }
     }
 }

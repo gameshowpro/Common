@@ -274,7 +274,7 @@ public class PropertyChangeFilters
     /// <remarks>Docs added by AI.</remarks>
     public static void AssignLoggerFactory(ILoggerFactory loggerFactory)
     {
-        if (s_loggerFactory != null)
+        if (s_loggerFactory is not null)
         {
             throw new InvalidOperationException("Logger factory is already assigned.");
         }
@@ -354,7 +354,7 @@ public class PropertyChangeFilters
     [return: NotNullIfNotNull(nameof(conditions))]
     public PropertyChangeFilter? AddFilter(PropertyChangedEventHandler handler, bool invokeAfterConstruction, IEnumerable<PropertyChangeCondition>? conditions)
     {
-        if (conditions != null)
+        if (conditions is not null)
         {
             PropertyChangeFilter filter = new(handler, conditions, invokeAfterConstruction, _logger);
             _filters.Add(filter);

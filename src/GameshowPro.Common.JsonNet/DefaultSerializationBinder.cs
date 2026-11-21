@@ -7,7 +7,7 @@
 /// <remarks>Docs added by AI.</remarks>
 public class DefaultSerializationBinder : ISerializationBinderEx
 {
-    private static readonly FrozenDictionary<string, string> s_assemblyReplacements = new KeyValuePair<string, string>[] { KeyValuePair.Create("GameshowPro.Common.Windows", "GameshowPro.Common") }.ToFrozenDictionary();
+    private static readonly FrozenDictionary<string, string> s_assemblyReplacements = new Dictionary<string, string> { ["GameshowPro.Common.Windows"] = "GameshowPro.Common" }.ToFrozenDictionary();
 
     private DefaultSerializationBinder()
     {
@@ -35,8 +35,7 @@ public class DefaultSerializationBinder : ISerializationBinderEx
     /// <remarks>Docs added by AI.</remarks>
     public Type BindToType(string? assemblyName, string? typeName)
     {
-
-        if (assemblyName != null && s_assemblyReplacements.TryGetValue(assemblyName, out string? newValue))
+        if (assemblyName is not null && s_assemblyReplacements.TryGetValue(assemblyName, out string? newValue))
         {
             assemblyName = newValue;
         }
@@ -45,8 +44,8 @@ public class DefaultSerializationBinder : ISerializationBinderEx
         {
             try
             {
-                var type = Type.GetType($"{typeName}, {assemblyName}", throwOnError: false);
-                if (type != null)
+                Type? type = Type.GetType($"{typeName}, {assemblyName}", throwOnError: false);
+                if (type is not null)
                 {
                     return type;
                 }
@@ -57,8 +56,8 @@ public class DefaultSerializationBinder : ISerializationBinderEx
         // Fallback: try just the type name (may work for types in the current assembly)
         if (!string.IsNullOrEmpty(typeName))
         {
-            var type = Type.GetType(typeName, throwOnError: false);
-            if (type != null)
+            Type? type = Type.GetType(typeName, throwOnError: false);
+            if (type is not null)
             {
                 return type;
             }

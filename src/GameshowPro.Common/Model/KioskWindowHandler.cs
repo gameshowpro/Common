@@ -21,7 +21,7 @@ public class KioskWindowHandler : ObservableClass
         {
             get;
             set { SetProperty(ref field, value); }
-        } = 0;
+        }
 
         /// <summary>
         /// Whether the window is presented in kiosk mode.
@@ -32,7 +32,7 @@ public class KioskWindowHandler : ObservableClass
         {
             get;
             set { SetProperty(ref field, value); }
-        } = false;
+        }
 
         /// <summary>
         /// Whether the window is currently shown.

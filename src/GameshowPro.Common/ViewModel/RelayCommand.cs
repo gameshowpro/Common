@@ -37,9 +37,9 @@ public class RelayCommand<T>(Action<T?> execute, Predicate<T?>? canExecute) : IC
     /// <exception cref="InvalidOperationException">Raised if <c>Predicate&lt;T&gt;</c> was supplied in constructor.</exception>
     public void SetCanExecute(bool canExecute)
     {
-        if (_canExecute != null)
+        if (_canExecute is not null)
         {
-            throw new InvalidOperationException($"{nameof(SetCanExecute)} cannot be used in instances instantiated with a ${nameof(Predicate<T?>)}");
+            throw new InvalidOperationException($"{nameof(SetCanExecute)} cannot be used in instances instantiated with a ${nameof(Predicate<>)}");
         }
         if (_canExecuteBool != canExecute)
         {
@@ -56,9 +56,9 @@ public class RelayCommand<T>(Action<T?> execute, Predicate<T?>? canExecute) : IC
     /// <exception cref="InvalidOperationException">Raised if <c>Predicate&lt;T&gt;</c> was not supplied in constructor.</exception>
     public void RequeryCanExecute()
     {
-        if (_canExecute == null)
+        if (_canExecute is null)
         {
-            throw new InvalidOperationException($"{nameof(RequeryCanExecute)} can only be used in instances instantiated with a ${nameof(Predicate<T?>)}");
+            throw new InvalidOperationException($"{nameof(RequeryCanExecute)} can only be used in instances instantiated with a ${nameof(Predicate<>)}");
         }
         RaiseCanExecuteChanged();
     }
@@ -78,11 +78,11 @@ public class RelayCommand<T>(Action<T?> execute, Predicate<T?>? canExecute) : IC
     ///</returns>
     public virtual bool CanExecute(object? parameter)
     {
-        if (_canExecute == null)
+        if (_canExecute is null)
         {
             return _canExecuteBool;
         }
-        return parameter is T parameterT ? _canExecute(parameterT) : false;
+        return parameter is T parameterT && _canExecute(parameterT);
     }
 
     ///<summary>

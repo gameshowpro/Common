@@ -15,26 +15,22 @@ public class TimeSpanToSpecialFormatConverter(object unsetValue) : ICommonValueC
     private static readonly TimeSpan s_switchPoint = TimeSpan.FromMinutes(1);
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is TimeSpan ts)
-        {
-            if (!int.TryParse(parameter?.ToString(), out int option))
-            {
-                option = -1;
-            }
-            switch (option)
-            {
-                case 2:
-                    return ts.ToString(false, 2, 1);
-                case 1:
-                    return ts.ToString(false, 0, 4);
-                default:
-                    return ts < s_switchPoint ? ts.ToString(@"%s") : ts.ToString(@"%m\:ss");
-            }
-        }
-        else
+        if (value is not TimeSpan ts)
         {
             throw new ArgumentException(null, nameof(value));
         }
+
+        if (!int.TryParse(parameter?.ToString(), out int option))
+        {
+            option = -1;
+        }
+
+        return option switch
+        {
+            2 => ts.ToString(false, 2, 1),
+            1 => ts.ToString(false, 0, 4),
+            _ => ts < s_switchPoint ? ts.ToString(@"%s") : ts.ToString(@"%m\:ss"),
+        };
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

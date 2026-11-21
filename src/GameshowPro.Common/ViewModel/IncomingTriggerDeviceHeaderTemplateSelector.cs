@@ -26,14 +26,14 @@ internal class IncomingTriggerDeviceHeaderTemplateSelector : DataTemplateSelecto
             return element.FindResource(templateName) as DataTemplate;
         }
         return null;
-    }
 
-    private static string GetTypeName(Type type)
-    {
-        if (type.IsGenericType)
+        static string GetTypeName(Type type)
         {
-            return type.Name.Split("`")[0];
+            if (type.IsGenericType)
+            {
+                return type.Name.Split("`")[0];
+            }
+            return type.Name;
         }
-        return type.Name;
     }
 }

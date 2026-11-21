@@ -1,7 +1,4 @@
-﻿using System.Text.Json.Serialization.Metadata;
-using GameshowPro.Common.JsonConverters;
-
-namespace GameshowPro.Common;
+﻿namespace GameshowPro.Common;
 
 /// <summary>
 /// Custom Type resolver that only includes properties which are marked with the <typeparamref name="TDataMemberAttribute"/>.
@@ -16,7 +13,7 @@ public class OptInResolver<TDataMemberAttribute> : DefaultJsonTypeInfoResolver
 
         if (typeInfo.Kind == JsonTypeInfoKind.Object)
         {
-            List<JsonPropertyInfo> properties = [.. typeInfo.Properties.Where(prop => prop.AttributeProvider?.GetCustomAttributes(typeof(TDataMemberAttribute), true).Length > 0)];
+            List<JsonPropertyInfo> properties = [.. typeInfo.Properties.Where(static prop => prop.AttributeProvider?.GetCustomAttributes(typeof(TDataMemberAttribute), true).Length > 0)];
 
             foreach (JsonPropertyInfo property in properties)
             {
@@ -24,7 +21,7 @@ public class OptInResolver<TDataMemberAttribute> : DefaultJsonTypeInfoResolver
             }
 
             // Add [DataMember]-annotated non-public properties.
-            BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             foreach (PropertyInfo property in type.GetProperties(flags))
             {
                 if (!property.IsDefined(typeof(TDataMemberAttribute), true))
@@ -64,8 +61,8 @@ public class OptInResolver<TDataMemberAttribute> : DefaultJsonTypeInfoResolver
 
             typeInfo.Properties.Clear();
             foreach (JsonPropertyInfo property in properties
-                .GroupBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
-                .Select(g => g.First()))
+                .GroupBy(static p => p.Name, StringComparer.OrdinalIgnoreCase)
+                .Select(static g => g.First()))
             {
                 typeInfo.Properties.Add(property);
             }

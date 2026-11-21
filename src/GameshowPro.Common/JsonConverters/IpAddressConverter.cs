@@ -9,27 +9,12 @@ public class IpAddressConverter : JsonConverter<IPAddress?>
     /// <inheritdoc/>
     public override IPAddress? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonTokenType.String)
-        {
-            string? ipString = reader.GetString();
-            if (IPAddress.TryParse(ipString, out IPAddress? ip))
-            {
-                return ip;
-            }
-        }
-        return null;
+        return reader.TokenType == JsonTokenType.String && IPAddress.TryParse(reader.GetString(), out IPAddress? ip) ? ip : null;
     }
 
     /// <inheritdoc/>
     public override void Write(Utf8JsonWriter writer, IPAddress? value, JsonSerializerOptions options)
     {
-        if (value == null)
-        {
-            writer.WriteNullValue();
-        }
-        else
-        {
-            writer.WriteStringValue(value.ToString());
-        }
+        writer.WriteStringValue(value?.ToString());
     }
 }

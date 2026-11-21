@@ -1,9 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-#if WPF
-using Color = System.Windows.Media.Color;
-#endif
-
 namespace GameshowPro.Common.Model.Lights;
 
 /// <summary>
@@ -15,7 +11,7 @@ public class FixtureChannelType : ObservableClass
     [DataMember, DefaultValue("#00000000")]
     public Color Primary
     {
-        get { return field; }
+        get;
         set { _ = SetProperty(ref field, value); }
     }
 }

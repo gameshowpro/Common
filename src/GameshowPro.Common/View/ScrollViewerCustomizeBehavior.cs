@@ -9,14 +9,10 @@ public static class ScrollViewerCustomizeBehavior
 {
     #region PreviewEvents
     public static bool GetUsePreviewEvents(ScrollViewer obj)
-    {
-        return (bool)obj.GetValue(s_usePreviewEventsProperty);
-    }
+        => (bool)obj.GetValue(s_usePreviewEventsProperty);
 
     public static void SetUsePreviewEvents(ScrollViewer obj, bool value)
-    {
-        obj.SetValue(s_usePreviewEventsProperty, value);
-    }
+        => obj.SetValue(s_usePreviewEventsProperty, value);
 
     public static readonly DependencyProperty s_usePreviewEventsProperty =
         DependencyProperty.RegisterAttached("UsePreviewEvents", typeof(bool), typeof(ScrollViewerCustomizeBehavior), new PropertyMetadata(false, OnPropertyChanged));
@@ -43,7 +39,7 @@ public static class ScrollViewerCustomizeBehavior
 
     private static void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {
-        var scrollViewer = (ScrollViewer)sender;
+        ScrollViewer scrollViewer = (ScrollViewer)sender;
         scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta);
         e.Handled = true;
     }
@@ -63,14 +59,10 @@ public static class ScrollViewerCustomizeBehavior
         DependencyProperty.RegisterAttached("VerticalScrollBinding", typeof(double?), typeof(ScrollViewerCustomizeBehavior));
 
     public static double GetVerticalOffset(DependencyObject depObj)
-    {
-        return (double)depObj.GetValue(s_verticalOffsetProperty);
-    }
+        => (double)depObj.GetValue(s_verticalOffsetProperty);
 
     public static void SetVerticalOffset(DependencyObject depObj, double value)
-    {
-        depObj.SetValue(s_verticalOffsetProperty, value);
-    }
+        => depObj.SetValue(s_verticalOffsetProperty, value);
 
     private static void OnVerticalOffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
@@ -90,21 +82,23 @@ public static class ScrollViewerCustomizeBehavior
         if (scrollViewer.GetValue(s_verticalScrollBindingProperty) == null)
         {
             scrollViewer.SetValue(s_verticalScrollBindingProperty, scrollViewer.VerticalOffset);
-            scrollViewer.ScrollChanged += (s, se) =>
+            scrollViewer.ScrollChanged += OnScrollChanged;
+        }
+
+        static void OnScrollChanged(object sender, ScrollChangedEventArgs se)
+        {
+            ScrollViewer sv = (ScrollViewer)sender;
+            bool atDefault = se.VerticalOffset == (double)sv.GetValue(s_verticalScrollBindingProperty);
+            if (atDefault || se.ExtentHeightChange != 0)
             {
-                var sv = (ScrollViewer)s;
-                bool atDefault = se.VerticalOffset == (double)sv.GetValue(s_verticalScrollBindingProperty);
-                if (atDefault || se.ExtentHeightChange != 0)
-                {
-                    //presumably the scrollviewer just had its contents loaded, maybe due to parent tab coming into view
-                    sv.ScrollToVerticalOffset(GetVerticalOffset(sv));
-                }
-                else if (se.VerticalChange != 0)
-                {
-                    //presumably the user changed the scroll value, rather than contents loading or changing
-                    SetVerticalOffset(sv, se.VerticalOffset);
-                }
-            };
+                //presumably the scrollviewer just had its contents loaded, maybe due to parent tab coming into view
+                sv.ScrollToVerticalOffset(GetVerticalOffset(sv));
+            }
+            else if (se.VerticalChange != 0)
+            {
+                //presumably the user changed the scroll value, rather than contents loading or changing
+                SetVerticalOffset(sv, se.VerticalOffset);
+            }
         }
     }
     #endregion

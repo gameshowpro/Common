@@ -21,14 +21,19 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
 
     private static ConstructorInfo? GetJsonConstructor(Type type)
     {
-        ConstructorInfo[] constructors = type
-            .GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-            .Where(static c => c.IsDefined(typeof(JsonConstructorAttribute), true))
-            .ToArray();
+        ConstructorInfo[] constructors =
+        [
+            .. type
+                .GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(static c => c.IsDefined(typeof(JsonConstructorAttribute), true))
+        ];
 
-        return constructors.Length > 1
-            ? throw new JsonException($"Multiple constructors with [JsonConstructor] found on {type.FullName}.")
-            : constructors.Length == 1 ? constructors[0] : null;
+        return constructors switch
+        {
+            [] => null,
+            [ConstructorInfo only] => only,
+            _ => throw new JsonException($"Multiple constructors with [JsonConstructor] found on {type.FullName}."),
+        };
     }
 
     // NullabilityInfoContext is not thread-safe, and converters are cached on the (often shared)
@@ -40,9 +45,9 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
     {
         private static readonly Type s_jsonPresentSetType = typeof(IReadOnlySet<string>);
         private readonly ConstructorInfo _constructor = constructor;
-        private readonly ParameterInfo[] _parameters = constructor.GetParameters();
-        private readonly bool[] _parameterDisallowsNull = GetParameterDisallowsNull(constructor.GetParameters());
-        private readonly List<MemberMetadata> _members = GetDataMembers(typeof(T), namingPolicy);
+        private readonly ImmutableArray<ParameterInfo> _parameters = [.. constructor.GetParameters()];
+        private readonly ImmutableArray<bool> _parameterDisallowsNull = GetParameterDisallowsNull(constructor.GetParameters());
+        private readonly ImmutableArray<MemberMetadata> _members = GetDataMembers(typeof(T), namingPolicy);
 
         public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
@@ -58,7 +63,7 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
             JsonElement root = document.RootElement;
 
-            Dictionary<string, JsonElement> jsonProperties = new(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, JsonElement> jsonProperties = [with(StringComparer.OrdinalIgnoreCase)];
             foreach (JsonProperty property in root.EnumerateObject())
             {
                 jsonProperties[property.Name] = property.Value;
@@ -151,7 +156,7 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
                 : value;
         }
 
-        private static bool[] GetParameterDisallowsNull(ParameterInfo[] parameters)
+        private static ImmutableArray<bool> GetParameterDisallowsNull(ParameterInfo[] parameters)
         {
             NullabilityInfoContext nullabilityContext = new();
             return [.. parameters.Select(p => DisallowNull(p.ParameterType, nullabilityContext.Create(p).ReadState))];
@@ -183,18 +188,21 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
             return targetType.IsInstanceOfType(value) ? value : Convert.ChangeType(value, targetType, CultureInfo.InvariantCulture);
         }
 
-        private static List<MemberMetadata> GetDataMembers(Type type, JsonNamingPolicy? namingPolicy)
+        private static ImmutableArray<MemberMetadata> GetDataMembers(Type type, JsonNamingPolicy? namingPolicy)
         {
             NullabilityInfoContext nullabilityContext = new();
             List<MemberMetadata> members = [];
-            HashSet<string> ctorParamNames = type
-                .GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(c => c.IsDefined(typeof(JsonConstructorAttribute), true))
-                .SelectMany(c => c.GetParameters())
-                .Select(p => ToJsonName(p.Name!, namingPolicy))
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            HashSet<string> ctorParamNames =
+            [
+                with(StringComparer.OrdinalIgnoreCase),
+                .. type
+                    .GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    .Where(static c => c.IsDefined(typeof(JsonConstructorAttribute), true))
+                    .SelectMany(static c => c.GetParameters())
+                    .Select(p => ToJsonName(p.Name!, namingPolicy))
+            ];
 
-            BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
             foreach (PropertyInfo property in type.GetProperties(flags))
             {
                 if (!property.IsDefined(typeof(DataMemberAttribute), true))
@@ -212,8 +220,9 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
                     jsonName,
                     property.PropertyType,
                     obj => getter.Invoke(obj, null),
-                    setter is null ? static (_, _) => { }
-                : (obj, val) => setter.Invoke(obj, [val]),
+                    setter is null
+                        ? static (_, _) => { }
+                        : (obj, val) => setter.Invoke(obj, [val]),
                     setter is not null,
                     ctorParamNames.Contains(jsonName),
                     DisallowNull(property.PropertyType, nullabilityContext.Create(property).ReadState)));
@@ -238,20 +247,20 @@ public sealed class FlexibleJsonConstructorConverterFactory : JsonConverterFacto
             }
 
             // Ensure deterministic output and avoid duplicate json names.
-            return members
-                .GroupBy(m => m.JsonName, StringComparer.OrdinalIgnoreCase)
-                .Select(g => g.First())
-                .OrderBy(m => m.JsonName, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            return
+            [
+                .. members
+                    .GroupBy(static m => m.JsonName, StringComparer.OrdinalIgnoreCase)
+                    .Select(static g => g.First())
+                    .OrderBy(static m => m.JsonName, StringComparer.OrdinalIgnoreCase)
+            ];
         }
 
         private static string ToJsonName(string clrName, JsonNamingPolicy? namingPolicy)
             => namingPolicy?.ConvertName(clrName) ?? clrName;
 
         private static bool DisallowNull(Type type, NullabilityState state)
-        {
-            return type.IsValueType ? Nullable.GetUnderlyingType(type) is null : state == NullabilityState.NotNull;
-        }
+            => type.IsValueType ? Nullable.GetUnderlyingType(type) is null : state == NullabilityState.NotNull;
 
         private sealed record MemberMetadata(
             string JsonName,

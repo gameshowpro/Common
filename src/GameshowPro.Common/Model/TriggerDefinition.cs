@@ -1,5 +1,3 @@
-using MessagePack;
-
 namespace GameshowPro.Common.Model;
 
 [MessagePackObject]

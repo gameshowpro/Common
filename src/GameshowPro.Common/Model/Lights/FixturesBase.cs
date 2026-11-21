@@ -81,7 +81,7 @@ public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
                 StatePresetGroup depG = depersisted[defG.Name];
 
                 depersistedToDefault.Add(depG, defG);
-                for (var i = depG.StatesLevels.Count - 1; i >= 0; i--)
+                for (int i = depG.StatesLevels.Count - 1; i >= 0; i--)
                 {
                     if (string.IsNullOrWhiteSpace(depG.StatesLevels[i].Key))
                     {
@@ -144,13 +144,10 @@ public abstract class FixturesBase<TSub> : KeyedCollection<string, Fixture>
 
     public StatePresetGroups? PresetGroups
     {
-        get
-        {
-            return field;
-        }
+        get;
         set
         {
-            if (field != null)
+            if (field is not null)
             {
                 throw new InvalidOperationException($"Once {nameof(PresetGroups)} is set, it is immutable.");
             }

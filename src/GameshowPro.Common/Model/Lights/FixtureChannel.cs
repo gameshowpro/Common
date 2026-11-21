@@ -18,7 +18,7 @@ public class FixtureChannel : ObservableClass
 
     public FixtureChannelType FixtureChannelType
     {
-        get { return field; }
+        get;
         set { _ = SetProperty(ref field, value); }
     }
 
@@ -47,7 +47,7 @@ public class FixtureChannel : ObservableClass
     {
         get;
         set { _ = SetProperty(ref field, value); }
-    } = 0;
+    }
 
     public Fixture? Parent
     {

@@ -15,7 +15,7 @@ public class Universe
         Settings = settings;
         _data = new byte[universeSize + 1]; //First byte is DMX start code
         Channels = [];
-        for (var i = 1; i <= universeSize; i++)
+        for (int i = 1; i <= universeSize; i++)
         {
             Channels.Add(new UniverseChannel(this, i - 1));
         }
@@ -54,12 +54,12 @@ public class Universe
     /// <param name="start">The zero-based channel number of the first byte.  Value of -1 will set DMX start code from first byte.</param>
     public void SetData(byte[] sourceData, int start)
     {
-        var startOneBased = start + 1;  //must account for DMX start code which is at position zero
+        int startOneBased = start + 1;  //must account for DMX start code which is at position zero
         if ((sourceData.Length + startOneBased) > _data.Length || startOneBased < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(sourceData), "Source data goes outside of universe.");
         }
-        var oldData = new byte[sourceData.Length];
+        byte[] oldData = new byte[sourceData.Length];
         //Take copy of old values
         Array.Copy(_data, startOneBased, oldData, 0, oldData.Length);
         //Apply new values
@@ -73,7 +73,7 @@ public class Universe
             _isDirty = true;
         }
         //Find changes
-        for (var i = 0; i < sourceData.Length; i++)
+        for (int i = 0; i < sourceData.Length; i++)
         {
             if (sourceData[i] != oldData[i])
             {
@@ -89,7 +89,7 @@ public class Universe
     /// <param name="level">The zero-based level to set.</param>
     public void SetData(int channel, byte level)
     {
-        var channelOneBased = channel + 1;
+        int channelOneBased = channel + 1;
         if (!channelOneBased.IsInRange(0, _data.Length, false))
         {
             throw new ArgumentOutOfRangeException(nameof(channel), channel, "Channel is outside universe");
@@ -111,7 +111,7 @@ public class Universe
 
     public byte[] GetData(int start, int length)
     {
-        var newArray = new byte[length];
+        byte[] newArray = new byte[length];
         Buffer.BlockCopy(_data, start, newArray, 0, length);
         return newArray;
     }

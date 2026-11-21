@@ -5,17 +5,12 @@ namespace GameshowPro.Common.JsonConverters;
 /// When omitted, no additional type enforcement is applied.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-public sealed class TypedObjectTypeConstraintAttribute : Attribute
+public sealed class TypedObjectTypeConstraintAttribute(params Type[] allowedTypes) : Attribute
 {
-    public TypedObjectTypeConstraintAttribute(params Type[] allowedTypes)
-    {
-        AllowedTypes = allowedTypes ?? [];
-    }
-
     /// <summary>
     /// Additional concrete runtime types that are allowed for this member.
     /// </summary>
-    public Type[] AllowedTypes { get; }
+    public Type[] AllowedTypes { get; } = allowedTypes ?? [];
 
     /// <summary>
     /// If true, restricts values to the finite set supported by <see cref="TypeAliasRegistry.IsKnownSupportedType(Type)"/>.

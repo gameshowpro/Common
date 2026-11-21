@@ -1,7 +1,3 @@
-using GameshowPro.Common.MessagePack;
-using MessagePack;
-using MessagePack.Formatters;
-
 namespace GameshowPro.Common.Model;
 
 /// <summary>
@@ -73,7 +69,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         (
             key,
             name ?? key,
-            children == null ? [] : new ObservableDictionary<string, ServiceState>(children),
+            children is null ? [] : [with(children)],
             aggregateState ?? RemoteServiceStates.Disconnected,
             detail,
             progress,
@@ -111,7 +107,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         AggregateState = aggregateState;
         Detail = detail;
         Progress = progress;
-        if (serviceStateAggregator != null)
+        if (serviceStateAggregator is not null)
         {
             _serviceStateAggregator = serviceStateAggregator;
             Children.ItemPropertyChanged += InvokeServiceStateAggregator;
@@ -122,7 +118,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 
     private void InvokeServiceStateAggregator(object? sender, PropertyChangedEventArgs e)
     {
-        if (_serviceStateAggregator != null &&
+        if (_serviceStateAggregator is not null &&
             (e.PropertyName == nameof(AggregateState) ||
              e.PropertyName == nameof(Detail) ||
              e.PropertyName == nameof(Progress)))
@@ -225,7 +221,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         (
             key,
             name,
-            new ObservableDictionary<string, ServiceState>(children.Select(static s => new ServiceState(s)).ToDictionary(static s => s.Key)),
+            [with(children.Select(static s => new ServiceState(s)).ToDictionary(static s => s.Key))],
             RemoteServiceStates.Disconnected,
             null,
             null,
@@ -267,7 +263,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
         (
             key,
             name,
-            new ObservableDictionary<string, ServiceState>(children.ToDictionary(static s => s.Key)),
+            [with(children.ToDictionary(static s => s.Key))],
             RemoteServiceStates.Disconnected,
             null,
             null,
@@ -320,7 +316,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     [Key(2), DataMember]
     public RemoteServiceStates AggregateState
     {
-        get => field;
+        get;
         set
         {
             if (field != value)
@@ -340,7 +336,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     [Key(3), DataMember]
     public string? Detail
     {
-        get => field;
+        get;
         set
         {
             if (field != value)
@@ -354,7 +350,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     [Key(4), DataMember]
     public double? Progress
     {
-        get => field;
+        get;
         set
         {
             if (field != value)
@@ -376,7 +372,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 
     public void SetAll(RemoteServiceStates aggregateState, string? detail = "", double? progress = 0)
     {
-        List<string> changes = new(3);
+        List<string> changes = [with(capacity: 3)];
         if (AggregateState != aggregateState)
         {
             AggregateState = aggregateState;
@@ -398,7 +394,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
 
     public static ServiceStateUpdate GetAggregateState(ServiceState state)
     {
-        double? progress = state.Children.Any(static s => s.Value.Progress == null) ? null : state.Children.Average(static s => s.Value.Progress) ?? 0;
+        double? progress = state.Children.Any(static s => s.Value.Progress is null) ? null : state.Children.Average(static s => s.Value.Progress) ?? 0;
 
         if (state.Children.All(static s => s.Value.AggregateState == RemoteServiceStates.Connected))
         {
@@ -436,12 +432,11 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             return false;
         }
         return ReferenceEquals(this, other)
-            ? true
-            : other.Name == Name &&
-        other.Detail == Detail &&
-        other.AggregateState == AggregateState &&
-        other.Progress == Progress &&
-        other.Children.SequenceEqual(Children);
+            || (other.Name == Name
+                && other.Detail == Detail
+                && other.AggregateState == AggregateState
+                && other.Progress == Progress
+                && other.Children.SequenceEqual(Children));
     }
 
     public override bool Equals(object? obj)
@@ -457,7 +452,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             hashCode = (hashCode * 397) ^ (Detail?.GetHashCode() ?? 1);
             hashCode = (hashCode * 397) ^ AggregateState.GetHashCode();
             hashCode = (hashCode * 397) ^ Progress.GetHashCode();
-            foreach (var child in Children)
+            foreach (KeyValuePair<string, ServiceState> child in Children)
             {
                 hashCode = (hashCode * 397) ^ child.GetHashCode();
             }
@@ -474,7 +469,7 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
     public bool UpdateChildren(IEnumerable<ServiceState>? children)
     {
         bool change = false;
-        if (children == null)
+        if (children is null)
         {
             change = Children.Count != 0;
             Children.Clear();

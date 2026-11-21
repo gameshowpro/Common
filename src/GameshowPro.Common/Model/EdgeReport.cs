@@ -1,9 +1,4 @@
-using GameshowPro.Common.MessagePack;
-using MessagePack;
-using MessagePack.Formatters;
-
 namespace GameshowPro.Common.Model;
-
 
 /// <summary>Represents a report of an edge event on a general-purpose input (GPI) pin.</summary>
 /// <param name="Version">The version of this object, to aid backwards compatibility implementation if the type changes.</param>
@@ -73,7 +68,7 @@ public class EdgeReportFormatter : IMessagePackFormatter<EdgeReport?>
         writer.WriteArrayHeader(CurrentFieldCount);
         writer.Write(MessagePackVersion);
         writer.WriteNullable(value?.Version, options);
-        if (value != null)
+        if (value is not null)
         {
             writer.Write(value.Index);
             writer.WriteNullable(value.Ordinal, options);

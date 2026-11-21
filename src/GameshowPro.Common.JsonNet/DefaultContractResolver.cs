@@ -1,6 +1,6 @@
-﻿using System.Runtime.Serialization;
-
+﻿#pragma warning disable IDE0130 // Namespace does not match folder: this type is published in this namespace; changing it to match the project root namespace or folder would break consumers and type names stored in settings files.
 namespace GameshowPro.Common.JsonNet;
+#pragma warning restore IDE0130
 
 /// <summary>
 /// Subclass of <see cref="Newtonsoft.Json.Serialization.DefaultContractResolver"/> which uses the constructor marked with <see cref="System.Text.Json.Serialization.JsonConstructorAttribute"/> if present and always presumes <see cref="MemberSerialization.OptIn"/>.
@@ -9,10 +9,6 @@ namespace GameshowPro.Common.JsonNet;
 [RequiresDynamicCode("Json.NET contract resolution may require runtime-generated members.")]
 internal class DefaultContractResolver : Newtonsoft.Json.Serialization.DefaultContractResolver
 {
-    public DefaultContractResolver()
-    {
-    }
-
     protected override JsonObjectContract CreateObjectContract(Type objectType)
     {
         JsonObjectContract contract = base.CreateObjectContract(objectType);

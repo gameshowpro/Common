@@ -1,6 +1,3 @@
-using MessagePack;
-using MessagePack.Formatters;
-
 namespace GameshowPro.Common.MessagePack;
 
 public static class NullableReferenceFormatterExtensions
@@ -14,12 +11,8 @@ public static class NullableReferenceFormatterExtensions
             return;
         }
 
-        IMessagePackFormatter<T>? formatter = options.Resolver.GetFormatter<T>();
-        if (formatter is null)
-        {
-            throw new MessagePackSerializationException($"No MessagePack formatter found for {typeof(T)}.");
-        }
-
+        IMessagePackFormatter<T> formatter = options.Resolver.GetFormatter<T>()
+            ?? throw new MessagePackSerializationException($"No MessagePack formatter found for {typeof(T)}.");
         formatter.Serialize(ref writer, value, options);
     }
 

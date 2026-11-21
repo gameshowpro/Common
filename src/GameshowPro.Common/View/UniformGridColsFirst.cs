@@ -1,8 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Windows.Controls.Primitives;
-using Size = System.Windows.Size;
-
 namespace GameshowPro.Common.View;
 
 //Todo: support switching column/row dominance with a DP
@@ -16,14 +13,10 @@ public class UniformGridColsFirst : UniformGrid
     );
 
     public static void SetColumnsFirst(UIElement element, bool value)
-    {
-        element.SetValue(s_columnsFirstProperty, value);
-    }
+        => element.SetValue(s_columnsFirstProperty, value);
 
     public static bool GetColumnsFirst(UIElement element)
-    {
-        return (bool)element.GetValue(s_columnsFirstProperty);
-    }
+        => (bool)element.GetValue(s_columnsFirstProperty);
 
     protected override Size ArrangeOverride(Size arrangeSize)
     {
@@ -44,10 +37,10 @@ public class UniformGridColsFirst : UniformGrid
             Columns = (int)Math.Ceiling((double)Children.Count / Rows);
         }
 
-        Rect rect = new(0, 0, arrangeSize.Width / Columns, arrangeSize.Height / Rows);
+        System.Windows.Rect rect = new(0, 0, arrangeSize.Width / Columns, arrangeSize.Height / Rows);
         double height = rect.Height;
         double num = arrangeSize.Height - 1;
-        rect.X = rect.X + rect.Width * FirstColumn;
+        rect.X += rect.Width * FirstColumn;
         foreach (UIElement internalChild in InternalChildren)
         {
             internalChild.Arrange(rect);

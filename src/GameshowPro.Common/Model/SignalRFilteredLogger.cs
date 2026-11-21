@@ -37,7 +37,11 @@ public sealed class SignalRFilteredLogger(ILogger logger, bool allMessages) : IL
                 if (_invocationsInProgress.TryRemove(invocationId, out TimeSpan creationTime))
                 {
                     TimeSpan elapsed = s_stopwatch.Elapsed - creationTime;
-                    _logger.Log(elapsed > s_maximumInvocationTime ? LogLevel.Warning : LogLevel.Trace, "Invocation {id} lifetime was {elapsed}", invocationId, elapsed);
+                    LogLevel level = elapsed > s_maximumInvocationTime ? LogLevel.Warning : LogLevel.Trace;
+                    if (_logger.IsEnabled(level))
+                    {
+                        _logger.Log(level, "Invocation {id} lifetime was {elapsed}", invocationId, elapsed);
+                    }
                 }
                 else
                 {

@@ -1,7 +1,4 @@
-﻿#if !WPF
-using GameshowPro.Common.ViewModel;
-#endif
-namespace GameshowPro.Common.Model;
+﻿namespace GameshowPro.Common.Model;
 
 /// <summary>
 /// Class which can bind any IncomingTrigger to any ICommand, so that the command is Executed whenever the IncomingTrigger is triggered.
@@ -15,10 +12,10 @@ public class TriggerBinder(bool useSynchronizationContext = true) : ManyToManyDi
         private readonly SynchronizationContext? _synchronizationContext = synchronizationContext;
         private readonly SendOrPostCallback _executeCallback = command.Execute;
         internal void Subscribe()
-            => Item1.Triggered += _synchronizationContext == null ? Trigger_OnTriggeredWithoutContext : Trigger_OnTriggeredWithContext;
+            => Item1.Triggered += _synchronizationContext is null ? Trigger_OnTriggeredWithoutContext : Trigger_OnTriggeredWithContext;
 
         internal void Unsubscribe()
-            => Item1.Triggered -= _synchronizationContext == null ? Trigger_OnTriggeredWithoutContext : Trigger_OnTriggeredWithContext;
+            => Item1.Triggered -= _synchronizationContext is null ? Trigger_OnTriggeredWithoutContext : Trigger_OnTriggeredWithContext;
 
         private void Trigger_OnTriggeredWithoutContext(object? sender, TriggerArgs e)
             => Item2.Execute(_commandParameter ?? e.Data);
@@ -49,7 +46,7 @@ public class TriggerBinder(bool useSynchronizationContext = true) : ManyToManyDi
     /// <remarks>Docs added by AI.</remarks>
     public bool TryAdd(ITrigger? trigger, ICommand command, object? commandParameter)
     {
-        return trigger == null ? false : TryAdd(new TriggerPair(trigger, command, commandParameter, _synchronizationContext));
+        return trigger is not null && TryAdd(new TriggerPair(trigger, command, commandParameter, _synchronizationContext));
     }
 
     /// <summary>
@@ -61,7 +58,7 @@ public class TriggerBinder(bool useSynchronizationContext = true) : ManyToManyDi
     /// <remarks>Docs added by AI.</remarks>
     public bool TryAdd(ITrigger? trigger, params ICommand[] commands)
     {
-        if (trigger == null)
+        if (trigger is null)
         {
             return false;
         }
@@ -86,7 +83,7 @@ public class TriggerBinder(bool useSynchronizationContext = true) : ManyToManyDi
         bool result = false;
         foreach (ITrigger? trigger in triggers)
         {
-            if (trigger != null)
+            if (trigger is not null)
             {
                 result = TryAdd(new TriggerPair(trigger, command, parameter, _synchronizationContext)) || result;
             }

@@ -30,7 +30,7 @@ public abstract class IncomingTriggerDeviceSettingsBase : ObservableClass
     [DataMember]
     public bool AllowDuplicateTriggerIds
     {
-        get { return field; }
+        get;
         set { _ = SetProperty(ref field, value); }
     }
 
@@ -40,7 +40,7 @@ public abstract class IncomingTriggerDeviceSettingsBase : ObservableClass
     [DataMember]
     public string NameSuffix
     {
-        get { return field; }
+        get;
         set { _ = SetProperty(ref field, value); }
     } = "";
 
@@ -50,7 +50,7 @@ public abstract class IncomingTriggerDeviceSettingsBase : ObservableClass
     [DataMember]
     public bool IsEnabled
     {
-        get => field;
+        get;
         set => _ = SetProperty(ref field, value);
     } = true;
     [DataMember]

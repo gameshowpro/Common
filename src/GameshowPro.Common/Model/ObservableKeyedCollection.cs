@@ -4,7 +4,7 @@ public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<T
 {
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
     public event PropertyChangedEventHandler? PropertyChanged;
-    private int _prevCount = 0;
+    private int _prevCount;
 
     protected virtual bool EnforceOrderByKey => false;
 
@@ -39,7 +39,7 @@ public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<T
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item));
     }
 
-    private bool _deferNotifyCollectionChanged = false;
+    private bool _deferNotifyCollectionChanged;
     public void AddRange(IEnumerable<TItem> items)
     {
         try
@@ -114,8 +114,7 @@ public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<T
     private int GetItemIndex(TItem item)
     {
         TKey keyToFind = GetKeyForItem(item);
-        return BaseList?.FindIndex((TItem existingItem) =>
-                                  GetKeyForItem(existingItem).Equals(keyToFind)) ?? -1;
+        return BaseList?.FindIndex(existingItem => GetKeyForItem(existingItem).Equals(keyToFind)) ?? -1;
     }
 
     /// <summary>
@@ -132,7 +131,7 @@ public abstract class ObservableKeyedCollection<TKey, TItem> : KeyedCollection<T
     /// <param name="source">The ObservableKeyedCollection containing all the keys which should remain in this instance.</param>
     public void RemoveWhereMissing(ObservableKeyedCollection<TKey, TItem> source)
     {
-        if (source?.Dictionary == null)
+        if (source?.Dictionary is null)
         {
             Clear();
             return;

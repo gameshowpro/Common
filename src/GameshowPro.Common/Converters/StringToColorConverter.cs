@@ -1,7 +1,4 @@
-﻿using System.Windows.Media;
-using Color = System.Windows.Media.Color;
-
-namespace GameshowPro.Common.Converters;
+﻿namespace GameshowPro.Common.Converters;
 
 /// <summary>
 /// Converts a string (e.g., #RRGGBB or named color) to a Color; supports a fallback Color via parameter.

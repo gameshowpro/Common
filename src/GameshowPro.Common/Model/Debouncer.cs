@@ -18,8 +18,8 @@ public class Debouncer<TArg>
     private TArg? _latestArg;
     private DebounceMode Mode { get; }
     private readonly Timer _blockTimer;
-    private bool _isBlocking = false;
-    private bool _executeAfterBlock = false;
+    private bool _isBlocking;
+    private bool _executeAfterBlock;
     /// <summary>
     /// Raised when the debouncer decides to execute the action with the latest argument.
     /// </summary>

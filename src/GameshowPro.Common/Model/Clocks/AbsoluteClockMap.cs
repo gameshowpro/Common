@@ -1,4 +1,6 @@
+#pragma warning disable IDE0130 // Namespace does not match folder: the clock types are published in GameshowPro.Common.Model; moving them to match the Clocks folder would break consumers.
 namespace GameshowPro.Common.Model;
+#pragma warning restore IDE0130
 
 /// <summary>The two raw clocks <see cref="AbsoluteClockMap"/> reads. Injectable so tests can drive both without sleeping.</summary>
 public interface ITimeSource
@@ -81,12 +83,7 @@ public sealed class ClockStepEventArgs(ClockStep step) : EventArgs
 /// </remarks>
 public sealed class AbsoluteClockMap : IDisposable
 {
-    private sealed class OffsetSnapshot(long offsetTicks, long monotonicTicks, long uncertaintyTicks)
-    {
-        internal readonly long OffsetTicks = offsetTicks;
-        internal readonly long MonotonicTicks = monotonicTicks;
-        internal readonly long UncertaintyTicks = uncertaintyTicks;
-    }
+    private sealed record OffsetSnapshot(long OffsetTicks, long MonotonicTicks, long UncertaintyTicks);
 
     private readonly ITimeSource _source;
     private readonly IClockDisciplineProbe _probe;

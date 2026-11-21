@@ -1,8 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Windows.Media;
-
-
 namespace GameshowPro.Common.AttachedProperties;
 
 /// <summary>
@@ -23,7 +20,7 @@ public class SelectTextOnFocus : DependencyObject
     {
         if (d is TextBox textBox)
         {
-            if ((e.NewValue as bool?).GetValueOrDefault(false))
+            if (e.NewValue is true)
             {
                 textBox.GotKeyboardFocus += OnKeyboardFocusSelectText;
                 textBox.PreviewMouseLeftButtonDown += OnMouseLeftButtonDown;
@@ -40,28 +37,28 @@ public class SelectTextOnFocus : DependencyObject
     {
         DependencyObject? dependencyObject = GetParentFromVisualTree(e.OriginalSource);
 
-        if (dependencyObject == null)
+        if (dependencyObject is null)
         {
             return;
         }
 
-        var textBox = (TextBox)dependencyObject;
+        TextBox textBox = (TextBox)dependencyObject;
         if (!textBox.IsKeyboardFocusWithin)
         {
             textBox.Focus();
             e.Handled = true;
         }
-    }
 
-    private static DependencyObject? GetParentFromVisualTree(object source)
-    {
-        DependencyObject? parent = source as UIElement;
-        while (parent != null && !(parent is TextBox))
+        static DependencyObject? GetParentFromVisualTree(object source)
         {
-            parent = VisualTreeHelper.GetParent(parent);
-        }
+            DependencyObject? parent = source as UIElement;
+            while (parent is not null and not TextBox)
+            {
+                parent = VisualTreeHelper.GetParent(parent);
+            }
 
-        return parent;
+            return parent;
+        }
     }
 
     private static void OnKeyboardFocusSelectText(object sender, KeyboardFocusChangedEventArgs e)
@@ -78,16 +75,12 @@ public class SelectTextOnFocus : DependencyObject
     [AttachedPropertyBrowsableForChildren(IncludeDescendants = false)]
     [AttachedPropertyBrowsableForType(typeof(TextBox))]
     public static bool GetActive(DependencyObject @object)
-    {
-        return (bool)@object.GetValue(s_activeProperty);
-    }
+        => (bool)@object.GetValue(s_activeProperty);
 
     /// <summary>Set the Active value on the attached property.</summary>
     /// <param name="object">The dependency object.</param>
     /// <param name="value">True to enable select-on-focus; false to disable.</param>
     /// <remarks>Docs added by AI.</remarks>
     public static void SetActive(DependencyObject @object, bool value)
-    {
-        @object.SetValue(s_activeProperty, value);
-    }
+        => @object.SetValue(s_activeProperty, value);
 }

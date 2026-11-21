@@ -28,7 +28,7 @@ public class UpdateSourceOnEnterBehavior : Behavior<TextBox>
             if (binding != null)
             {
                 object value = AssociatedObject.GetValue(prop);
-                if (string.IsNullOrEmpty(value.ToString()) == true)
+                if (string.IsNullOrEmpty(value.ToString()))
                 {
                     binding.UpdateTarget();
                 }

@@ -12,7 +12,7 @@ internal record FixtureSettings
 
     internal void ToFixture(Fixture fixture)
     {
-        if (DisplayName != null)
+        if (DisplayName is not null)
         {
             fixture.DisplayName = DisplayName;
         }

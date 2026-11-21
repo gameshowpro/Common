@@ -22,9 +22,9 @@ public abstract class ManyToManyDictionary<TKeyA, TKeyB, TPair>
     {
         Dictionary<TKeyA, TPair> byKeyA;
         Dictionary<TKeyB, TPair> byKeyB;
-        if (_pairsByTKeyA.ContainsKey(pair.Item1))
+        if (_pairsByTKeyA.TryGetValue(pair.Item1, out Dictionary<TKeyB, TPair>? existingByKeyB))
         {
-            byKeyB = _pairsByTKeyA[pair.Item1];
+            byKeyB = existingByKeyB;
         }
         else
         {
@@ -37,9 +37,9 @@ public abstract class ManyToManyDictionary<TKeyA, TKeyB, TPair>
         }
         byKeyB.Add(pair.Item2, pair);
 
-        if (_pairsByTKeyB.ContainsKey(pair.Item2))
+        if (_pairsByTKeyB.TryGetValue(pair.Item2, out Dictionary<TKeyA, TPair>? existingByKeyA))
         {
-            byKeyA = _pairsByTKeyB[pair.Item2];
+            byKeyA = existingByKeyA;
         }
         else
         {

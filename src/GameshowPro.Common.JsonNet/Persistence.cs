@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
-
+﻿#pragma warning disable IDE0130 // Namespace does not match folder: this type is published in this namespace; changing it to match the project root namespace or folder would break consumers and type names stored in settings files.
 namespace GameshowPro.Common.JsonNet;
+#pragma warning restore IDE0130
 
 /// <summary>
 /// An implementation of IPersistence using Json.NET

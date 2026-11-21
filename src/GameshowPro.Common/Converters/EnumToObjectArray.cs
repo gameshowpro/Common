@@ -1,7 +1,5 @@
 ﻿// (C) Barjonas LLC 2018
 
-using System.Windows.Markup;
-
 namespace GameshowPro.Common.Converters;
 
 /// <summary>
@@ -36,7 +34,7 @@ public class EnumToObjectArray : MarkupExtension, IValueConverter
         Type typeToUse;
         if (_type == null)
         {
-            if (serviceProvider.GetService(typeof(IProvideValueTarget)) is IProvideValueTarget target && target.TargetObject is DependencyObject targetObject && target.TargetProperty is DependencyProperty targetProperty)
+            if (serviceProvider.GetService(typeof(IProvideValueTarget)) is IProvideValueTarget target && target.TargetObject is DependencyObject targetObject && target.TargetProperty is DependencyProperty)
             {
                 BindingOperations.SetBinding(targetObject, s_sourceEnumBindingSinkProperty, SourceEnum);
                 typeToUse = targetObject.GetValue(s_sourceEnumBindingSinkProperty).GetType();

@@ -1,6 +1,4 @@
-﻿using System.Windows.Markup;
-
-namespace GameshowPro.Common.Wpf;
+﻿namespace GameshowPro.Common.Wpf;
 
 public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory) : Application, IComponentConnector where App : AppBase<App, Sys, MainWindow> where MainWindow : Window, new()
 {
@@ -45,7 +43,10 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
                     ILogger logger = loggerFactory.CreateLogger("AppBaseMain");
                     App app = appFactory(loggerFactory);
 
-                    logger.LogInformation("Initializing {process} v{version} built {buildTime)}", process, version, buildTime);
+                    if (logger.IsEnabled(LogLevel.Information))
+                    {
+                        logger.LogInformation("Initializing {process} v{version} built {buildTime)}", process, version, buildTime);
+                    }
                     app.InitializeComponent();
                     _ = app.Run();
                 }
@@ -74,7 +75,10 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
         {
             window.DataContext = _sys;
             window.Show();
-            _logger.LogTrace("Showing window {index} of type {window}", index, window.GetType().Name);
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace("Showing window {index} of type {window}", index, window.GetType().Name);
+            }
             if (index == 0)
             {
                 window.Closed += MainWindow_Closed;
@@ -149,7 +153,7 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
         LoadComponent(this, s_resourceLocator);
     }
 
-    private static bool s_kioskMode = false;
+    private static bool s_kioskMode;
     public static bool KioskMode
     {
         get => s_kioskMode;
@@ -168,7 +172,7 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
         int index = 0;
         foreach (Window window in s_windows.NeverNull())
         {
-            UpdateKioskMode(window, index);
+            UpdateKioskMode(window, s_kioskMode, index);
             index++;
         }
     }
@@ -184,9 +188,6 @@ public abstract class AppBase<App, Sys, MainWindow>(ILoggerFactory loggerFactory
             s_windowRestoreState?.DoRestore(window);
         }
     }
-
-    private static void UpdateKioskMode(Window window, int index)
-        => UpdateKioskMode(window, s_kioskMode, index);
 
     protected void UpdateKioskMode(int windowIndex, bool kioskMode, int index)
     {

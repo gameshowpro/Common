@@ -1,7 +1,3 @@
-using System.Buffers;
-using System.Text.Json.Nodes;
-using MessagePack;
-
 namespace GameshowPro.Common.MessagePack;
 
 internal static class Utf8JsonPayload
@@ -35,8 +31,7 @@ internal static class Utf8JsonPayload
 
     public static ReadOnlySequence<byte> ReadRequiredBytes(ref MessagePackReader reader, string typeName)
     {
-        ReadOnlySequence<byte>? bytes = reader.ReadBytes();
-        return !bytes.HasValue ? throw new MessagePackSerializationException($"Expected binary payload for {typeName}.") : bytes.Value;
+        return reader.ReadBytes() ?? throw new MessagePackSerializationException($"Expected binary payload for {typeName}.");
     }
 
     public static JsonDocument ParseDocument(ReadOnlySequence<byte> bytes)
@@ -48,8 +43,7 @@ internal static class Utf8JsonPayload
     {
         if (bytes.IsSingleSegment)
         {
-            JsonNode? node = JsonNode.Parse(bytes.FirstSpan);
-            return node is not null ? node : throw new MessagePackSerializationException("Invalid JSON payload.");
+            return JsonNode.Parse(bytes.FirstSpan) ?? throw new MessagePackSerializationException("Invalid JSON payload.");
         }
 
         int length = checked((int)bytes.Length);
@@ -57,8 +51,7 @@ internal static class Utf8JsonPayload
         try
         {
             bytes.CopyTo(rented);
-            JsonNode? node = JsonNode.Parse(rented.AsSpan(0, length));
-            return node is not null ? node : throw new MessagePackSerializationException("Invalid JSON payload.");
+            return JsonNode.Parse(rented.AsSpan(0, length)) ?? throw new MessagePackSerializationException("Invalid JSON payload.");
         }
         finally
         {
