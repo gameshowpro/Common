@@ -10,15 +10,18 @@
       <Import Project="path\to\Common\src\GameshowPro.Common.Blazor\build\GameshowPro.Common.Blazor.props" />
 
     Set GspBuildInstantUtc (an ISO 8601 UTC instant) to make a build reproducible. GspBuildDate remains compatible with
-    date-only overrides; an explicit date-only value does not invent a build time. GspAddAssemblyMetadata=false turns
-    the whole thing off.
+    date-only overrides; an explicit date-only value does not invent a build time. Either may be set in the project file or
+    as a global property (-p:), because the defaults are computed when the target runs, after the project file has been read
+    (a .props file is imported before the project's own body). GspAddAssemblyMetadata=false turns the whole thing off.
   -->
   <PropertyGroup>
     <GspAddAssemblyMetadata Condition="'$(GspAddAssemblyMetadata)' == ''">true</GspAddAssemblyMetadata>
-    <GspBuildInstantUtc Condition="'$(GspBuildInstantUtc)' == '' and '$(GspBuildDate)' == ''">$([System.DateTime]::UtcNow.ToString('O'))</GspBuildInstantUtc>
-    <GspBuildDate Condition="'$(GspBuildDate)' == '' and '$(GspBuildInstantUtc)' != ''">$([System.String]::Copy('$(GspBuildInstantUtc)').Substring(0,10))</GspBuildDate>
   </PropertyGroup>
   <Target Name="GspAddAssemblyMetadata" BeforeTargets="GetAssemblyAttributes" Condition="'$(GspAddAssemblyMetadata)' == 'true'">
+    <PropertyGroup>
+      <GspBuildInstantUtc Condition="'$(GspBuildInstantUtc)' == '' and '$(GspBuildDate)' == ''">$([System.DateTime]::UtcNow.ToString('O'))</GspBuildInstantUtc>
+      <GspBuildDate Condition="'$(GspBuildDate)' == '' and '$(GspBuildInstantUtc)' != ''">$([System.String]::Copy('$(GspBuildInstantUtc)').Substring(0,10))</GspBuildDate>
+    </PropertyGroup>
     <ItemGroup>
       <AssemblyMetadata Include="GspBuildDate" Value="$(GspBuildDate)" />
       <AssemblyMetadata Include="GspBuildInstantUtc" Value="$(GspBuildInstantUtc)" Condition="'$(GspBuildInstantUtc)' != ''" />

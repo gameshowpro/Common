@@ -15,6 +15,7 @@ public sealed class GspLocalTimeFormatter(IJSRuntime js) : IAsyncDisposable
     private readonly ConcurrentDictionary<long, int> _offsets = new();
     private readonly Queue<long> _oldestFirst = new();
     private IJSObjectReference? _module;
+    private bool _disposed;
 
     /// <summary>The browser's IANA time zone identifier, when known.</summary>
     public string? TimeZoneId { get; private set; }
@@ -26,6 +27,10 @@ public sealed class GspLocalTimeFormatter(IJSRuntime js) : IAsyncDisposable
         await _gate.WaitAsync();
         try
         {
+            if (_disposed)
+            {
+                return;
+            }
             DateTimeOffset[] requested = [.. instants.Select(value => value.ToUniversalTime())
                 .DistinctBy(value => value.UtcTicks)];
             HashSet<long> requestedTicks = [.. requested.Select(value => value.UtcTicks)];
@@ -108,11 +113,34 @@ public sealed class GspLocalTimeFormatter(IJSRuntime js) : IAsyncDisposable
     /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
-        if (_module is not null)
+        // Taking the gate waits for any PrimeAsync that is still in flight, and makes later calls return without interop.
+        await _gate.WaitAsync();
+        try
         {
-            try { await _module.DisposeAsync(); }
-            catch (JSDisconnectedException) { }
+            if (_disposed)
+            {
+                return;
+            }
+            _disposed = true;
+            IJSObjectReference? module = _module;
+            _module = null;
+            if (module is not null)
+            {
+                try
+                {
+                    await module.DisposeAsync();
+                }
+                catch (Exception)
+                {
+                    // The circuit may already be gone, or the module may fail to dispose; either way there is nothing left to release.
+                }
+            }
         }
-        _gate.Dispose();
+        finally
+        {
+            _gate.Release();
+        }
+        // The semaphore is deliberately not disposed: its wait handle is never used, so it holds no unmanaged resources,
+        // and disposing it would make a late PrimeAsync throw from WaitAsync or Release.
     }
 }

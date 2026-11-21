@@ -47,6 +47,7 @@
     private GspRuntimeState? _state;
     private GspLocalTimeFormatter? _localTime;
     private string _buildTooltip = "Build time unavailable";
+    private bool _buildTimeRequested;
 
     /// <summary>Overrides the icon address (default: the app icon of <c>AddGspHouseStyle</c>). Omitted when empty.</summary>
     [Parameter]
@@ -118,10 +119,12 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_buildTooltip != "Build time unavailable" || _localTime is null || _info?.BuildInstantUtc is not { } instant)
+        // One attempt per instance: when the browser time zone is unavailable, retrying would repeat a failing interop call on every render.
+        if (_buildTimeRequested || _localTime is null || _info?.BuildInstantUtc is not { } instant)
         {
             return;
         }
+        _buildTimeRequested = true;
         try
         {
             if (await _localTime.FormatAsync(instant) is { } formatted)
