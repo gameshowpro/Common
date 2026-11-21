@@ -1,5 +1,6 @@
 @implements IDisposable
-@inject IServiceProvider Services
+@implements IAsyncDisposable
+@inject IServiceProvider _services
 
 <footer class="gsp-footer @Class" @attributes="AdditionalAttributes">
     <span>@EffectiveProductName@(string.IsNullOrEmpty(EffectiveVersion) ? "" : " " + EffectiveVersion), @EffectiveCopyright</span>
@@ -46,8 +47,8 @@
 
     protected override void OnInitialized()
     {
-        _info = Services.GetService(typeof(GspAppInfo)) as GspAppInfo;
-        _state = Services.GetService(typeof(GspRuntimeState)) as GspRuntimeState;
+        _info = _services.GetService<GspAppInfo>();
+        _state = _services.GetService<GspRuntimeState>();
         if (_state is not null)
         {
             _state.Changed += OnStateChanged;
@@ -64,5 +65,12 @@
         {
             _state.Changed -= OnStateChanged;
         }
+    }
+
+    /// <inheritdoc />
+    public ValueTask DisposeAsync()
+    {
+        Dispose();
+        return ValueTask.CompletedTask;
     }
 }

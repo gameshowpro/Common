@@ -1,0 +1,51 @@
+@* A yes/cancel question for a destructive action. It replaces IDialogService.ShowMessageBoxAsync because MudBlazor's message
+   box puts focus on its last (confirming) button, and a stray Enter or Space must not destroy anything: here Cancel comes
+   first and takes the focus. Escape and a click outside answer "no". Opened through IDialogService, so it stacks above
+   whatever asked. The class keeps the message box's styling and selectors. *@
+
+<MudDialog DefaultFocus="DefaultFocus.FirstChild" Class="mud-message-box" data-testid="confirm-dialog">
+    <DialogContent>
+        <MudText Typo="Typo.body1" data-testid="confirm-message">@Message</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" data-testid="confirm-cancel">@CancelText</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Confirm" data-testid="confirm-yes">@YesText</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    /// <summary>The question.</summary>
+    [Parameter]
+    public string Message { get; set; } = string.Empty;
+
+    /// <summary>The label of the confirming button.</summary>
+    [Parameter]
+    public string YesText { get; set; } = "Yes";
+
+    /// <summary>The label of the safe button, which has the focus.</summary>
+    [Parameter]
+    public string CancelText { get; set; } = "Cancel";
+
+    /// <summary>Asks the question; true only when the confirming button was chosen.</summary>
+    public static async Task<bool> Ask(IDialogService dialogService, string title, string message, string yesText, string cancelText = "Cancel")
+    {
+        ArgumentNullException.ThrowIfNull(dialogService);
+        DialogParameters<GspConfirmDialog> parameters = new()
+        {
+            { dialog => dialog.Message, message },
+            { dialog => dialog.YesText, yesText },
+            { dialog => dialog.CancelText, cancelText },
+        };
+        IDialogReference reference = await dialogService.ShowAsync<GspConfirmDialog>(title, parameters,
+            new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small });
+        DialogResult? result = await reference.Result;
+        return result is { Canceled: false };
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Confirm() => MudDialog.Close(DialogResult.Ok(true));
+}

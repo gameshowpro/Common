@@ -59,4 +59,7 @@ public sealed class GspHouseOptions
 
     /// <summary>Whether <c>GspAppShell</c> shows the fixed About button at the bottom left. The About dialog itself (opened by the header's version pill and the footer) is always available.</summary>
     public bool ShowAboutButton { get; set; } = true;
+
+    /// <summary>Whether <c>GspAppShell</c> shows the footer line (product, version, copyright). Off by default: the About dialog carries the same facts.</summary>
+    public bool ShowFooter { get; set; }
 }

@@ -1,6 +1,6 @@
 @implements IAsyncDisposable
-@inject IServiceProvider Services
-@inject IJSRuntime JS
+@inject IServiceProvider _services
+@inject IJSRuntime _js
 
 @* The About dialog: a native <dialog> (Escape, the dimmed backdrop, focus return to the opener and the page behind going
    inert come from the browser); gsp-dialog.js only opens it and closes it on a backdrop click. It reads the app's identity
@@ -66,6 +66,8 @@
     private ElementReference _dialog;
     private GspAppInfo? _info;
     private GspRuntimeState? _state;
+    private GspLocalTimeFormatter? _localTime;
+    private string _buildText = "Build time unavailable";
     private IJSObjectReference? _module;
 
     /// <summary>Product-specific extras shown after the links and the legal line.</summary>
@@ -80,9 +82,9 @@
         {
             yield return new GspAboutRow("Version", _info.FullVersion);
         }
-        if (!string.IsNullOrEmpty(_info?.BuildDate))
+        if (_info is not null)
         {
-            yield return new GspAboutRow("Build", _info.BuildDate);
+            yield return new GspAboutRow("Build", _buildText);
         }
         if (!string.IsNullOrEmpty(_state?.HostName))
         {
@@ -100,13 +102,34 @@
 
     protected override void OnInitialized()
     {
-        _info = Services.GetService(typeof(GspAppInfo)) as GspAppInfo;
-        _state = Services.GetService(typeof(GspRuntimeState)) as GspRuntimeState;
+        _info = _services.GetService<GspAppInfo>();
+        _state = _services.GetService<GspRuntimeState>();
+        _localTime = _services.GetService<GspLocalTimeFormatter>();
         if (_state is not null)
         {
             _state.AboutRequested += OnAboutRequested;
             _state.Changed += OnStateChanged;
             _state.SetAboutAvailable(true);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_buildText != "Build time unavailable" || _localTime is null || _info?.BuildInstantUtc is not { } instant)
+        {
+            return;
+        }
+        try
+        {
+            if (await _localTime.FormatAsync(instant) is { } formatted)
+            {
+                _buildText = formatted;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex) when (ex is JSException or InvalidOperationException)
+        {
+            // JavaScript may be unavailable during a disconnected or test render.
         }
     }
 
@@ -117,8 +140,15 @@
     /// <summary>Opens the dialog.</summary>
     public async Task ShowAsync()
     {
-        _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./_content/GameshowPro.Common.Blazor/gsp-dialog.js");
-        await _module.InvokeVoidAsync("showModal", _dialog);
+        try
+        {
+            _module ??= await _js.InvokeAsync<IJSObjectReference>("import", "./_content/GameshowPro.Common.Blazor/gsp-dialog.js");
+            await _module.InvokeVoidAsync("showModal", _dialog);
+        }
+        catch (JSDisconnectedException)
+        {
+            // The circuit has gone, so there is no page left to show the dialog on.
+        }
     }
 
     public async ValueTask DisposeAsync()

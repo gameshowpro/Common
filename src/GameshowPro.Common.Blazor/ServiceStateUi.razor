@@ -1,4 +1,5 @@
 @implements IDisposable
+@implements IAsyncDisposable
 
 @if (DataContext is not null)
 {
@@ -85,6 +86,13 @@
     }
 
     public void Dispose() => Unsubscribe();
+
+    /// <inheritdoc />
+    public ValueTask DisposeAsync()
+    {
+        Dispose();
+        return ValueTask.CompletedTask;
+    }
 
     private Color StateColor => DataContext?.AggregateState switch
     {

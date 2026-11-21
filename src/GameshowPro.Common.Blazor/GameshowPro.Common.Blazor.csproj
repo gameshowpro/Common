@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
-    <TargetFrameworks>net10.0</TargetFrameworks>
+    <TargetFrameworks>net11.0</TargetFrameworks>
     <PackageId>GameshowPro.Common.Blazor</PackageId>
     <Title>GameshowPro shared Blazor components</Title>
     <Product>GameshowPro Common Blazor components</Product>
@@ -8,7 +8,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>15.0</LangVersion>
     <Company>Barjonas LLC</Company>
     <Authors>Hamish Barjonas</Authors>
     <Copyright>Barjonas LLC 2026</Copyright>
@@ -33,12 +33,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\docs\GameshowPro.Common.Blazor\README.md" Pack="true" PackagePath="\" />
-    <None Include="build\GameshowPro.Common.Blazor.targets" Pack="true" PackagePath="build\" Visible="false" />
-    <None Include="buildTransitive\GameshowPro.Common.Blazor.targets" Pack="true" PackagePath="buildTransitive\" Visible="false" />
+    <!-- A .props file, not .targets: from .NET 11 the Razor SDK generates build\<PackageId>.targets itself for the static web
+         assets, and NuGet imports only files named after the package. The file is written to work when imported early. -->
+    <None Include="build\GameshowPro.Common.Blazor.props" Pack="true" PackagePath="build\" Visible="false" />
+    <None Include="buildTransitive\GameshowPro.Common.Blazor.props" Pack="true" PackagePath="buildTransitive\" Visible="false" />
     <None Include="..\..\resources\gameshowpro-icon.png" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="11.0.0" />
     <!-- MudBlazor is the standard component library for the GameshowPro web tier; pinned to the
          lowest version among current consumers so apps float it upward, never downward. -->
     <PackageReference Include="MudBlazor" Version="9.12.0" />

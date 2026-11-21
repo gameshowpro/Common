@@ -1,5 +1,3 @@
-using GameshowPro.Common.Model;
-
 namespace GameshowPro.Common.Blazor;
 
 /// <summary>
@@ -13,6 +11,9 @@ public sealed class GspRuntimeState
     private string? _hostName;
     private string? _platform;
     private RemoteServiceStates? _connection;
+    private string? _connectionTitle;
+    private string? _connectionDetail;
+    private ServiceState? _serviceState;
     private readonly List<GspAboutRow> _aboutRows = [];
 
     /// <summary>Raised on the caller's thread after any value changes; components re-render on it.</summary>
@@ -30,9 +31,19 @@ public sealed class GspRuntimeState
     /// <summary>
     /// The connection to the service, shown as a pill in the header: <see cref="RemoteServiceStates.Connected"/> reads "Connected"
     /// (ok), <see cref="RemoteServiceStates.Warning"/> "Reconnecting" (warn), <see cref="RemoteServiceStates.Disconnected"/>
-    /// "Disconnected" (bad). <c>null</c> (not reported) shows no pill.
+    /// "Disconnected" (bad). <c>null</c> (not reported) shows no pill. While it is anything but Connected, <c>GspAppShell</c>
+    /// covers the page with the reconnect overlay.
     /// </summary>
     public RemoteServiceStates? Connection { get => _connection; set => Set(ref _connection, value); }
+
+    /// <summary>Optional title for the shell's reconnect overlay; null uses the overlay's product-based title.</summary>
+    public string? ConnectionTitle { get => _connectionTitle; set => Set(ref _connectionTitle, value); }
+
+    /// <summary>Optional detail line for the shell's reconnect overlay, such as the retry attempt.</summary>
+    public string? ConnectionDetail { get => _connectionDetail; set => Set(ref _connectionDetail, value); }
+
+    /// <summary>The app's service-state tree, shown inside the shell's reconnect overlay so the operator sees what is wrong. Optional.</summary>
+    public ServiceState? ServiceState { get => _serviceState; set => Set(ref _serviceState, value); }
 
     /// <summary>Extra rows for the About table, after the standard ones.</summary>
     public IReadOnlyList<GspAboutRow> AboutRows => _aboutRows;

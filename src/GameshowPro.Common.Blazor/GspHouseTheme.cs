@@ -1,7 +1,3 @@
-using System.Globalization;
-using MudBlazor;
-using MudBlazor.Utilities;
-
 namespace GameshowPro.Common.Blazor;
 
 /// <summary>

@@ -1,22 +1,40 @@
-@inject IServiceProvider Services
+@implements IDisposable
+@implements IAsyncDisposable
+@inject IServiceProvider _services
 
 @* The whole house page frame in one component, for a layout: the theme (following the OS), MudBlazor's providers, the header,
-   the content column, the footer, and the About dialog with its button. Everything it shows comes from AddGspHouseStyle
+   the content column, the About dialog with its button, the reconnect overlay
+   (shown while GspRuntimeState.Connection is anything but Connected) and, only if asked for, the footer. Everything it shows comes from AddGspHouseStyle
    and the app's assembly. Use it as `<GspAppShell>@Body</GspAppShell>` in a layout. *@
 <GspThemeProvider ForceDarkMode="ForceDarkMode" IsDarkModeChanged="IsDarkModeChanged" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
-<GspAppHeader>@HeaderContent</GspAppHeader>
-<main class="gsp-main">
+@if (ShowHeader)
+{
+    <GspAppHeader LeadingContent="HeaderLeadingContent">@HeaderContent</GspAppHeader>
+}
+@if (WrapContent)
+{
+    <main class="gsp-main">
     @ChildContent
-</main>
-<GspPageFooter>@FooterContent</GspPageFooter>
+    </main>
+}
+else
+{
+    @ChildContent
+}
+@if (ShowFooter)
+{
+    <GspPageFooter>@FooterContent</GspPageFooter>
+}
 <GspAboutDialog>@AboutContent</GspAboutDialog>
 @if (ShowAboutButton)
 {
     <GspAboutButton />
 }
+<ServiceConnectionOverlay DataContext="_state?.ServiceState" VisibleOverride="ConnectionLost"
+                          Title="@(_state?.ConnectionTitle)" Detail="@(_state?.ConnectionDetail)" />
 
 @code {
     /// <summary>The page content, usually the layout's <c>@Body</c>.</summary>
@@ -27,7 +45,19 @@
     [Parameter]
     public RenderFragment? HeaderContent { get; set; }
 
-    /// <summary>Extra content after the footer's copyright line.</summary>
+    /// <summary>Content after the brand and before the header status and actions.</summary>
+    [Parameter]
+    public RenderFragment? HeaderLeadingContent { get; set; }
+
+    /// <summary>Whether the shell renders its header (default true).</summary>
+    [Parameter]
+    public bool ShowHeader { get; set; } = true;
+
+    /// <summary>Whether the shell wraps page content in the centered <c>gsp-main</c> column (default true).</summary>
+    [Parameter]
+    public bool WrapContent { get; set; } = true;
+
+    /// <summary>Extra content after the footer's copyright line (only with <see cref="GspHouseOptions.ShowFooter"/>).</summary>
     [Parameter]
     public RenderFragment? FooterContent { get; set; }
 
@@ -47,5 +77,39 @@
     [Parameter]
     public bool? ShowAboutButtonOverride { get; set; }
 
-    private bool ShowAboutButton => ShowAboutButtonOverride ?? (Services.GetService(typeof(GspAppInfo)) as GspAppInfo)?.ShowAboutButton ?? true;
+    private GspRuntimeState? _state;
+
+    private GspAppInfo? AppInfo => _services.GetService<GspAppInfo>();
+
+    private bool ShowAboutButton => ShowAboutButtonOverride ?? AppInfo?.ShowAboutButton ?? true;
+
+    private bool ShowFooter => AppInfo?.ShowFooter ?? false;
+
+    // The page is blocked whenever the app has reported a connection that is not (or not yet again) Connected.
+    private bool ConnectionLost => _state?.Connection is { } connection && connection != RemoteServiceStates.Connected;
+
+    protected override void OnInitialized()
+    {
+        _state = _services.GetService<GspRuntimeState>();
+        if (_state is not null)
+        {
+            _state.Changed += OnStateChanged;
+        }
+    }
+
+    private void OnStateChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        if (_state is not null)
+        {
+            _state.Changed -= OnStateChanged;
+        }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        Dispose();
+        return ValueTask.CompletedTask;
+    }
 }

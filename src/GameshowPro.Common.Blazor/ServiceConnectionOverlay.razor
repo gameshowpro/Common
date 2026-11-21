@@ -1,6 +1,7 @@
 @implements IDisposable
+@implements IAsyncDisposable
 
-@inject IServiceProvider Services
+@inject IServiceProvider _services
 
 @* Dims and blurs the page behind (Suede's reconnect overlay) and shows a centered card: the product logo inside a spinning
    ring (or the ring alone without a logo), the title, the detail, ChildContent and the service-state tree. The icon and
@@ -49,7 +50,7 @@
     [Parameter]
     public string? ProductName { get; set; }
 
-    private GspAppInfo? AppInfo => Services.GetService(typeof(GspAppInfo)) as GspAppInfo;
+    private GspAppInfo? AppInfo => _services.GetService<GspAppInfo>();
 
     private string? EffectiveIconUrl => IconUrl ?? AppInfo?.IconUrl;
 
@@ -113,4 +114,11 @@
     }
 
     public void Dispose() => Unsubscribe();
+
+    /// <inheritdoc />
+    public ValueTask DisposeAsync()
+    {
+        Dispose();
+        return ValueTask.CompletedTask;
+    }
 }

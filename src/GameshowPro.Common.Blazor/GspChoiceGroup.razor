@@ -1,0 +1,99 @@
+@* A single-select button group for a short, fixed set of choices (the replacement for a dropdown when every option fits on
+   a button). Value and ValueChanged are wired straight through, so hosts that live-apply (and restore on Cancel) behave as
+   they would with a select. Wraps onto further lines when the container is narrow.
+
+   MudToggleGroup keeps a clicked button as its own state. When the host does not take a click (a refused write, a revert,
+   a normalization), the toggle group is rebuilt after that render so it shows the host's value again; a click the host
+   takes is not rebuilt, so keyboard focus stays on the button. *@
+@typeparam TItem
+
+<div class="gsp-choice-group">
+    @if (ShowLabel && !string.IsNullOrEmpty(Label))
+    {
+        <MudText Typo="Typo.caption" Color="Color.Default">@Label</MudText>
+    }
+    <MudToggleGroup @key="_revision" T="TItem" Value="Value" ValueChanged="Choose" Disabled="Disabled" aria-label="@Label"
+                    Color="Color.Primary" Size="Size.Small" CheckMark="false" SelectionMode="SelectionMode.SingleSelection">
+        @foreach (TItem item in Items)
+        {
+            <MudToggleItem T="TItem" Value="item" Disabled="@(ItemDisabled?.Invoke(item) == true)">
+                <span title="@Title?.Invoke(item)">@Text(item)</span>
+            </MudToggleItem>
+        }
+    </MudToggleGroup>
+</div>
+
+@code {
+    /// <summary>The chosen item.</summary>
+    [Parameter]
+    public TItem? Value { get; set; }
+
+    /// <summary>Raised with the clicked item.</summary>
+    [Parameter]
+    public EventCallback<TItem> ValueChanged { get; set; }
+
+    /// <summary>The choices, one button each.</summary>
+    [Parameter, EditorRequired]
+    public IEnumerable<TItem> Items { get; set; } = [];
+
+    /// <summary>The group's accessible name; also shown as a caption above the buttons when <see cref="ShowLabel"/> is set.</summary>
+    [Parameter]
+    public string? Label { get; set; }
+
+    /// <summary>Show <see cref="Label"/> as a visible caption (leave off when a surrounding field already names the group).</summary>
+    [Parameter]
+    public bool ShowLabel { get; set; }
+
+    /// <summary>The button text for an item.</summary>
+    [Parameter, EditorRequired]
+    public Func<TItem, string> Text { get; set; } = item => item?.ToString() ?? string.Empty;
+
+    /// <summary>Optional tooltip for an item's button.</summary>
+    [Parameter]
+    public Func<TItem, string?>? Title { get; set; }
+
+    /// <summary>Disables the whole group.</summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    /// <summary>Optional: disables one item's button while the rest of the group stays usable.</summary>
+    [Parameter]
+    public Func<TItem, bool>? ItemDisabled { get; set; }
+
+    // Rebuilds the toggle group (its key) when it would otherwise keep showing a click the host did not take.
+    private int _revision;
+    // The clicked value whose handling has finished, checked against the host's value after the next render.
+    private bool _checkClick;
+    private TItem? _clicked;
+
+    private async Task Choose(TItem value)
+    {
+        try
+        {
+            await ValueChanged.InvokeAsync(value);
+        }
+        finally
+        {
+            // Compared after the render that follows this handler, once the host has rendered this group with its value.
+            _clicked = value;
+            _checkClick = true;
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!_checkClick)
+        {
+            return;
+        }
+
+        _checkClick = false;
+        TItem? clicked = _clicked;
+        _clicked = default;
+        if (!EqualityComparer<TItem>.Default.Equals(clicked, Value))
+        {
+            _revision++;
+            StateHasChanged();
+        }
+    }
+}

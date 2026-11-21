@@ -1,6 +1,3 @@
-using MudBlazor;
-using MudBlazor.Utilities;
-
 namespace GameshowPro.Common.Blazor.Test;
 
 /// <summary>
@@ -29,16 +26,16 @@ public class HouseThemeContrastTests
     /// same hue (HSL 54 degrees, 100% saturation, lightness lowered from 50% until it reaches 4.5:1 on the page,
     /// panel and sunken colors), <c>#7b6f00</c>.
     /// </summary>
-    internal static readonly GspAccent LogoYellow = new(
+    internal static readonly GspAccent s_logoYellow = new(
         new GspAccentColors("#ffe600", "#16191d", "#7b6f00"),
         new GspAccentColors("#ffe600", "#13151a", "#ffe600"));
 
     /// <summary>
-    /// A blue second accent as a product would define it next to <see cref="LogoYellow"/> (the TriggerGate logo blue
+    /// A blue second accent as a product would define it next to <see cref="s_logoYellow"/> (the TriggerGate logo blue
     /// <c>#2e6fb7</c>). Light theme: the blue is both fill (white text) and text (4.6:1 or better on the page, panel and
     /// sunken colors). Dark theme: a lighter blue of the same hue (HSL lightness 60%) is both fill (near-black text) and text.
     /// </summary>
-    internal static readonly GspAccent LogoBlue = new(
+    internal static readonly GspAccent s_logoBlue = new(
         new GspAccentColors("#2e6fb7", "#ffffff", "#2e6fb7"),
         new GspAccentColors("#5c96d6", "#13151a", "#5c96d6"));
 
@@ -49,9 +46,9 @@ public class HouseThemeContrastTests
     private static IEnumerable<(string Name, GspAccent Accent, GspAccent? Secondary)> Accents()
     {
         yield return ("Indigo", GspAccent.Indigo, null);
-        yield return ("LogoYellow", LogoYellow, null);
-        yield return ("LogoYellow+LogoBlue", LogoYellow, LogoBlue);
-        yield return ("Indigo+LogoYellow", GspAccent.Indigo, LogoYellow);
+        yield return ("LogoYellow", s_logoYellow, null);
+        yield return ("LogoYellow+LogoBlue", s_logoYellow, s_logoBlue);
+        yield return ("Indigo+LogoYellow", GspAccent.Indigo, s_logoYellow);
     }
 
     private static IEnumerable<(string Name, Palette Palette, GspAccentColors Accent)> Palettes(string accentName, GspAccent accent, GspAccent? secondary)
@@ -139,7 +136,7 @@ public class HouseThemeContrastTests
     [TestMethod]
     public void Without_a_second_accent_Secondary_stays_the_house_neutral()
     {
-        MudTheme theme = GspHouseTheme.Create(LogoYellow);
+        MudTheme theme = GspHouseTheme.Create(s_logoYellow);
         Assert.AreEqual("#667085", GspContrast.Hex(theme.PaletteLight.Secondary));
         Assert.AreEqual("#ffffff", GspContrast.Hex(theme.PaletteLight.SecondaryContrastText));
         Assert.AreEqual("#98a2b3", GspContrast.Hex(theme.PaletteDark.Secondary));
@@ -199,13 +196,13 @@ public class HouseThemeContrastTests
     {
         // The documented gold keeps the hue (54 degrees) of the logo yellow.
         MudColor yellow = C("#ffe600");
-        MudColor gold = C(LogoYellow.Light.Text);
+        MudColor gold = C(s_logoYellow.Light.Text);
         double hueYellow = yellow.H;
         double hueGold = gold.H;
-        TestContext.WriteLine($"hue #ffe600 = {hueYellow:0.0}, hue {LogoYellow.Light.Text} = {hueGold:0.0}");
-        Assert.IsTrue(Math.Abs(hueYellow - hueGold) < 1.5, $"Hue drifted: {hueYellow} vs {hueGold}");
+        TestContext.WriteLine($"hue #ffe600 = {hueYellow:0.0}, hue {s_logoYellow.Light.Text} = {hueGold:0.0}");
+        Assert.IsLessThan(1.5, Math.Abs(hueYellow - hueGold), $"Hue drifted: {hueYellow} vs {hueGold}");
         // The next step lighter would fail, so this is the lightest gold of that hue (within one hex step of lightness).
-        MudColor lighter = new MudColor(gold.R + 3, gold.G + 3, gold.B, 255);
+        MudColor lighter = new(gold.R + 3, gold.G + 3, gold.B, 255);
         TestContext.WriteLine($"{Hex(lighter)} on sunken (light) = {GspContrast.Ratio(lighter, C("#f0f2f5")):0.00}:1");
     }
 

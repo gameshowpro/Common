@@ -6,7 +6,7 @@
    to the .NET event it raises. It is turned OFF while a mode is forced, so an OS change cannot override the force. *@
 <MudThemeProvider @ref="_provider" Theme="_theme" IsDarkMode="_isDark" ObserveSystemDarkModeChange="@(ForceDarkMode is null)" />
 
-@inject IServiceProvider Services
+@inject IServiceProvider _services
 
 @code {
     private MudThemeProvider? _provider;
@@ -46,7 +46,7 @@
     /// <summary>The theme in effect, for consumers that want to read palette values.</summary>
     public MudTheme Theme => _theme;
 
-    private GspHouseOptions? Options => Services.GetService(typeof(GspHouseOptions)) as GspHouseOptions;
+    private GspHouseOptions? Options => _services.GetService<GspHouseOptions>();
 
     private GspAccent EffectiveAccent => Accent ?? Options?.Accent ?? GspAccent.Indigo;
 

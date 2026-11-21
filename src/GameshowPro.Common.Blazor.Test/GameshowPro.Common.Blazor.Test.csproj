@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net10.0</TargetFrameworks>
+    <TargetFrameworks>net11.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>15.0</LangVersion>
     <Configurations>Debug;Release;ReleaseWindows;DebugWindows</Configurations>
     <!-- This assembly stands in for an app in HouseStyleRegistrationTests: the properties below are what GspAppInfo derives from. -->
     <RepositoryUrl>https://github.com/gameshowpro/Example</RepositoryUrl>
@@ -20,6 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\GameshowPro.Common.Blazor\GameshowPro.Common.Blazor.csproj" />
   </ItemGroup>
-  <!-- A project that references GameshowPro.Common.Blazor as a PROJECT imports its targets file explicitly (a package reference does it by itself). -->
-  <Import Project="..\GameshowPro.Common.Blazor\build\GameshowPro.Common.Blazor.targets" />
+  <!-- A project that references GameshowPro.Common.Blazor as a PROJECT imports its props file explicitly (a package reference does it by itself). -->
+  <Import Project="..\GameshowPro.Common.Blazor\build\GameshowPro.Common.Blazor.props" />
 </Project>

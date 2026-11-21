@@ -7,18 +7,21 @@
 
     Imported automatically when the package is referenced. A project that references GameshowPro.Common.Blazor as a PROJECT
     imports it explicitly:
-      <Import Project="path\to\Common\src\GameshowPro.Common.Blazor\build\GameshowPro.Common.Blazor.targets" />
+      <Import Project="path\to\Common\src\GameshowPro.Common.Blazor\build\GameshowPro.Common.Blazor.props" />
 
-    Set GspBuildDate (any text) to override the date, for example to make a build reproducible; GspAddAssemblyMetadata=false
-    turns the whole thing off.
+    Set GspBuildInstantUtc (an ISO 8601 UTC instant) to make a build reproducible. GspBuildDate remains compatible with
+    date-only overrides; an explicit date-only value does not invent a build time. GspAddAssemblyMetadata=false turns
+    the whole thing off.
   -->
   <PropertyGroup>
     <GspAddAssemblyMetadata Condition="'$(GspAddAssemblyMetadata)' == ''">true</GspAddAssemblyMetadata>
-    <GspBuildDate Condition="'$(GspBuildDate)' == ''">$([System.DateTime]::UtcNow.ToString('yyyy-MM-dd'))</GspBuildDate>
+    <GspBuildInstantUtc Condition="'$(GspBuildInstantUtc)' == '' and '$(GspBuildDate)' == ''">$([System.DateTime]::UtcNow.ToString('O'))</GspBuildInstantUtc>
+    <GspBuildDate Condition="'$(GspBuildDate)' == '' and '$(GspBuildInstantUtc)' != ''">$([System.String]::Copy('$(GspBuildInstantUtc)').Substring(0,10))</GspBuildDate>
   </PropertyGroup>
   <Target Name="GspAddAssemblyMetadata" BeforeTargets="GetAssemblyAttributes" Condition="'$(GspAddAssemblyMetadata)' == 'true'">
     <ItemGroup>
       <AssemblyMetadata Include="GspBuildDate" Value="$(GspBuildDate)" />
+      <AssemblyMetadata Include="GspBuildInstantUtc" Value="$(GspBuildInstantUtc)" Condition="'$(GspBuildInstantUtc)' != ''" />
       <AssemblyMetadata Include="PackageLicenseExpression" Value="$(PackageLicenseExpression)" Condition="'$(PackageLicenseExpression)' != ''" />
       <AssemblyMetadata Include="PackageProjectUrl" Value="$(PackageProjectUrl)" Condition="'$(PackageProjectUrl)' != ''" />
       <AssemblyMetadata Include="GspDocumentationUrl" Value="$(GspDocumentationUrl)" Condition="'$(GspDocumentationUrl)' != ''" />

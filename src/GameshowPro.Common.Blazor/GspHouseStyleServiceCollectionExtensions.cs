@@ -1,7 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using MudBlazor.Services;
-
 namespace GameshowPro.Common.Blazor;
 
 /// <summary>Registers the GameshowPro house style.</summary>
@@ -22,6 +18,8 @@ public static class GspHouseStyleServiceCollectionExtensions
         services.TryAddSingleton(options);
         services.TryAddSingleton(sp => GspAppInfo.Resolve(sp.GetRequiredService<GspHouseOptions>(), System.Reflection.Assembly.GetEntryAssembly()));
         services.TryAddScoped<GspRuntimeState>();
+        services.TryAddScoped<GspClipboard>();
+        services.TryAddScoped<GspLocalTimeFormatter>();
         return services;
     }
 }

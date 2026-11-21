@@ -1,7 +1,3 @@
-using Bunit;
-using Microsoft.Extensions.DependencyInjection;
-using MudBlazor.Services;
-
 namespace GameshowPro.Common.Blazor.Test;
 
 /// <summary>The house theme provider, header and footer render what the CSS expects.</summary>
@@ -20,17 +16,17 @@ public class HouseComponentTests
     public void ThemeProvider_writes_the_accent_for_the_forced_mode()
     {
         using BunitContext context = CreateContext();
-        GspAccent yellow = HouseThemeContrastTests.LogoYellow;
+        GspAccent yellow = HouseThemeContrastTests.s_logoYellow;
 
         string light = context.Render<GspThemeProvider>(p => p.Add(x => x.Accent, yellow).Add(x => x.ForceDarkMode, false)).Markup;
-        StringAssert.Contains(light, "--gsp-accent:#ffe600;--gsp-accent-ink:#16191d;");
-        StringAssert.Contains(light, "color-scheme:light");
-        StringAssert.Contains(light, "--mud-palette-primary: rgba(123,111,0,1)");
+        Assert.Contains("--gsp-accent:#ffe600;--gsp-accent-ink:#16191d;", light);
+        Assert.Contains("color-scheme:light", light);
+        Assert.Contains("--mud-palette-primary: rgba(123,111,0,1)", light);
 
         string dark = context.Render<GspThemeProvider>(p => p.Add(x => x.Accent, yellow).Add(x => x.ForceDarkMode, true)).Markup;
-        StringAssert.Contains(dark, "--gsp-accent:#ffe600;--gsp-accent-ink:#13151a;");
-        StringAssert.Contains(dark, "--gsp-shadow:none");
-        StringAssert.Contains(dark, "--mud-palette-primary: rgba(255,230,0,1)");
+        Assert.Contains("--gsp-accent:#ffe600;--gsp-accent-ink:#13151a;", dark);
+        Assert.Contains("--gsp-shadow:none", dark);
+        Assert.Contains("--mud-palette-primary: rgba(255,230,0,1)", dark);
     }
 
     [TestMethod]
@@ -38,7 +34,7 @@ public class HouseComponentTests
     {
         using BunitContext context = CreateContext();
         string markup = context.Render<GspThemeProvider>().Markup;
-        StringAssert.Contains(markup, "--gsp-accent:#3b5bdb;");
+        Assert.Contains("--gsp-accent:#3b5bdb;", markup);
     }
 
     [TestMethod]

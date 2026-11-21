@@ -1,0 +1,10 @@
+﻿global using System.Globalization;
+global using System.Reflection;
+global using System.Text.RegularExpressions;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.DependencyInjection.Extensions;
+global using MudBlazor;
+global using MudBlazor.Services;
+global using MudBlazor.Utilities;
+global using GameshowPro.Common.Model;
+global using Microsoft.JSInterop;

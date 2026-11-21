@@ -1,19 +1,16 @@
-using Bunit;
-using GameshowPro.Common.Model;
-using Microsoft.Extensions.DependencyInjection;
-using MudBlazor;
-using MudBlazor.Services;
-
 namespace GameshowPro.Common.Blazor.Test;
 
 /// <summary>
 /// The one-registration design: what <c>AddGspHouseStyle</c> derives from the app's assembly (this test assembly stands in
-/// for an app; its csproj imports the package's targets file, which is how the build date and license expression arrive),
+/// for an app; its csproj imports the package's props file, which is how the build date and license expression arrive),
 /// and the components that read the registration by injection with no parameters.
 /// </summary>
 [TestClass]
-public class HouseStyleRegistrationTests
+public partial class HouseStyleRegistrationTests
 {
+    [GeneratedRegex("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")]
+    private static partial Regex BuildDateRegex();
+
     private static BunitContext CreateContext(Action<GspHouseOptions>? configure = null)
     {
         BunitContext context = new();
@@ -31,13 +28,15 @@ public class HouseStyleRegistrationTests
         Assert.AreEqual("GameshowPro.Common.Blazor.Test", info.ProductName);
         Assert.IsFalse(info.Version.Contains('+'), "public version has no commit suffix: " + info.Version);
         Assert.IsNotEmpty(info.Version);
-        StringAssert.Matches(info.BuildDate ?? "", new System.Text.RegularExpressions.Regex("^[0-9]{4}-[0-9]{2}-[0-9]{2}$"), "GspBuildDate comes from the targets file");
+        Assert.MatchesRegex(BuildDateRegex(), info.BuildDate ?? "", "GspBuildDate comes from the props file");
+        Assert.IsNotNull(info.BuildInstantUtc, "GspBuildInstantUtc carries a full UTC build timestamp");
+        Assert.AreEqual(TimeSpan.Zero, info.BuildInstantUtc.Value.Offset);
         Assert.AreEqual("MIT", info.LicenseExpression);
         Assert.AreEqual("Open source under the MIT license.", info.LicenseText);
         Assert.AreEqual(GspAppInfo.DefaultCopyright, info.Copyright);
-        CollectionAssert.AreEqual(
-            new[] { "Documentation|https://example.test/docs", "Source on GitHub|https://github.com/gameshowpro/Example" },
-            info.Links.Select(l => l.Text + "|" + l.Url).ToArray());
+        Assert.AreSequenceEqual<string>(
+            ["Documentation|https://example.test/docs", "Source on GitHub|https://github.com/gameshowpro/Example"],
+            info.Links.Select(l => l.Text + "|" + l.Url));
     }
 
     [TestMethod]
@@ -50,7 +49,7 @@ public class HouseStyleRegistrationTests
         Assert.AreEqual("9.9.9", info.Version);
         Assert.AreEqual("(c) 2030 Someone", info.Copyright);
         Assert.AreEqual("Custom.", info.LicenseText);
-        CollectionAssert.AreEqual(new[] { "Documentation", "Source on GitHub", "License text", "Sponsor" }, info.Links.Select(l => l.Text).ToArray());
+        Assert.AreSequenceEqual<string>(["Documentation", "Source on GitHub", "License text", "Sponsor"], info.Links.Select(l => l.Text));
     }
 
     [TestMethod]
@@ -74,7 +73,9 @@ public class HouseStyleRegistrationTests
         Assert.AreEqual("GameshowPro.Common.Blazor.Test", header.Find("h1.gsp-app-name").TextContent);
         Assert.AreEqual("images/app-icon.svg", header.Find("img.gsp-app-icon").GetAttribute("src"));
         Assert.AreEqual("ESP32 1.2.3", header.Find(".gsp-pill.gsp-version").TextContent);
-        StringAssert.StartsWith(header.Find(".gsp-pill.gsp-version").GetAttribute("title"), "Built ");
+        string? versionTitle = header.Find(".gsp-pill.gsp-version").GetAttribute("title");
+        Assert.IsNotNull(versionTitle);
+        Assert.AreEqual("Build time unavailable", versionTitle, "the browser zone is unavailable in this test host");
         Assert.AreEqual("fm01-106", header.Find(".gsp-host .gsp-data").TextContent);
         Assert.AreEqual("Connected", header.Find(".gsp-connection").TextContent);
 
@@ -96,6 +97,66 @@ public class HouseStyleRegistrationTests
         IRenderedComponent<GspPageFooter> footer = context.Render<GspPageFooter>();
         Assert.AreEqual("GameshowPro.Common.Blazor.Test 1.2.3, © 2026 Barjonas LLC", footer.Find("footer span").TextContent);
     }
+
+    [TestMethod]
+    public async Task Local_time_formatter_uses_the_browser_zone_and_per_instant_dst_offsets()
+    {
+        await using BunitContext context = CreateContext();
+        BunitJSModuleInterop module = context.JSInterop.SetupModule("./_content/GameshowPro.Common.Blazor/gsp-local-time.js");
+        module.Setup<string[]>("describe", _ => true).SetResult(["America/Los_Angeles", "-420", "-480"]);
+        GspLocalTimeFormatter formatter = context.Services.GetRequiredService<GspLocalTimeFormatter>();
+        DateTimeOffset first = new(2026, 11, 1, 8, 30, 0, TimeSpan.Zero);
+        DateTimeOffset second = first.AddHours(1);
+
+        await formatter.PrimeAsync([first, second]);
+
+        Assert.AreEqual("2026-11-01 01:30:00 UTC-07:00 (America/Los_Angeles)", formatter.FormatCached(first));
+        Assert.AreEqual("2026-11-01 01:30:00 UTC-08:00 (America/Los_Angeles)", formatter.FormatCached(second));
+        Assert.AreEqual("UTC-07:00", formatter.OffsetCached(first));
+        Assert.AreEqual("UTC-08:00", formatter.OffsetCached(second));
+        module.VerifyInvoke("describe");
+    }
+
+    [TestMethod]
+    public async Task Repriming_retained_instants_does_not_evict_them_at_cache_capacity()
+    {
+        await using GspLocalTimeFormatter formatter = new(new LocalTimeJs());
+        DateTimeOffset[] retained = [.. Enumerable.Range(0, 5000).Select(i => DateTimeOffset.UnixEpoch.AddSeconds(i))];
+        DateTimeOffset[] filler = [.. Enumerable.Range(5000, 5000).Select(i => DateTimeOffset.UnixEpoch.AddSeconds(i))];
+        DateTimeOffset[] newRows = [.. Enumerable.Range(10000, 5000).Select(i => DateTimeOffset.UnixEpoch.AddSeconds(i))];
+
+        await formatter.PrimeAsync(retained);
+        await formatter.PrimeAsync(filler);
+        await formatter.PrimeAsync(retained.Concat(newRows));
+
+        Assert.IsTrue(retained.All(instant => formatter.FormatCached(instant) is not null));
+        Assert.IsTrue(newRows.All(instant => formatter.FormatCached(instant) is not null));
+    }
+
+    // This in-memory test fake returns data directly; no browser interop occurs here.
+#pragma warning disable BL0016
+    private sealed class LocalTimeJs : IJSRuntime, IJSObjectReference
+    {
+        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
+            => Respond<TValue>(identifier, args);
+
+        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+            => Respond<TValue>(identifier, args);
+
+        private ValueTask<TValue> Respond<TValue>(string identifier, object?[]? args)
+        {
+            object result = identifier switch
+            {
+                "import" => this,
+                "describe" => new[] { "Etc/UTC" }.Concat(Enumerable.Repeat("0", ((string[])args![0]!).Length)).ToArray(),
+                _ => throw new InvalidOperationException(identifier),
+            };
+            return ValueTask.FromResult((TValue)result);
+        }
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+#pragma warning restore BL0016
 
     [TestMethod]
     public async Task Version_pill_and_footer_open_the_about_dialog_once_one_is_on_the_page()
@@ -140,15 +201,17 @@ public class HouseStyleRegistrationTests
         Assert.AreEqual("GameshowPro.Common.Blazor.Test", cut.Find("h2#gsp-about-heading").TextContent);
         Assert.AreEqual("Does the thing.", cut.Find(".gsp-about-brand p").TextContent);
         string[] labels = [.. cut.FindAll(".gsp-kv th").Select(e => e.TextContent)];
-        CollectionAssert.AreEqual(new[] { "Version", "Build", "Host", "Platform", "Sway" }, labels);
+        Assert.AreSequenceEqual<string>(["Version", "Build", "Host", "Platform", "Sway"], labels);
         Assert.AreEqual("fm01-107", cut.FindAll(".gsp-kv td")[2].TextContent);
-        StringAssert.Contains(cut.Markup, "Open source under the MIT license.");
+        Assert.Contains("Open source under the MIT license.", cut.Markup);
         IReadOnlyList<AngleSharp.Dom.IElement> links = cut.FindAll(".gsp-about-links a");
-        CollectionAssert.AreEqual(new[] { "Documentation", "Source on GitHub", "Sponsor" }, links.Select(l => l.TextContent).ToArray());
+        Assert.AreSequenceEqual<string>(["Documentation", "Source on GitHub", "Sponsor"], links.Select(l => l.TextContent));
         Assert.IsTrue(links.All(l => l.GetAttribute("target") == "_blank" && l.GetAttribute("rel") == "noopener noreferrer"));
         Assert.AreEqual("Example is a trademark of Barjonas LLC. © 2026 Barjonas LLC.", cut.FindAll("p.gsp-hint")[^1].TextContent);
         Assert.AreEqual("extra", cut.Find("#extra").TextContent);
-        StringAssert.Contains(cut.Find(".gsp-about-credit a").GetAttribute("href"), "github.com/gameshowpro");
+        string? creditHref = cut.Find(".gsp-about-credit a").GetAttribute("href");
+        Assert.IsNotNull(creditHref);
+        Assert.Contains("github.com/gameshowpro", creditHref);
         Assert.IsNotNull(cut.Find(".gsp-about-credit svg.gsp-logo"));
         Assert.AreEqual("dialog", cut.Find("form.gsp-dialog-foot").GetAttribute("method"));
     }
@@ -167,15 +230,47 @@ public class HouseStyleRegistrationTests
     [TestMethod]
     public async Task App_shell_renders_the_whole_frame_from_the_registration_alone()
     {
-        await using BunitContext context = CreateContext(o => o.SecondaryAccent = HouseThemeContrastTests.LogoBlue);
+        await using BunitContext context = CreateContext(o => o.SecondaryAccent = HouseThemeContrastTests.s_logoBlue);
         IRenderedComponent<GspAppShell> shell = context.Render<GspAppShell>(p => p.AddChildContent("<p id=\"page\">content</p>"));
         Assert.IsNotNull(shell.Find("header.gsp-header"));
         Assert.AreEqual("content", shell.Find("main.gsp-main #page").TextContent);
-        Assert.IsNotNull(shell.Find("footer.gsp-footer"));
+        Assert.IsEmpty(shell.FindAll("footer.gsp-footer"));
         Assert.IsNotNull(shell.Find("dialog.gsp-dialog"));
         Assert.IsNotNull(shell.Find("button.gsp-about-button"));
-        StringAssert.Contains(shell.Markup, "--gsp-accent-2:");
+        Assert.Contains("--gsp-accent-2:", shell.Markup);
     }
+
+    [TestMethod]
+    public async Task App_shell_shows_the_footer_only_when_the_registration_asks_for_it()
+    {
+        await using BunitContext context = CreateContext(o => o.ShowFooter = true);
+        IRenderedComponent<GspAppShell> shell = context.Render<GspAppShell>();
+        Assert.IsNotNull(shell.Find("footer.gsp-footer"));
+    }
+
+    [TestMethod]
+    public async Task App_shell_covers_the_page_while_the_connection_is_not_connected()
+    {
+        await using BunitContext context = CreateContext(o => o.ShowFooter = false);
+        GspRuntimeState state = context.Services.GetRequiredService<GspRuntimeState>();
+        IRenderedComponent<GspAppShell> shell = context.Render<GspAppShell>();
+        Assert.IsEmpty(shell.FindAll(".gsp-connection-card"), "No connection reported: no overlay.");
+        foreach (RemoteServiceStates lost in new[] { RemoteServiceStates.Warning, RemoteServiceStates.Disconnected })
+        {
+            state.Connection = lost;
+            shell.WaitForAssertion(() => Assert.IsNotNull(shell.Find(".gsp-connection-card")));
+            state.Connection = RemoteServiceStates.Connected;
+            shell.WaitForAssertion(() => Assert.IsEmpty(shell.FindAll(".gsp-connection-card")));
+        }
+    }
+
+    [TestMethod]
+    [DataRow("Copyright (c) 2026 Barjonas LLC", "(c) 2026 Barjonas LLC")]
+    [DataRow("Copyright © 2026 Barjonas LLC", "© 2026 Barjonas LLC")]
+    [DataRow("2026 Barjonas LLC", "© 2026 Barjonas LLC")]
+    [DataRow("© 2026 Barjonas LLC", "© 2026 Barjonas LLC")]
+    public void Copyright_gets_exactly_one_mark(string input, string expected)
+        => Assert.AreEqual(expected, GspAppInfo.NormalizeCopyright(input));
 
     [TestMethod]
     public async Task App_shell_hides_the_about_button_when_the_registration_says_so()
@@ -191,14 +286,14 @@ public class HouseStyleRegistrationTests
     {
         await using BunitContext context = CreateContext(o =>
         {
-            o.Accent = HouseThemeContrastTests.LogoYellow;
-            o.SecondaryAccent = HouseThemeContrastTests.LogoBlue;
+            o.Accent = HouseThemeContrastTests.s_logoYellow;
+            o.SecondaryAccent = HouseThemeContrastTests.s_logoBlue;
         });
         string light = context.Render<GspThemeProvider>(p => p.Add(x => x.ForceDarkMode, false)).Markup;
-        StringAssert.Contains(light, "--gsp-accent:#ffe600;--gsp-accent-ink:#16191d;--gsp-accent-2:#2e6fb7;--gsp-accent-2-ink:#ffffff;");
-        StringAssert.Contains(light, "--mud-palette-secondary: rgba(46,111,183,1)");
+        Assert.Contains("--gsp-accent:#ffe600;--gsp-accent-ink:#16191d;--gsp-accent-2:#2e6fb7;--gsp-accent-2-ink:#ffffff;", light);
+        Assert.Contains("--mud-palette-secondary: rgba(46,111,183,1)", light);
         string dark = context.Render<GspThemeProvider>(p => p.Add(x => x.ForceDarkMode, true)).Markup;
-        StringAssert.Contains(dark, "--gsp-accent-2:#5c96d6;--gsp-accent-2-ink:#13151a;");
+        Assert.Contains("--gsp-accent-2:#5c96d6;--gsp-accent-2-ink:#13151a;", dark);
     }
 
     [TestMethod]
@@ -206,8 +301,8 @@ public class HouseStyleRegistrationTests
     {
         await using BunitContext context = CreateContext();
         string light = context.Render<GspThemeProvider>(p => p.Add(x => x.ForceDarkMode, false)).Markup;
-        StringAssert.Contains(light, "--gsp-accent-2:#667085;--gsp-accent-2-ink:#ffffff;");
-        StringAssert.Contains(light, "--mud-palette-secondary: rgba(102,112,133,1)");
+        Assert.Contains("--gsp-accent-2:#667085;--gsp-accent-2-ink:#ffffff;", light);
+        Assert.Contains("--mud-palette-secondary: rgba(102,112,133,1)", light);
     }
 
     // Regression: the provider used to turn MudBlazor's observer off, which is the only thing that attaches the browser's
@@ -217,8 +312,8 @@ public class HouseStyleRegistrationTests
     {
         await using BunitContext context = CreateContext();
         IRenderedComponent<GspThemeProvider> cut = context.Render<GspThemeProvider>();
-        Assert.IsTrue(context.JSInterop.Invocations.Any(i => i.Identifier == "mudThemeProvider.watchDarkMode"), "the JS listener is attached");
-        StringAssert.Contains(cut.Markup, "color-scheme:light");
+        Assert.Contains(i => i.Identifier == "mudThemeProvider.watchDarkMode", context.JSInterop.Invocations, "the JS listener is attached");
+        Assert.Contains("color-scheme:light", cut.Markup);
 
         bool? reported = null;
         cut.Render(p => p.Add(x => x.IsDarkModeChanged, Microsoft.AspNetCore.Components.EventCallback.Factory.Create<bool>(this, v => reported = v)));
@@ -226,17 +321,17 @@ public class HouseStyleRegistrationTests
         await cut.InvokeAsync(() => mud.SystemDarkModeChangedAsync(true));
         cut.WaitForAssertion(() =>
         {
-            StringAssert.Contains(cut.Markup, "color-scheme:dark");
-            StringAssert.Contains(cut.Markup, "--mud-palette-background: rgba(19,21,26,1)");
-            StringAssert.Contains(cut.Markup, "--gsp-shadow:none");
+            Assert.Contains("color-scheme:dark", cut.Markup);
+            Assert.Contains("--mud-palette-background: rgba(19,21,26,1)", cut.Markup);
+            Assert.Contains("--gsp-shadow:none", cut.Markup);
         });
-        Assert.AreEqual(true, reported);
+        Assert.IsTrue(reported);
         await cut.InvokeAsync(() => mud.SystemDarkModeChangedAsync(false));
-        cut.WaitForAssertion(() => StringAssert.Contains(cut.Markup, "color-scheme:light"));
+        cut.WaitForAssertion(() => Assert.Contains("color-scheme:light", cut.Markup));
 
         await using BunitContext forcedContext = CreateContext();
         forcedContext.Render<GspThemeProvider>(p => p.Add(x => x.ForceDarkMode, true));
-        Assert.IsFalse(forcedContext.JSInterop.Invocations.Any(i => i.Identifier == "mudThemeProvider.watchDarkMode"), "a forced mode attaches no listener");
+        Assert.DoesNotContain(i => i.Identifier == "mudThemeProvider.watchDarkMode", forcedContext.JSInterop.Invocations, "a forced mode attaches no listener");
     }
 
     [TestMethod]

@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace GameshowPro.Common.Blazor;
 
 /// <summary>
@@ -10,8 +8,8 @@ namespace GameshowPro.Common.Blazor;
 /// Derived from the entry assembly: <c>AssemblyProduct</c> (name), <c>AssemblyInformationalVersion</c> (the full version
 /// as nbgv writes it, and the public form without the <c>+commit</c> suffix), <c>AssemblyCopyright</c>, and
 /// <c>AssemblyMetadata</c> entries <c>RepositoryUrl</c> (emitted by the SDK when the project sets
-/// <c>RepositoryUrl</c>), <c>GspBuildDate</c>, <c>PackageLicenseExpression</c>, <c>PackageProjectUrl</c> and
-/// <c>GspDocumentationUrl</c> (the last four added by this package's <c>buildTransitive</c> targets file).
+/// <c>RepositoryUrl</c>), <c>GspBuildDate</c>, <c>GspBuildInstantUtc</c>, <c>PackageLicenseExpression</c>,
+/// <c>PackageProjectUrl</c> and <c>GspDocumentationUrl</c> (the last five added by this package's props file).
 /// </remarks>
 public sealed class GspAppInfo
 {
@@ -29,6 +27,9 @@ public sealed class GspAppInfo
 
     /// <summary>The build date (<c>yyyy-MM-dd</c>) when the build recorded one, else <c>null</c>.</summary>
     public string? BuildDate { get; init; }
+
+    /// <summary>The build's UTC instant, when metadata gives a full timestamp with an explicit offset.</summary>
+    public DateTimeOffset? BuildInstantUtc { get; init; }
 
     /// <summary>The copyright line, beginning with the copyright sign.</summary>
     public string Copyright { get; init; } = DefaultCopyright;
@@ -53,6 +54,9 @@ public sealed class GspAppInfo
 
     /// <summary>Whether the fixed About button is shown.</summary>
     public bool ShowAboutButton { get; init; } = true;
+
+    /// <summary>Whether the shell shows the footer line.</summary>
+    public bool ShowFooter { get; init; }
 
     /// <summary>
     /// Resolves the identity from <paramref name="assembly"/> (default: the entry assembly, else the calling one) and
@@ -102,6 +106,8 @@ public sealed class GspAppInfo
             FullVersion = full,
             Version = options.Version ?? PublicVersion(full),
             BuildDate = metadata.GetValueOrDefault("GspBuildDate"),
+            BuildInstantUtc = ParseBuildInstant(metadata.GetValueOrDefault("GspBuildInstantUtc"))
+                ?? ParseBuildInstant(metadata.GetValueOrDefault("GspBuildDate")),
             Copyright = NormalizeCopyright(copyright),
             IconUrl = options.IconPath,
             Tagline = options.Tagline,
@@ -110,6 +116,7 @@ public sealed class GspAppInfo
             LicenseText = options.LicenseText ?? (license is null ? null : $"Open source under the {license} license."),
             Links = links,
             ShowAboutButton = options.ShowAboutButton,
+            ShowFooter = options.ShowFooter,
         };
     }
 
@@ -122,7 +129,33 @@ public sealed class GspAppInfo
 
     private static string? NullIfEmpty(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
 
-    private static string NormalizeCopyright(string? copyright)
-        => copyright is null ? DefaultCopyright
-            : copyright.StartsWith('©') || copyright.StartsWith("(c)", StringComparison.OrdinalIgnoreCase) ? copyright : "© " + copyright;
+    /// <summary>A date-only legacy value has no time or offset and must not become an invented instant.</summary>
+    internal static DateTimeOffset? ParseBuildInstant(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+        int timeSeparator = value.IndexOf('T');
+        bool explicitOffset = timeSeparator > 0 && (value.EndsWith('Z')
+            || value.Length >= 6 && (value[^6] is '+' or '-') && value[^3] == ':');
+        return explicitOffset && DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture,
+            DateTimeStyles.RoundtripKind, out DateTimeOffset instant)
+            ? instant.ToUniversalTime() : null;
+    }
+
+    // "Copyright (c) 2026 X", "(c) 2026 X", "© 2026 X" and "2026 X" all read as one mark followed by the text, never two.
+    public static string NormalizeCopyright(string? copyright)
+    {
+        if (copyright is null)
+        {
+            return DefaultCopyright;
+        }
+        string text = copyright.Trim();
+        if (text.StartsWith("Copyright", StringComparison.OrdinalIgnoreCase))
+        {
+            text = text["Copyright".Length..].TrimStart();
+        }
+        return text.StartsWith('©') || text.StartsWith("(c)", StringComparison.OrdinalIgnoreCase) ? text : "© " + text;
+    }
 }

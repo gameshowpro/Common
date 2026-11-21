@@ -128,8 +128,9 @@ body {
 .mud-tab { text-transform: none; font-weight: 600; letter-spacing: 0.01em; }
 
 /* Focus: a visible 2px accent ring on every interactive control. `:is()` (not `:where()`) keeps the rule's specificity high
-   enough to beat MudBlazor's `button:focus { outline: none }`; the explicit MudBlazor classes beat `.mud-button-root { outline: 0 }`. */
-:is(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+   enough to beat MudBlazor's `button:focus { outline: none }`; the explicit MudBlazor classes beat `.mud-button-root { outline: 0 }`.
+   Not on tabindex="-1": that is focus moved by script (Blazor's FocusOnNavigate puts it on the page title), not by the keyboard. */
+:is(a, button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])):focus-visible,
 .mud-button-root:focus-visible, .mud-toggle-item:focus-visible, .mud-tab:focus-visible, .mud-link:focus-visible,
 .mud-icon-button:focus-visible, .mud-nav-link:focus-visible, .mud-chip:focus-visible {
     outline: 2px solid var(--gsp-accent-text);
@@ -174,7 +175,7 @@ body {
 /* Sticky header: panel background, a 2px bottom rule in the accent (set --gsp-header-rule to change its color), at least
    56px, wraps on narrow screens. */
 .gsp-header {
-    position: sticky; top: 0; z-index: 20;
+    position: sticky; top: 0; z-index: var(--gsp-header-z, 20);
     display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px;
     min-height: 56px; padding: 4px 20px;
     background: var(--gsp-panel); border-bottom: 2px solid var(--gsp-header-rule, var(--gsp-accent));
@@ -183,6 +184,7 @@ body {
 .gsp-brand { display: flex; align-items: center; gap: 8px; flex-shrink: 0; min-width: 0; }
 .gsp-app-icon { display: block; width: 48px; height: 48px; flex: 0 0 48px; }
 .gsp-app-name { margin: 0; font-size: 20px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02em; }
+.gsp-header-leading { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-width: 0; }
 .gsp-header-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-left: auto; }
 @media (max-width: 76.234375em) {
     .gsp-brand { gap: 6px; }
@@ -362,3 +364,29 @@ dialog.gsp-dialog::backdrop { background: var(--gsp-backdrop); }
 .gsp-host-label { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
 .gsp-connection { display: inline-flex; align-items: center; gap: 6px; }
 .gsp-connection-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+/* ---- More components: GspChoiceGroup, GspCollapsibleSection, .gsp-visually-hidden ---------------------------------- */
+/* MudToggleGroup lays its items on a grid of equal 1fr columns (inline style), which squeezes and clips the labels in a narrow
+   column. A wrapping flex row replaces it: each button keeps its whole label and a narrow container puts the buttons on a further line. */
+.gsp-choice-group { display: flex; flex-direction: column; align-items: flex-start; max-width: 100%; min-width: 0; }
+.gsp-choice-group .mud-toggle-group {
+    display: flex !important; grid-template-columns: none !important; flex-direction: row; flex-wrap: wrap; overflow: visible; max-width: 100%;
+}
+.gsp-choice-group .mud-toggle-item {
+    flex: 0 0 auto; white-space: nowrap; padding: 4px 12px !important; min-width: 2.5rem; justify-content: center;
+}
+.gsp-choice-group .mud-toggle-item span { white-space: nowrap; }
+/* A collapsible section; the toggle's focus ring comes from the keyboard focus rule above (it is a plain button). */
+.gsp-collapsible-header { display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 12px; }
+.gsp-collapsible-heading { margin: 0; }
+.gsp-collapsible-toggle {
+    display: inline-flex; align-items: center; gap: 2px; padding: 2px 4px 2px 0; border: 0; background: transparent;
+    color: inherit; font: inherit; cursor: pointer; border-radius: 4px;
+}
+.gsp-collapsible-summary { color: var(--gsp-muted); font-size: 0.8125rem; min-width: 0; overflow-wrap: anywhere; }
+.gsp-collapsible-body { padding: 8px 0 0 24px; }
+/* Content for assistive technology only. */
+.gsp-visually-hidden {
+    position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}

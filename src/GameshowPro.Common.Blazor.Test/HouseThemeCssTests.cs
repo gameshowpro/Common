@@ -1,9 +1,3 @@
-using System.Text.RegularExpressions;
-using Bunit;
-using Microsoft.Extensions.DependencyInjection;
-using MudBlazor;
-using MudBlazor.Services;
-
 namespace GameshowPro.Common.Blazor.Test;
 
 /// <summary>
@@ -11,8 +5,14 @@ namespace GameshowPro.Common.Blazor.Test;
 /// variables). They must equal the C# palettes, and every MudBlazor variable the CSS reads must actually be emitted.
 /// </summary>
 [TestClass]
-public class HouseThemeCssTests
+public partial class HouseThemeCssTests
 {
+    [GeneratedRegex(@"--gsp-default-([a-z0-9-]+):\s*([^;]+);")]
+    private static partial Regex DefaultTokenRegex();
+
+    [GeneratedRegex(@"var\((--mud-palette-[a-z-]+)")]
+    private static partial Regex MudPaletteVarRegex();
+
     private static string CssPath()
     {
         for (DirectoryInfo? dir = new(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
@@ -31,7 +31,7 @@ public class HouseThemeCssTests
         string css = File.ReadAllText(CssPath());
         int dark = css.LastIndexOf("@media (prefers-color-scheme: dark)", StringComparison.Ordinal);
         Assert.IsGreaterThan(0, dark, "dark block not found");
-        static Dictionary<string, string> Read(string text) => Regex.Matches(text, @"--gsp-default-([a-z0-9-]+):\s*([^;]+);")
+        static Dictionary<string, string> Read(string text) => DefaultTokenRegex().Matches(text)
             .ToDictionary(m => m.Groups[1].Value, m => m.Groups[2].Value.Trim());
         return (Read(css[..dark]), Read(css[dark..]));
     }
@@ -67,7 +67,7 @@ public class HouseThemeCssTests
     public void Css_tokens_read_mudblazor_variables_that_the_theme_provider_emits()
     {
         string css = File.ReadAllText(CssPath());
-        string[] read = [.. Regex.Matches(css, @"var\((--mud-palette-[a-z-]+)").Select(m => m.Groups[1].Value).Distinct()];
+        string[] read = [.. MudPaletteVarRegex().Matches(css).Select(m => m.Groups[1].Value).Distinct()];
         Assert.IsNotEmpty(read);
 
         using BunitContext context = new();
@@ -77,9 +77,9 @@ public class HouseThemeCssTests
         string markup = cut.Markup;
         foreach (string name in read)
         {
-            StringAssert.Contains(markup, name + ": ", $"MudBlazor does not emit {name}");
+            Assert.Contains(name + ": ", markup, $"MudBlazor does not emit {name}");
         }
         // The dark palette is the active one.
-        StringAssert.Contains(markup, "--mud-palette-background: rgba(19,21,26,1)");
+        Assert.Contains("--mud-palette-background: rgba(19,21,26,1)", markup);
     }
 }

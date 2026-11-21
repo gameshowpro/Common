@@ -76,8 +76,22 @@ builder.Services.AddGspHouseStyle(o =>
 <GspAppShell>@Body</GspAppShell>
 ```
 
-`GspAppShell` is the theme (following the OS), MudBlazor's providers, the header, the content column, the footer, and the
-About dialog with its button. Its parameters (`HeaderContent`, `FooterContent`, `AboutContent`, `ForceDarkMode`) are optional.
+`GspAppShell` is the theme (following the OS), MudBlazor's providers, the header, the content column, the About dialog
+with its button, and the reconnect overlay: while `GspRuntimeState.Connection` is anything but `Connected` the page is
+blurred, dimmed and blocked behind the logo ring (set `GspRuntimeState.ServiceState` to show the app's state tree in it).
+The footer line is off by default, since the About dialog carries the same facts; `o.ShowFooter = true` shows it.
+The shell's content, frame and mode parameters are optional.
+
+For a page that renders its own header and controls its own width or height, use the shell as a frame:
+
+```razor
+<GspAppShell ShowHeader="false" WrapContent="false">@Body</GspAppShell>
+```
+
+`ShowHeader` and `WrapContent` both default to `true`. Turning them off omits the shell header and centered
+`<main class="gsp-main">` wrapper respectively; the theme, MudBlazor providers, About dialog and button, optional
+footer, and reconnect overlay remain. `HeaderLeadingContent` supplies content beside the brand when the shell renders
+its header; `HeaderContent` remains on the right after the host and connection status.
 
 **3. `index.html`**: one stylesheet, the loading screen and the error bar (see below). `gsp-house.css` brings MudBlazor's
 stylesheet, the fonts and the house rules, so do not link `MudBlazor.min.css` as well (a second copy after it would override
@@ -102,14 +116,27 @@ connection overlay and the loading screen all use it.
 | Version in the header and footer | `AssemblyInformationalVersion` without the `+commit` suffix (nbgv writes it); the About table shows the full one |
 | Copyright | `AssemblyCopyright` (`<Copyright>`), else `© 2026 Barjonas LLC` |
 | Source link | `AssemblyMetadata("RepositoryUrl")`, which the SDK emits when the project sets `<RepositoryUrl>` |
-| Build date, license, documentation | `AssemblyMetadata` entries `GspBuildDate`, `PackageLicenseExpression`, `PackageProjectUrl` / `GspDocumentationUrl`, which this package's `buildTransitive` targets file adds at build time |
+| Build time, license, documentation | `AssemblyMetadata` entries `GspBuildInstantUtc` (full UTC ISO 8601 instant), `GspBuildDate` (date compatibility), `PackageLicenseExpression`, `PackageProjectUrl` / `GspDocumentationUrl`, which this package's `buildTransitive` props file adds at build time |
 
 Every one of them can be overridden in `AddGspHouseStyle`. A project that references Common.Blazor as a **project** (as
-opposed to the package) does not get the targets file automatically; import it once:
+opposed to the package) does not get the props file automatically; import it once:
 
 ```xml
-<Import Project="path\to\Common\src\GameshowPro.Common.Blazor\build\GameshowPro.Common.Blazor.targets" />
+<Import Project="path\to\Common\src\GameshowPro.Common.Blazor\build\GameshowPro.Common.Blazor.props" />
 ```
+
+The props file records the build instant in UTC by default. Set `GspBuildInstantUtc` to an ISO 8601 UTC instant for a
+reproducible build. An explicit date-only `GspBuildDate` without an instant does not invent a time: the header tooltip
+and About dialog show “Build time unavailable.” `GspAppInfo.BuildInstantUtc` is a nullable `DateTimeOffset`; it also
+accepts a legacy `GspBuildDate` only if that value contains a full ISO timestamp with an explicit offset.
+The header and About dialog display the instant in the visitor's browser time zone, including its UTC offset and IANA
+zone. `GspLocalTimeFormatter`, registered by `AddGspHouseStyle`, can format other instants the same way after browser
+interop is available. Use `await formatter.FormatAsync(instant)` for one value, or
+`await formatter.PrimeAsync(instants)` followed by `formatter.FormatCached(instant)` for a list; `TimeZoneId`
+exposes the browser's zone once loaded. Offsets are obtained per instant, so dates across daylight saving changes are
+formatted correctly.
+The formatter caches up to 10,000 instants. Re-prime a retained list after paging or live updates so its visible
+instants remain available when the cache reaches capacity.
 
 ### What only the app knows: `GspRuntimeState`
 
@@ -119,6 +146,9 @@ Inject it and set what you learn; the header, footer and About dialog re-render:
 State.HostName = "fm01-106";      // right side of the header, About table
 State.Platform = "ESP32";         // header pill reads "ESP32 1.2.3", About table
 State.Connection = RemoteServiceStates.Connected;  // header pill: Connected (ok) / Reconnecting = Warning (warn) / Disconnected (bad); null hides it
+State.ConnectionTitle = "Disconnected from service"; // optional shell overlay title; null uses the product-based default
+State.ConnectionDetail = "Retrying (attempt 2)";     // optional shell overlay detail line
+State.ServiceState = serviceState;                    // health tree inside the shell overlay
 State.SetAboutRow("Inputs", "12");
 State.RequestAbout();             // opens the About dialog (the pill, the footer link and the button already do)
 ```
@@ -127,19 +157,62 @@ State.RequestAbout();             // opens the About dialog (the pill, the foote
 
 All take their values from the registration; their parameters are optional overrides.
 
-- **`GspAppShell`**: the whole frame (see above).
+- **`GspAppShell`**: the whole frame, or just its providers, About UI and overlay with `ShowHeader="false"` and
+  `WrapContent="false"` (see above).
 - **`GspThemeProvider`**: `MudThemeProvider` with the house theme and the product's accents. It follows the OS light/dark
   setting at startup and **live** (changing the OS setting, or Edge DevTools' emulation, needs no reload); `ForceDarkMode`
   pins a mode and then ignores the OS. `IsDarkModeChanged` reports the effective mode.
 - **`GspAppHeader`**: sticky header with a 2px rule in the accent (`--gsp-header-rule` changes it): icon, name (the page's
-  `h1`), a version pill that opens the About dialog, host name and connection pill, and `ChildContent` for more.
-- **`GspPageFooter`**: `Product version, © 2026 Barjonas LLC` and an About link.
+  `h1`), a version pill that opens the About dialog, host name and connection pill. `LeadingContent` appears immediately
+  after the brand, suitable for a back button or page title; `ChildContent` appears on the right after status. The
+  leading slot and right actions wrap on narrow screens. Set `--gsp-header-z` on the header to change its stacking
+  level (default 20).
+- **`GspPageFooter`**: `Product version, © 2026 Barjonas LLC` and an About link (in the shell only with `o.ShowFooter = true`).
 - **`GspAboutButton`**: the small round button fixed at the bottom left (`o.ShowAboutButton = false` hides it).
 - **`GspAboutDialog`**: a native `<dialog>`: Escape and a click on the backdrop close it, focus returns to whatever opened
-  it. It shows the logo, name and tagline, a table of the version, build date, host, platform and the app's extra rows, the
+  it. It shows the logo, name and tagline, a table of the version, browser-local build time (when available), host, platform and the app's extra rows, the
   license paragraph, links (Documentation, Source, License text and `o.ExtraLinks`, in new tabs with
   `rel="noopener noreferrer"`), the trademark and copyright line, the "A GameshowPro application" credit, and `ChildContent`.
 - **`ServiceConnectionOverlay`** (below) uses the same icon and name.
+
+### More components
+
+Small, app-independent pieces that most service UIs end up writing. None needs the registration except `GspClipboard`, and
+that one only needs an `IJSRuntime`.
+
+- **`GspChoiceGroup<TItem>`**: a single-select button group for a short, fixed set of choices (use it instead of a dropdown).
+  It wraps onto more lines when the container is narrow. If the host does not take a click (a refused write, a revert), the
+  group shows the host's value again instead of the clicked one.
+
+  ```razor
+  <GspChoiceGroup TItem="Direction" Items="Enum.GetValues<Direction>()" Text="d => d.ToString()"
+                  Label="Time direction" @bind-Value="_direction" />
+  ```
+
+  Optional: `ShowLabel` (draw the label as a caption), `Title` (a tooltip per item), `Disabled`, `ItemDisabled`.
+- **`GspConfirmDialog`**: a yes/cancel question for a destructive action. Cancel comes first and has the focus (MudBlazor's
+  own message box focuses the confirming button), Escape answers no. It needs the app's `MudDialogProvider`.
+
+  ```csharp
+  bool yes = await GspConfirmDialog.Ask(DialogService, "Delete page", "Delete 'Intro'?", "Delete");
+  ```
+
+  The buttons carry `data-testid` `confirm-cancel` and `confirm-yes`, the question `confirm-message`.
+- **`GspCollapsibleSection`**: a heading with a chevron button that opens and closes its body, and a one-line summary while
+  closed. Pass the full `localStorage` key as `StorageKey` to remember the choice per viewer (without one nothing is
+  remembered; blocked storage just means `DefaultOpen` applies). `HeadingTag` defaults to `h3`; `Icon` adds an icon.
+  `SummaryContent` replaces the plain `Summary` text, for example to wrap it in your own tooltip.
+
+  ```razor
+  <GspCollapsibleSection Title="Output" Summary="Out 1 at -3 dB" StorageKey="myapp.section.output">
+      ...
+  </GspCollapsibleSection>
+  ```
+- **`GspClipboard`**: `await Clipboard.CopyAsync(text)` returns whether the text was copied and never throws. It works on a
+  plain-HTTP LAN address too, where `navigator.clipboard` does not exist, by falling back to a hidden text area. `AddGspHouseStyle`
+  registers it; an app that does not call that registers it itself with `services.AddScoped<GspClipboard>()`.
+- **`.gsp-visually-hidden`**: a CSS class that hides content visually but keeps it for screen readers, such as the text of an
+  icon-only button: `<span class="gsp-visually-hidden">Copy</span>`.
 
 ### Loading screen and error bar (static `index.html`)
 
@@ -178,7 +251,9 @@ Blazor writes the theme, so give it the accent as text, once, in the page:
 card: the product logo inside a spinning ring, the title, the detail, `ChildContent` and the `ServiceStateUi` tree. New
 optional parameters `IconUrl` and `ProductName` default to the registration; with a product name and no `Title` it reads
 "Reconnecting to {ProductName}...", and without any registration it keeps its old title ("Disconnected from service") and
-shows the ring alone.
+shows the ring alone. `GspAppShell` passes `GspRuntimeState.ConnectionTitle` and `ConnectionDetail` through to the
+overlay; changing either state value re-renders it. A `null` title keeps the overlay's default, and a `null` detail
+hides the detail line.
 
 ### CSS: classes and tokens
 
@@ -195,6 +270,9 @@ Tokens (CSS variables): `--gsp-bg`, `--gsp-panel`, `--gsp-sunken`, `--gsp-ink`, 
 `--gsp-accent-2-ink`, `--gsp-accent-2-text`); `--font-sans`, `--font-mono`. They follow the active MudBlazor palette, so a
 plain-CSS element and a `MudButton` always agree.
 
+`--gsp-header-z` changes the sticky header's `z-index` (default 20). Set it on a particular
+`.gsp-header` when that page's header must sit above another layer.
+
 ### Choosing an accent
 
 A `GspAccent` has a light and a dark `GspAccentColors (Fill, OnFill, Text)`. `Fill` is the brand color, `OnFill` is the text
@@ -203,3 +281,16 @@ sunken colors. When the fill is too light (or too dark) for that, use a darker (
 `GspAccent.Indigo` is Suede's. The first accent is MudBlazor's `Primary`, the second (`o.SecondaryAccent`, optional) is its
 `Secondary`; without a second accent `Secondary` is the house neutral. Guard your own accents as `HouseThemeContrastTests`
 does: `GspContrast.Ratio` measures a pair.
+
+The loading screen uses pre-start accent declarations in `index.html`, before Blazor registers the theme. Keep those
+light and dark values in sync with the registered accents:
+
+```csharp
+string html = File.ReadAllText("wwwroot/index.html");
+IReadOnlyList<string> errors = GspIndexHtml.ValidateAccentDefaults(html, MyApp.Accent, MyApp.SecondaryAccent);
+Assert.IsEmpty(errors, string.Join(Environment.NewLine, errors));
+```
+
+The validator returns one error per missing or mismatched `--gsp-default-*` declaration; an empty result means the
+inline `:root` light values and `prefers-color-scheme: dark` values match both accents. The second accent argument is
+optional.

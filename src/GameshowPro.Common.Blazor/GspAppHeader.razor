@@ -1,5 +1,6 @@
 @implements IDisposable
-@inject IServiceProvider Services
+@implements IAsyncDisposable
+@inject IServiceProvider _services
 
 <header class="gsp-header @Class" @attributes="AdditionalAttributes">
     <div class="gsp-brand">
@@ -20,6 +21,10 @@
             }
         }
     </div>
+    @if (LeadingContent is not null)
+    {
+        <div class="gsp-header-leading">@LeadingContent</div>
+    }
     @if (ChildContent is not null || !string.IsNullOrEmpty(_state?.HostName) || _state?.Connection is not null)
     {
         <div class="gsp-header-actions">
@@ -40,6 +45,8 @@
 @code {
     private GspAppInfo? _info;
     private GspRuntimeState? _state;
+    private GspLocalTimeFormatter? _localTime;
+    private string _buildTooltip = "Build time unavailable";
 
     /// <summary>Overrides the icon address (default: the app icon of <c>AddGspHouseStyle</c>). Omitted when empty.</summary>
     [Parameter]
@@ -63,6 +70,10 @@
     /// <summary>Extra content for the right side of the header, after the host name and the connection pill. It wraps below the brand on narrow screens.</summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Content immediately after the brand, before the host, connection, and actions.</summary>
+    [Parameter]
+    public RenderFragment? LeadingContent { get; set; }
 
     /// <summary>Extra CSS classes for the <c>header</c> element.</summary>
     [Parameter]
@@ -103,12 +114,33 @@
         }
     }
 
-    private string? EffectiveVersionTooltip => VersionTooltip ?? (_info?.BuildDate is { Length: > 0 } date ? "Built " + date : null);
+    private string EffectiveVersionTooltip => VersionTooltip ?? _buildTooltip;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_buildTooltip != "Build time unavailable" || _localTime is null || _info?.BuildInstantUtc is not { } instant)
+        {
+            return;
+        }
+        try
+        {
+            if (await _localTime.FormatAsync(instant) is { } formatted)
+            {
+                _buildTooltip = "Built " + formatted;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex) when (ex is JSException or InvalidOperationException)
+        {
+            // JavaScript may be unavailable during a disconnected or test render.
+        }
+    }
 
     protected override void OnInitialized()
     {
-        _info = Services.GetService(typeof(GspAppInfo)) as GspAppInfo;
-        _state = Services.GetService(typeof(GspRuntimeState)) as GspRuntimeState;
+        _info = _services.GetService<GspAppInfo>();
+        _state = _services.GetService<GspRuntimeState>();
+        _localTime = _services.GetService<GspLocalTimeFormatter>();
         if (_state is not null)
         {
             _state.Changed += OnStateChanged;
@@ -125,5 +157,12 @@
         {
             _state.Changed -= OnStateChanged;
         }
+    }
+
+    /// <inheritdoc />
+    public ValueTask DisposeAsync()
+    {
+        Dispose();
+        return ValueTask.CompletedTask;
     }
 }

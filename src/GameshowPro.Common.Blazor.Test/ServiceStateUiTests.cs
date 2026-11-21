@@ -1,9 +1,3 @@
-using Bunit;
-using GameshowPro.Common.Blazor;
-using GameshowPro.Common.Model;
-using Microsoft.Extensions.DependencyInjection;
-using MudBlazor.Services;
-
 namespace GameshowPro.Common.Blazor.Test;
 
 /// <summary>
@@ -33,13 +27,13 @@ public class ServiceStateUiTests
             Node("engine", RemoteServiceStates.Connected, "v1.2.3", 1),
             Node("project", RemoteServiceStates.Warning, "No project loaded", 1));
 
-        var cut = context.Render<ServiceStateUi>(parameters => parameters.Add(p => p.DataContext, root));
+        IRenderedComponent<ServiceStateUi> cut = context.Render<ServiceStateUi>(parameters => parameters.Add(p => p.DataContext, root));
 
-        Assert.IsTrue(cut.Markup.Contains("engine"));
-        Assert.IsTrue(cut.Markup.Contains("v1.2.3"));
-        Assert.IsTrue(cut.Markup.Contains("No project loaded"));
+        Assert.Contains("engine", cut.Markup);
+        Assert.Contains("v1.2.3", cut.Markup);
+        Assert.Contains("No project loaded", cut.Markup);
         // All nodes steady (progress 1): no activity indicators at all
-        Assert.IsFalse(cut.Markup.Contains("gsp-progress-"));
+        Assert.DoesNotContain("gsp-progress-", cut.Markup);
     }
 
     [TestMethod]
@@ -51,12 +45,12 @@ public class ServiceStateUiTests
             Node("steady", RemoteServiceStates.Connected, "OK", null),
             Node("loading", RemoteServiceStates.Warning, "Caching", 0.4));
 
-        var cut = context.Render<ServiceStateUi>(parameters => parameters.Add(p => p.DataContext, root));
+        IRenderedComponent<ServiceStateUi> cut = context.Render<ServiceStateUi>(parameters => parameters.Add(p => p.DataContext, root));
 
         // null + not connected -> indeterminate; null + connected -> nothing; fraction -> determinate + percent
         Assert.AreEqual(1, CountOf(cut.Markup, "gsp-progress-indeterminate"));
         Assert.AreEqual(1, CountOf(cut.Markup, "gsp-progress-determinate"));
-        Assert.IsTrue(cut.Markup.Contains("40"), "determinate node should show its percentage");
+        Assert.Contains("40", cut.Markup, "determinate node should show its percentage");
     }
 
     [TestMethod]
@@ -65,15 +59,15 @@ public class ServiceStateUiTests
         await using BunitContext context = CreateContext();
         ServiceState root = Node("service", RemoteServiceStates.Disconnected, "starting", null);
 
-        var cut = context.Render<ServiceStateUi>(parameters => parameters.Add(p => p.DataContext, root));
-        Assert.IsTrue(cut.Markup.Contains("starting"));
+        IRenderedComponent<ServiceStateUi> cut = context.Render<ServiceStateUi>(parameters => parameters.Add(p => p.DataContext, root));
+        Assert.Contains("starting", cut.Markup);
 
         root.SetAll(RemoteServiceStates.Connected, "running", 1);
 
         cut.WaitForAssertion(() =>
         {
-            Assert.IsTrue(cut.Markup.Contains("running"));
-            Assert.IsFalse(cut.Markup.Contains("gsp-progress-"));
+            Assert.Contains("running", cut.Markup);
+            Assert.DoesNotContain("gsp-progress-", cut.Markup);
         });
     }
 
@@ -83,14 +77,14 @@ public class ServiceStateUiTests
         await using BunitContext context = CreateContext();
         ServiceState root = Node("service", RemoteServiceStates.Disconnected, "down", null);
 
-        var cut = context.Render<ServiceConnectionOverlay>(parameters => parameters
+        IRenderedComponent<ServiceConnectionOverlay> cut = context.Render<ServiceConnectionOverlay>(parameters => parameters
             .Add(p => p.DataContext, root)
             .Add(p => p.Title, "Disconnected from Test service")
             .Add(p => p.Detail, "attempt 3"));
 
-        Assert.IsTrue(cut.Markup.Contains("Disconnected from Test service"));
-        Assert.IsTrue(cut.Markup.Contains("attempt 3"));
-        Assert.IsTrue(cut.Markup.Contains("gsp-connection-overlay"));
+        Assert.Contains("Disconnected from Test service", cut.Markup);
+        Assert.Contains("attempt 3", cut.Markup);
+        Assert.Contains("gsp-connection-overlay", cut.Markup);
     }
 
     private static int CountOf(string haystack, string needle)
