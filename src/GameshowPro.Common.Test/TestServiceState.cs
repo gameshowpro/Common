@@ -33,4 +33,20 @@ public class TestServiceState
         Assert.AreEqual("OK", parent.Detail, "Parent detail should aggregate to OK (according to GetAggregateState logic)");
         Assert.AreEqual(0.75, parent.Progress, "Parent progress should aggregate to child progress (0.75)");
     }
+
+    /// <summary>
+    /// Regression: hashing a state that has children threw InvalidCastException (DictionaryEntry to KeyValuePair), which
+    /// crashed WPF hosts as soon as UI automation hashed a ServiceState shown in an ItemsControl.
+    /// </summary>
+    [TestMethod]
+    public void ServiceState_GetHashCode_WithChildren_MatchesEquals()
+    {
+        ServiceState first = new("Parent", ["ChildA", "ChildB"]);
+        ServiceState second = new("Parent", ["ChildA", "ChildB"]);
+        ServiceState different = new("Parent", ["ChildA", "ChildC"]);
+
+        Assert.AreEqual(first, second, "States with the same values and children should be equal");
+        Assert.AreEqual(first.GetHashCode(), second.GetHashCode(), "Equal states should have equal hash codes");
+        Assert.AreNotEqual(first.GetHashCode(), different.GetHashCode(), "A different child key should change the hash code");
+    }
 }

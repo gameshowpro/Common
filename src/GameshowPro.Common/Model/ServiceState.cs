@@ -452,9 +452,12 @@ public class ServiceState : INotifyPropertyChanged, IEquatable<ServiceState>
             hashCode = (hashCode * 397) ^ (Detail?.GetHashCode() ?? 1);
             hashCode = (hashCode * 397) ^ AggregateState.GetHashCode();
             hashCode = (hashCode * 397) ^ Progress.GetHashCode();
-            foreach (KeyValuePair<string, ServiceState> child in Children)
+            // Enumerate through the generic interface: ObservableDictionary's public GetEnumerator is the non-generic
+            // IDictionaryEnumerator, which yields DictionaryEntry and cannot be cast to KeyValuePair.
+            foreach (KeyValuePair<string, ServiceState> child in (IEnumerable<KeyValuePair<string, ServiceState>>)Children)
             {
-                hashCode = (hashCode * 397) ^ child.GetHashCode();
+                hashCode = (hashCode * 397) ^ child.Key.GetHashCode();
+                hashCode = (hashCode * 397) ^ child.Value.GetHashCode();
             }
             return hashCode;
         }
