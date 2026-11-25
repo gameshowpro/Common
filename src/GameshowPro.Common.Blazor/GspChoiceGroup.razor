@@ -17,7 +17,16 @@
         @foreach (TItem item in Items)
         {
             <MudToggleItem T="TItem" Value="item" Disabled="@(ItemDisabled?.Invoke(item) == true)">
-                <span title="@Title?.Invoke(item)">@Text(item)</span>
+                @{ string? icon = ItemIcon?.Invoke(item); }
+                @if (string.IsNullOrEmpty(icon))
+                {
+                    @* Exactly the plain span it always was, so existing hosts and their tests see no change. *@
+                    <span title="@Title?.Invoke(item)">@Text(item)</span>
+                }
+                else
+                {
+                    <span title="@Title?.Invoke(item)" class="gsp-choice-item"><MudIcon Icon="@icon" Size="Size.Small" Color="Color.Inherit" Class="gsp-choice-icon" aria-hidden="true" />@if (IconOnly){<span class="gsp-visually-hidden">@Text(item)</span>}else{@Text(item)}</span>
+                }
             </MudToggleItem>
         }
     </MudToggleGroup>
@@ -51,6 +60,22 @@
     /// <summary>Optional tooltip for an item's button.</summary>
     [Parameter]
     public Func<TItem, string?>? Title { get; set; }
+
+    /// <summary>
+    /// Optional icon for an item's button, shown before its text: MudBlazor icon markup, as <c>Icons.Material.Filled.*</c>
+    /// constants are. Null or empty means no icon for that item. The icon takes the button's text color in every state and is
+    /// hidden from assistive technology, so <see cref="Text"/> remains the button's accessible name.
+    /// </summary>
+    [Parameter]
+    public Func<TItem, string?>? ItemIcon { get; set; }
+
+    /// <summary>
+    /// Show only the icon of an item that has one, keeping <see cref="Text"/> as visually hidden text so the button still has an
+    /// accessible name. An item without an icon keeps its visible text, because nothing else would show for it. Give such items a
+    /// <see cref="Title"/> as well, so sighted users get a tooltip.
+    /// </summary>
+    [Parameter]
+    public bool IconOnly { get; set; }
 
     /// <summary>Disables the whole group.</summary>
     [Parameter]

@@ -376,6 +376,10 @@ dialog.gsp-dialog::backdrop { background: var(--gsp-backdrop); }
     flex: 0 0 auto; white-space: nowrap; padding: 4px 12px !important; min-width: 2.5rem; justify-content: center;
 }
 .gsp-choice-group .mud-toggle-item span { white-space: nowrap; }
+/* An item with an icon: the icon sits before the text and takes its color (MudBlazor tints icons per state otherwise). It is sized
+   from the text so the button keeps its height. */
+.gsp-choice-group .gsp-choice-item { display: inline-flex; align-items: center; gap: 0.4em; }
+.gsp-choice-group .gsp-choice-icon { font-size: 1.25em; width: 1em; height: 1em; color: inherit; fill: currentColor; flex: 0 0 auto; }
 /* A collapsible section; the toggle's focus ring comes from the keyboard focus rule above (it is a plain button). */
 .gsp-collapsible-header { display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 12px; }
 .gsp-collapsible-heading { margin: 0; }

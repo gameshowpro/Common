@@ -161,6 +161,121 @@ public class HouseMoreComponentsTests
         Assert.HasCount(1, group.FindAll(".mud-toggle-item[disabled]"));
     }
 
+    // Path strings, the shape of the Icons.Material.* constants and of a consumer's concept icons.
+    private const string IconA = "<path d=\"M0 0h24v24H0z\"/>";
+    private const string IconB = "<path d=\"M1 1h22v22H1z\"/>";
+
+    private static IRenderedComponent<GspChoiceGroup<Direction>> RenderIcons(BunitContext context, Func<Direction, string?>? icon,
+        bool iconOnly = false, bool disabled = false, Direction value = Direction.Up)
+        => context.Render<GspChoiceGroup<Direction>>(p => p
+            .Add(x => x.Items, Enum.GetValues<Direction>())
+            .Add(x => x.Text, Label)
+            .Add(x => x.Label, "Time direction")
+            .Add(x => x.ItemIcon, icon)
+            .Add(x => x.IconOnly, iconOnly)
+            .Add(x => x.Disabled, disabled)
+            .Add(x => x.Value, value));
+
+    private const string Original = "<div class=\"gsp-choice-group\"><div role=\"group\" class=\"mud-toggle-group mud-toggle-group-horizontal mud-toggle-group-size-small mud-toggle-group-primary mud-toggle-group-outlined\" style=\"grid-template-columns:repeat(2, minmax(0, 1fr));\" aria-label=\"Time direction\"><button class=\"mud-button-root mud-button mud-button-filled mud-button-filled-primary mud-button-filled-size-small mud-ripple mud-toggle-item mud-toggle-item-selected mud-toggle-item-delimiter mud-toggle-item-size-small mud-ripple\" role=\"checkbox\" aria-checked=\"true\" blazor:onclick=\"3\" type=\"button\" blazor:onclick:stopPropagation blazor:elementReference=\"\"><span class=\"mud-button-label\"><div class=\"mud-toggle-item-content\"><span>Count up</span></div></span></button><button class=\"mud-button-root mud-button mud-button-outlined mud-button-outlined-primary mud-button-outlined-size-small mud-ripple mud-toggle-item mud-toggle-item-delimiter mud-toggle-item-size-small mud-ripple\" role=\"checkbox\" aria-checked=\"false\" blazor:onclick=\"4\" type=\"button\" blazor:onclick:stopPropagation blazor:elementReference=\"\"><span class=\"mud-button-label\"><div class=\"mud-toggle-item-content\"><span>Count down</span></div></span></button></div></div>";
+
+    [TestMethod]
+    public async Task ChoiceGroup_without_an_icon_function_renders_the_same_markup_as_before_icons_existed()
+    {
+        await using BunitContext context = CreateContext();
+        IRenderedComponent<GspChoiceGroup<Direction>> group = RenderIcons(context, null);
+        // Captured from the component before ItemIcon existed; byte-identical, so a host that sets no icon sees no change.
+        Assert.AreEqual(Original, group.Markup);
+        Assert.DoesNotContain("gsp-choice-item", group.Markup);
+        Assert.DoesNotContain("<svg", group.Markup);
+        Assert.AreSequenceEqual(["<span>Count up</span>", "<span>Count down</span>"],
+            group.FindAll(".mud-toggle-item-content > span").Select(e => e.OuterHtml));
+    }
+
+    [TestMethod]
+    public async Task ChoiceGroup_icon_function_puts_each_icon_before_its_text_and_hides_it_from_assistive_technology()
+    {
+        await using BunitContext context = CreateContext();
+        IRenderedComponent<GspChoiceGroup<Direction>> group = RenderIcons(context, d => d == Direction.Up ? IconA : IconB);
+        foreach (IElement item in group.FindAll(".mud-toggle-item"))
+        {
+            IElement content = item.QuerySelector("span.gsp-choice-item")!;
+            Assert.AreEqual("svg", content.FirstElementChild!.LocalName);
+            Assert.AreEqual("true", content.FirstElementChild.GetAttribute("aria-hidden"));
+            Assert.IsTrue(content.FirstElementChild.ClassList.Contains("gsp-choice-icon"));
+            Assert.IsTrue(content.TextContent.Trim().StartsWith("Count", StringComparison.Ordinal));
+        }
+
+        Assert.AreSequenceEqual(["Count up", "Count down"], group.FindAll(".mud-toggle-item").Select(i => i.TextContent.Trim()));
+        Assert.Contains("M0 0h24v24H0z", group.FindAll(".mud-toggle-item")[0].InnerHtml);
+        Assert.Contains("M1 1h22v22H1z", group.FindAll(".mud-toggle-item")[1].InnerHtml);
+    }
+
+    [TestMethod]
+    public async Task ChoiceGroup_an_item_whose_icon_is_null_or_empty_gets_no_icon_and_plain_markup()
+    {
+        await using BunitContext context = CreateContext();
+        IRenderedComponent<GspChoiceGroup<Direction>> group = RenderIcons(context, d => d == Direction.Up ? IconA : null);
+        IReadOnlyList<IElement> items = group.FindAll(".mud-toggle-item");
+        Assert.HasCount(1, items[0].QuerySelectorAll("svg"));
+        Assert.IsEmpty(items[1].QuerySelectorAll("svg"));
+        Assert.AreEqual("<span>Count down</span>", items[1].QuerySelector(".mud-toggle-item-content > span")!.OuterHtml);
+
+        group = RenderIcons(context, _ => string.Empty);
+        Assert.IsEmpty(group.FindAll(".mud-toggle-item svg"));
+    }
+
+    [TestMethod]
+    public async Task ChoiceGroup_selected_and_disabled_items_keep_their_icon()
+    {
+        await using BunitContext context = CreateContext();
+        IRenderedComponent<GspChoiceGroup<Direction>> group = RenderIcons(context, _ => IconA, value: Direction.Down);
+        Assert.HasCount(1, group.Find(".mud-toggle-item.mud-toggle-item-selected").QuerySelectorAll("svg"));
+
+        IRenderedComponent<GspChoiceGroup<Direction>> disabled = RenderIcons(context, _ => IconA, disabled: true);
+        Assert.HasCount(2, disabled.FindAll(".mud-toggle-item svg"));
+
+        IRenderedComponent<GspChoiceGroup<Direction>> oneDisabled = context.Render<GspChoiceGroup<Direction>>(p => p
+            .Add(x => x.Items, Enum.GetValues<Direction>())
+            .Add(x => x.Text, Label)
+            .Add(x => x.ItemIcon, _ => IconA)
+            .Add(x => x.ItemDisabled, d => d == Direction.Down)
+            .Add(x => x.Value, Direction.Up));
+        Assert.HasCount(1, oneDisabled.FindAll(".mud-toggle-item[disabled]"));
+        Assert.HasCount(1, oneDisabled.Find(".mud-toggle-item[disabled]").QuerySelectorAll("svg"));
+    }
+
+    [TestMethod]
+    public async Task ChoiceGroup_icons_leave_the_group_name_the_buttons_and_the_click_alone()
+    {
+        await using BunitContext context = CreateContext();
+        List<Direction> raised = [];
+        IRenderedComponent<GspChoiceGroup<Direction>> group = context.Render<GspChoiceGroup<Direction>>(p => p
+            .Add(x => x.Items, Enum.GetValues<Direction>())
+            .Add(x => x.Text, Label)
+            .Add(x => x.Label, "Time direction")
+            .Add(x => x.ItemIcon, _ => IconA)
+            .Add(x => x.Value, Direction.Up)
+            .Add(x => x.ValueChanged, EventCallback.Factory.Create<Direction>(context, raised.Add)));
+        Assert.AreEqual("Time direction", group.Find(".mud-toggle-group").GetAttribute("aria-label"));
+        Assert.HasCount(2, group.FindAll(".mud-toggle-item"));
+        await group.InvokeAsync(() => group.FindAll(".mud-toggle-item")[1].Click());
+        Assert.AreSequenceEqual([Direction.Down], raised);
+    }
+
+    [TestMethod]
+    public async Task ChoiceGroup_IconOnly_keeps_the_text_as_visually_hidden_name_and_only_for_items_with_an_icon()
+    {
+        await using BunitContext context = CreateContext();
+        IRenderedComponent<GspChoiceGroup<Direction>> group = RenderIcons(context, d => d == Direction.Up ? IconA : null, iconOnly: true);
+        IReadOnlyList<IElement> items = group.FindAll(".mud-toggle-item");
+        IElement hidden = items[0].QuerySelector("span.gsp-choice-item > span.gsp-visually-hidden")!;
+        Assert.AreEqual("Count up", hidden.TextContent);
+        Assert.HasCount(1, items[0].QuerySelectorAll("svg"));
+        // An item without an icon has nothing else to show, so its text stays visible.
+        Assert.IsEmpty(items[1].QuerySelectorAll(".gsp-visually-hidden"));
+        Assert.AreEqual("<span>Count down</span>", items[1].QuerySelector(".mud-toggle-item-content > span")!.OuterHtml);
+    }
+
     // ---- GspConfirmDialog -----------------------------------------------------------------------------------------
 
     private sealed class DialogFixture : IAsyncDisposable

@@ -189,7 +189,19 @@ that one only needs an `IJSRuntime`.
                   Label="Time direction" @bind-Value="_direction" />
   ```
 
-  Optional: `ShowLabel` (draw the label as a caption), `Title` (a tooltip per item), `Disabled`, `ItemDisabled`.
+  Optional: `ShowLabel` (draw the label as a caption), `Title` (a tooltip per item), `Disabled`, `ItemDisabled`, `ItemIcon`
+  and `IconOnly`.
+
+  `ItemIcon` returns MudBlazor icon markup (an `Icons.Material.*` constant) per item; the icon sits before the text, takes the
+  button's text color in every state, is `aria-hidden`, and a null or empty result means no icon for that item. Items without
+  an icon render exactly as before. `IconOnly` hides the text of items that have an icon but keeps it as visually hidden text,
+  so it is still the button's accessible name; pair it with `Title` so sighted users get a tooltip.
+
+  ```razor
+  <GspChoiceGroup TItem="Mode" Items="Enum.GetValues<Mode>()" Text="m => m.ToString()" Label="Mode"
+                  ItemIcon="m => m == Mode.Live ? Icons.Material.Filled.Sensors : Icons.Material.Filled.Headphones"
+                  @bind-Value="_mode" />
+  ```
 - **`GspConfirmDialog`**: a yes/cancel question for a destructive action. Cancel comes first and has the focus (MudBlazor's
   own message box focuses the confirming button), Escape answers no. It needs the app's `MudDialogProvider`.
 
